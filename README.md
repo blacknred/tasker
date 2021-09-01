@@ -4,44 +4,19 @@ Microservice boilerplate for task manager app
 
 ## Architecture
 
-| Services        | Container       | Stack                    | Ports  |
-| --------------- | ----------------| ------------------------ | ------ |
-| Channel service | channel-service | TS, Nodejs, Koa, GraphQL | 3001   |
-| Xmpp service    | xmpp-service    | TS, NodeJs, WS           | 4000   |
-| File service    | file-service    | Python, Flask, REST      | 5000   |
-| Channel DB      | channel-db      | Postgres                 | 5432   |
-| Message DB      | message-db      | MongoDB                  | 27017  |
-| Redis           | redis           | Redis                    | 6379   |
-| Reverse proxy   | proxy           | Nginx                    | 80/443 |
+| Services           | Container       | Stack                    | Ports |
+| ------------------ | ----------------| ------------------------ | ----- |
+| User DB            | user-db         | Postgres                 | 5432  |
+| Task DB            | task-db         | MongoDB                  | 27017 |
+| Cache              | redis           | Redis                    | 6379  |
+| Message broker     | rabbitmq        | RabbitMQ                 | 5672  |
+| User service       | user-service    | TS, NestJS, TCP          | 4001  |
+| Task service       | task-service    | TS, NestJS, AMQP         | 4002  |
+| Email service      | email-service   | TS, NestJS, AMQP         | 4003  |
+| Auth service       | auth-service    | TS, NestJS, TCP          | 4004  |
+| Gateway, SwaggerUI | gateway         | TS, NestJS, REST         | 4000  |
+| Web client         | web             | TS, NextJS, ChakraUI     | 3000  |
 
-
- Storages
-        postgres
-        mongo
-        elasticsearch/kibana
-        redis
-        rabbitmq
-    Services
-        user service(postgres, nestjs, tcp)
-        task service(mongo, nestjs, rabbit)
-        mail service(nestjs, rabbit)
-        auth service(nestjs, redis)
-        permission service(nestjs, tcp)
-    Gateway(nestjs, swagger, http)(auth, task management)
-        user
-            getUserByToken
-            confirmUser
-            createUser
-            loginUser
-            logoutUser
-        task
-            getTasks
-            createTask
-            updateTask
-            deleteTask
-    Client(nextjs)
-
-    
 ## Run the project
 
 ### Setup
@@ -52,52 +27,28 @@ Microservice boilerplate for task manager app
 
 ### Build and Run the App
 
-1. Set the Environment variable
-
-   ```sh
-   export NODE_ENV=development
-   ```
+1. Set the Environment variable in .env.test
 
 1. Fire up the Containers
 
    Build the images:
 
    ```sh
-   docker-compose build
+   docker-compose -f docker-compose.test.yml build
    ```
 
    Run the containers:
 
    ```sh
-   docker-compose up -d
-   ```
-
-1. Database
-
-   To access, get the container id from `docker ps` and then open `psql`:
-
-   ```sh
-   docker exec -ti <container-id> psql -U postgres
+   docker-compose -f docker-compose.test.yml up -d
    ```
 
 ### Production
 
-1. Set the Environment variables one by one or in .env:
-
-   ```sh
-   export SECRET=your_secret
-   export NGINX_HOST=your_app_host
-   export SSL_EMAIL=your_lets_encript_email
-   export REDIS_PASSWORD=your_redis_password
-   export POSTGRES_USER=your_postgresql_user
-   export POSTGRES_PASSWORD=your_postresql_password
-   export MONGODB_USER=your_mongodb_user
-   export MONGODB_PASSWORD=your_mongodb_password
-   export SMTP_URL=your_smtp_url_like_smtps://username:password@smtp.gmail.com:465/
-   ```
+1. Set the Environment variables in .env
 
 1. Run the containers:
 
    ```sh
-   docker-compose -f docker-compose.prod.yml up -d
+   docker-compose up -d
    ```

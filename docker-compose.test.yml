@@ -84,7 +84,7 @@ services:
       - "./user-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=development
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - SECRET=${SECRET}
       - DATABASE_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     restart: always
@@ -109,7 +109,7 @@ services:
       - "./task-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=development
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - SECRET=${SECRET}
       - DATABASE_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     ports:
@@ -131,7 +131,7 @@ services:
       - "./mail-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=development
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - SECRET=${SECRET}
       - SMTP_URL=${SMTP_URL:-smtp://test@test:587/?pool=true}
     ports:
       - "4003:3000"
@@ -150,7 +150,7 @@ services:
       - "./auth-service/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=development
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - SECRET=${SECRET}
     ports:
       - "4004:3000"
     depends_on:
@@ -170,7 +170,7 @@ services:
       - "./gateway/package.json:/usr/src/package.json"
     environment:
       - NODE_ENV=development
-      - SECRET=\x02\xf3\xf7r\t\x9f\xee\xbbu\xb1\xe1\x90\xfe
+      - SECRET=${SECRET}
     depends_on:
       - user-service
       - task-service
