@@ -27,20 +27,13 @@ Microservice boilerplate for task manager app
 
 ### Build and Run the App
 
-1. Set the Environment variable in .env.test
+1. Set the Environment variables in .env.test
 
 1. Fire up the Containers
 
-   Build the images:
-
    ```sh
-   docker-compose -f docker-compose.test.yml build
-   ```
-
-   Run the containers:
-
-   ```sh
-   docker-compose -f docker-compose.test.yml up -d
+   make test:check
+   make test
    ```
 
 ### Production
@@ -50,5 +43,6 @@ Microservice boilerplate for task manager app
 1. Run the containers:
 
    ```sh
-   docker-compose up -d
+   make prod:buid
+   make prod
    ```
