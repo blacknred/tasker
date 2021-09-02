@@ -27,7 +27,7 @@ Microservice boilerplate for task manager app
 
 ### Build and Run the App
 
-1. Set the Environment variables in .env.test
+1. Set the Environment variables in .env.dev
 
 1. Fire up the Containers
 

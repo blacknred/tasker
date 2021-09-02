@@ -10,11 +10,11 @@ prod: ##
 network: ##
 	docker network create infrastructure
 
-test: ##
-	docker-compose -f docker-compose.test.yml up $(c)
+dev: ##
+	docker-compose -f docker-compose.dev.yml up $(c)
 
-test-check: ##
-	docker-compose -f docker-compose.test.yml config $(c)
+dev-check: ##
+	docker-compose -f docker-compose.dev.yml config $(c)
 
-test-stop: ##
-	docker-compose -f docker-compose.test.yml stop $(c)
+dev-stop: ##
+	docker-compose -f docker-compose.dev.yml stop $(c)

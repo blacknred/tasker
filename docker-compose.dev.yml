@@ -1,12 +1,12 @@
-version: "3.3"
+version: "3.7"
 
 services:
   redis:
     container_name: redis
     build: ./redis
-    env_file: ./.env.test
+    env_file: ./.env.dev
     volumes:
-      - "./redis/data:/data"
+      - "./redis/db-data:/data"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     restart: always
@@ -20,9 +20,9 @@ services:
   rabbitmq:
     container_name: rabbitmq
     build: ./rabbitmq
-    env_file: ./.env.test
+    env_file: ./.env.dev
     volumes:
-      - "./rabbitmq/data:/var/lib/rabbitmq"
+      - "./rabbitmq/db-data:/var/lib/rabbitmq"
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
@@ -38,9 +38,9 @@ services:
   user-db:
     container_name: user-db
     build: ./user-db
-    env_file: ./.env.test
+    env_file: ./.env.dev
     volumes:
-      - "./user-db/data:/var/lib/postgresql/data"
+      - "./user-db/db-data:/var/lib/postgresql/data"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-test}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
@@ -56,10 +56,10 @@ services:
   task-db:
     container_name: task-db
     build: ./task-db
-    env_file: ./.env.test
+    env_file: ./.env.dev
     volumes:
-      - "./task-db/data:/data/db"
-      - "./task-db/init/:/docker-entrypoint-initdb.d/"
+      - "./task-db/db-data:/data/db"
+      - "./task-db/init:/docker-entrypoint-initdb.d/"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-root}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-root}
@@ -77,11 +77,14 @@ services:
   user-service:
     container_name: user-service
     hostname: user-service
-    build: ./user-service
-    env_file: ./.env.test
+    build:
+      context: ./user-service
+      target: development
+    env_file:
+      - ".env.dev"
     volumes:
       - "./user-service:/usr/src/app"
-      - "./user-service/package.json:/usr/src/package.json"
+      - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
@@ -89,6 +92,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     ports:
       - "4001:3000"
+    command: yarn start:dev
     networks:
       - backend
     depends_on:
@@ -101,11 +105,14 @@ services:
   task-service:
     container_name: task-service
     hostname: task-service
-    build: ./task-service
-    env_file: ./.env.test
+    build:
+      context: ./task-service
+      target: development
+    env_file:
+      - ".env.dev"
     volumes:
       - "./task-service:/usr/src/app"
-      - "./task-service/package.json:/usr/src/package.json"
+      - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
@@ -113,6 +120,7 @@ services:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     ports:
       - "4002:3000"
+    command: yarn start:dev
     depends_on:
       - task-db
       - rabbitmq
@@ -124,7 +132,7 @@ services:
   #   container_name: mail-service
   #   hostname: mail-service
   #   build: ./mail-service
-  #   env_file: ./.env.test
+  #   env_file: ./.env.dev
   #   volumes:
   #     - "./mail-service:/usr/src/app"
   #     - "./mail-service/package.json:/usr/src/package.json"
@@ -143,7 +151,7 @@ services:
   #   container_name: auth-service
   #   hostname: auth-service
   #   build: ./auth-service
-  #   env_file: ./.env.test
+  #   env_file: ./.env.dev
   #   volumes:
   #     - "./auth-service:/usr/src/app"
   #     - "./auth-service/package.json:/usr/src/package.json"
@@ -162,14 +170,18 @@ services:
   gateway:
     container_name: gateway
     hostname: gateway
-    build: ./gateway
-    env_file: ./.env.test
+    build:
+      context: ./gateway
+      target: development
+    env_file:
+      - ".env.dev"
     volumes:
       - "./gateway:/usr/src/app"
-      - "./gateway/package.json:/usr/src/package.json"
+      - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
+    command: yarn start:debug
     depends_on:
       - user-service
       - task-service
@@ -180,6 +192,7 @@ services:
     restart: always
     ports:
       - "4000:3000"
+      - "9229:9229"
     networks:
       - backend
       - frontend
@@ -187,9 +200,17 @@ services:
   web:
     container_name: web
     hostname: web
-    build: ./web
+    build:
+      context: ./web
+      target: development
+    volumes:
+      - ./web:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
     ports:
       - "3000:3000"
+    environment:
+      - GATEWAY_HOST=localhost:4000
     networks:
       - frontend
 
