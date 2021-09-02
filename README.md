@@ -32,6 +32,7 @@ Microservice boilerplate for task manager app
 1. Fire up the Containers
 
    ```sh
+   make network
    make test:check
    make test
    ```
@@ -43,6 +44,7 @@ Microservice boilerplate for task manager app
 1. Run the containers:
 
    ```sh
+   make network
    make prod:buid
    make prod
    ```
