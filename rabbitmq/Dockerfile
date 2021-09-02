@@ -1,4 +1,7 @@
-FROM rabbitmq:3.8.22-alpine
+FROM rabbitmq:3.8.22-management-alpine
 
-# run init.sh
-ADD init.sh /docker-entrypoint-initdb.d
+ENV RABBITMQ_PID_FILE /var/lib/rabbitmq/mnesia/rabbitmq
+ADD init.sh /init.sh
+RUN chmod +x /init.sh
+
+CMD ["/init.sh"]

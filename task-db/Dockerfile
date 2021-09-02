@@ -3,5 +3,3 @@ FROM clutteredcode/mongo-alpine
 #deenoize/mongodb-backup-s3
 #requilence/mongodb-backup
 
-# run init.sh
-ADD init.sh /docker-entrypoint-initdb.d

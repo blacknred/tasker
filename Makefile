@@ -7,6 +7,9 @@ test-check: ##
 prod: ##
 	docker-compose -f docker-compose.yml up $(c)
 
+network: ##
+	docker network create infrastructure
+
 test: ##
 	docker-compose -f docker-compose.test.yml up $(c)
 

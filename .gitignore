@@ -20,7 +20,8 @@ coverage
 .env.*
 !.env.test
 
-*/*-data/
+# Storage data
+*/data/
 
 
 
