@@ -1,8 +1,8 @@
-# Tasker User Crud microservice
+# Tasker Worker microservice
 
 ## Stack
 
-TS, Nodejs, NestJs, TCP
+TS, Nodejs, NestJs, AMQP
 
 ## Running the app
 

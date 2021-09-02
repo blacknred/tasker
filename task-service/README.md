@@ -2,7 +2,7 @@
 
 ## Stack
 
-TS, Nodejs, NestJs, Tcp, RabbitMQ
+TS, Nodejs, NestJs, TCP
 
 ## Running the app
 

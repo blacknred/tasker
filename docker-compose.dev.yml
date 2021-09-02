@@ -77,6 +77,7 @@ services:
   user-service:
     container_name: user-service
     hostname: user-service
+    command: yarn start:dev
     build:
       context: ./user-service
       target: development
@@ -91,8 +92,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     ports:
-      - "4001:3000"
-    command: yarn start:dev
+      - "3001:3000"
     networks:
       - backend
     depends_on:
@@ -105,6 +105,7 @@ services:
   task-service:
     container_name: task-service
     hostname: task-service
+    command: yarn start:dev
     build:
       context: ./task-service
       target: development
@@ -117,59 +118,42 @@ services:
       - NODE_ENV=development
       - SECRET=${SECRET}
       - DATABASE_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     ports:
-      - "4002:3000"
-    command: yarn start:dev
+      - "3002:3000"
     depends_on:
       - task-db
-      - rabbitmq
+      - worker-service
     links:
       - task-db
+      - worker-service
+
+  worker-service:
+    container_name: worker-service
+    hostname: worker-service
+    command: yarn start:dev
+    build:
+      context: ./worker-service
+      target: development
+    env_file:
+      - ".env.dev"
+    volumes:
+      - "./worker-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment:
+      - NODE_ENV=development
+      - SECRET=${SECRET}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
+    ports:
+      - "3003:3000"
+    depends_on:
       - rabbitmq
-
-  # mail-service:
-  #   container_name: mail-service
-  #   hostname: mail-service
-  #   build: ./mail-service
-  #   env_file: ./.env.dev
-  #   volumes:
-  #     - "./mail-service:/usr/src/app"
-  #     - "./mail-service/package.json:/usr/src/package.json"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - SECRET=${SECRET}
-  #     - SMTP_URL=${SMTP_URL:-smtp://test@test:587/?pool=true}
-  #   ports:
-  #     - "4003:3000"
-  #   depends_on:
-  #     - rabbitmq
-  #   links:
-  #     - rabbitmq
-
-  # auth-service:
-  #   container_name: auth-service
-  #   hostname: auth-service
-  #   build: ./auth-service
-  #   env_file: ./.env.dev
-  #   volumes:
-  #     - "./auth-service:/usr/src/app"
-  #     - "./auth-service/package.json:/usr/src/package.json"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - SECRET=${SECRET}
-  #   ports:
-  #     - "4004:3000"
-  #   depends_on:
-  #     - redis
-  #     - user-service
-  #   links:
-  #     - redis
-  #     - user-service
+    links:
+      - rabbitmq
 
   gateway:
     container_name: gateway
     hostname: gateway
+    command: yarn start:debug
     build:
       context: ./gateway
       target: development
@@ -181,17 +165,15 @@ services:
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
-    command: yarn start:debug
     depends_on:
       - user-service
       - task-service
-      # - auth-service
     links:
       - user-service
       - task-service
     restart: always
     ports:
-      - "4000:3000"
+      - "8080:3000"
       - "9229:9229"
     networks:
       - backend
@@ -210,7 +192,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GATEWAY_HOST=localhost:4000
+      - GATEWAY_HOST=localhost:8080
     networks:
       - frontend
 
