@@ -89,7 +89,7 @@ services:
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
+      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     ports:
       - "3001:3000"
@@ -117,7 +117,8 @@ services:
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
-      - DATABASE_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
+      - DB_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     ports:
       - "3002:3000"
     depends_on:
@@ -143,9 +144,7 @@ services:
       - NODE_ENV=development
       - SECRET=${SECRET}
       - WORKERS_QNT=${WORKERS_QNT:-5}
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
-    ports:
-      - "3003:3000"
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     depends_on:
       - rabbitmq
     links:

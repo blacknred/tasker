@@ -1,10 +1,16 @@
+import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AppController } from './app.controller';
-import { Transport, ClientsModule } from '@nestjs/microservices';
-import { AppService } from './app.service';
-
+import { WorkerService } from './worker.service';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      validationSchema: Joi.object({
+        QUEUE_URL: Joi.string().required(),
+      }),
+    }),
     ClientsModule.register([
       {
         name: 'TASK_SERVICE',
@@ -17,6 +23,6 @@ import { AppService } from './app.service';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [WorkerService],
 })
 export class AppModule {}

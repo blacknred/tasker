@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
  
 @Module({
@@ -10,7 +10,7 @@ import path from 'path';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         entities: [path.join(__dirname, './*.entity.ts')],
-        url: configService.get('DATABASE_URL'),
+        url: configService.get('DB_URL'),
         type: 'postgres',
         logging: true,
         synchronize: true,
