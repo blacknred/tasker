@@ -142,6 +142,7 @@ services:
     environment:
       - NODE_ENV=development
       - SECRET=${SECRET}
+      - WORKERS_QNT=${WORKERS_QNT:-5}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
     ports:
       - "3003:3000"
