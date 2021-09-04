@@ -1,26 +1,25 @@
-import {Entity, ObjectID, ObjectIdColumn, Column} from "typeorm"; 
+import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
 
-@Entity() 
-export class Task {  
+@Entity()
+export class Task {
+  @ObjectIdColumn()
+  id: ObjectID;
 
-   @ObjectIdColumn() 
-   id: ObjectID; 
-   
-   @Column() 
-   Name: string; 
-   
-   @Column() 
-   Description: string;
+  @Column()
+  Name: string;
 
-   @Column() 
-   Type: string;
+  @Column()
+  Description: string;
 
-   @Column() 
-   Priority: string;
+  @Column()
+  Type: string;
 
-   @Column() 
-   CreatedAt: number;
+  @Column()
+  Priority: string;
 
-   @Column() 
-   FinishedAt?: number;
+  @Column()
+  CreatedAt: number;
+
+  @Column()
+  FinishedAt?: number;
 }

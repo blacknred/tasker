@@ -32,58 +32,6 @@ export class TasksController {
 
   @MessagePattern('removeTask')
   remove(@Payload() removeTaskDto : RemoveTaskDto) {
-    let result: ITaskDeleteResponse;
-
-    if (params && params.userId && params.id) {
-      try {
-        const task = await this.taskService.findTaskById(params.id);
-
-        if (task) {
-          if (task.user_id === params.userId) {
-            await this.taskService.removeTaskById(params.id);
-            result = {
-              status: HttpStatus.OK,
-              message: 'task_delete_by_id_success',
-              errors: null,
-            };
-          } else {
-            result = {
-              status: HttpStatus.FORBIDDEN,
-              message: 'task_delete_by_id_forbidden',
-              errors: null,
-            };
-          }
-        } else {
-          result = {
-            status: HttpStatus.NOT_FOUND,
-            message: 'task_delete_by_id_not_found',
-            errors: null,
-          };
-        }
-      } catch (e) {
-        result = {
-          status: HttpStatus.FORBIDDEN,
-          message: 'task_delete_by_id_forbidden',
-          errors: null,
-        };
-      }
-    } else {
-      result = {
-        status: HttpStatus.BAD_REQUEST,
-        message: 'task_delete_by_id_bad_request',
-        errors: null,
-      };
-    }
-
-    return result;
-
-
-
-    
-    return this.tasksService.remove(id);
+    return this.tasksService.remove(removeTaskDto);
   }
 }
-params: {
-  userId: string;
-  id: string;
-}): Promise<ITaskDeleteResponse> 
