@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { RmqOptions, Transport } from '@nestjs/microservices';
-import { AppModule } from './app.module';
+import { WorkersModule } from './workers/workers.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(WorkersModule);
   const configService = app.get(ConfigService);
 
   await app.connectMicroservice<RmqOptions>({
