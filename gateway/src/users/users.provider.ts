@@ -1,7 +1,8 @@
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { userService } from './consts';
 
 export const usersProvider = {
-  provide: 'USERS_SERVICE',
+  provide: userService,
   useFactory: () =>
     ClientProxyFactory.create({
       transport: Transport.TCP,

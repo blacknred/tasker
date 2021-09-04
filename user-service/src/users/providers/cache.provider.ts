@@ -1,8 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { cacheService } from '../consts';
 
 export const cacheProvider = {
-  provide: 'CACHE_SERVICE',
+  provide: cacheService,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) =>
     ClientProxyFactory.create({
