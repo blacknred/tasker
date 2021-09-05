@@ -1,7 +1,8 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
-import { taskRepository } from './consts';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { queueService, taskRepository } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
@@ -9,48 +10,137 @@ import { Task } from './entities/task.entity';
 @Injectable()
 export class TasksService {
   constructor(
-    @Inject(taskRepository)
-    private taskRepository: Repository<Task>,
+    @Inject(taskRepository) private taskRepository: Repository<Task>,
+    @Inject(queueService) private readonly queueService: ClientProxy,
   ) {}
-  
-  create(createTaskDto: CreateTaskDto) {
-    throw new RpcException('Invalid credentials.');
-    return 'This action adds a new task';
-  }
 
-  async findTasks(params) {
-    let result: ITaskSearchByUserResponse;
-
-    if (params) {
-      const tasks = await this.taskService.getTasksByUserId(userId);
-      return this.taskRepository.find(params).exec();
-      result = {
-        status: HttpStatus.OK,
-        message: 'task_search_by_user_id_success',
-        tasks,
-      };
-    } else {
-      throw new RpcException('Invalid credentials.');
-      result = {
+  async create(createTaskDto: CreateTaskDto) {
+    if (!createTaskDto) {
+      throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
-        message: 'task_search_by_user_id_bad_request',
-        tasks: null,
-      };
+      });
     }
 
-    return result;
-    return `This action returns all tasks`;
+    try {
+      const task = await this.taskRepository.insert(createTaskDto);
+      this.queueService.emit<any>('task', task);
+
+      return {
+        status: HttpStatus.CREATED,
+        data: task,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+        errors: [e.error],
+      });
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findAll(params: Partial<CreateTaskDto>) {
+    if (!params) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    const tasks = await this.taskRepository.find(params);
+
+    return {
+      status: HttpStatus.OK,
+      data: tasks,
+    };
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async findOne(id: string) {
+    if (!id) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    const task = await this.taskRepository.findOne(id);
+
+    if (!task) {
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+      });
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: task,
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
+    if (!id || !updateTaskDto) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    try {
+      const task = await this.taskRepository.findOne(id);
+
+      if (!task) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      if (task.userId !== updateTaskDto.userId) {
+        throw new RpcException({
+          status: HttpStatus.FORBIDDEN,
+        });
+      }
+
+      const updatedTask = Object.assign(task, updateTaskDto) as Task;
+      await this.taskRepository.save(updatedTask);
+
+      return {
+        status: HttpStatus.OK,
+        data: updatedTask,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+        errors: [e.error],
+      });
+    }
+  }
+
+  async remove(id: string, userId: number) {
+    if (!id || !userId) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+      });
+    }
+
+    try {
+      const task = await this.taskRepository.findOne(id);
+
+      if (!task) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+        });
+      }
+
+      if (task.userId !== userId) {
+        throw new RpcException({
+          status: HttpStatus.FORBIDDEN,
+        });
+      }
+
+      await this.taskRepository.delete(id);
+
+      return { status: HttpStatus.OK };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+        errors: [e.error],
+      });
+    }
   }
 }

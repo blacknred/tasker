@@ -25,9 +25,9 @@ export class WorkersService {
 
     this.workers.forEach((w, i) => {
       // the workerpool receives the result and resolves the task
-      w.on('message', ({ id }) => {
+      w.on('message', ({ id, result }) => {
         // call the resolver function for the task
-        this.resolvers.get(+id)(id);
+        this.resolvers.get(+id)(result);
         this.resolvers.delete(+id);
         // put the worker on the list of idle workers
         this.idle.push(i);
@@ -54,7 +54,7 @@ export class WorkersService {
       default:
     }
 
-    const fibonacci = (n) => (n < 2 ? n : fibonacci(n - 2) + fibonacci(n - 1));
+    const fibonacci = (n) => (n < 2 ? task : fibonacci(n - 2) + fibonacci(n - 1));
     return () => fibonacci(duration);
   }
 
@@ -66,6 +66,7 @@ export class WorkersService {
     const workerId = this.idle.shift();
     this.workers.get(workerId).postMessage({
       task: this.mockOperation(task).toString(),
+      data: task,
       id: task.id,
     });
 

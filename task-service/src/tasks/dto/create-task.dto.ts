@@ -1,12 +1,10 @@
-export type TaskType = 'LONG' | 'SHORT' | 'MEDIUM';
-
-export type TaskPriority = 'CRITICAL' | 'MAJOR' | 'MODERATE' | 'LOW';
+import { TaskType, TaskPriority } from '../entities/task.entity';
 export class CreateTaskDto {
   name: string;
   description: string;
   type: TaskType;
   userId: number;
   priority: TaskPriority;
-  createdAt: number;
-  finishedAt?: number;
+  createdAt: Date;
+  finishedAt?: Date;
 }

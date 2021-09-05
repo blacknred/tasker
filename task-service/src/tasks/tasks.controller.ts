@@ -1,38 +1,45 @@
-import { Controller, HttpStatus } from '@nestjs/common';
-import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { RemoveTaskDto } from './dto/remove-task.dto';
+import { ResponseDto } from './dto/response.dto';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @MessagePattern('getTasks')
-  findAll({ userId }): Promise<ITaskSearchByUserResponse> {
-    return this.tasksService.findTasks({ userId });
-  }
-
   @MessagePattern('createTask')
-  create(@Payload() createTaskDto: CreateTaskDto) {
+  create(
+    @Payload() createTaskDto: CreateTaskDto,
+  ): Promise<ResponseDto<UpdateTaskDto>> {
     return this.tasksService.create(createTaskDto);
   }
 
-  
+  @MessagePattern('getAllTasks')
+  findAll(
+    @Payload params: Partial<CreateTaskDto>,
+  ): Promise<ResponseDto<CreateTaskDto[]>> {
+    return this.tasksService.findAll(params);
+  }
 
-  @MessagePattern('findOneTask')
-  findOne(@Payload() id: number) {
+  @MessagePattern('getOneTask')
+  findOne(@Payload() id: string): Promise<ResponseDto<UpdateTaskDto>> {
     return this.tasksService.findOne(id);
   }
 
   @MessagePattern('updateTask')
-  update(@Payload() updateTaskDto: UpdateTaskDto) {
+  update(
+    @Payload() updateTaskDto: UpdateTaskDto,
+  ): Promise<ResponseDto<UpdateTaskDto>> {
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }
 
   @MessagePattern('removeTask')
-  remove(@Payload() removeTaskDto : RemoveTaskDto) {
-    return this.tasksService.remove(removeTaskDto);
+  remove(
+    @Payload() id: string,
+    @Payload() userId: number,
+  ): Promise<ResponseDto> {
+    return this.tasksService.remove(id, userId);
   }
 }

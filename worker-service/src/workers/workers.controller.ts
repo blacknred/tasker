@@ -21,8 +21,9 @@ export class WorkersController {
     await this.taskService.connect();
   }
 
-  notify(id: NewTaskDto['id']) {
-    this.taskService.send('task_done', id);
+  notify(task: NewTaskDto) {
+    task.finishedAt = Date.now();
+    this.taskService.send('updateTask', task);
   }
 
   @EventPattern('task')

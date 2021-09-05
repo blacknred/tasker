@@ -1,22 +1,27 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 500 })
+  @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column('text')
-  description: string;
+  @Column({ type: 'text', nullable: false, unique: true })
+  email: string;
 
-  @Column()
-  filename: string;
+  @Column({ nullable: false })
+  password: string;
 
-  @Column('int')
-  views: number;
+  @UpdateDateColumn()
+  createdAt = new Date();
 
-  @Column()
-  isPublished: boolean;
+  @UpdateDateColumn()
+  updatedAt = new Date();
 }
