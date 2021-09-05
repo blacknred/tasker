@@ -9,15 +9,17 @@ import { RemoveTaskDto } from './dto/remove-task.dto';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @MessagePattern('getTasks')
+  findAll({ userId }): Promise<ITaskSearchByUserResponse> {
+    return this.tasksService.findTasks({ userId });
+  }
+
   @MessagePattern('createTask')
   create(@Payload() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
   }
 
-  @MessagePattern('findAllTasks')
-  findAll() {
-    return this.tasksService.findAll();
-  }
+  
 
   @MessagePattern('findOneTask')
   findOne(@Payload() id: number) {
@@ -26,7 +28,6 @@ export class TasksController {
 
   @MessagePattern('updateTask')
   update(@Payload() updateTaskDto: UpdateTaskDto) {
-    throw new RpcException('Invalid credentials.');
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }
 

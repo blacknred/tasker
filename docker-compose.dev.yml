@@ -17,12 +17,12 @@ services:
     healthcheck:
       test: exit 0
 
-  rabbitmq:
-    container_name: rabbitmq
-    build: ./rabbitmq
+  queue:
+    container_name: queue
+    build: ./queue
     env_file: ./.env.dev
     volumes:
-      - "./rabbitmq/db-data:/var/lib/rabbitmq"
+      - "./queue/db-data:/var/lib/rabbitmq"
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
@@ -118,14 +118,16 @@ services:
       - NODE_ENV=development
       - SECRET=${SECRET}
       - DB_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
     ports:
       - "3002:3000"
     depends_on:
       - task-db
+      - queue
       - worker-service
     links:
       - task-db
+      - queue
       - worker-service
 
   worker-service:
@@ -144,11 +146,11 @@ services:
       - NODE_ENV=development
       - SECRET=${SECRET}
       - WORKERS_QNT=${WORKERS_QNT:-5}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@localhost:5672
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
     depends_on:
-      - rabbitmq
+      - queue
     links:
-      - rabbitmq
+      - queue
 
   gateway:
     container_name: gateway
@@ -192,7 +194,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GATEWAY_HOST=localhost:8080
+      - API_HOST=localhost:8080
     networks:
       - frontend
 

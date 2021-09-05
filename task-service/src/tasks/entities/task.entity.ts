@@ -12,6 +12,9 @@ export class Task {
   Description: string;
 
   @Column()
+  UserId: string;
+
+  @Column()
   Type: string;
 
   @Column()

@@ -1,6 +1,6 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { createConnection } from 'typeorm';
 import path from 'path';
+import { createConnection } from 'typeorm';
 import { databaseConnection } from '../consts';
 
 export const databaseProvider = {

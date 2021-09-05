@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Repository } from 'typeorm';
 import { taskRepository } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -13,10 +14,31 @@ export class TasksService {
   ) {}
   
   create(createTaskDto: CreateTaskDto) {
+    throw new RpcException('Invalid credentials.');
     return 'This action adds a new task';
   }
 
-  findAll() {
+  async findTasks(params) {
+    let result: ITaskSearchByUserResponse;
+
+    if (params) {
+      const tasks = await this.taskService.getTasksByUserId(userId);
+      return this.taskRepository.find(params).exec();
+      result = {
+        status: HttpStatus.OK,
+        message: 'task_search_by_user_id_success',
+        tasks,
+      };
+    } else {
+      throw new RpcException('Invalid credentials.');
+      result = {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'task_search_by_user_id_bad_request',
+        tasks: null,
+      };
+    }
+
+    return result;
     return `This action returns all tasks`;
   }
 
