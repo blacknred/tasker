@@ -44,7 +44,7 @@ export class UsersService {
 
       return {
         status: HttpStatus.CREATED,
-        data: user,
+        data: user.raw,
       };
     } catch (e) {
       throw new RpcException({

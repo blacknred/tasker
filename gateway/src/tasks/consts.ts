@@ -1,1 +1,1 @@
-export const taskService = 'TASK_SERVICE'
+export const taskService = 'TASK_SERVICE';

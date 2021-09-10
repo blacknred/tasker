@@ -12,14 +12,14 @@ export class UsersController {
   @MessagePattern('createUser')
   create(
     @Payload() createUserDto: CreateUserDto,
-  ): Promise<ResponseDto<UpdateUserDto>> {
+  ): Promise<ResponseDto<CreateUserDto>> {
     return this.usersService.create(createUserDto);
   }
 
   @MessagePattern('getAllUsers')
   findAll(
-    @Payload params: Partial<CreateUserDto>,
-  ): Promise<ResponseDto<CreateUserDto[]>> {
+    @Payload() params: Partial<CreateUserDto>,
+  ): Promise<ResponseDto<UpdateUserDto[]>> {
     return this.usersService.findAll(params);
   }
 

@@ -9,33 +9,33 @@ import { ResponseDto } from './dto/response.dto';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @MessagePattern('createTask')
+  @MessagePattern('create')
   create(
     @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<ResponseDto<UpdateTaskDto>> {
+  ): Promise<ResponseDto<CreateTaskDto>> {
     return this.tasksService.create(createTaskDto);
   }
 
-  @MessagePattern('getAllTasks')
+  @MessagePattern('getAll')
   findAll(
-    @Payload params: Partial<CreateTaskDto>,
-  ): Promise<ResponseDto<CreateTaskDto[]>> {
+    @Payload() params: Partial<CreateTaskDto>,
+  ): Promise<ResponseDto<UpdateTaskDto[]>> {
     return this.tasksService.findAll(params);
   }
 
-  @MessagePattern('getOneTask')
+  @MessagePattern('getOne')
   findOne(@Payload() id: string): Promise<ResponseDto<UpdateTaskDto>> {
     return this.tasksService.findOne(id);
   }
 
-  @MessagePattern('updateTask')
+  @MessagePattern('update')
   update(
     @Payload() updateTaskDto: UpdateTaskDto,
   ): Promise<ResponseDto<UpdateTaskDto>> {
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }
 
-  @MessagePattern('removeTask')
+  @MessagePattern('remove')
   remove(
     @Payload() id: string,
     @Payload() userId: number,

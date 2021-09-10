@@ -4,7 +4,7 @@ import {
   Ctx,
   EventPattern,
   Payload,
-  RmqContext
+  RmqContext,
 } from '@nestjs/microservices';
 import { taskService } from './consts';
 import { NewTaskDto } from './dto/new-task.dto';

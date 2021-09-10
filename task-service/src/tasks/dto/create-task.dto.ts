@@ -5,6 +5,4 @@ export class CreateTaskDto {
   type: TaskType;
   userId: number;
   priority: TaskPriority;
-  createdAt: Date;
-  finishedAt?: Date;
 }

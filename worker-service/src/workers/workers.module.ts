@@ -14,6 +14,6 @@ import { WorkersService } from './workers.service';
     }),
   ],
   controllers: [WorkersController],
-  providers: [WorkersService, tasksProvider]
+  providers: [WorkersService, tasksProvider],
 })
 export class WorkersModule {}

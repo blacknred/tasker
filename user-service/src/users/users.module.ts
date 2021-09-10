@@ -2,7 +2,6 @@ import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { databaseProvider } from './providers/database.provider';
-import { cacheProvider } from './providers/cache.provider';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -16,7 +15,7 @@ import { UsersService } from './users.service';
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService, cacheProvider, databaseProvider],
+  providers: [UsersService, databaseProvider],
   exports: [databaseProvider],
 })
 export class UsersModule {}

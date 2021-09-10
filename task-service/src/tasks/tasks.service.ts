@@ -1,6 +1,6 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { Repository } from 'typeorm';
+import { ObjectID, Repository } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { queueService, taskRepository } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -27,7 +27,7 @@ export class TasksService {
 
       return {
         status: HttpStatus.CREATED,
-        data: task,
+        data: task.raw,
       };
     } catch (e) {
       throw new RpcException({
@@ -74,7 +74,7 @@ export class TasksService {
     };
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: ObjectID, updateTaskDto: UpdateTaskDto) {
     if (!id || !updateTaskDto) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
