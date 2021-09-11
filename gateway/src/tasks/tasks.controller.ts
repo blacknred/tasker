@@ -26,11 +26,11 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  @SetMetadata('secured', true)
+  @SetMetadata('auth', true)
   @ApiCreatedResponse({
     type: TaskResponseDto,
   })
-  public async create(
+  async create(
     @Req() { user }: IAuthRequest,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
@@ -38,7 +38,7 @@ export class TasksController {
   }
 
   @Get()
-  @SetMetadata('secured', true)
+  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TasksResponseDto,
   })
@@ -50,7 +50,7 @@ export class TasksController {
   }
 
   @Get(':id')
-  @SetMetadata('secured', true)
+  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TaskResponseDto,
   })
@@ -62,7 +62,7 @@ export class TasksController {
   }
 
   @Patch(':id')
-  @SetMetadata('secured', true)
+  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TaskResponseDto,
   })
@@ -75,11 +75,11 @@ export class TasksController {
   }
 
   @Delete(':id')
-  @SetMetadata('secured', true)
+  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: EmptyResponseDto,
   })
-  remove(
+  async remove(
     @Req() { user }: IAuthRequest,
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {

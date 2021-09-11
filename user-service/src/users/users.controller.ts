@@ -9,33 +9,33 @@ import { ResponseDto } from './dto/response.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @MessagePattern('createUser')
+  @MessagePattern('create')
   create(
     @Payload() createUserDto: CreateUserDto,
   ): Promise<ResponseDto<CreateUserDto>> {
     return this.usersService.create(createUserDto);
   }
 
-  @MessagePattern('getAllUsers')
+  @MessagePattern('getAll')
   findAll(
     @Payload() params: Partial<CreateUserDto>,
   ): Promise<ResponseDto<UpdateUserDto[]>> {
     return this.usersService.findAll(params);
   }
 
-  @MessagePattern('getOneUser')
+  @MessagePattern('getOne')
   findOne(@Payload() id: number): Promise<ResponseDto<UpdateUserDto>> {
     return this.usersService.findOne(id);
   }
 
-  @MessagePattern('updateUser')
+  @MessagePattern('update')
   update(
     @Payload() updateUserDto: UpdateUserDto,
   ): Promise<ResponseDto<UpdateUserDto>> {
     return this.usersService.update(updateUserDto.id, updateUserDto);
   }
 
-  @MessagePattern('removeUser')
+  @MessagePattern('remove')
   remove(@Payload() id: number): Promise<ResponseDto> {
     return this.usersService.remove(id);
   }

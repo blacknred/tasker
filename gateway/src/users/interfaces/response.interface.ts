@@ -4,6 +4,7 @@ export type ResponseError = {
   field: string;
   message: string;
 };
+
 export class IResponse<T = unknown> {
   status: HttpStatus;
   errors?: ResponseError[];
