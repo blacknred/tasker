@@ -33,7 +33,25 @@ export class UsersService {
     };
   }
 
-  async login(loginUserDto: LoginUserDto) {
+  findAll() {
+    return `This action returns all users`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} user`;
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
+  }
+
+  //
+
+  async createAuth(loginUserDto: LoginUserDto) {
     const { data, errors, status }: IResponse<IUser[]> = await firstValueFrom(
       this.userService.send('getAll', loginUserDto),
     );
@@ -56,26 +74,12 @@ export class UsersService {
     };
   }
 
-  logout(userId: number) {
+  async findAuth() {}
+
+  removeAuth(userId: number) {
     return {
       data: null,
       errors: null,
-    }
-  }
-
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    };
   }
 }

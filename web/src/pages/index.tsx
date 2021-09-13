@@ -3,16 +3,16 @@ import NextLink from 'next/link'
 import React from 'react'
 import Layout from '../components/Layout'
 import Meta from '../components/Meta'
-import useUser from '../hooks/useAuth'
+import useAuth from '../hooks/useAuth'
 
 export function Index() {
   // const bg = useColorModeValue("gray.900", "gray.50")
   const color = useColorModeValue('gray.300', 'gray.600')
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <Layout>
-      <Meta />
+      <Meta title="Tasker" />
       <Square size="70%" flexDirection="column" mr="6">
         <Center mt="100">
           <Heading color={color} fontSize="xx-large">Tasker</Heading>

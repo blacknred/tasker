@@ -7,7 +7,6 @@ import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { IResponse } from './interfaces/response.interface';
 import { ITask } from './interfaces/task.interface';
-
 @Injectable()
 export class TasksService {
   constructor(@Inject(taskService) private readonly taskService: ClientProxy) {}

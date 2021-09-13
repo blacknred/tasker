@@ -20,7 +20,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { IAuthRequest } from './interfaces/auth-request.interface';
 import { TasksService } from './tasks.service';
 
-@Controller('tasks')
+@Controller('v1/tasks')
 @ApiTags('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}

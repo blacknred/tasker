@@ -1,30 +1,26 @@
 import router from "next/router";
 import { useEffect } from "react";
-import useUser from "../hooks/useAuth";
-import useSWR from 'swr'
-import { Square, Flex } from "@chakra-ui/layout";
+import useAuth from "../hooks/useAuth";
+import useSWR from 'swr';
 import Meta from '../components/Meta'
 import Layout from '../components/Layout'
 import TaskList from '../components/TaskList'
 
 export default function Dashboard() {
-  const { user, loggedOut } = useUser();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (user && !loggedOut) router.replace("/");
-  }, [user, loggedOut]);
+    if (!user) router.replace("/");
+  }, [user]);
+  
   const { data, error } = useSWR("api/tasks/getAll");
 
   if (error) return <>An error has occurred.</>;
   if (!data) return <>Loading...</>;
   return (
     <Layout>
-      <Meta />
-      <Flex>
-        <Square>
-
-        </Square>
-      </Flex>
+      <Meta title="dashboard" />
+      <TaskOptions />
       <TaskList items={data} />
     </Layout>
   );

@@ -1,21 +1,18 @@
-import { ArrowForwardIcon, ExternalLinkIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, IconButton, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import router from 'next/router';
 import { FC } from 'react';
-import {
-  useLogoutMutation,
-  useMeQuery
-} from '../../typings';
+import { logout } from '../../auth';
+import useAuth from '../../hooks/useAuth';
 
 interface IProps {
   variant?: 'lg' | 'sm',
 }
 
 const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
+  const { user } = useAuth();
   const { colorMode, toggleColorMode } = useColorMode()
-  const [{ data }] = useMeQuery();
-  const [{ fetching }, logout] = useLogoutMutation();
+
   const width = variant === 'lg' ? 1050 : 400;
   const bg = useColorModeValue("gray.900", "gray.50")
   const color = useColorModeValue('gray.300', 'gray.600')
@@ -23,43 +20,29 @@ const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
   return (
     <Box bgColor={bg} minH="100vh" pt={variant === 'sm' ? '50' : 0}>
       <Flex py={4} justifyContent="space-between" maxW={width} m="auto">
-        <NextLink href="/"><Heading color={color} cursor="pointer" fontSize="xx-large">Pikaru</Heading></NextLink>
+        <NextLink href="/">
+          <Heading color={color} cursor="pointer" fontSize="xx-large">Tasker</Heading>
+        </NextLink>
         {variant === 'lg' && (
           <Box>
-            {data?.me ? (
+            {user && (
               <>
-                <Button variant="link" color={color} size="md">{data?.me?.username}</Button>
+                <Button variant="link" color={color} size="md">{user?.username}</Button>
                 <IconButton
                   ml={4}
-                  aria-label="Logout"
                   size="sm"
                   fontSize="lg"
-                  isLoading={fetching}
-                  onClick={() => logout()}
+                  onClick={logout}
+                  aria-label="Logout"
                   icon={<ExternalLinkIcon />}
                 />
-              </>
-            ) : (
-              <>
-                <NextLink href="/register">
-                  <Button variant="link" color={color} size="md" mr={2}>Join now</Button>
-                </NextLink>
-                <NextLink href="/login">
-                  <IconButton
-                    ml={4}
-                    aria-label="Logout"
-                    size="sm"
-                    fontSize="lg"
-                    icon={<ArrowForwardIcon />}
-                  />
-                </NextLink>
               </>
             )}
             <IconButton
               ml={4}
-              aria-label="Call Sage"
               size="sm"
               fontSize="lg"
+              aria-label="Call Sage"
               onClick={toggleColorMode}
               icon={colorMode === 'light' ? <SunIcon /> : <MoonIcon />}
             />

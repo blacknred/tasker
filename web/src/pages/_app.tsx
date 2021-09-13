@@ -3,16 +3,15 @@ import type { AppProps } from 'next/app';
 import { SWRConfig } from 'swr';
 import '../styles/globals.css';
 import theme from '../theme';
-import { localStorageProvider } from '../utils';
+import { fetcher, localStorageProvider } from '../utils';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const toast = useToast();
 
   return (
     <SWRConfig value={{
-      // refreshInterval: 3000,
+      fetcher,
       provider: localStorageProvider,
-      fetcher: (res, init) => fetch(res, init).then(res => res.json()),
       onLoadingSlow: () => {
         toast({
           title: "Slow network.",

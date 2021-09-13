@@ -1,38 +1,25 @@
 import { Box, Button, Flex } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
-import React, { FC } from 'react';
+import React from 'react';
+import auth from '../auth';
 import InputField from '../components/InputField';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
-import { useRegisterMutation } from '../typings';
-import urqlClient from '../urql';
 import { errorMap } from '../utils';
 
-interface IProps { }
-
-const Register: FC<IProps> = ({ }) => {
-  const [, register] = useRegisterMutation();
-  const router = useRouter();
-
+function Register() {
   return (
     <Layout variant="sm">
       <Meta title="Registration" />
       <Formik
         initialValues={{ username: "", email: "", password: "" }}
         onSubmit={(values, actions) => {
-          register(values)
+          auth.register(values)
             .then(res => {
-              if (res.data?.register.errors) {
-                actions.setErrors(errorMap(res.data.register.errors));
-              } else {
-                router.push('/')
-              }
-            })
-            .catch(e => console.log(e.message))
-            .finally(() => actions.setSubmitting(false));
+              actions.setErrors(errorMap(res.errors));
+              actions.setSubmitting(false)
+            });
         }}
       >
         {({ isSubmitting }) => (
@@ -64,4 +51,4 @@ const Register: FC<IProps> = ({ }) => {
   );
 }
 
-export default withUrqlClient(urqlClient)(Register)
+export default Register

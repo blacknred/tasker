@@ -19,7 +19,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { IAuthRequest } from './interfaces/auth-request.interface';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 
-@Controller('users')
+@Controller('v1/users')
 @ApiTags('tasks')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -28,38 +28,51 @@ export class UsersController {
   @ApiCreatedResponse({
     type: UserResponseDto,
   })
-  async createUser(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UserResponseDto> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
   }
 
-  @Post('/login')
-  @ApiCreatedResponse({
-    type: LoginResponseDto,
-  })
-  async loginUser(
-    @Body() loginUserDto: LoginUserDto,
-  ): Promise<LoginResponseDto> {
-    return this.usersService.login(loginUserDto);
-  }
-
-  @Post('/logout')
+  @Patch(':id')
   @SetMetadata('auth', true)
   @ApiCreatedResponse({
-    type: EmptyResponseDto,
+    type: UserResponseDto,
   })
-  logoutUser(@Req() { user }: IAuthRequest): EmptyResponseDto {
-    return this.usersService.logout(user.id);
-  }
-
-  @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
+  @SetMetadata('auth', true)
+  @ApiCreatedResponse({
+    type: EmptyResponseDto,
+  })
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  //
+
+  @Post('/auth')
+  @ApiCreatedResponse({
+    type: LoginResponseDto,
+  })
+  async createAuth(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<LoginResponseDto> {
+    return this.usersService.createAuth(loginUserDto);
+  }
+
+  @Get('/auth')
+  async getAuth(@Body() loginUserDto: LoginUserDto): Promise<LoginResponseDto> {
+    return this.usersService.findAuth(loginUserDto);
+  }
+
+  @Delete('/auth')
+  @SetMetadata('auth', true)
+  @ApiCreatedResponse({
+    type: EmptyResponseDto,
+  })
+  removeAuth(@Req() { user }: IAuthRequest): EmptyResponseDto {
+    return this.usersService.removeAuth(user.id);
   }
 }
