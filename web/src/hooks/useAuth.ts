@@ -1,7 +1,9 @@
 import useSWR from "swr";
 
+const ENDPOINT = "api/v1/users/auth";
+
 export default function useAuth() {
-  const { data, mutate, error } = useSWR("api/v1/users/auth", null, {
+  const { data, mutate, error } = useSWR(ENDPOINT, null, {
     refreshInterval: 10000,
   });
 
