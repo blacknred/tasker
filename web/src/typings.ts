@@ -1,14 +1,14 @@
 export enum TaskType {
-  LONG = 'LONG',
-  SHORT = 'SHORT',
-  MEDIUM = 'MEDIUM',
+  LONG = "LONG",
+  SHORT = "SHORT",
+  MEDIUM = "MEDIUM",
 }
 
 export enum TaskPriority {
-  CRITICAL = 'CRITICAL',
-  MAJOR = 'MAJOR',
-  MODERATE = 'MODERATE',
-  LOW = 'LOW',
+  CRITICAL = "CRITICAL",
+  MAJOR = "MAJOR",
+  MODERATE = "MODERATE",
+  LOW = "LOW",
 }
 
 export interface ITask {
@@ -23,5 +23,6 @@ export interface ITask {
 }
 
 export interface ListOptions {
-  variant: 'list' | 'grid'
+  variant: "list" | "grid";
 }
+Ъ;

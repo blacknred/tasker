@@ -38,6 +38,7 @@ const TaskList: React.FC<IProps> = ({ items }) => {
               <Th>Priority</Th>
               <Th isNumeric>Created</Th>
               <Th isNumeric>Finished</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>{content}</Tbody>

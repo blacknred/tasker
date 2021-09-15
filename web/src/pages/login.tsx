@@ -1,24 +1,29 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { useRouter } from 'next/router';
 import React from 'react';
-import auth from '../auth';
+import api from '../api';
 import InputField from '../components/InputField';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
-import { errorMap } from '../utils';
 
 function Login() {
+  const router = useRouter();
+
   return (
     <Layout variant="sm">
       <Meta title="Login" />
       <Formik
         initialValues={{ usernameOrEmail: "", password: "" }}
         onSubmit={(values, actions) => {
-          auth.login(values)
-            .then(res => {
-              actions.setErrors(errorMap(res.errors));
+          api.login(values, (err) => {
+            if (err) {
+              actions.setErrors(err);
               actions.setSubmitting(false)
-            });
+            } else {
+              router.push("/dashboard")
+            }
+          });
         }}
       >
         {({ isSubmitting }) => (

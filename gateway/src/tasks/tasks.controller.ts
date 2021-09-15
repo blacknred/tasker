@@ -54,7 +54,7 @@ export class TasksController {
   @ApiOkResponse({
     type: TaskResponseDto,
   })
-  async findOne(
+  async getOne(
     @Req() { user }: IAuthRequest,
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {

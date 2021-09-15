@@ -1,8 +1,9 @@
 import { ExternalLinkIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, IconButton, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 import { FC } from 'react';
-import { logout } from '../../auth';
+import { logout } from '../../api';
 import useAuth from '../../hooks/useAuth';
 
 interface IProps {
@@ -11,6 +12,7 @@ interface IProps {
 
 const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
   const { user } = useAuth();
+  const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode()
 
   const width = variant === 'lg' ? 1050 : 400;
@@ -32,9 +34,11 @@ const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
                   ml={4}
                   size="sm"
                   fontSize="lg"
-                  onClick={logout}
                   aria-label="Logout"
                   icon={<ExternalLinkIcon />}
+                  onClick={() => logout(() => {
+                    router.replace("/");
+                  })}
                 />
               </>
             )}
