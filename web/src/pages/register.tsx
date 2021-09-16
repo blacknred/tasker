@@ -8,7 +8,6 @@ import InputField from '../components/InputField';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
 
-fn()
 function Register() {
   const router = useRouter();
   

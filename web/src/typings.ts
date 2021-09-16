@@ -25,4 +25,3 @@ export interface ITask {
 export interface ListOptions {
   variant: "list" | "grid";
 }
-Ъ;

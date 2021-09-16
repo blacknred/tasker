@@ -1,10 +1,10 @@
-import { EditIcon } from '@chakra-ui/icons';
 import {
-  Box, Flex, Heading, IconButton, Td, Text, Tr, useColorModeValue, VStack
+  Box, Flex, Heading, Td, Text, Tr, useColorModeValue, VStack
 } from '@chakra-ui/react';
 import { FC } from 'react';
 import { ITask, ListOptions } from '../../../typings';
 import { getRandBgColor, timeSince } from '../../../utils';
+import EditTaskModal from '../../TaskModal';
 
 interface IProps {
   data: ITask,
@@ -12,7 +12,7 @@ interface IProps {
 }
 
 const Item: FC<IProps> = ({ data, variant }) => {
-  const bg = useColorModeValue('gray.800', 'white')
+  // const bg = useColorModeValue('gray.800', 'white')
   const color = useColorModeValue('gray.300', 'blackAlpha')
   const saturation = useColorModeValue(500, 200)
 
@@ -25,14 +25,7 @@ const Item: FC<IProps> = ({ data, variant }) => {
           <Flex px="7" py="5" alignItems="center">
             <Text fontSize="xs" color={color}>{timeSince(data.createdAt)}</Text>
             <Text fontSize="xs" color={color}>{data.finishedAt ? timeSince(data.finishedAt) : 'In process'}</Text>
-            <IconButton
-              ml={4}
-              size="sm"
-              fontSize="md"
-              // onClick={logout}
-              aria-label="Edit"
-              icon={<EditIcon />}
-            />
+            <EditTaskModal data={data} />
           </Flex>
         </VStack>
       </Box>
@@ -47,16 +40,7 @@ const Item: FC<IProps> = ({ data, variant }) => {
       <Td>{data.priority}</Td>
       <Td isNumeric>{timeSince(data.createdAt)}</Td>
       <Td isNumeric>{data.finishedAt ? timeSince(data.finishedAt) : 'In process'}</Td>
-      <Td>
-        <IconButton
-          ml={4}
-          size="sm"
-          fontSize="md"
-          // onClick={logout}
-          aria-label="Edit"
-          icon={<EditIcon />}
-        />
-      </Td>
+      <Td><EditTaskModal data={data} /></Td>
     </Tr>
   )
 }

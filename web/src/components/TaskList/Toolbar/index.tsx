@@ -1,8 +1,8 @@
-import { Box, Flex, Select, useColorModeValue, useDisclosure } from '@chakra-ui/react';
+import { Box, Flex, Select, useColorModeValue } from '@chakra-ui/react';
 import React, { Dispatch, FC, LegacyRef, SetStateAction, useRef } from 'react';
 import useOnViewport from '../../../hooks/useOnViewport';
 import { ListOptions } from '../../../typings';
-import TaskModal from '../../TaskModal';
+import NewTaskModal from '../../TaskModal';
 
 interface IProps {
   onChange: Dispatch<SetStateAction<ListOptions>>
@@ -11,7 +11,6 @@ interface IProps {
 const Toolbar: FC<IProps> = ({ onChange: update }) => {
   const fixedRef = useRef<HTMLDivElement>(null);
   const bg = useColorModeValue('gray.800', 'white')
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [ref] = useOnViewport((isVisible) => {
     if (!fixedRef.current) return;
@@ -34,7 +33,7 @@ const Toolbar: FC<IProps> = ({ onChange: update }) => {
         </Box>
 
         <Box bg={bg} p="4">
-          <TaskModal />
+          <NewTaskModal />
         </Box>
       </Flex>
 

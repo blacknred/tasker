@@ -1,18 +1,16 @@
-import { PlusSquareIcon } from '@chakra-ui/icons';
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, useDisclosure, VStack } from '@chakra-ui/react';
-import { Form, Formik } from 'formik';
+import { Button, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Select, VStack } from '@chakra-ui/react';
+import { Form, Formik, FormikErrors } from 'formik';
 import { FC } from "react";
-import api from '../../api';
-import { ITask, TaskPriority, TaskType } from '../../typings';
-import InputField from '../InputField';
+import api from '../../../api';
+import { ITask, TaskPriority, TaskType } from '../../../typings';
+import InputField from '../../InputField';
 
 interface IProps {
-  data?: ITask
+  data?: ITask;
+  onSaved: () => void;
 }
 
-const TaskForm: FC<IProps> = ({ data }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
+const TaskForm: FC<IProps> = ({ data, onSaved }) => {
   return (
     <Formik
       initialValues={{
@@ -23,12 +21,12 @@ const TaskForm: FC<IProps> = ({ data }) => {
       }}
       onSubmit={(values, actions) => {
         const fn = data ? api.updateTask : api.createTask;
-        fn(values, data?.id, (err) => {
+        fn(values, data?.id, (err: FormikErrors<typeof data>) => {
           if (err) {
             actions.setErrors(err);
             actions.setSubmitting(false)
           } else {
-            onClose()
+            onSaved()
           }
         });
       }}
@@ -61,8 +59,8 @@ const TaskForm: FC<IProps> = ({ data }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} isLoading={isSubmitting} type="submit">Create</Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button colorScheme="blue" mr={3} isLoading={isSubmitting} type="submit">Save</Button>
+            <Button onClick={onSaved}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       )}

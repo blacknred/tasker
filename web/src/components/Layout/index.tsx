@@ -36,9 +36,7 @@ const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
                   fontSize="lg"
                   aria-label="Logout"
                   icon={<ExternalLinkIcon />}
-                  onClick={() => logout(() => {
-                    router.replace("/");
-                  })}
+                  onClick={() => logout(() => router.replace("/"))}
                 />
               </>
             )}

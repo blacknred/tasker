@@ -1,5 +1,5 @@
-import { PlusSquareIcon } from '@chakra-ui/icons';
-import { Button, Modal, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { PlusSquareIcon, EditIcon } from '@chakra-ui/icons';
+import { Button, Modal, IconButton, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { FC } from "react";
 import { ITask } from '../../typings';
 import TaskForm from './TaskForm';
@@ -13,16 +13,27 @@ const TaskModal: FC<IProps> = ({ data }) => {
 
   return (
     <>
-      <Button
-        onClick={onOpen}
-        leftIcon={<PlusSquareIcon />}
-        colorScheme="teal"
-        variant="outline"
-        size="lg"
-        mr={8}
-      >
-        Create a task
-      </Button>
+      {data ? (
+        <IconButton
+          ml={4}
+          size="sm"
+          fontSize="md"
+          onClick={onOpen}
+          aria-label="Edit"
+          icon={<EditIcon />}
+        />
+      ) : (
+        <Button
+          onClick={onOpen}
+          leftIcon={<PlusSquareIcon />}
+          colorScheme="teal"
+          variant="outline"
+          size="lg"
+          mr={8}
+        >
+          Create a task
+        </Button>
+      )}
 
       <Modal
         isCentered
@@ -31,8 +42,8 @@ const TaskModal: FC<IProps> = ({ data }) => {
         scrollBehavior={'outside'}
       >
         <ModalOverlay />
-        
-        <TaskForm data={data} />
+
+        <TaskForm data={data} onSaved={onClose} />
       </Modal>
     </>
   )
