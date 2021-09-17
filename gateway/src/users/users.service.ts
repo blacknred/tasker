@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { userService } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserDto } from './dto/create-auth';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IResponse } from './interfaces/response.interface';
 import { IUser } from './interfaces/user.interface';
@@ -47,39 +47,5 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
-  }
-
-  //
-
-  async createAuth(loginUserDto: LoginUserDto) {
-    const { data, errors, status }: IResponse<IUser[]> = await firstValueFrom(
-      this.userService.send('getAll', loginUserDto),
-    );
-
-    if (status !== HttpStatus.OK) {
-      throw new HttpException(
-        {
-          data: null,
-          errors,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    return {
-      data: {
-        token: data.token,
-      },
-      errors: null,
-    };
-  }
-
-  async findAuth() {}
-
-  removeAuth(userId: number) {
-    return {
-      data: null,
-      errors: null,
-    };
   }
 }

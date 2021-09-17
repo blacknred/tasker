@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseError } from '../interfaces/response.interface';
 
-export class LoginResponseDto {
+export class AuthResponseDto {
   @ApiProperty({
     example: { token: 'token' },
     nullable: true,

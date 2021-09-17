@@ -14,4 +14,8 @@ export class CreateUserDto {
     example: 'password',
   })
   password: string;
+  @ApiProperty({
+    example: 'user',
+  })
+  role: 'user';
 }

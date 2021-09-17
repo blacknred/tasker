@@ -1,23 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  SetMetadata,
-  Req,
+  Body, Controller, Delete, Param, Patch, Post, SetMetadata
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { UserResponseDto } from './dto/user-response.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { LoginResponseDto } from './dto/login-response.dto';
-import { IAuthRequest } from './interfaces/auth-request.interface';
+import { CreateUserDto } from './dto/create-user.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
+import { UsersService } from './users.service';
 
 @Controller('v1/users')
 @ApiTags('tasks')
@@ -48,31 +37,5 @@ export class UsersController {
   })
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
-  }
-
-  //
-
-  @Post('/auth')
-  @ApiCreatedResponse({
-    type: LoginResponseDto,
-  })
-  async createAuth(
-    @Body() loginUserDto: LoginUserDto,
-  ): Promise<LoginResponseDto> {
-    return this.usersService.createAuth(loginUserDto);
-  }
-
-  @Get('/auth')
-  async getAuth(@Body() loginUserDto: LoginUserDto): Promise<LoginResponseDto> {
-    return this.usersService.findAuth(loginUserDto);
-  }
-
-  @Delete('/auth')
-  @SetMetadata('auth', true)
-  @ApiCreatedResponse({
-    type: EmptyResponseDto,
-  })
-  removeAuth(@Req() { user }: IAuthRequest): EmptyResponseDto {
-    return this.usersService.removeAuth(user.id);
   }
 }

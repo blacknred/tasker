@@ -6,6 +6,7 @@ export const userExample = {
   id: 1,
   name: 'username',
   email: 'test@test.com',
+  role: 'user',
   createdAt: +new Date(),
   updatedAt: +new Date(),
 };
