@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseDto } from './dto/response.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -18,7 +19,7 @@ export class UsersController {
 
   @MessagePattern('getAll')
   findAll(
-    @Payload() params: Partial<CreateUserDto>,
+    @Payload() params: GetUsersDto,
   ): Promise<ResponseDto<UpdateUserDto[]>> {
     return this.usersService.findAll(params);
   }
@@ -35,7 +36,7 @@ export class UsersController {
     return this.usersService.update(updateUserDto.id, updateUserDto);
   }
 
-  @MessagePattern('remove')
+  @MessagePattern('delete')
   remove(@Payload() id: number): Promise<ResponseDto> {
     return this.usersService.remove(id);
   }

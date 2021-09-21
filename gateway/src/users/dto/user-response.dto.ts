@@ -13,10 +13,7 @@ export const userExample = {
 
 export class UserResponseDto {
   @ApiProperty({ example: { user: userExample }, nullable: true })
-  data: {
-    user: IUser;
-    token: string;
-  };
+  data?: IUser;
   @ApiProperty({ example: null, nullable: true })
-  errors: ResponseError[];
+  errors?: ResponseError[];
 }

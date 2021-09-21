@@ -4,6 +4,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ResponseDto } from './dto/response.dto';
+import { GetTasksDto } from './dto/get-tasks.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -18,7 +19,7 @@ export class TasksController {
 
   @MessagePattern('getAll')
   findAll(
-    @Payload() params: Partial<CreateTaskDto>,
+    @Payload() params: GetTasksDto,
   ): Promise<ResponseDto<UpdateTaskDto[]>> {
     return this.tasksService.findAll(params);
   }
@@ -35,7 +36,7 @@ export class TasksController {
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }
 
-  @MessagePattern('remove')
+  @MessagePattern('delete')
   remove(
     @Payload() id: string,
     @Payload() userId: number,

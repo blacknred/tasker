@@ -41,6 +41,7 @@ export class UsersService {
 
       createUserDto.password = await crypt.hash(createUserDto.password);
       const user = await this.userRepository.insert(createUserDto);
+      user.raw.password = undefined;
 
       return {
         status: HttpStatus.CREATED,
@@ -61,13 +62,16 @@ export class UsersService {
       });
     }
 
-    if (params.password) {
-      params.password = await crypt.hash(params.password);
-    }
+    const { password: paramPassword, ...rest } = params;
+    const rawUsers = await this.userRepository.find(rest);
 
-    const rawuUsers = await this.userRepository.find(params);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const users = rawuUsers.map(({ password, ...rest }) => rest);
+    const users = rawUsers.reduce((all, { password, ...rest }) => {
+      if (!paramPassword || crypt.compareSync(paramPassword, password)) {
+        return all.concat(rest);
+      }
+      return all;
+    }, []);
 
     return {
       status: HttpStatus.OK,

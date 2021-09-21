@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskPriority, TaskType } from '../interfaces/task.interface';
+import { TaskPriority, TaskType, ITask } from '../interfaces/task.interface';
 
-export class CreateTaskDto {
+export class CreateTaskDto
+  implements Omit<ITask, 'id' | 'userId' | 'createdAt'>
+{
   @ApiProperty({ example: 'first task', nullable: false })
   name: string;
   @ApiProperty({ example: 'first task description', nullable: false })

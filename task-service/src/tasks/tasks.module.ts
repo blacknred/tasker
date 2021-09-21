@@ -1,11 +1,11 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { databaseProvider } from './providers/database.provider';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { queueProvider } from './providers/queue.provider';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
-
+import { Task } from './entities/task.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,9 +14,20 @@ import { TasksService } from './tasks.service';
         DB_URL: Joi.string().required(),
       }),
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        entities: [Task],
+        url: configService.get('DB_URL'),
+        type: 'mongodb',
+        logging: true,
+        synchronize: true,
+      }),
+    }),
+    TypeOrmModule.forFeature([Task]),
   ],
   controllers: [TasksController],
-  providers: [TasksService, queueProvider, databaseProvider],
-  exports: [databaseProvider],
+  providers: [TasksService, queueProvider],
 })
 export class TasksModule {}

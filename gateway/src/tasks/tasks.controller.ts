@@ -7,9 +7,10 @@ import {
   Patch,
   Post,
   Req,
-  SetMetadata,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { LoggedInGuard } from 'src/auth/guards/logged-in.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -25,8 +26,8 @@ import { TasksService } from './tasks.service';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @UseGuards(LoggedInGuard)
   @Post()
-  @SetMetadata('auth', true)
   @ApiCreatedResponse({
     type: TaskResponseDto,
   })
@@ -37,8 +38,8 @@ export class TasksController {
     return this.tasksService.create(user.id, createTaskDto);
   }
 
+  @UseGuards(LoggedInGuard)
   @Get()
-  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TasksResponseDto,
   })
@@ -49,8 +50,8 @@ export class TasksController {
     return this.tasksService.findAll(params, user.id);
   }
 
+  @UseGuards(LoggedInGuard)
   @Get(':id')
-  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TaskResponseDto,
   })
@@ -61,8 +62,8 @@ export class TasksController {
     return this.tasksService.findOne(id, user.id);
   }
 
+  @UseGuards(LoggedInGuard)
   @Patch(':id')
-  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: TaskResponseDto,
   })
@@ -74,8 +75,8 @@ export class TasksController {
     return this.tasksService.update(id, user.id, updateTaskDto);
   }
 
+  @UseGuards(LoggedInGuard)
   @Delete(':id')
-  @SetMetadata('auth', true)
   @ApiOkResponse({
     type: EmptyResponseDto,
   })

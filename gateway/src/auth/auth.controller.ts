@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Post, Req } from '@nestjs/common';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateAuthDto } from './dto/create-auth';
+import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 import { IAuthRequest } from './interfaces/auth-request.interface';
 

@@ -5,5 +5,5 @@ export class EmptyResponseDto {
   @ApiProperty({ example: null, nullable: true, type: null })
   data: null;
   @ApiProperty({ example: null, nullable: true })
-  errors: ResponseError[];
+  errors?: ResponseError[];
 }

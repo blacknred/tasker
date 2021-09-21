@@ -32,7 +32,7 @@ Microservice boilerplate for task manager app
 
    ```sh
    make network
-   make test:check
+   make test-check
    make test
    ```
 
@@ -44,6 +44,6 @@ Microservice boilerplate for task manager app
 
    ```sh
    make network
-   make prod:buid
+   make prod-build
    make prod
    ```

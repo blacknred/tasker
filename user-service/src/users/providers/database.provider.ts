@@ -9,7 +9,7 @@ export const databaseProvider = {
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) =>
     createConnection({
-      entities: [path.join(__dirname, './*.entity.ts')],
+      entities: [path.join(__dirname, '../entities/*.entity.ts')],
       url: configService.get('DB_URL'),
       type: 'postgres',
       logging: true,

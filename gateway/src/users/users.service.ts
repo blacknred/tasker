@@ -3,7 +3,6 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { userService } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/create-auth';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IResponse } from './interfaces/response.interface';
 import { IUser } from './interfaces/user.interface';
@@ -18,34 +17,45 @@ export class UsersService {
     );
 
     if (status !== HttpStatus.CREATED) {
-      throw new HttpException(
-        {
-          data: null,
-          errors,
-        },
-        status,
-      );
+      throw new HttpException({ errors }, status);
     }
 
-    return {
-      data,
-      errors: null,
-    };
+    return { data };
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findOne(id: number) {
+    const { data, errors, status }: IResponse<IUser> = await firstValueFrom(
+      this.userService.send('getOne', id),
+    );
+
+    if (status !== HttpStatus.OK) {
+      throw new HttpException({ errors }, status);
+    }
+
+    return { data };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { data, errors, status }: IResponse<IUser> = await firstValueFrom(
+      this.userService.send('update', { id, ...updateUserDto }),
+    );
+
+    if (status !== HttpStatus.OK) {
+      throw new HttpException({ errors }, status);
+    }
+
+    return { data };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async remove(id: number) {
+    const { data, errors, status }: IResponse<null> = await firstValueFrom(
+      this.userService.send('remove', id),
+    );
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    if (status !== HttpStatus.OK) {
+      throw new HttpException({ errors }, status);
+    }
+
+    return { data };
   }
 }
