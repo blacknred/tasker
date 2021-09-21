@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TaskPriority, TaskType, ITask } from '../interfaces/task.interface';
 
 export class CreateTaskDto
-  implements Omit<ITask, 'id' | 'userId' | 'createdAt'>
+  implements Pick<ITask, 'name' | 'description' | 'type' | 'priority'>
 {
   @ApiProperty({ example: 'first task', nullable: false })
   name: string;

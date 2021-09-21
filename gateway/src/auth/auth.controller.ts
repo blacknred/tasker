@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
-import { IAuthRequest } from './interfaces/auth-request.interface';
+import { IAuthRequest } from './interfaces/authed-request.interface';
 
 @Controller('v1/auth')
 @ApiTags('auth')

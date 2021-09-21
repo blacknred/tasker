@@ -1,18 +1,20 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import crypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { userRepository } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject(userRepository)
-    private userRepository: Repository<User>,
+    private readonly configService: ConfigService,
+    @Inject(userRepository) private userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -39,7 +41,8 @@ export class UsersService {
         });
       }
 
-      createUserDto.password = await crypt.hash(createUserDto.password);
+      const salt = this.configService.get('SECRET');
+      createUserDto.password = await crypt.hash(createUserDto.password, salt);
       const user = await this.userRepository.insert(createUserDto);
       user.raw.password = undefined;
 
@@ -55,14 +58,14 @@ export class UsersService {
     }
   }
 
-  async findAll(params: Partial<CreateUserDto>) {
-    if (!params) {
+  async findAll(getUsersDto: GetUsersDto) {
+    if (!getUsersDto) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
       });
     }
 
-    const { password: paramPassword, ...rest } = params;
+    const { password: paramPassword, ...rest } = getUsersDto;
     const rawUsers = await this.userRepository.find(rest);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -140,9 +143,7 @@ export class UsersService {
     }
 
     try {
-      const user = await this.userRepository.findOne(id);
-
-      if (!user) {
+      if (!(await this.userRepository.findOne(id))) {
         throw new RpcException({
           status: HttpStatus.NOT_FOUND,
         });

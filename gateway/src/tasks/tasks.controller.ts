@@ -9,8 +9,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { LoggedInGuard } from 'src/auth/guards/logged-in.guard';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthedGuard } from 'src/auth/guards/authed.guard';
+import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -18,72 +24,67 @@ import { GetTasksDto } from './dto/get-tasks.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { TasksResponseDto } from './dto/tasks-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { IAuthRequest } from './interfaces/auth-request.interface';
 import { TasksService } from './tasks.service';
 
-@Controller('v1/tasks')
+@Controller('tasks')
 @ApiTags('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @UseGuards(LoggedInGuard)
   @Post()
-  @ApiCreatedResponse({
-    type: TaskResponseDto,
-  })
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Create new task entity' })
+  @ApiCreatedResponse({ type: TaskResponseDto })
   async create(
-    @Req() { user }: IAuthRequest,
+    @Req() { user: { id: userId } }: IAuthedRequest,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.tasksService.create(user.id, createTaskDto);
+    return this.tasksService.feed('create', { ...createTaskDto, userId });
   }
 
-  @UseGuards(LoggedInGuard)
   @Get()
-  @ApiOkResponse({
-    type: TasksResponseDto,
-  })
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Create new task entity' })
+  @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
-    @Req() { user }: IAuthRequest,
+    @Req() { user: { id: userId } }: IAuthedRequest,
     @Param() params: GetTasksDto,
   ): Promise<TasksResponseDto> {
-    return this.tasksService.findAll(params, user.id);
+    return this.tasksService.feed('getAll', { ...params, userId });
   }
 
-  @UseGuards(LoggedInGuard)
   @Get(':id')
+  @UseGuards(AuthedGuard)
   @ApiOkResponse({
     type: TaskResponseDto,
   })
   async getOne(
-    @Req() { user }: IAuthRequest,
+    @Req() { user }: IAuthedRequest,
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
     return this.tasksService.findOne(id, user.id);
   }
 
-  @UseGuards(LoggedInGuard)
   @Patch(':id')
-  @ApiOkResponse({
-    type: TaskResponseDto,
-  })
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Update authorized user task entity' })
+  @ApiOkResponse({ type: TaskResponseDto })
   async update(
-    @Req() { user }: IAuthRequest,
+    @Req() { user: { id: userId } }: IAuthedRequest,
     @Param() { id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.tasksService.update(id, user.id, updateTaskDto);
+    return this.tasksService.feed('update', { ...updateTaskDto, id, userId });
   }
 
-  @UseGuards(LoggedInGuard)
   @Delete(':id')
-  @ApiOkResponse({
-    type: EmptyResponseDto,
-  })
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Delete authorized user task entity' })
+  @ApiOkResponse({ type: EmptyResponseDto })
   async remove(
-    @Req() { user }: IAuthRequest,
+    @Req() { user: { id: userId } }: IAuthedRequest,
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
-    return this.tasksService.remove(id, user.id);
+    return this.tasksService.feed('delete', { id, userId });
   }
 }

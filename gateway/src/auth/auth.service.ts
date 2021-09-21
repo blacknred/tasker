@@ -25,7 +25,7 @@ export class AuthService {
           data: null,
           errors,
         },
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED, // HttpStatus.FORBIDDEN
       );
     }
 

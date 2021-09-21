@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseError } from '../interfaces/response.interface';
 import { ITask } from '../interfaces/task.interface';
+import { BaseResponseDto } from './empty-response.dto';
 import { taskExample } from './task-response.dto';
 
-export class TasksResponseDto {
+export class TasksResponseDto extends BaseResponseDto {
   @ApiProperty({ example: [taskExample], nullable: true })
   data: ITask[];
-  @ApiProperty({ example: null, nullable: true })
-  errors: ResponseError[];
 }

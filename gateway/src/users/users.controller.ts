@@ -3,59 +3,78 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Patch,
   Post,
-  Session,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { LoggedInGuard } from 'src/auth/guards/logged-in.guard';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { AuthedGuard } from 'src/auth/guards/authed.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
+import { GetTaskDto } from 'src/tasks/dto/get-task.dto';
+import { GetTasksDto } from 'src/tasks/dto/get-tasks.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { UsersResponseDto } from './dto/users-response.dto';
+import { Role } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
-@Controller('v1/users')
+@Controller('users')
 @ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @ApiCreatedResponse({
-    type: UserResponseDto,
-  })
+  @ApiOperation({ summary: 'Create new user entity' })
+  @ApiCreatedResponse({ type: UserResponseDto })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.usersService.create(createUserDto);
+    return this.usersService.feed('create', createUserDto);
   }
 
-  @UseGuards(LoggedInGuard)
   @Get()
-  @ApiCreatedResponse({
-    type: UserResponseDto,
-  })
-  getOne(@Session() { id }: { id: number }) {
-    return this.usersService.findOne(+id);
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'List all users' })
+  @ApiOkResponse({ type: UsersResponseDto })
+  async getAll(@Param() params: GetTasksDto): Promise<UsersResponseDto> {
+    return this.usersService.feed('getAll', params);
   }
 
-  @UseGuards(LoggedInGuard)
+  @Get(':id')
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiOperation({ summary: 'Get user by id' })
+  @ApiOkResponse({ type: UserResponseDto })
+  async getOne(@Param() { id }: GetTaskDto): Promise<UserResponseDto> {
+    return this.usersService.feed('getOne', +id);
+  }
+
   @Patch()
-  @ApiCreatedResponse({
-    type: UserResponseDto,
-  })
-  update(
-    @Session() { id }: { id: number },
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Update authorized user entity' })
+  @ApiOkResponse({ type: UserResponseDto })
+  async update(
+    @Req() { user: { id } }: IAuthedRequest,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(+id, updateUserDto);
+  ): Promise<UserResponseDto> {
+    return this.usersService.feed('update', { id, ...updateUserDto });
   }
 
-  @UseGuards(LoggedInGuard)
   @Delete()
-  @ApiCreatedResponse({
-    type: EmptyResponseDto,
-  })
-  remove(@Session() { id }: { id: number }) {
-    return this.usersService.remove(+id);
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Delete authorized user entity' })
+  @ApiOkResponse({ type: EmptyResponseDto })
+  async remove(@Req() { user }: IAuthedRequest): Promise<EmptyResponseDto> {
+    return this.usersService.feed('delete', +user.id);
   }
 }

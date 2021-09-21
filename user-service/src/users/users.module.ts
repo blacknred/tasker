@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
       validationSchema: Joi.object({
         DB_URL: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
+        SECRET: Joi.string().required(),
       }),
     }),
   ],

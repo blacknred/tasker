@@ -19,9 +19,9 @@ export class UsersController {
 
   @MessagePattern('getAll')
   findAll(
-    @Payload() params: GetUsersDto,
+    @Payload() getUsersDto: GetUsersDto,
   ): Promise<ResponseDto<UpdateUserDto[]>> {
-    return this.usersService.findAll(params);
+    return this.usersService.findAll(getUsersDto);
   }
 
   @MessagePattern('getOne')

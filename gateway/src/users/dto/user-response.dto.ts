@@ -1,19 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseError } from '../interfaces/response.interface';
-import { IUser } from '../interfaces/user.interface';
+import { IUser, Role } from '../interfaces/user.interface';
+import { BaseResponseDto } from './empty-response.dto';
 
 export const userExample = {
   id: 1,
   name: 'username',
   email: 'test@test.com',
-  role: 'user',
+  roles: [Role.USER],
   createdAt: +new Date(),
   updatedAt: +new Date(),
 };
 
-export class UserResponseDto {
-  @ApiProperty({ example: { user: userExample }, nullable: true })
+export class UserResponseDto extends BaseResponseDto {
+  @ApiProperty({ example: userExample, nullable: true })
   data?: IUser;
-  @ApiProperty({ example: null, nullable: true })
-  errors?: ResponseError[];
 }

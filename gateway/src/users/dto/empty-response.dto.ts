@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseError } from '../interfaces/response.interface';
 
-export class EmptyResponseDto {
-  @ApiProperty({ example: null, nullable: true, type: null })
-  data?: null;
+export class BaseResponseDto {
   @ApiProperty({ example: null, nullable: true })
   errors?: ResponseError[];
+}
+
+export class EmptyResponseDto extends BaseResponseDto {
+  @ApiProperty({ example: null, nullable: true, type: null })
+  data: null;
 }

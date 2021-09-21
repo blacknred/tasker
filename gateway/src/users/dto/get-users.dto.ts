@@ -1,7 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateTaskDto } from './create-task.dto';
+import { CreateUserDto } from './create-user.dto';
 
-export class GetTasksDto extends PartialType(CreateTaskDto) {
+export class GetUsersDto extends PartialType(CreateUserDto) {
   @ApiProperty({
     required: false,
     example: 20,

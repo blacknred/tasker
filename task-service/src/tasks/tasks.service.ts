@@ -4,6 +4,7 @@ import { ObjectID, Repository } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { queueService, taskRepository } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 
@@ -37,14 +38,14 @@ export class TasksService {
     }
   }
 
-  async findAll(params: Partial<CreateTaskDto>) {
-    if (!params) {
+  async findAll(getTasksDto: GetTasksDto) {
+    if (!getTasksDto) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
       });
     }
 
-    const tasks = await this.taskRepository.find(params);
+    const tasks = await this.taskRepository.find(getTasksDto);
 
     return {
       status: HttpStatus.OK,
@@ -111,7 +112,7 @@ export class TasksService {
     }
   }
 
-  async remove(id: string, userId: number) {
+  async remove(id: ObjectID, userId: number) {
     if (!id || !userId) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,

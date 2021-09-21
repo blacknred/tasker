@@ -10,6 +10,7 @@ export enum TaskPriority {
   MODERATE = 'MODERATE',
   LOW = 'LOW',
 }
+
 export interface ITask {
   id: string;
   name: string;

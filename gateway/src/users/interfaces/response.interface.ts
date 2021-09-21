@@ -5,7 +5,7 @@ export type ResponseError = {
   message: string;
 };
 
-export class IResponse<T = unknown> {
+export class IResponse<T = null> {
   status: HttpStatus;
   errors?: ResponseError[];
   data?: T;

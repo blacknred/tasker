@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-export class CreateUserDto {
+import { IUser } from '../interfaces/user.interface';
+export class CreateUserDto implements Pick<IUser, 'name' | 'email'> {
   @ApiProperty({
     example: 'username',
   })
@@ -14,8 +15,4 @@ export class CreateUserDto {
     example: 'password',
   })
   password: string;
-  @ApiProperty({
-    example: 'user',
-  })
-  role: 'user';
 }

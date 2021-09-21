@@ -6,7 +6,7 @@ export interface IUser {
   id: number;
   name: string;
   email: string;
-  role: Role;
+  roles: [Role];
   createdAt: number;
   updatedAt: number;
 }
