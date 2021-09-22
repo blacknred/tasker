@@ -53,7 +53,7 @@ export class TasksService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: ObjectID, userId: number) {
     if (!id) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
@@ -66,6 +66,12 @@ export class TasksService {
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         data: null,
+      });
+    }
+
+    if (userId != null && task.userId !== userId) {
+      throw new RpcException({
+        status: HttpStatus.FORBIDDEN,
       });
     }
 

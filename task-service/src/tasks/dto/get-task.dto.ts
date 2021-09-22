@@ -1,6 +1,6 @@
 import { ObjectID } from 'typeorm';
 
-export class DeleteTaskDto {
+export class GetTaskDto {
   id: ObjectID;
-  userId: number;
+  userId?: number;
 }

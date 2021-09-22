@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
+import { Role } from 'src/users/interfaces/user.interface';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { EmptyResponseDto } from './dto/empty-response.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -44,25 +45,28 @@ export class TasksController {
 
   @Get()
   @UseGuards(AuthedGuard)
-  @ApiOperation({ summary: 'Create new task entity' })
+  @ApiOperation({ summary: 'List tasks' })
   @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
-    @Req() { user: { id: userId } }: IAuthedRequest,
+    @Req() { user: { id: userId, roles } }: IAuthedRequest,
     @Param() params: GetTasksDto,
   ): Promise<TasksResponseDto> {
-    return this.tasksService.feed('getAll', { ...params, userId });
+    const payload = { ...params, userId };
+    if (roles.includes(Role.ADMIN)) delete payload.userId;
+    return this.tasksService.feed('getAll', payload);
   }
 
   @Get(':id')
   @UseGuards(AuthedGuard)
-  @ApiOkResponse({
-    type: TaskResponseDto,
-  })
+  @ApiOperation({ summary: 'Get task by id' })
+  @ApiOkResponse({ type: TaskResponseDto })
   async getOne(
-    @Req() { user }: IAuthedRequest,
+    @Req() { user: { id: userId, roles } }: IAuthedRequest,
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, user.id);
+    const payload = { id, userId };
+    if (roles.includes(Role.ADMIN)) delete payload.userId;
+    return this.tasksService.feed('findOne', payload);
   }
 
   @Patch(':id')

@@ -44,7 +44,7 @@ export class UsersController {
   @Get()
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'List all users' })
+  @ApiOperation({ summary: 'List all tasks' })
   @ApiOkResponse({ type: UsersResponseDto })
   async getAll(@Param() params: GetTasksDto): Promise<UsersResponseDto> {
     return this.usersService.feed('getAll', params);

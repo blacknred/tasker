@@ -1,44 +1,53 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AuthService } from '../auth.service';
-import { PassportSerializer } from '@nestjs/passport';
-
-import { UsersService } from '../../users/users.service';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
+import { UsersService } from 'src/users/users.service';
 import { IUser } from '../../users/interfaces/user.interface';
+import { IAuthData } from '../interfaces/authed-request.interface';
 
 // LocalAuthGuard.logIn(req) => LocalStrategy.validate() => SessionSerialiser.serializeUser()
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+  constructor(private readonly userService: UsersService) {
     super({ usernameField: 'email' });
   }
 
   async validate(email: string, password: string) {
-    return this.authService.create({ email, password });
+    try {
+      const payload = { email, password };
+      const user = await this.userService.feed<UserResponseDto>(
+        'findAll',
+        payload,
+      );
+      if (!user) throw new Error();
+      return user;
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
   }
 }
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
-  constructor(private readonly usersService: UsersService) {
-    super();
-  }
+  // constructor(private readonly usersService: UsersService) {
+  //   super();
+  // }
 
   serializeUser(
-    user: IUser,
-    done: (err: Error, user: { id: number; role: string }) => void,
+    { id, roles }: IUser,
+    done: (err: Error, user: IAuthData) => void,
   ) {
-    done(null, { id: user.id, role: user.role });
+    done(null, { id, roles });
   }
 
   deserializeUser(
-    payload: { id: number; role: string },
-    done: (err: Error, user: Omit<IUser, 'password'>) => void,
+    payload: IAuthData,
+    done: (err: Error, user: IAuthData) => void,
   ) {
-    const user = this.usersService.findOne(payload.id);
-    done(null, user);
+    // const user = this.usersService.findOne(payload.id);
+    done(null, payload);
   }
 }
 

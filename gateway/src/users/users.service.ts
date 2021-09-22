@@ -8,7 +8,7 @@ import { IResponse } from './interfaces/response.interface';
 export class UsersService {
   constructor(@Inject(userService) private readonly userService: ClientProxy) {}
 
-  async feed<T>(pattern, args) {
+  async feed<T>(pattern: string, args: Record<string, unknown>) {
     const { data, errors, status }: IResponse<T> = await firstValueFrom(
       this.userService.send(pattern, args),
     );
