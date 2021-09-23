@@ -3,8 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import crypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { userRepository } from './consts';
+import * as consts from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,7 +13,7 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     private readonly configService: ConfigService,
-    @Inject(userRepository) private userRepository: Repository<User>,
+    @Inject(consts.userRepository) private userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {

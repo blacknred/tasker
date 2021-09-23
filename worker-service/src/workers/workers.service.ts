@@ -6,7 +6,7 @@ import { NewTaskDto } from './dto/new-task.dto';
 @Injectable()
 export class WorkersService {
   private workers: Map<number, Worker>;
-  private resolvers = new Map<number, (data: any) => void>();
+  private resolvers = new Map<string, (data: any) => void>();
   private idle: number[];
 
   constructor() {
@@ -27,8 +27,8 @@ export class WorkersService {
       // the workerpool receives the result and resolves the task
       w.on('message', ({ id, result }) => {
         // call the resolver function for the task
-        this.resolvers.get(+id)(result);
-        this.resolvers.delete(+id);
+        this.resolvers.get(id)(result);
+        this.resolvers.delete(id);
         // put the worker on the list of idle workers
         this.idle.push(i);
       });
@@ -54,7 +54,8 @@ export class WorkersService {
       default:
     }
 
-    const fibonacci = (n) => (n < 2 ? task : fibonacci(n - 2) + fibonacci(n - 1));
+    const fibonacci = (n) =>
+      n < 2 ? task : fibonacci(n - 2) + fibonacci(n - 1);
     return () => fibonacci(duration);
   }
 

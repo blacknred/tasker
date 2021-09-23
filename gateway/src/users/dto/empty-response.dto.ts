@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseError } from '../interfaces/response.interface';
+import { ValidationError } from '../interfaces/response.interface';
 
 export class BaseResponseDto {
   @ApiProperty({ example: null, nullable: true })
-  errors?: ResponseError[];
+  errors?: ValidationError[];
 }
 
 export class EmptyResponseDto extends BaseResponseDto {

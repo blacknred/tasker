@@ -1,12 +1,12 @@
 import { HttpStatus } from '@nestjs/common';
 
-export type ResponseError = {
+export type ValidationError = {
   field: string;
   message: string;
 };
 
 export class IResponse<T = null> {
   status: HttpStatus;
-  errors?: ResponseError[];
+  errors?: ValidationError[];
   data?: T;
 }

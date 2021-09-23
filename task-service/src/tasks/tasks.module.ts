@@ -6,6 +6,7 @@ import { queueProvider } from './providers/queue.provider';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { Task } from './entities/task.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

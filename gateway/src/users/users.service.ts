@@ -1,12 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { userService } from './consts';
+import * as consts from './consts';
 import { IResponse } from './interfaces/response.interface';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject(userService) private readonly userService: ClientProxy) {}
+  constructor(
+    @Inject(consts.userService) private readonly userService: ClientProxy,
+  ) {}
 
   async feed<T>(pattern: string, args: Record<string, unknown>) {
     const { data, errors, status }: IResponse<T> = await firstValueFrom(
