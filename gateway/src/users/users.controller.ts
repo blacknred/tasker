@@ -19,10 +19,10 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
-import { GetTaskDto } from 'src/tasks/dto/get-task.dto';
-import { GetTasksDto } from 'src/tasks/dto/get-tasks.dto';
+import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { EmptyResponseDto } from './dto/empty-response.dto';
+import { GetUserDto } from './dto/get-user.dto';
+import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
@@ -44,9 +44,9 @@ export class UsersController {
   @Get()
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'List all tasks' })
+  @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
-  async getAll(@Param() params: GetTasksDto): Promise<UsersResponseDto> {
+  async getAll(@Param() params: GetUsersDto): Promise<UsersResponseDto> {
     return this.usersService.feed('getAll', params);
   }
 
@@ -55,7 +55,7 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })
-  async getOne(@Param() { id }: GetTaskDto): Promise<UserResponseDto> {
+  async getOne(@Param() { id }: GetUserDto): Promise<UserResponseDto> {
     return this.usersService.feed('getOne', +id);
   }
 

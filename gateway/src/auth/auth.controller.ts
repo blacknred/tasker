@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { EmptyResponseDto } from './dto/empty-response.dto';
+import { EmptyResponseDto } from '../shared/dto/empty-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';

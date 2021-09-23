@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ResponseDto } from 'src/shared/dto/response.dto';
 import { IUser, Role } from '../interfaces/user.interface';
-import { BaseResponseDto } from './empty-response.dto';
 
 export const userExample = {
   id: 1,
@@ -11,7 +11,7 @@ export const userExample = {
   updatedAt: +new Date(),
 };
 
-export class UserResponseDto extends BaseResponseDto {
+export class UserResponseDto extends ResponseDto {
   @ApiProperty({ example: userExample, nullable: true })
   data?: IUser;
 }

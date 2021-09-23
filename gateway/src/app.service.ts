@@ -1,13 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IResponse } from './interfaces/response.interface';
+import { IResponse } from './shared/interfaces/response.interface';
 
 @Injectable()
-export class BaseService {
-  constructor(private readonly service: ClientProxy) {}
+export class AppService {
+  constructor(protected readonly service: ClientProxy) {}
 
-  async feed<T>(pattern, args) {
+  static use(service: ClientProxy) {
+    return new AppService(service);
+  }
+
+  async feed<T>(pattern: string, args: unknown) {
     const { data, errors, status }: IResponse<T> = await firstValueFrom(
       this.service.send(pattern, args),
     );

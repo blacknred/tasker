@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IUser, Role } from '../interfaces/user.interface';
-import { BaseResponseDto } from './empty-response.dto';
+import { ResponseDto } from 'src/shared/dto/response.dto';
+import { Role } from '../../users/interfaces/user.interface';
+import { IAuthData } from '../interfaces/authed-request.interface';
 
 export const userExample = {
   id: 1,
@@ -11,7 +12,7 @@ export const userExample = {
   updatedAt: +new Date(),
 };
 
-export class UserResponseDto extends BaseResponseDto {
+export class UserResponseDto extends ResponseDto {
   @ApiProperty({ example: userExample, nullable: true })
-  data?: IUser;
+  data?: IAuthData;
 }

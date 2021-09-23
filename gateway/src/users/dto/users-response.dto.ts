@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ResponseDto } from 'src/shared/dto/response.dto';
 import { IUser } from '../interfaces/user.interface';
-import { BaseResponseDto } from './empty-response.dto';
 import { userExample } from './user-response.dto';
 
-export class UsersResponseDto extends BaseResponseDto {
+export class UsersResponseDto extends ResponseDto {
   @ApiProperty({ example: [userExample], nullable: true })
   data: IUser[];
 }

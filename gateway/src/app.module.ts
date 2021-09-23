@@ -16,6 +16,7 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { RedisClient } from 'redis';
 import { cacheService } from './auth/consts';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { cacheService } from './auth/consts';
     UsersModule,
     AuthModule,
   ],
-  providers: [Logger],
+  providers: [Logger, AppService],
 })
 export class AppModule implements NestModule {
   constructor(

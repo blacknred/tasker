@@ -3,34 +3,43 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { AppService } from 'src/app.service';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
+import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
 import { Role } from 'src/users/interfaces/user.interface';
+import * as consts from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { EmptyResponseDto } from './dto/empty-response.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { TasksResponseDto } from './dto/tasks-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { TasksService } from './tasks.service';
 
 @Controller('tasks')
 @ApiTags('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  tasksService: AppService;
+
+  constructor(
+    @Inject(consts.taskService) protected readonly client: ClientProxy,
+  ) {
+    this.tasksService = AppService.use(client);
+  }
 
   @Post()
   @UseGuards(AuthedGuard)
