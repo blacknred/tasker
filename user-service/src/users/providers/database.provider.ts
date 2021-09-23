@@ -1,10 +1,10 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import path from 'path';
 import { createConnection } from 'typeorm';
-import { databaseConnection } from '../consts';
+import { DB_CONNECTION } from '../consts';
 
 export const databaseProvider = {
-  provide: databaseConnection,
+  provide: DB_CONNECTION,
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) =>

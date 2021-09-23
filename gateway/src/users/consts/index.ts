@@ -1,1 +1,1 @@
-export const userService = 'USER_SERVICE';
+export const USER_SERVICE = 'USER_SERVICE';

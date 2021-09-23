@@ -1,2 +1,1 @@
-export const cacheService = 'CACHE_SERVICE';
-export const rolesKey = 'ROLES';
+export const ROLES_KEY = 'ROLES_KEY';

@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { queueService } from '../consts';
+import { QUEUE_SERVICE } from '../consts';
 
 export const queueProvider = {
-  provide: queueService,
+  provide: QUEUE_SERVICE,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) =>
     ClientProxyFactory.create({

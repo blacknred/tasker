@@ -7,16 +7,16 @@ import {
   NestModule,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CACHE_SERVICE } from './shared/consts';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { AppService } from './app.service';
 //
 import * as RedisStore from 'connect-redis';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { RedisClient } from 'redis';
-import { cacheService } from './auth/consts';
-import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -30,11 +30,11 @@ import { AppService } from './app.service';
     UsersModule,
     AuthModule,
   ],
-  providers: [Logger, AppService],
+  providers: [AppService, Logger],
 })
 export class AppModule implements NestModule {
   constructor(
-    @Inject(cacheService) private readonly redis: RedisClient,
+    @Inject(CACHE_SERVICE) private readonly redis: RedisClient,
     private readonly configService: ConfigService,
   ) {}
 

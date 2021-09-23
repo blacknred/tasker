@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { rolesKey } from '../consts';
+import { ROLES_KEY } from '../consts';
 import { AuthedGuard } from './authed.guard';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class RolesGuard extends AuthedGuard {
 
   canActivate(context: ExecutionContext): boolean {
     try {
-      const roles = this.reflector.getAllAndOverride(rolesKey, [
+      const roles = this.reflector.getAllAndOverride(ROLES_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);

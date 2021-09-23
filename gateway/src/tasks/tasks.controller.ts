@@ -36,7 +36,7 @@ export class TasksController {
   tasksService: AppService;
 
   constructor(
-    @Inject(consts.taskService) protected readonly client: ClientProxy,
+    @Inject(consts.TASK_SERVICE) protected readonly client: ClientProxy,
   ) {
     this.tasksService = AppService.use(client);
   }

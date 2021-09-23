@@ -6,7 +6,7 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
-import * as consts from './consts';
+import { TASK_SERVICE } from './consts';
 import { NewTaskDto } from './dto/new-task.dto';
 import { WorkersService } from './workers.service';
 
@@ -14,7 +14,7 @@ import { WorkersService } from './workers.service';
 export class WorkersController {
   constructor(
     private readonly workersService: WorkersService,
-    @Inject(consts.taskService) private readonly taskService: ClientProxy,
+    @Inject(TASK_SERVICE) private readonly taskService: ClientProxy,
   ) {}
 
   async onApplicationBootstrap() {
