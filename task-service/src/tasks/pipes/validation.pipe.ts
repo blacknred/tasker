@@ -16,7 +16,7 @@ export class ValidationPipe implements PipeTransform<any> {
 
     if (errors.length) {
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: errors.map((err) => ({
           message: Object.values(err.constraints).join(', '),
           field: err.property,

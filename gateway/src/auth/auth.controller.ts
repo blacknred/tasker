@@ -10,7 +10,7 @@ import {
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from '../shared/dto/empty-response.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';
 
@@ -30,8 +30,8 @@ export class AuthController {
 
   @Get()
   @ApiOperation({ summary: 'Get Session data' })
-  @ApiCreatedResponse({ type: UserResponseDto })
-  async getOne(@Req() { user }: IAuthedRequest): Promise<UserResponseDto> {
+  @ApiCreatedResponse({ type: AuthResponseDto })
+  async getOne(@Req() { user }: IAuthedRequest): Promise<AuthResponseDto> {
     return { data: user };
   }
 

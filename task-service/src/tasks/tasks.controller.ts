@@ -5,6 +5,7 @@ import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { ResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { ITask } from './interfaces/task.interface';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
@@ -12,35 +13,27 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @MessagePattern('create')
-  create(
-    @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<ResponseDto<CreateTaskDto>> {
+  create(@Payload() createTaskDto: CreateTaskDto): Promise<ResponseDto<ITask>> {
     return this.tasksService.create(createTaskDto);
   }
 
   @MessagePattern('getAll')
-  findAll(
-    @Payload() getTasksDto: GetTasksDto,
-  ): Promise<ResponseDto<UpdateTaskDto[]>> {
+  getAll(@Payload() getTasksDto: GetTasksDto): Promise<ResponseDto<ITask[]>> {
     return this.tasksService.findAll(getTasksDto);
   }
 
   @MessagePattern('getOne')
-  findOne(
-    @Payload() { id, userId }: GetTaskDto,
-  ): Promise<ResponseDto<UpdateTaskDto>> {
+  getOne(@Payload() { id, userId }: GetTaskDto): Promise<ResponseDto<ITask>> {
     return this.tasksService.findOne(id, userId);
   }
 
   @MessagePattern('update')
-  update(
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<ResponseDto<UpdateTaskDto>> {
+  update(@Payload() updateTaskDto: UpdateTaskDto): Promise<ResponseDto<ITask>> {
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }
 
   @MessagePattern('delete')
-  remove(@Payload() { id, userId }: GetTaskDto): Promise<ResponseDto> {
+  remove(@Payload() { id, userId }: GetTaskDto): Promise<ResponseDto<null>> {
     return this.tasksService.remove(id, userId);
   }
 }

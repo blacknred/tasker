@@ -1,17 +1,5 @@
 import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
-
-export enum TaskType {
-  LONG = 'LONG',
-  SHORT = 'SHORT',
-  MEDIUM = 'MEDIUM',
-}
-
-export enum TaskPriority {
-  CRITICAL = 'CRITICAL',
-  MAJOR = 'MAJOR',
-  MODERATE = 'MODERATE',
-  LOW = 'LOW',
-}
+import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
 @Entity()
 export class Task {

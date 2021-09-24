@@ -12,6 +12,9 @@ export const userExample = {
 };
 
 export class UserResponseDto extends ResponseDto {
+  constructor() {
+    super();
+  }
   @ApiProperty({ example: userExample, nullable: true })
   data?: IUser;
 }

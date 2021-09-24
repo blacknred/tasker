@@ -4,11 +4,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-export enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
+import { Role } from '../interfaces/user.interface';
 
 @Entity()
 export class User {

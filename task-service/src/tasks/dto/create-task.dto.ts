@@ -1,5 +1,5 @@
 import { IsString, IsNumber, IsEnum } from 'class-validator';
-import { TaskType, TaskPriority } from '../entities/task.entity';
+import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
 export class CreateTaskDto {
   @IsString({ message: 'Must be a string' })

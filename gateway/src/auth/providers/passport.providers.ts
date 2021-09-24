@@ -1,7 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { UserResponseDto } from 'src/users/dto/user-response.dto';
 import { UsersService } from 'src/users/users.service';
 import { IUser } from '../../users/interfaces/user.interface';
 import { IAuthData } from '../interfaces/authed-request.interface';
@@ -15,26 +14,17 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
-    try {
-      const payload = { email, password };
-      const user = await this.userService.feed<UserResponseDto>(
-        'findAll',
-        payload,
-      );
-      if (!user) throw new Error();
-      return user;
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
+    const { data } = await this.userService.feed<IAuthData>('getValidatedOne', {
+      password,
+      email,
+    });
+
+    return data;
   }
 }
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
-  // constructor(private readonly usersService: UsersService) {
-  //   super();
-  // }
-
   serializeUser(
     { id, roles }: IUser,
     done: (err: Error, user: IAuthData) => void,
@@ -46,7 +36,6 @@ export class SessionSerializer extends PassportSerializer {
     payload: IAuthData,
     done: (err: Error, user: IAuthData) => void,
   ) {
-    // const user = this.usersService.findOne(payload.id);
     done(null, payload);
   }
 }

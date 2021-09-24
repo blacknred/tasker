@@ -1,8 +1,10 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { IsNumber, IsString } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
-export class GetUsersDto extends PartialType(CreateUserDto) {
+export class GetUsersDto extends PartialType(
+  OmitType(CreateUserDto, ['password']),
+) {
   @IsNumber(null, { message: 'Must be an integer' })
   limit: number;
   @IsString({ message: 'Must be a string' })

@@ -14,6 +14,9 @@ export const taskExample = {
 };
 
 export class TaskResponseDto extends ResponseDto {
+  constructor() {
+    super();
+  }
   @ApiProperty({ example: taskExample, nullable: true })
   data: ITask;
 }

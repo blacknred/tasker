@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import crypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import * as consts from './consts';
+import { USER_REPOSITORY } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
+import { GetValidatedUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -13,16 +14,10 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     private readonly configService: ConfigService,
-    @Inject(consts.userRepository) private userRepository: Repository<User>,
+    @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    if (!createUserDto) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-      });
-    }
-
     try {
       const emailInUse = this.userRepository.findOne({
         email: createUserDto.email,
@@ -58,22 +53,7 @@ export class UsersService {
   }
 
   async findAll(getUsersDto: GetUsersDto) {
-    if (!getUsersDto) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-      });
-    }
-
-    const { password: paramPassword, ...rest } = getUsersDto;
-    const rawUsers = await this.userRepository.find(rest);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const users = rawUsers.reduce((all, { password, ...rest }) => {
-      if (!paramPassword || crypt.compareSync(paramPassword, password)) {
-        return all.concat(rest);
-      }
-      return all;
-    }, []);
+    const users = await this.userRepository.find(getUsersDto);
 
     return {
       status: HttpStatus.OK,
@@ -82,12 +62,6 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    if (!id) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-      });
-    }
-
     const user = await this.userRepository.findOne(id);
 
     if (!user) {
@@ -103,19 +77,47 @@ export class UsersService {
     };
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    if (!id || !updateUserDto) {
+  async findValidatedOne({ email, password }: GetValidatedUserDto) {
+    const user = await this.userRepository.findOne({ email });
+
+    if (!user) {
       throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
+        status: HttpStatus.NOT_FOUND,
+        errors: [
+          {
+            field: 'email',
+            message: 'Email not in use',
+          },
+        ],
       });
     }
 
+    if (await crypt.compare(password, user.password)) {
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        errors: [
+          {
+            field: 'password',
+            message: 'Wrong password',
+          },
+        ],
+      });
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data: { id: user.id, roles: user.roles },
+    };
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const user = await this.userRepository.findOne(id);
 
       if (!user) {
         throw new RpcException({
           status: HttpStatus.NOT_FOUND,
+          data: null,
         });
       }
 
@@ -135,22 +137,20 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    if (!id) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-      });
-    }
-
     try {
       if (!(await this.userRepository.findOne(id))) {
         throw new RpcException({
           status: HttpStatus.NOT_FOUND,
+          data: null,
         });
       }
 
       await this.userRepository.delete(id);
 
-      return { status: HttpStatus.OK };
+      return {
+        status: HttpStatus.OK,
+        data: null,
+      };
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
