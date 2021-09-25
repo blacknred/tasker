@@ -32,8 +32,8 @@ Microservice boilerplate for task manager app
 
    ```sh
    make network
-   make test-check
-   make test
+   make dev-check
+   make dev
    ```
 
 ### Production

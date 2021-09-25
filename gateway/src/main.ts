@@ -10,8 +10,9 @@ async function bootstrap() {
     .setTitle('API')
     .setDescription('The Tasker REST Full API')
     .setVersion('1.0')
-    .addTag('users')
-    .addTag('tasks')
+    .addTag('Auth')
+    .addTag('Users')
+    .addTag('Tasks')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);

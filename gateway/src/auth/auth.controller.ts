@@ -7,7 +7,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from '../shared/dto/empty-response.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -15,7 +20,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('Auth')
 export class AuthController {
   @Post()
   @UseGuards(LocalAuthGuard)
@@ -30,14 +35,14 @@ export class AuthController {
 
   @Get()
   @ApiOperation({ summary: 'Get Session data' })
-  @ApiCreatedResponse({ type: AuthResponseDto })
+  @ApiOkResponse({ type: AuthResponseDto })
   async getOne(@Req() { user }: IAuthedRequest): Promise<AuthResponseDto> {
     return { data: user };
   }
 
   @Delete()
   @ApiOperation({ summary: 'Logout' })
-  @ApiCreatedResponse({ type: EmptyResponseDto })
+  @ApiOkResponse({ type: EmptyResponseDto })
   delete(@Req() req): EmptyResponseDto {
     req.logout();
     return { data: null };

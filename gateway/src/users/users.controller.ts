@@ -30,7 +30,7 @@ import { Role } from './interfaces/user.interface';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@ApiTags('users')
+@ApiTags('Users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

@@ -5,11 +5,10 @@ import { RmqOptions, Transport } from '@nestjs/microservices';
 import { WorkersModule } from './workers/workers.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(WorkersModule);
-  const configService = app.get(ConfigService);
-  app.useGlobalPipes(new ValidationPipe());
+  const appCtx = await NestFactory.createApplicationContext(WorkersModule);
+  const configService = appCtx.get(ConfigService);
 
-  await app.connectMicroservice<RmqOptions>({
+  const app = await NestFactory.createMicroservice<RmqOptions>(WorkersModule, {
     transport: Transport.RMQ,
     options: {
       urls: [configService.get('QUEUE_URL') as string],
@@ -20,6 +19,10 @@ async function bootstrap() {
       },
     },
   });
+
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen();
+  appCtx.close();
 }
 
 bootstrap();

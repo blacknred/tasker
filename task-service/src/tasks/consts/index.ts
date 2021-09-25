@@ -1,2 +1,1 @@
-export const TASK_REPOSITORY = 'TASK_REPOSITORY';
 export const QUEUE_SERVICE = 'QUEUE_SERVICE';

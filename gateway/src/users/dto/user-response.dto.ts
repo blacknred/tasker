@@ -5,16 +5,13 @@ import { IUser, Role } from '../interfaces/user.interface';
 export const userExample = {
   id: 1,
   name: 'username',
-  email: 'test@test.com',
+  email: 'test@email.com',
   roles: [Role.USER],
   createdAt: +new Date(),
   updatedAt: +new Date(),
 };
 
 export class UserResponseDto extends ResponseDto {
-  constructor() {
-    super();
-  }
   @ApiProperty({ example: userExample, nullable: true })
   data?: IUser;
 }

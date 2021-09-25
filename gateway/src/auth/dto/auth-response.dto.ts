@@ -9,9 +9,6 @@ export const authExample = {
 };
 
 export class AuthResponseDto extends ResponseDto {
-  constructor() {
-    super();
-  }
   @ApiProperty({ example: authExample, nullable: true })
   data?: IAuthData;
 }

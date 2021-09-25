@@ -28,6 +28,8 @@
     "@nestjs/microservices": "^8.0.6",
     "@nestjs/platform-express": "^8.0.6",
     "@nestjs/typeorm": "^8.0.2",
+    "amqp-connection-manager": "^3.7.0",
+    "amqplib": "^0.8.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "mongodb": "^4.1.1",

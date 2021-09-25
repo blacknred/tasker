@@ -31,14 +31,15 @@ import { TasksResponseDto } from './dto/tasks-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
-@ApiTags('tasks')
+@ApiTags('Tasks')
 export class TasksController {
-  tasksService: AppService;
+  // tasksService: AppService;
 
   constructor(
+    private readonly tasksService: AppService,
     @Inject(consts.TASK_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.tasksService = AppService.use(client);
+    this.tasksService.servic = client;
   }
 
   @Post()

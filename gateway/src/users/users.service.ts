@@ -8,6 +8,7 @@ export class UsersService extends AppService {
   constructor(
     @Inject(USER_SERVICE) private readonly usersService: ClientProxy,
   ) {
-    super(usersService);
+    super();
+    super.servic = usersService;
   }
 }

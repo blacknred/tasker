@@ -1,7 +1,8 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { ObjectID, Repository } from 'typeorm';
-import { QUEUE_SERVICE, TASK_REPOSITORY } from './consts';
+import { QUEUE_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -10,7 +11,7 @@ import { Task } from './entities/task.entity';
 @Injectable()
 export class TasksService {
   constructor(
-    @Inject(TASK_REPOSITORY) private taskRepository: Repository<Task>,
+    @InjectRepository(Task) private taskRepository: Repository<Task>,
     @Inject(QUEUE_SERVICE) private readonly queueService: ClientProxy,
   ) {}
 

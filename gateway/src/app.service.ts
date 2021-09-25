@@ -5,10 +5,18 @@ import { IResponse } from './shared/interfaces/response.interface';
 
 @Injectable()
 export class AppService {
-  constructor(protected readonly service: ClientProxy) {}
+  protected service: ClientProxy;
 
-  static use(service: ClientProxy) {
-    return new AppService(service);
+  // constructor(service) {
+  //   this.service = service;
+  // }
+
+  // static use(service: ClientProxy) {
+  // return new AppService(service);
+  // }
+
+  set servic(s: ClientProxy) {
+    this.service = s;
   }
 
   async feed<T>(pattern: string, args: unknown) {

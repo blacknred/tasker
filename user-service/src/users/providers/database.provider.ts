@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import path from 'path';
 import { createConnection } from 'typeorm';
 import { DB_CONNECTION } from '../consts';
+import { User } from '../entities/user.entity';
 
 export const databaseProvider = {
   provide: DB_CONNECTION,
@@ -9,7 +9,7 @@ export const databaseProvider = {
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) =>
     createConnection({
-      entities: [path.join(__dirname, '../entities/*.entity.ts')],
+      entities: [User],
       url: configService.get('DB_URL'),
       type: 'postgres',
       logging: true,

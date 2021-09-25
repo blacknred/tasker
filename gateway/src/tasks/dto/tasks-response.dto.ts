@@ -4,9 +4,6 @@ import { ITask } from '../interfaces/task.interface';
 import { taskExample } from './task-response.dto';
 
 export class TasksResponseDto extends ResponseDto {
-  constructor() {
-    super();
-  }
-  @ApiProperty({ example: [taskExample], nullable: true })
+  @ApiProperty({ example: [taskExample], nullable: false })
   data: ITask[];
 }
