@@ -5,7 +5,7 @@ import Layout from '../components/Layout'
 import Meta from '../components/Meta'
 import useAuth from '../hooks/useAuth'
 
-export function Index() {
+export default function Index() {
   // const bg = useColorModeValue("gray.900", "gray.50")
   const color = useColorModeValue('gray.300', 'gray.600')
   const { user } = useAuth();

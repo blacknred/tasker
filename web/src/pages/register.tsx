@@ -17,7 +17,7 @@ function Register() {
       <Formik
         initialValues={{ username: "", email: "", password: "" }}
         onSubmit={(values, actions) => {
-          api.register(values, (err) => {
+          api.createUser(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)

@@ -7,8 +7,8 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice(TasksModule, {
     transport: Transport.TCP,
     options: {
-      host: '0.0.0.0',
-      port: 3000,
+      host: 'task-service',
+      // port: 3000,
     },
   });
 

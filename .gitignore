@@ -21,7 +21,7 @@ coverage
 !.env.dev
 
 # Storage data
-*/db-data/
+*/data/
 
 
 

@@ -12,7 +12,9 @@ export function delay(ms = 1000): Promise<void> {
 }
 
 export function fetcher(res: RequestInfo, init: RequestInit) {
-  return fetch(res, init).then((res) => res.json());
+  return fetch(res, init)
+    .then((res) => res.json())
+    .catch((e) => console.log(e.message));
 }
 
 export type FieldErrorDto = {

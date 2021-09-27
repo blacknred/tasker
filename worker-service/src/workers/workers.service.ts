@@ -19,7 +19,7 @@ export class WorkersService {
 
     this.workers = new Map(
       Array.from({ length: workersQnt }).map<[number, Worker]>(() => {
-        const w = new Worker('./utils/worker');
+        const w = new Worker(__dirname + '/utils/worker.js');
         return [w.threadId, w];
       }),
     );

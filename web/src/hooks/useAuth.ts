@@ -1,10 +1,11 @@
 import useSWR from "swr";
+import { HOST } from "../api";
 
-const ENDPOINT = "api/v1/users/auth";
+const ENDPOINT = HOST + "auth";
 
 export default function useAuth() {
   const { data, mutate, error } = useSWR(ENDPOINT, null, {
-    refreshInterval: 10000,
+    refreshInterval: 100000,
   });
 
   return {

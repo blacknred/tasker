@@ -16,7 +16,7 @@ function Login() {
       <Formik
         initialValues={{ usernameOrEmail: "", password: "" }}
         onSubmit={(values, actions) => {
-          api.login(values, (err) => {
+          api.createAuth(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)

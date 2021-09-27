@@ -6,7 +6,7 @@ services:
     build: ./redis
     env_file: ./.env.dev
     volumes:
-      - "./redis/db-data:/data"
+      - "./redis/data:/data"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     restart: always
@@ -22,7 +22,7 @@ services:
     build: ./queue
     env_file: ./.env.dev
     volumes:
-      - "./queue/db-data:/var/lib/rabbitmq"
+      - "./queue/data:/var/lib/rabbitmq"
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
@@ -40,7 +40,7 @@ services:
     build: ./user-db
     env_file: ./.env.dev
     volumes:
-      - "./user-db/db-data:/var/lib/postgresql/data"
+      - "./user-db/data:/var/lib/postgresql/data"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-test}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
@@ -58,12 +58,12 @@ services:
     build: ./task-db
     env_file: ./.env.dev
     volumes:
-      - "./task-db/db-data:/data/db"
-      - "./task-db/init.sh:/docker-entrypoint-initdb.d/"
+      - "./task-db/data:/data/db"
+      # - "./task-db/init.sh:/docker-entrypoint-initdb.d/"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-root}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-root}
-      - MONGO_INITDB_DATABASE=${MONGO_DB:-tasks_test}
+      # - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-root}
+      # - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password}
+      # - MONGO_INITDB_DATABASE=${MONGO_DB:-tasks_test}
       - MONGO_USERNAME=${MONGO_USERNAME:-test}
       - MONGO_PASSWORD=${MONGO_PASSWORD:-test}
     restart: always
@@ -113,10 +113,12 @@ services:
       - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
-      - DB_URL=mongo://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
+      - DB_URL=mongodb://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
     ports:
       - "3002:3000"
+    networks:
+      - backend
     depends_on:
       - task-db
       - queue
@@ -142,6 +144,10 @@ services:
       - NODE_ENV=development
       - WORKERS_QNT=${WORKERS_QNT:-5}
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
+    ports:
+      - "3003:3000"
+    networks:
+      - backend
     depends_on:
       - queue
     links:
@@ -162,6 +168,12 @@ services:
     environment:
       - NODE_ENV=development
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
+    restart: always
+    ports:
+      - "8080:3000"
+    networks:
+      - backend
+      - frontend
     depends_on:
       - user-service
       - task-service
@@ -170,13 +182,6 @@ services:
       - user-service
       - task-service
       - redis
-    restart: always
-    ports:
-      - "8080:3000"
-      - "9229:9229"
-    networks:
-      - backend
-      - frontend
 
   web:
     container_name: web
@@ -188,10 +193,10 @@ services:
       - ./web:/usr/src/app
       - /usr/src/app/node_modules
       - /usr/src/app/.next
-    ports:
-      - "3000:3000"
     environment:
       - API_HOST=localhost:8080
+    ports:
+      - "3000:3000"  
     networks:
       - frontend
 

@@ -1,6 +1,7 @@
 import useSWRInfinite from "swr/infinite";
+import { HOST } from "../api";
 
-const ENDPOINT = "api/v1/tasks/getAll";
+const ENDPOINT = HOST + "tasks/getAll";
 
 export default function useTasks(limit = 10) {
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(

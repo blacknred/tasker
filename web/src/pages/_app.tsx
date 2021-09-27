@@ -11,7 +11,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SWRConfig value={{
       fetcher,
-      provider: localStorageProvider,
+      // provider: localStorageProvider,
       onLoadingSlow: () => {
         toast({
           title: "Slow network.",
