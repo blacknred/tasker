@@ -20,10 +20,12 @@ export class AppService {
   }
 
   async feed<T>(pattern: string, args: unknown) {
+    console.log(989899);
+
     const { data, errors, status }: IResponse<T> = await firstValueFrom(
       this.service.send(pattern, args),
     );
-
+    console.log(status, errors);
     if (status !== HttpStatus.CREATED && status !== HttpStatus.OK) {
       throw new HttpException({ errors }, status);
     }

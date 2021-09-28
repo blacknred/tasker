@@ -17,17 +17,20 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto) {
     try {
-      const task = await this.taskRepository.insert(createTaskDto);
+      const task = new Task();
+      Object.assign(task, createTaskDto);
+      await this.taskRepository.save(task);
+
       this.queueService.emit<any>('task', task);
 
       return {
         status: HttpStatus.CREATED,
-        data: task.raw,
+        data: task,
       };
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.error],
+        errors: [e.message],
       });
     }
   }
@@ -92,7 +95,7 @@ export class TasksService {
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.error],
+        errors: [e.message],
       });
     }
   }
@@ -124,7 +127,7 @@ export class TasksService {
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.error],
+        errors: [e.message],
       });
     }
   }

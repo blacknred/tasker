@@ -5,8 +5,8 @@ import { CreateUserDto } from './create-user.dto';
 export class GetUsersDto extends PartialType(
   OmitType(CreateUserDto, ['password']),
 ) {
-  @IsNumber(null, { message: 'Must be an integer' })
+  // @IsNumber({}, { message: 'Must be an integer' })
   limit: number;
-  @IsString({ message: 'Must be a string' })
+  // @IsString({ message: 'Must be a string' })
   cursor: string;
 }

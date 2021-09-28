@@ -1,14 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from './users/pipes/validation.pipe';
-import { UsersModule } from './users/users.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(UsersModule, {
+  const app = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.TCP,
     options: {
-      host: '0.0.0.0',
-      port: 3000,
+      host: 'user-service',
     },
   });
 
