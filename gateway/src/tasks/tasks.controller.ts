@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -22,7 +23,7 @@ import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
 import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
 import { Role } from 'src/users/interfaces/user.interface';
-import * as consts from './consts';
+import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
@@ -33,13 +34,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 @Controller('tasks')
 @ApiTags('Tasks')
 export class TasksController {
-  // tasksService: AppService;
-
   constructor(
     private readonly tasksService: AppService,
-    @Inject(consts.TASK_SERVICE) protected readonly client: ClientProxy,
+    @Inject(TASK_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.tasksService.servic = client;
+    this.tasksService.proxy = client;
   }
 
   @Post()
@@ -59,7 +58,7 @@ export class TasksController {
   @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
     @Req() { user: { id: userId, roles } }: IAuthedRequest,
-    @Param() params: GetTasksDto,
+    @Query() params: GetTasksDto,
   ): Promise<TasksResponseDto> {
     const payload = { ...params, userId };
     if (roles.includes(Role.ADMIN)) delete payload.userId;

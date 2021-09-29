@@ -24,6 +24,7 @@ import { UsersModule } from './users/users.module';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
+        NODE_ENV: Joi.string().required(),
       }),
     }),
     TasksModule,
@@ -39,6 +40,7 @@ export class AppModule implements NestModule {
   ) {}
 
   configure(consumer: MiddlewareConsumer) {
+    const isProd = this.configService.get('NODE_ENV') === 'production';
     consumer
       .apply(
         session({
@@ -53,8 +55,8 @@ export class AppModule implements NestModule {
             sameSite: 'lax',
             httpOnly: true,
             maxAge: 86400000,
-            // signed: false, // unsecure
-            // secure: true,
+            signed: isProd,
+            secure: isProd,
           },
         }),
         passport.initialize(),

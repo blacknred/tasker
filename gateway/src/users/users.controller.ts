@@ -3,23 +3,28 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { AppService } from 'src/app.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
 import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
+import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -27,12 +32,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
 import { Role } from './interfaces/user.interface';
-import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: AppService,
+    @Inject(USER_SERVICE) protected readonly client: ClientProxy,
+  ) {
+    this.usersService.proxy = client;
+  }
 
   @Post()
   @ApiOperation({ summary: 'Create new user entity' })
@@ -46,7 +55,7 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
-  async getAll(@Param() params: GetUsersDto): Promise<UsersResponseDto> {
+  async getAll(@Query() params: GetUsersDto): Promise<UsersResponseDto> {
     return this.usersService.feed('getAll', params);
   }
 

@@ -15,13 +15,14 @@ export class ValidationPipe implements PipeTransform<any> {
     const errors = await validate(obj);
 
     if (errors.length) {
-      throw new RpcException({
+      return {
         status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: errors.map((err) => ({
           message: Object.values(err.constraints).join(', '),
           field: err.property,
         })),
-      });
+      };
+      throw new RpcException('');
     }
 
     return value;

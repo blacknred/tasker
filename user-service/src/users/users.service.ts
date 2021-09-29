@@ -53,12 +53,25 @@ export class UsersService {
     }
   }
 
-  async findAll(getUsersDto: GetUsersDto) {
-    const users = await this.userRepository.find(getUsersDto);
+  async findAll({ limit, cursor, ...filters }: GetUsersDto) {
+    console.log(limit, cursor);
+
+    const lim = Math.min(50, limit);
+    const extraLim = lim + 1;
+    const cur = cursor ? new Date(+cursor) : new Date();
+
+    const users = await this.userRepository
+      .createQueryBuilder('p')
+      .where(filters)
+      .andWhere('p.createdAt < :cur', { cur })
+      .limit(extraLim)
+      .getMany();
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const data = users.map(({ password, ...rest }) => rest);
+    const data = users.slice(0, lim).map(({ password, ...rest }) => rest);
 
     return {
+      hasMore: users.length === extraLim,
       status: HttpStatus.OK,
       data,
     };

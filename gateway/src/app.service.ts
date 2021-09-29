@@ -7,25 +7,15 @@ import { IResponse } from './shared/interfaces/response.interface';
 export class AppService {
   protected service: ClientProxy;
 
-  // constructor(service) {
-  //   this.service = service;
-  // }
-
-  // static use(service: ClientProxy) {
-  // return new AppService(service);
-  // }
-
-  set servic(s: ClientProxy) {
-    this.service = s;
+  set proxy(client: ClientProxy) {
+    this.service = client;
   }
 
   async feed<T>(pattern: string, args: unknown) {
-    console.log(989899);
-
     const { data, errors, status }: IResponse<T> = await firstValueFrom(
       this.service.send(pattern, args),
     );
-    console.log(status, errors);
+
     if (status !== HttpStatus.CREATED && status !== HttpStatus.OK) {
       throw new HttpException({ errors }, status);
     }

@@ -6,8 +6,6 @@ export const tasksProvider = {
   useFactory: () =>
     ClientProxyFactory.create({
       transport: Transport.TCP,
-      options: {
-        host: 'task-service',
-      },
+      options: { host: 'task-service' },
     }),
 };

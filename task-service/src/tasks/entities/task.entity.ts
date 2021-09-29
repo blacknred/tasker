@@ -1,24 +1,24 @@
 import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
+import { Transform } from 'class-transformer';
 
 @Entity()
 export class Task {
   @ObjectIdColumn()
   id: ObjectID;
 
-  @Column({ type: 'text', length: 100, nullable: false })
+  @Column({ type: 'text', length: 100 })
   name: string;
 
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'int', length: 100, nullable: false })
+  @Column({ type: 'int', length: 100 })
   userId: number;
 
   @Column({
     type: 'enum',
     enum: TaskType,
-    nullable: false,
     default: TaskType.SHORT,
   })
   type: TaskType;
@@ -26,7 +26,6 @@ export class Task {
   @Column({
     type: 'enum',
     enum: TaskPriority,
-    nullable: false,
     default: TaskPriority.LOW,
   })
   priority: TaskPriority;
@@ -35,5 +34,10 @@ export class Task {
   createdAt: Date;
 
   @Column({ type: 'date', nullable: true })
+  @Transform((value) => {
+    if (value !== null) {
+      return value;
+    }
+  })
   finishedAt?: Date;
 }

@@ -5,26 +5,27 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../interfaces/user.interface';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   name: string;
 
-  @Column({ type: 'text', nullable: false, unique: true })
+  @Column({ type: 'text', unique: true })
   email: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
+  @Exclude()
   password: string;
 
   @Column({
     type: 'enum',
     enum: Role,
     array: true,
-    nullable: false,
     default: [Role.USER],
   })
   roles: [Role];

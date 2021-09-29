@@ -9,6 +9,6 @@ export class UsersService extends AppService {
     @Inject(USER_SERVICE) private readonly usersService: ClientProxy,
   ) {
     super();
-    super.servic = usersService;
+    super.proxy = usersService;
   }
 }

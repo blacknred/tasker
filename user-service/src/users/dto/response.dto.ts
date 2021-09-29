@@ -9,4 +9,5 @@ export class ResponseDto<T = unknown> {
   status: HttpStatus;
   errors?: ValidationError[];
   data?: T;
+  hasMore?: boolean;
 }

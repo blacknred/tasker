@@ -26,8 +26,7 @@ export class RolesGuard extends AuthedGuard {
 
       return (
         super.canActivate(context) &&
-        req.session.roles.some((role) => roles.includes(role))
-        // req.session.passport.user.roles
+        req.user.roles.some((role) => roles.includes(role))
       );
     } catch (_) {
       throw new ForbiddenException('Access restricted');
