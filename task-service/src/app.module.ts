@@ -17,7 +17,7 @@ import { Task } from './tasks/entities/task.entity';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         entities: [Task],
-        url: 'mongodb://test:test@task-db:27017', // configService.get('DB_URL')
+        url: configService.get('DB_URL').slice(0, 34),
         type: 'mongodb',
         logging: true,
         synchronize: true,

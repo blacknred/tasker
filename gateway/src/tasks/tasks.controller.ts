@@ -18,10 +18,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AppService } from 'src/app.service';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
 import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
+import { SharedService } from 'src/shared/shared.service';
 import { Role } from 'src/users/interfaces/user.interface';
 import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -33,16 +33,16 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 @ApiTags('Tasks')
+@UseGuards(AuthedGuard)
 export class TasksController {
   constructor(
-    private readonly tasksService: AppService,
+    private readonly tasksService: SharedService,
     @Inject(TASK_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.tasksService.proxy = client;
+    this.tasksService.client = client;
   }
 
   @Post()
-  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Create new task entity' })
   @ApiCreatedResponse({ type: TaskResponseDto })
   async create(
@@ -53,7 +53,6 @@ export class TasksController {
   }
 
   @Get()
-  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'List tasks' })
   @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
@@ -66,7 +65,6 @@ export class TasksController {
   }
 
   @Get(':id')
-  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Get task by id' })
   @ApiOkResponse({ type: TaskResponseDto })
   async getOne(
@@ -79,7 +77,6 @@ export class TasksController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Update authorized user task entity' })
   @ApiOkResponse({ type: TaskResponseDto })
   async update(
@@ -91,7 +88,6 @@ export class TasksController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Delete authorized user task entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(

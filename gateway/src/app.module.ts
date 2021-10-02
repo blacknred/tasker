@@ -11,10 +11,11 @@ import * as RedisStore from 'connect-redis';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { RedisClient } from 'redis';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './health/health.module';
 import { CACHE_SERVICE } from './shared/consts';
 import { cacheProvider } from './shared/providers/cache.provider';
+// import { exceptionProvider } from './shared/providers/exception.provider';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 
@@ -27,11 +28,12 @@ import { UsersModule } from './users/users.module';
         NODE_ENV: Joi.string().required(),
       }),
     }),
-    TasksModule,
+    HealthModule,
     UsersModule,
     AuthModule,
+    TasksModule,
   ],
-  providers: [AppService, cacheProvider, Logger],
+  providers: [Logger, cacheProvider],
 })
 export class AppModule implements NestModule {
   constructor(
@@ -41,6 +43,7 @@ export class AppModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
     const isProd = this.configService.get('NODE_ENV') === 'production';
+
     consumer
       .apply(
         session({

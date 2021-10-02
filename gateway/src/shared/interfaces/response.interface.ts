@@ -7,6 +7,6 @@ export type ValidationError = {
 
 export class IResponse<T = null> {
   status: HttpStatus;
-  errors?: ValidationError[];
-  data?: T;
+  errors: ValidationError[] | null;
+  data: T;
 }

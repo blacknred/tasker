@@ -3,6 +3,7 @@ import { Transport } from '@nestjs/microservices';
 import { ValidationPipe } from './users/pipes/validation.pipe';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor } from '@nestjs/common';
+import { RpcErrorFilter } from './users/filters/rpc-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
@@ -12,6 +13,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalFilters(new RpcErrorFilter());
+
   await app.listen();
 }
 

@@ -72,7 +72,8 @@ export class WorkersService {
 
   notify(task: NewTaskDto) {
     task.finishedAt = Date.now();
-    this.taskService.send('updateTask', task);
+    this.taskService.send('update', task);
+    // send push to client
   }
 
   do(task: NewTaskDto): Promise<any> {

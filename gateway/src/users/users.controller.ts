@@ -18,12 +18,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AppService } from 'src/app.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
 import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
+import { SharedService } from 'src/shared/shared.service';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
@@ -37,10 +37,10 @@ import { Role } from './interfaces/user.interface';
 @ApiTags('Users')
 export class UsersController {
   constructor(
-    private readonly usersService: AppService,
+    private readonly usersService: SharedService,
     @Inject(USER_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.usersService.proxy = client;
+    this.usersService.client = client;
   }
 
   @Post()

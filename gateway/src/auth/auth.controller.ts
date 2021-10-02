@@ -18,6 +18,7 @@ import { EmptyResponseDto } from '../shared/dto/empty-response.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';
+import { AuthedGuard } from './guards/authed.guard';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -27,20 +28,23 @@ export class AuthController {
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
   create(
+    @Req() { user }: IAuthedRequest,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Body() createAuthDto: CreateAuthDto,
-  ): EmptyResponseDto {
-    return { data: null };
+  ): AuthResponseDto {
+    return { data: user };
   }
 
   @Get()
+  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Get Session data' })
   @ApiOkResponse({ type: AuthResponseDto })
-  async getOne(@Req() { user }: IAuthedRequest): Promise<AuthResponseDto> {
+  getOne(@Req() { user }: IAuthedRequest): AuthResponseDto {
     return { data: user };
   }
 
   @Delete()
+  @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Logout' })
   @ApiOkResponse({ type: EmptyResponseDto })
   delete(@Req() req): EmptyResponseDto {
