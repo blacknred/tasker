@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
-import { CreatePushNotificationDto } from './dto/create-push-notification.dto';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { INotification } from './interfaces/notification.interface';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
@@ -8,28 +9,22 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @EventPattern('push')
-  push(@Payload() createNotificationDto: CreatePushNotificationDto) {
-    this.notificationsService.push(createNotificationDto);
+  async push(@Payload() createNotificationDto: CreateNotificationDto) {
+    await this.notificationsService.push(createNotificationDto);
   }
 
   @EventPattern('email')
-  email(@Payload() createNotificationDto: CreatePushNotificationDto) {
-    console.log(createNotificationDto);
+  async email(@Payload() createNotificationDto: CreateNotificationDto) {
+    await this.notificationsService.email(createNotificationDto);
   }
 
   @EventPattern('sms')
-  sms(@Payload() createNotificationDto: CreatePushNotificationDto) {
-    console.log(createNotificationDto);
+  async sms(@Payload() createNotificationDto: CreateNotificationDto) {
+    await this.notificationsService.sms(createNotificationDto);
   }
 
-  // @EventPattern('consume')
-  // consume(@Payload() newTaskDto: NewTaskDto, @Ctx() context: RmqContext) {
-  //   const channel = context.getChannelRef();
-  //   const originalMsg = context.getMessage();
-
-  //   if (this.workersService.hasIdle) {
-  //     this.workersService.do(newTaskDto).then(this.workersService.notify);
-  //     channel.ack(originalMsg);
-  //   }
-  // }
+  @EventPattern('consume')
+  async consume(@Payload() notification: INotification) {
+    await this.notificationsService.consume(notification);
+  }
 }
