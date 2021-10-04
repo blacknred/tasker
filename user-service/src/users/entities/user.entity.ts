@@ -4,11 +4,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from '../interfaces/user.interface';
+import { IUser, Role } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';
 
 @Entity()
-export class User {
+export class User implements IUser {
   @PrimaryGeneratedColumn()
   id: number;
 

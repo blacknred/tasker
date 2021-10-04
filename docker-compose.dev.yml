@@ -53,6 +53,24 @@ services:
     healthcheck:
       test: exit 0
 
+  notification-db:
+    container_name: notification-db
+    build: ./notification-db
+    env_file: ./.env.dev
+    volumes:
+      - "./notification-db/data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-users_test}
+    restart: always
+    ports:
+      - "5433:5432"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
   task-db:
     container_name: task-db
     build: ./task-db
@@ -88,7 +106,7 @@ services:
       - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
-      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
+      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-test}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     restart: on-failure
     ports:
@@ -100,6 +118,34 @@ services:
     links:
       - user-db
 
+  notification-service:
+    container_name: notification-service
+    hostname: notification-service
+    command: yarn start:dev
+    build:
+      context: ./notification-service
+      target: development
+    env_file:
+      - ".env.dev"
+    volumes:
+      - "./notification-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment:
+      - NODE_ENV=development
+      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@notification-db:5432/${POSTGRES_DB:-test}
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
+    restart: on-failure
+    ports:
+      - "3002:3000"
+    networks:
+      - backend
+    depends_on:
+      - notification-db
+      - queue
+    links:
+      - notification-db
+      - queue
+     
   task-service:
     container_name: task-service
     hostname: task-service
@@ -114,21 +160,21 @@ services:
       - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
-      - DB_URL=mongodb://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-tasks_test}
+      - DB_URL=mongodb://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-test}
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
     restart: on-failure
     ports:
-      - "3002:3000"
+      - "3003:3000"
     networks:
       - backend
     depends_on:
       - task-db
       - queue
-      - worker-service
+      - notification-service
     links:
       - task-db
       - queue
-      - worker-service
+      - notification-service
 
   worker-service:
     container_name: worker-service
@@ -148,13 +194,15 @@ services:
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
     restart: on-failure
     ports:
-      - "3003:3000"
+      - "3004:3000"
     networks:
       - backend
     depends_on:
       - queue
+      - task-service
     links:
       - queue
+      - task-service
 
   gateway:
     container_name: gateway

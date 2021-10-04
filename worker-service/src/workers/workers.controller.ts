@@ -8,7 +8,7 @@ export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
   @EventPattern('task')
-  handleTask(@Payload() newTaskDto: NewTaskDto, @Ctx() context: RmqContext) {
+  task(@Payload() newTaskDto: NewTaskDto, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

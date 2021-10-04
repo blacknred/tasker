@@ -1,9 +1,9 @@
 import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
-import { TaskPriority, TaskType } from '../interfaces/task.interface';
+import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 import { Transform } from 'class-transformer';
 
 @Entity()
-export class Task {
+export class Task implements ITask {
   @ObjectIdColumn()
   id: ObjectID;
 
