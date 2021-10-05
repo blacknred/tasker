@@ -8,7 +8,7 @@ import { GetUsersDto } from './dto/get-users.dto';
 import { GetUserDto, GetValidatedUserDto } from './dto/get-user.dto';
 import { IUser } from './interfaces/user.interface';
 
-@Controller('users')
+@Controller()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -30,7 +30,7 @@ export class UsersController {
   @MessagePattern('getValidatedOne')
   getValidatedOne(
     @Payload() getValidatedUserDto: GetValidatedUserDto,
-  ): Promise<ResponseDto<Partial<IUser>>> {
+  ): Promise<ResponseDto<IUser>> {
     return this.usersService.findValidatedOne(getValidatedUserDto);
   }
 

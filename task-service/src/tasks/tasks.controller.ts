@@ -8,7 +8,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { ITask } from './interfaces/task.interface';
 import { TasksService } from './tasks.service';
 
-@Controller('tasks')
+@Controller()
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 

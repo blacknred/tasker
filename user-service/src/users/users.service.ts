@@ -124,7 +124,7 @@ export class UsersService {
 
       return {
         status: HttpStatus.OK,
-        data: { id: user.id, roles: user.roles },
+        data: user,
       };
     } catch (e) {
       return {

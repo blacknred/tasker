@@ -1,2 +1,1 @@
 export const ROLES_KEY = 'ROLES_KEY';
-export const NOTIFICATION_SERVICE = 'NOTIFICATION_SERVICE';

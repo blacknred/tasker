@@ -29,25 +29,30 @@ export class NotificationsService {
     };
   }
 
-  async push({ userId, payload }: CreateNotificationDto) {
+  async create({ userId, payload, type }: CreateNotificationDto) {
     const params = userId ? { userId } : null;
-    const { data: subscriptions } = await this.pushService.findAll(params);
+    let subscriptions = [];
+
+    switch (type) {
+      case NotificationType.PUSH:
+        const res = await this.pushService.findAll(params);
+        subscriptions = res.data;
+        break;
+      case NotificationType.EMAIL:
+        break;
+      case NotificationType.SMS:
+        break;
+      default:
+        break;
+    }
 
     for (let i = 0, j = subscriptions.length; i < j; i += CHUNK_SIZE) {
       this.queueService.emit<string, INotification>('consume', {
         subscriptions: subscriptions.slice(i, i + CHUNK_SIZE),
-        type: NotificationType.PUSH,
         payload,
+        type,
       });
     }
-  }
-
-  async email(createNotificationDto: CreateNotificationDto) {
-    console.log(createNotificationDto);
-  }
-
-  async sms(createNotificationDto: CreateNotificationDto) {
-    console.log(createNotificationDto);
   }
 
   async consume({ type, subscriptions, payload }: INotification) {

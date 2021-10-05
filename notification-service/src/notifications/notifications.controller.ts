@@ -4,23 +4,13 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { INotification } from './interfaces/notification.interface';
 import { NotificationsService } from './notifications.service';
 
-@Controller('notifications')
+@Controller()
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
-  @EventPattern('push')
+  @EventPattern('create')
   async push(@Payload() createNotificationDto: CreateNotificationDto) {
-    await this.notificationsService.push(createNotificationDto);
-  }
-
-  @EventPattern('email')
-  async email(@Payload() createNotificationDto: CreateNotificationDto) {
-    await this.notificationsService.email(createNotificationDto);
-  }
-
-  @EventPattern('sms')
-  async sms(@Payload() createNotificationDto: CreateNotificationDto) {
-    await this.notificationsService.sms(createNotificationDto);
+    await this.notificationsService.create(createNotificationDto);
   }
 
   @EventPattern('consume')

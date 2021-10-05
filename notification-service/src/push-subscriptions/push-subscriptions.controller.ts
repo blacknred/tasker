@@ -7,27 +7,27 @@ import { ResponseDto } from './dto/response.dto';
 import { IPushSubscription } from './interfaces/push-subscription.interface';
 import { PushSubscriptionsService } from './push-subscriptions.service';
 
-@Controller('push-subscriptions')
+@Controller()
 export class PushSubscriptionsController {
   constructor(
     private readonly subscriptionsService: PushSubscriptionsService,
   ) {}
 
-  @MessagePattern('create')
+  @MessagePattern('create-push-subscription')
   create(
     @Payload() createSubscriptionDto: CreatePushSubscriptionDto,
   ): Promise<ResponseDto<IPushSubscription>> {
     return this.subscriptionsService.create(createSubscriptionDto);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('get-push-subscriptions')
   getAll(
     @Payload() getSubscriptionsDto: GetPushSubscriptionsDto,
   ): Promise<ResponseDto<IPushSubscription[]>> {
     return this.subscriptionsService.findAll(getSubscriptionsDto);
   }
 
-  @MessagePattern('delete')
+  @MessagePattern('delete-push-subscription')
   remove(
     @Payload() { userId }: DeletePushSubscriptionDto,
   ): Promise<ResponseDto<null>> {

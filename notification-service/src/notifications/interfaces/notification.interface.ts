@@ -8,6 +8,6 @@ export enum NotificationType {
 
 export interface INotification {
   type: NotificationType;
-  subscriptions: IPushSubscription[]; // +email & sms
   payload: string;
+  subscriptions: Array<IPushSubscription>; // +email & sms
 }
