@@ -6,9 +6,10 @@ import { IAuthData } from '../interfaces/authed-request.interface';
 export const authExample = {
   id: 1,
   roles: [Role.USER],
+  vapidPublicKey: 'Bsr56...',
 };
 
 export class AuthResponseDto extends ResponseDto {
   @ApiProperty({ example: authExample })
-  data: IAuthData;
+  data: IAuthData & { vapidPublicKey: string };
 }

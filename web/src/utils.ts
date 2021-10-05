@@ -1,3 +1,5 @@
+import { ValidationError } from "./typings";
+
 export function localStorageProvider() {
   const map = new Map(JSON.parse(localStorage.getItem("app-cache") || "[]"));
   window.addEventListener("beforeunload", () => {
@@ -11,18 +13,18 @@ export function delay(ms = 1000): Promise<void> {
   return new Promise((r) => setInterval(r, ms));
 }
 
-export function fetcher(res: RequestInfo, init: RequestInit) {
+export function fetcher<T = unknown>(res: RequestInfo, init: RequestInit) {
   return fetch(res, init)
-    .then((res) => res.json())
-    .catch((e) => console.log(e.message));
+    .then((res) => {
+      if (!res.ok) throw new Error("Bad status code from server.");
+      return res.json() as Promise<T>;
+    })
+    .catch((e: Error) => {
+      throw e;
+    });
 }
 
-export type FieldErrorDto = {
-  field: "string";
-  message: "string";
-};
-
-export function errorMap(errors: FieldErrorDto[]) {
+export function errorMap(errors: ValidationError[]) {
   const map: Record<string, string> = {};
   for (let { field, message } of errors) {
     map[field] = message;
@@ -51,4 +53,20 @@ export function getRandBgColor(saturation = 50) {
   const colors = ["pink", "green", "orange", "gray", "facebook", "violet"];
   const index = Math.floor(Math.random() * colors.length);
   return `${colors[index]}.${saturation}`;
+}
+
+export function urlB64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, "+")
+    .replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+
+  return outputArray;
 }

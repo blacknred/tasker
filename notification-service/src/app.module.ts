@@ -10,7 +10,6 @@ import { PushSubscriptionsModule } from './push-subscriptions/push-subscriptions
       validationSchema: Joi.object({
         QUEUE_URL: Joi.string().required(),
         DB_URL: Joi.string().required(),
-        CLIENT_HOST: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         VAPID_PRIVATE_KEY: Joi.string().required(),
       }),

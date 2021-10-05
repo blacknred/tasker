@@ -5,7 +5,7 @@ export type ValidationError = {
   message: string;
 };
 
-export class IResponse<T = null> {
+export interface IResponse<T = null> {
   status: HttpStatus;
   errors: ValidationError[] | null;
   data: T;

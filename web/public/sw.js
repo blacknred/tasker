@@ -1,59 +1,53 @@
 "use strict";
 
-/* eslint-disable max-len */
+let VAPID_PUBLIC_KEY;
 
-const applicationServerPublicKey =
-  "BH8-hIchXKMI6AKSee8gD0hhPThRqaEhIEtMJwcTjEQhiOKdG-_2tTIO-6hOAK4kwg5M9Saedjxp4hVE-khhWxY";
-
-/* eslint-enable max-len */
-
-function urlB64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/\-/g, "+")
-    .replace(/_/g, "/");
-
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "VAPID_PUBLIC_KEY") {
+    VAPID_PUBLIC_KEY = event.data.data;
   }
-  return outputArray;
-}
+});
 
 self.addEventListener("push", function (event) {
-  console.log("[Service Worker] Push Received.");
-  console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
-
-  const title = "Push Codelab";
+  console.log("[Service Worker] Push Received.", event.data.text());
+  let title = "Tasker notification";
   const options = {
-    body: "Yay it works.",
-    icon: "images/icon.png",
-    badge: "images/badge.png",
+    body: "New updates",
+    // icon: 'images/icon.png',
+    // badge: 'images/badge.png'
+    tag: "renotify",
+    renotify: true,
+    data: {
+      time: new Date(Date.now()).toString(),
+    },
   };
+
+  try {
+    data = event.data.json();
+    title = data.title;
+    options.body = data.message;
+  } catch (e) {}
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log("[Service Worker] Notification click Received.");
+  console.log(event.notification.data);
   event.notification.close();
-  event.waitUntil(clients.openWindow("https://developers.google.com/web/"));
+  event.waitUntil(clients.openWindow(self.location.origin));
 });
 
-self.addEventListener("pushsubscriptionchange", function (event) {
-  console.log("[Service Worker]: 'pushsubscriptionchange' event fired.");
-  const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
-  event.waitUntil(
-    self.registration.pushManager
-      .subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKey,
-      })
-      .then(function (newSubscription) {
-        // TODO: Send to application server
-        console.log("[Service Worker] New subscription: ", newSubscription);
-      })
-  );
-});
+// self.addEventListener("pushsubscriptionchange", function (event) {
+//   console.log("[Service Worker]: 'pushsubscriptionchange' event fired.");
+//   event.waitUntil(
+//     self.registration.pushManager
+//       .subscribe({
+//         userVisibleOnly: true,
+//         applicationServerKey: VAPID_PUBLIC_KEY,
+//       })
+//       .then(function (newSubscription) {
+//         // TODO: Send to application server
+//         console.log("[Service Worker] New subscription: ", newSubscription);
+//       })
+//   );
+// });

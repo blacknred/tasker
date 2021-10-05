@@ -3,7 +3,7 @@ import { Box, Button, Flex, Heading, IconButton, useColorMode, useColorModeValue
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
-import { deleteAuth } from '../../api';
+import api from '../../api';
 import useAuth from '../../hooks/useAuth';
 
 interface IProps {
@@ -36,7 +36,7 @@ const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
                   fontSize="lg"
                   aria-label="Logout"
                   icon={<ExternalLinkIcon />}
-                  onClick={() => deleteAuth(() => router.replace("/"))}
+                  onClick={() => api.deleteAuth(undefined, () => router.replace("/"))}
                 />
               </>
             )}

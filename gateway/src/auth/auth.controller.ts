@@ -19,10 +19,17 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';
 import { AuthedGuard } from './guards/authed.guard';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
+  vapidPublicKey: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.vapidPublicKey = this.configService.get('VAPID_PUBLIC_KEY');
+  }
+
   @Post()
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login' })
@@ -32,7 +39,8 @@ export class AuthController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Body() createAuthDto: CreateAuthDto,
   ): AuthResponseDto {
-    return { data: user };
+    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
+    return { data };
   }
 
   @Get()
@@ -40,7 +48,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Get Session data' })
   @ApiOkResponse({ type: AuthResponseDto })
   getOne(@Req() { user }: IAuthedRequest): AuthResponseDto {
-    return { data: user };
+    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
+    return { data };
   }
 
   @Delete()

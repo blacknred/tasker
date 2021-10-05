@@ -25,6 +25,7 @@ import { UsersModule } from './users/users.module';
       validationSchema: Joi.object({
         REDIS_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
+        VAPID_PUBLIC_KEY: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
       }),
     }),

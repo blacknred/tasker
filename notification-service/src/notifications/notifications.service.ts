@@ -22,7 +22,7 @@ export class NotificationsService {
     this.pushOptions = {
       TTL: 60 * 60,
       vapidDetails: {
-        subject: this.configService.get('CLIENT_HOST'),
+        subject: 'mailto:web-push-book@gauntface.com', // TODO:
         publicKey: this.configService.get('VAPID_PUBLIC_KEY'),
         privateKey: this.configService.get('VAPID_PRIVATE_KEY'),
       },

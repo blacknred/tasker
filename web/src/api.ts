@@ -1,50 +1,31 @@
 import { FormikErrors } from "formik";
 import { mutate } from "swr";
-import { ITask } from "./typings";
+import pushService from "./push";
+import { IResponse, ITask } from "./typings";
 import { errorMap, fetcher } from "./utils";
 
 export const HOST = `http://${process.env.API_HOST}/api/v1/`;
 
-export function auth(url: RequestInfo) {
-  return (data: object, cb?: (err?: FormikErrors<typeof data>) => void) => {
-    return fetcher(url, { method: "POST", body: JSON.stringify(data) }).then(
-      (res) => {
-        if (res.errors) {
-          cb?.(errorMap(res.errors));
-        } else {
-          mutate(url as string, res.data);
-          cb?.(undefined);
-        }
-      }
-    );
-  };
-}
-
-export function deleteAuth(cb?: () => void) {
-  fetch(HOST + "auth", { method: "DELETE" });
-  mutate(null);
-  cb?.();
-}
-
-export function task(url: RequestInfo, method: RequestInit["method"]) {
+export function mutation<T = unknown>(
+  endpoint: string,
+  method: RequestInit["method"],
+  onSuccess?: (data?: T) => void
+) {
   return (
-    data: object,
-    id?: string,
-    cb?: (err?: FormikErrors<typeof data>) => void
+    payload: unknown,
+    cb?: (err?: FormikErrors<typeof payload>, data?: T) => void,
+    id?: string
   ) => {
-    return fetcher(url, { method, body: JSON.stringify(data) }).then((res) => {
+    return fetcher<IResponse<T>>(HOST + endpoint + (id ? `/${id}` : ""), {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      method,
+    }).then((res) => {
       if (res.errors) {
         cb?.(errorMap(res.errors));
-      } else {
-        cb?.(undefined);
-        if (method === "POST") {
-          mutate("tasks", null);
-        }
-        if (method === "PATCH" && id) {
-          mutate("tasks", (tasks: ITask[]) =>
-            tasks.map((task) => (task.id === id ? res.data : task))
-          );
-        }
+      } else if (res.data) {
+        cb?.(undefined, res.data);
+        onSuccess?.(res.data);
       }
     });
   };
@@ -52,9 +33,21 @@ export function task(url: RequestInfo, method: RequestInit["method"]) {
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  deleteAuth,
-  createUser: auth(HOST + "users"),
-  createAuth: auth(HOST + "auth"),
-  createTask: task(HOST + "tasks", "POST"),
-  updateTask: task(HOST + "tasks", "PATCH"),
+  createUser: mutation("users", "POST", (data) => mutate(HOST + "auth", data)),
+  createAuth: mutation("auth", "POST", (data) => {
+    mutate(HOST + "auth", data);
+    pushService.subscribe(data.vapidPublicKey);
+  }),
+  deleteAuth: mutation("auth", "DELETE", () => {
+    mutate(null);
+    pushService.unsubscribe();
+  }),
+  createPushSubscription: mutation("push-subscription", "POST"),
+  deletePushSubscription: mutation("push-subscription", "DELETE"),
+  createTask: mutation("tasks", "POST", () => mutate("tasks", null)),
+  updateTask: mutation<ITask>("tasks", "PATCH", (data) =>
+    mutate("tasks", (tasks: ITask[]) =>
+      tasks.map((task) => (task.id === data!.id ? data : task))
+    )
+  ),
 };
