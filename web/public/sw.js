@@ -2,39 +2,72 @@
 
 let VAPID_PUBLIC_KEY;
 
+function isClientFocused() {
+  return clients
+    .matchAll({
+      type: "window",
+      includeUncontrolled: true,
+    })
+    .then((clients) => clients.some((client) => client.focused));
+}
+
+function findMatchingClient(urlToOpen) {
+  clients
+    .matchAll({
+      type: "window",
+      includeUncontrolled: true,
+    })
+    .then((clients) => clients.find((client) => client.url === urlToOpen));
+}
+
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "VAPID_PUBLIC_KEY") {
     VAPID_PUBLIC_KEY = event.data.data;
   }
 });
 
-self.addEventListener("push", function (event) {
+self.addEventListener("push", (event) => {
   console.log("[Service Worker] Push Received.", event.data.text());
-  let title = "Tasker notification";
-  const options = {
-    body: "New updates",
-    // icon: 'images/icon.png',
-    // badge: 'images/badge.png'
-    tag: "renotify",
-    renotify: true,
-    data: {
-      time: new Date(Date.now()).toString(),
-    },
-  };
 
-  try {
-    data = event.data.json();
-    title = data.title;
-    options.body = data.message;
-  } catch (e) {}
+  const promiseChain = isClientFocused().then((clientIsFocused) => {
+    try {
+      const { title, message } = event.data.json();
 
-  event.waitUntil(self.registration.showNotification(title, options));
+      // send notification to app
+      windowClients.forEach((windowClient) => {
+        windowClient.postMessage({ title, message });
+      });
+
+      // raise a notification if tab closed or a browser hidden
+      if (!clientIsFocused) {
+        return self.registration.showNotification(title, {
+          body: message,
+          tag: "renotify",
+          renotify: true,
+          // icon: 'images/icon.png',
+          // badge: 'images/badge.png',
+        });
+      }
+    } catch (e) {}
+  });
+
+  event.waitUntil(promiseChain);
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log(event.notification.data);
   event.notification.close();
-  event.waitUntil(clients.openWindow(self.location.origin));
+
+  const urlToOpen = new URL(examplePage, self.location.origin).href;
+  const promiseChain = findMatchingClient(urlToOpen).then((matchingClient) => {
+    // focus existing tab or open new one otherwise
+    if (matchingClient) {
+      return matchingClient.focus();
+    } else {
+      return clients.openWindow(urlToOpen);
+    }
+  });
+
+  event.waitUntil(promiseChain);
 });
 
 // self.addEventListener("pushsubscriptionchange", function (event) {

@@ -1,6 +1,7 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
+import { MailerService } from '@nest-modules/mailer';
 import { PushSubscriptionsService } from 'src/push-subscriptions/push-subscriptions.service';
 import webpush, { RequestOptions } from 'web-push';
 import { CHUNK_SIZE, QUEUE_SERVICE } from './consts';
@@ -16,6 +17,7 @@ export class NotificationsService {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
     private readonly pushService: PushSubscriptionsService,
     @Inject(QUEUE_SERVICE) private readonly queueService: ClientProxy,
   ) {
@@ -79,6 +81,14 @@ export class NotificationsService {
 
           break;
         case NotificationType.EMAIL:
+          try {
+            await this.mailerService.sendMail({
+              to: user.email,
+              subject: 'Password changed',
+              html,
+            });
+          } catch (e) {}
+
           break;
         case NotificationType.SMS:
           break;

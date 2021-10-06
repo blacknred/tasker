@@ -12,6 +12,7 @@ import { PushSubscriptionsModule } from './push-subscriptions/push-subscriptions
         DB_URL: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         VAPID_PRIVATE_KEY: Joi.string().required(),
+        SMTP_URL: Joi.string().required(),
       }),
     }),
     PushSubscriptionsModule,

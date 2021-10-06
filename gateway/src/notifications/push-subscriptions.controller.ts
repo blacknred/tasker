@@ -25,8 +25,8 @@ import { NOTIFICATION_SERVICE } from './consts';
 import { ClientProxy } from '@nestjs/microservices';
 import { SharedService } from 'src/shared/shared.service';
 
-@Controller('push-subscriptions')
-@ApiTags('Push subscriptions')
+@Controller('notifications')
+@ApiTags('Notifications')
 export class PushSubscriptionsController {
   constructor(
     private readonly pushService: SharedService,

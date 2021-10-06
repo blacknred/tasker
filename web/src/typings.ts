@@ -1,3 +1,31 @@
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export interface IUser {
+  id: number;
+  name: string;
+  email: string;
+  roles: [Role];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type IAuthData = Pick<IUser, 'id' | 'roles'> & {
+  vapidPublicKey?: string;
+};
+
+export interface IPushSubscription {
+  userId: number;
+  endpoint: string;
+  expirationTime?: number;
+  keys: {
+    auth: string;
+    p256dh: string;
+  };
+}
+
 export enum TaskType {
   LONG = "LONG",
   SHORT = "SHORT",
@@ -22,16 +50,6 @@ export interface ITask {
   finishedAt?: number;
 }
 
-export interface IPushSubscription {
-  userId: number;
-  endpoint: string;
-  expirationTime?: number;
-  keys: {
-    auth: string;
-    p256dh: string;
-  };
-}
-
 export interface ListOptions {
   variant: "list" | "grid";
 }
@@ -45,14 +63,4 @@ export interface IResponse<T = unknown> {
   status: number;
   errors: ValidationError[] | null;
   data: T;
-}
-
-export interface IPushSubscription {
-  userId: number;
-  endpoint: string;
-  expirationTime?: number;
-  auth: string;
-  p256dh: string;
-  createdAt: Date;
-  updatedAt: Date;
 }

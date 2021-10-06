@@ -12,8 +12,8 @@ export class CreatePushSubscriptionDto {
   userId: number;
   @IsString({ message: 'Must be a string' })
   endpoint: string;
-  @IsNumber({}, { message: 'Must be an integer' })
-  expirationTime?: number;
   @ValidateNested()
   keys: PushSubscriptionKeysDto;
+  @IsNumber({}, { message: 'Must be an integer' })
+  expirationTime?: number;
 }

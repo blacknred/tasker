@@ -13,21 +13,21 @@ export class PushSubscriptionsController {
     private readonly subscriptionsService: PushSubscriptionsService,
   ) {}
 
-  @MessagePattern('create-push-subscription')
+  @MessagePattern('push-subscription/create')
   create(
     @Payload() createSubscriptionDto: CreatePushSubscriptionDto,
   ): Promise<ResponseDto<IPushSubscription>> {
     return this.subscriptionsService.create(createSubscriptionDto);
   }
 
-  @MessagePattern('get-push-subscriptions')
+  @MessagePattern('push-subscription/getAll')
   getAll(
     @Payload() getSubscriptionsDto: GetPushSubscriptionsDto,
   ): Promise<ResponseDto<IPushSubscription[]>> {
     return this.subscriptionsService.findAll(getSubscriptionsDto);
   }
 
-  @MessagePattern('delete-push-subscription')
+  @MessagePattern('push-subscription/delete')
   remove(
     @Payload() { userId }: DeletePushSubscriptionDto,
   ): Promise<ResponseDto<null>> {

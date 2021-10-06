@@ -11,5 +11,5 @@ export const authExample = {
 
 export class AuthResponseDto extends ResponseDto {
   @ApiProperty({ example: authExample })
-  data: IAuthData & { vapidPublicKey: string };
+  data: IAuthData;
 }

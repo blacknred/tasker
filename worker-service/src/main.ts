@@ -1,8 +1,7 @@
-import 'reflect-metadata';
-import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { RmqOptions, Transport } from '@nestjs/microservices';
+import 'reflect-metadata';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -21,7 +20,6 @@ async function bootstrap() {
     },
   });
 
-  app.useGlobalPipes(new ValidationPipe());
   await app.listen();
   appCtx.close();
 }
