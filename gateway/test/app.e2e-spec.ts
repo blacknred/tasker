@@ -21,4 +21,17 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect('Hello World!');
   });
+
+  it(`/GET cats`, () => {
+    return request(app.getHttpServer())
+      .get('/cats')
+      .expect(200)
+      .expect({
+        data: catsService.findAll(),
+      });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
 });

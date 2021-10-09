@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { StatusMonitorModule } from 'nestjs-status-monitor';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from 'src/_shared/shared.module';
 import { HealthController } from './health.controller';
 
 @Module({

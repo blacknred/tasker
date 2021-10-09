@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from 'src/_shared/shared.module';
 import { usersProvider } from './providers/users.provider';
 import { UsersController } from './users.controller';
 

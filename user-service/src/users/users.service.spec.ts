@@ -14,13 +14,19 @@ const mockRepository = () => ({
   create: jest.fn(),
   find: jest.fn(),
   findOne: jest.fn(),
+  findOneValidated: jest.fn(),
+  update: jest.fn(),
   delete: jest.fn(),
 });
 
 const mockedConfigService = {
   get(key: string) {
     switch (key) {
-      case 'JWT_EXPIRATION_TIME':
+      case 'DB_URL':
+        return '3600';
+      case 'REDIS_URL':
+        return '3600';
+      case 'SECRET':
         return '3600';
     }
   },
@@ -82,8 +88,17 @@ describe('UsersService', () => {
     });
 
     it('throws an error as a product is not found', () => {
-      productRepository.findOne.mockResolvedValue(null);
+      repository.findOne.mockResolvedValue(null);
       expect(productService.getProduct(1)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateUser', () => {
+    it('should update user', async () => {
+      repository.delete.mockResolvedValue(1);
+      expect(repository.delete).not.toHaveBeenCalled();
+      await service.remove(1);
+      expect(repository.delete).toHaveBeenCalledWith(1);
     });
   });
 

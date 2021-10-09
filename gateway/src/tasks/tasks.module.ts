@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from 'src/_shared/shared.module';
 import { tasksProvider } from './providers/tasks.provider';
 import { TasksController } from './tasks.controller';
 

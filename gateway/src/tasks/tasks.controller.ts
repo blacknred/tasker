@@ -20,8 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
-import { EmptyResponseDto } from 'src/shared/dto/empty-response.dto';
-import { SharedService } from 'src/shared/shared.service';
+import { EmptyResponseDto } from 'src/_shared/dto/empty-response.dto';
+import { SharedService } from 'src/_shared/shared.service';
 import { Role } from 'src/users/interfaces/user.interface';
 import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
