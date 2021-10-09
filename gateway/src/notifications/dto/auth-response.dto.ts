@@ -3,13 +3,13 @@ import { ResponseDto } from 'src/shared/dto/response.dto';
 import { Role } from '../../users/interfaces/user.interface';
 import { IAuthData } from '../interfaces/authed-request.interface';
 
-export const authExample = {
+export const authMock = {
   id: 1,
   roles: [Role.USER],
   vapidPublicKey: 'Bsr56...',
 };
 
 export class AuthResponseDto extends ResponseDto {
-  @ApiProperty({ example: authExample })
+  @ApiProperty({ example: authMock })
   data: IAuthData & { vapidPublicKey: string };
 }

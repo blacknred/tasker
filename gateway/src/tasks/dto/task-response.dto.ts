@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/shared/dto/response.dto';
 import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 
-export const taskExample = {
+export const taskMock = {
   id: '5r185c3vfb991ee66b486ccb',
   name: 'first task',
   description: 'test task description',
@@ -14,6 +14,6 @@ export const taskExample = {
 };
 
 export class TaskResponseDto extends ResponseDto {
-  @ApiProperty({ example: taskExample, nullable: false })
+  @ApiProperty({ example: taskMock, nullable: false })
   data: ITask;
 }

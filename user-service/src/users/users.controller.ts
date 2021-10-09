@@ -27,11 +27,11 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @MessagePattern('getValidatedOne')
-  getValidatedOne(
+  @MessagePattern('getOneValidated')
+  getdOneValidate(
     @Payload() getValidatedUserDto: GetValidatedUserDto,
   ): Promise<ResponseDto<IUser>> {
-    return this.usersService.findValidatedOne(getValidatedUserDto);
+    return this.usersService.findOneValidated(getValidatedUserDto);
   }
 
   @MessagePattern('update')

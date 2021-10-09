@@ -20,7 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
-    const { data } = await this.usersService.feed<IUser>('getValidatedOne', {
+    const { data } = await this.usersService.feed<IUser>('getOneValidated', {
       password,
       email,
     });

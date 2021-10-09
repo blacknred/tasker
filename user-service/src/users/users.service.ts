@@ -1,5 +1,4 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 import { USER_REPOSITORY } from './consts';
@@ -12,7 +11,6 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly configService: ConfigService,
     @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
   ) {}
 
@@ -94,7 +92,7 @@ export class UsersService {
     };
   }
 
-  async findValidatedOne({ email, password }: GetValidatedUserDto) {
+  async findOneValidated({ email, password }: GetValidatedUserDto) {
     try {
       const user = await this.userRepository.findOne({ email });
 
