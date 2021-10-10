@@ -1,21 +1,27 @@
-import { NestFactory, Reflector } from '@nestjs/core';
-import { Transport } from '@nestjs/microservices';
-import { ValidationPipe } from './push-subscriptions/pipes/validation.pipe';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { RmqOptions, Transport } from '@nestjs/microservices';
+import 'reflect-metadata';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor } from '@nestjs/common';
-import { ErrorFilter } from './push-subscriptions/filters/exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AppModule, {
-    transport: Transport.TCP,
-    options: { host: 'notification-service' },
+  const appCtx = await NestFactory.createApplicationContext(AppModule);
+  const configService = appCtx.get(ConfigService);
+
+  const app = await NestFactory.createMicroservice<RmqOptions>(AppModule, {
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get('QUEUE_URL') as string],
+      queue: 'notifications',
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
+    },
   });
 
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useGlobalFilters(new ErrorFilter());
-
   await app.listen();
+  appCtx.close();
 }
 
 bootstrap();

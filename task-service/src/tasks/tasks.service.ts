@@ -1,7 +1,7 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ObjectID, Repository } from 'typeorm';
-import { QUEUE_SERVICE } from './consts';
+import { WORKER_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -11,7 +11,7 @@ import { Task } from './entities/task.entity';
 export class TasksService {
   constructor(
     @Inject(Task) private taskRepository: Repository<Task>,
-    @Inject(QUEUE_SERVICE) private readonly queueService: ClientProxy,
+    @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
   ) {}
 
   async create(createTaskDto: CreateTaskDto) {
@@ -20,7 +20,7 @@ export class TasksService {
       Object.assign(task, createTaskDto);
       await this.taskRepository.save(task);
 
-      this.queueService.emit<any>('task', task);
+      this.workerService.emit<any>('task', task);
 
       return {
         status: HttpStatus.CREATED,

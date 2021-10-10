@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { QUEUE_SERVICE } from '../consts';
+import { NOTIFICATION_SERVICE } from '../consts';
 
-export const queueProvider = {
-  provide: QUEUE_SERVICE,
+export const workerProvider = {
+  provide: NOTIFICATION_SERVICE,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) =>
     ClientProxyFactory.create({
@@ -11,7 +11,7 @@ export const queueProvider = {
       options: {
         urls: [configService.get('QUEUE_URL')],
         queue: 'notifications',
-        // noAck: true,
+        noAck: true,
         queueOptions: {
           durable: true,
         },

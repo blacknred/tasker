@@ -7,8 +7,8 @@ import { TasksModule } from './tasks/tasks.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        QUEUE_URL: Joi.string().required(),
         DB_URL: Joi.string().required(),
+        QUEUE_URL: Joi.string().required(),
       }),
     }),
     TasksModule,
