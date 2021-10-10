@@ -5,13 +5,13 @@ import { PrometheusService } from '../prometheus/prometheus.service';
 @Injectable()
 export class MetricsService {
   constructor(
-    private promClientService: PrometheusService,
+    private prometheusService: PrometheusService,
     private healthService: HealthService,
   ) {}
 
   public get metrics(): Promise<string> {
     this.healthService.check();
 
-    return this.promClientService.metrics;
+    return this.prometheusService.metrics;
   }
 }

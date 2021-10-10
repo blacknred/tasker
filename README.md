@@ -15,7 +15,6 @@ Microservice boilerplate for task manager app
 | Task CRUD service    | task-service         | TS, NestJS, TCP       | 8082  |
 | Worker service       | worker-service       | TS, NestJS, AMQP      | 8083  |
 | Notification service | notification-service | TS, NestJS, TCP       | 8084  |
-| Monitoring service   | monitoring-service   | TS, NestJS, TCP       | 8085  |
 | Gateway, SwaggerUI   | gateway              | TS, NestJS, REST      | 8080  |
 | Web client           | web                  | TS, NextJS, ChakraUI  | 3000  |
 | Prometheus webUI     | prometheus           | Prometheus            | 3001  |

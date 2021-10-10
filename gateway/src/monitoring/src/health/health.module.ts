@@ -3,10 +3,9 @@ import { HealthController } from './health.controller';
 import { HealthService } from './health.service';
 import { TerminusModule } from '@nestjs/terminus';
 import { PrometheusModule } from '../prometheus/prometheus.module';
-import { AnyOtherModuleModule } from '../any-other-module/any-other-module.module';
 
 @Module({
-  imports: [TerminusModule, PrometheusModule, AnyOtherModuleModule],
+  imports: [TerminusModule, PrometheusModule],
   controllers: [HealthController],
   providers: [HealthService],
   exports: [HealthService],

@@ -203,34 +203,6 @@ services:
     links:
       - notification-db
       - rabbitmq
-  
-  monitoring-service:
-    container_name: monitoring-service
-    hostname: monitoring-service
-    command: yarn start:dev
-    build:
-      context: ./monitoring-service
-      target: development
-    env_file:
-      - ".env.dev"
-    volumes:
-      - "./monitoring-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-    environment:
-      - NODE_ENV=development
-    restart: on-failure
-    ports:
-      - "8085:3000"
-    networks:
-      - backend
-    depends_on:
-      - user-service
-      - task-service
-      - notification-service
-    links:
-      - user-service
-      - task-service
-      - notification-service
 
   gateway:
     container_name: gateway
@@ -257,13 +229,11 @@ services:
       - user-service
       - task-service
       - notification-service
-      - monitoring-service
       - redis
     links:
       - user-service
       - task-service
       - notification-service
-      - monitoring-service
       - redis
 
   web:

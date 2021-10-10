@@ -1,17 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Registry, collectDefaultMetrics, Histogram, Gauge } from 'prom-client';
 
-export type PrometheusHistogram = Histogram<string>;
-type MapHistogram = Record<string, Histogram<string>>;
-type MapGauge = Record<string, Gauge<string>>;
-
 @Injectable()
 export class PrometheusService {
-  private readonly serviceTitle = 'Backend_Monitoring';
-  private readonly servicePrefix = 'FrontendMetrics_';
-  private registeredMetrics: MapHistogram = {};
-  private registeredGauges: MapGauge = {};
+  private readonly prefix = 'FrontendMetrics_';
   private readonly registry: Registry;
+  private registeredMetrics: Record<string, Histogram<string>> = {};
+  private registeredGauges: Record<string, Gauge<string>> = {};
 
   constructor() {
     // Create a Registry which registers the metrics
@@ -19,13 +14,13 @@ export class PrometheusService {
 
     // Add a default label which is added to all metrics
     this.registry.setDefaultLabels({
-      app: this.serviceTitle,
+      app: 'Backend_Monitoring',
     });
 
     // Enable the collection of default metrics
     collectDefaultMetrics({
       register: this.registry,
-      prefix: this.servicePrefix,
+      prefix: this.prefix,
     });
   }
 
@@ -33,11 +28,11 @@ export class PrometheusService {
     return this.registry.metrics();
   }
 
-  public removeSingleMetric(name: string): void {
+  public removeMetric(name: string) {
     return this.registry.removeSingleMetric(name);
   }
 
-  public clearMetrics(): void {
+  public clearMetrics() {
     this.registry.resetMetrics();
 
     return this.registry.clear();
@@ -52,24 +47,27 @@ export class PrometheusService {
     buckets: number[],
   ): Histogram<string> {
     if (this.registeredMetrics[name] === undefined) {
-      const histogram = new Histogram({ name, help, labelNames, buckets });
+      this.registeredMetrics[name] = new Histogram({
+        name,
+        help,
+        labelNames,
+        buckets,
+      });
 
-      this.registry.registerMetric(histogram);
-      this.registeredMetrics[name] = histogram;
+      this.registry.registerMetric(this.registeredMetrics[name]);
     }
 
     return this.registeredMetrics[name];
   }
 
   public registerGauge(name: string, help: string): Gauge<string> {
-    if (this.registeredGauges[name] === undefined) {
-      const gauge = (this.registeredGauges[name] = new Gauge({
-        name: this.servicePrefix + name,
+    if (!this.registeredGauges[name]) {
+      this.registeredGauges[name] = new Gauge({
+        name: this.prefix + name,
         help,
-      }));
+      });
 
-      this.registry.registerMetric(gauge);
-      this.registeredGauges[name] = gauge;
+      this.registry.registerMetric(this.registeredGauges[name]);
     }
 
     return this.registeredGauges[name];
