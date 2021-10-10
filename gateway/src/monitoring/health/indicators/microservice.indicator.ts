@@ -36,4 +36,11 @@ export class MicroserviceIndicator
     this.updatePrometheusData(true);
     return result;
   }
+
+  // custom service
+  // public async isHealthy(): Promise<HealthIndicatorResult> {
+  //   const isHealthy = this.service.isConnected;
+  //   this.updatePrometheusData(isHealthy);
+  //   return this.getStatus(this.name, isHealthy);
+  // }
 }

@@ -74,24 +74,6 @@ services:
     healthcheck:
       test: exit 0
 
-  notification-db:
-    container_name: notification-db
-    build: ./notification-db
-    env_file: ./.env.dev
-    volumes:
-      - "./notification-db/data:/var/lib/postgresql/data"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-users_test}
-    restart: always
-    ports:
-      - "5433:5432"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
-
   user-service:
     container_name: user-service
     hostname: user-service
@@ -108,6 +90,7 @@ services:
       - NODE_ENV=development
       - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-test}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     restart: on-failure
     ports:
       - "8081:3000"
@@ -115,8 +98,10 @@ services:
       - backend
     depends_on:
       - user-db
+      - notification-service
     links:
       - user-db
+      - notification-service
 
   task-service:
     container_name: task-service
@@ -190,7 +175,6 @@ services:
       - "/usr/src/app/node_modules"
     environment:
       - NODE_ENV=development
-      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@notification-db:5432/${POSTGRES_DB:-test}
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     restart: on-failure
     ports:
@@ -198,10 +182,8 @@ services:
     networks:
       - backend
     depends_on:
-      - notification-db
       - rabbitmq
     links:
-      - notification-db
       - rabbitmq
 
   gateway:
@@ -267,7 +249,7 @@ services:
     ports:
       - "3001:3000"
     networks:
-      - backend
+      - frontend
     # command:
     #   - '--config.file=/etc/prometheus/prometheus.yml'
 
@@ -285,7 +267,7 @@ services:
     ports:
       - '3002:3000'
     networks:
-      - backend
+      - frontend
     links:
       - prometheus
 

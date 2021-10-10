@@ -1,19 +1,18 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { createConnection } from 'typeorm';
 import { DB_CONNECTION } from '../consts';
-import { User } from '../entities/user.entity';
+import { Task } from '../entities/task.entity';
 
-export const databaseProvider = {
+export const dbProvider = {
   provide: DB_CONNECTION,
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) =>
     createConnection({
-      entities: [User],
-      url: configService.get('DB_URL'),
-      type: 'postgres',
+      entities: [Task],
+      url: configService.get('DB_URL').slice(0, 34),
+      type: 'mongodb',
       logging: true,
       synchronize: true,
-      useUTC: true,
     }),
 };

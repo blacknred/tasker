@@ -1,1 +1,3 @@
 export const QUEUE_SERVICE = 'QUEUE_SERVICE';
+export const DB_CONNECTION = 'DB_CONNECTION';
+export const TASK_REPOSITORY = 'TASK_REPOSITORY';

@@ -26,10 +26,4 @@ export class DiskIndicator extends BaseIndicator implements HealthIndicator {
     this.updatePrometheusData(true);
     return result;
   }
-
-  // public async isHealthy(): Promise<HealthIndicatorResult> {
-  //   const isHealthy = this.service.isConnected;
-  //   this.updatePrometheusData(isHealthy);
-  //   return this.getStatus(this.name, isHealthy);
-  // }
 }

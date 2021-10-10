@@ -9,15 +9,15 @@ export class PrometheusService {
   private registeredGauges: Record<string, Gauge<string>> = {};
 
   constructor() {
-    // Create a Registry which registers the metrics
+    // create a registry which registers the metrics
     this.registry = new Registry();
 
-    // Add a default label which is added to all metrics
+    // add a default label which is added to all metrics
     this.registry.setDefaultLabels({
       app: 'Backend_Monitoring',
     });
 
-    // Enable the collection of default metrics
+    // enable default metrics
     collectDefaultMetrics({
       register: this.registry,
       prefix: this.prefix,
