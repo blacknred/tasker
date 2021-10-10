@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseDto } from 'src/_shared/dto/response.dto';
+import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 
 export const taskMock = {

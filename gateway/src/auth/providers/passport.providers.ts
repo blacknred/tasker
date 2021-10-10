@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { SharedService } from 'src/_shared/shared.service';
+import { SharedService } from 'src/__shared__/shared.service';
 import { USER_SERVICE } from 'src/users/consts';
 import { IUser } from '../../users/interfaces/user.interface';
 import { IAuthData } from '../interfaces/authed-request.interface';

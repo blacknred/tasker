@@ -12,12 +12,12 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { RedisClient } from 'redis';
 import { AuthModule } from './auth/auth.module';
-import { HealthModule } from './_health/health.module';
-import { CACHE_SERVICE } from './_shared/consts';
-import { cacheProvider } from './_shared/providers/cache.provider';
+import { MonitoringModule } from './monitoring/monitoring.module';
 // import { exceptionProvider } from './shared/providers/exception.provider';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
+import { CACHE_SERVICE } from './__shared__/consts';
+import { cacheProvider } from './__shared__/providers/cache.provider';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { UsersModule } from './users/users.module';
         NODE_ENV: Joi.string().required(),
       }),
     }),
-    HealthModule,
+    MonitoringModule,
     UsersModule,
     AuthModule,
     TasksModule,

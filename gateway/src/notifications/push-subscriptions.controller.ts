@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { EmptyResponseDto } from '../_shared/dto/empty-response.dto';
+import { EmptyResponseDto } from '../__shared__/dto/empty-response.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuthedRequest } from './interfaces/authed-request.interface';
@@ -23,7 +23,7 @@ import { AuthedGuard } from './guards/authed.guard';
 import { ConfigService } from '@nestjs/config';
 import { NOTIFICATION_SERVICE } from './consts';
 import { ClientProxy } from '@nestjs/microservices';
-import { SharedService } from 'src/_shared/shared.service';
+import { SharedService } from 'src/__shared__/shared.service';
 
 @Controller('notifications')
 @ApiTags('Notifications')

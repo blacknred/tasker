@@ -17,12 +17,12 @@ services:
     healthcheck:
       test: exit 0
 
-  queue:
-    container_name: queue
-    build: ./queue
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./rabbitmq
     env_file: ./.env.dev
     volumes:
-      - "./queue/data:/var/lib/rabbitmq"
+      - "./rabbitmq/data:/var/lib/rabbitmq"
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
@@ -53,24 +53,6 @@ services:
     healthcheck:
       test: exit 0
 
-  notification-db:
-    container_name: notification-db
-    build: ./notification-db
-    env_file: ./.env.dev
-    volumes:
-      - "./notification-db/data:/var/lib/postgresql/data"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-users_test}
-    restart: always
-    ports:
-      - "5433:5432"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
-
   task-db:
     container_name: task-db
     build: ./task-db
@@ -87,6 +69,24 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  notification-db:
+    container_name: notification-db
+    build: ./notification-db
+    env_file: ./.env.dev
+    volumes:
+      - "./notification-db/data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-users_test}
+    restart: always
+    ports:
+      - "5433:5432"
     networks:
       - backend
     healthcheck:
@@ -110,7 +110,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     restart: on-failure
     ports:
-      - "3001:3000"
+      - "8081:3000"
     networks:
       - backend
     depends_on:
@@ -118,34 +118,6 @@ services:
     links:
       - user-db
 
-  notification-service:
-    container_name: notification-service
-    hostname: notification-service
-    command: yarn start:dev
-    build:
-      context: ./notification-service
-      target: development
-    env_file:
-      - ".env.dev"
-    volumes:
-      - "./notification-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-    environment:
-      - NODE_ENV=development
-      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@notification-db:5432/${POSTGRES_DB:-test}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
-    restart: on-failure
-    ports:
-      - "3002:3000"
-    networks:
-      - backend
-    depends_on:
-      - notification-db
-      - queue
-    links:
-      - notification-db
-      - queue
-     
   task-service:
     container_name: task-service
     hostname: task-service
@@ -161,19 +133,19 @@ services:
     environment:
       - NODE_ENV=development
       - DB_URL=mongodb://${MONGO_USERNAME:-test}:${MONGO_PASSWORD:-test}@task-db:27017/${MONGO_DB:-test}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     restart: on-failure
     ports:
-      - "3003:3000"
+      - "8082:3000"
     networks:
       - backend
     depends_on:
       - task-db
-      - queue
+      - rabbitmq
       - notification-service
     links:
       - task-db
-      - queue
+      - rabbitmq
       - notification-service
 
   worker-service:
@@ -191,18 +163,74 @@ services:
     environment:
       - NODE_ENV=development
       - WORKERS_QNT=${WORKERS_QNT:-5}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@queue:5672
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     restart: on-failure
     ports:
-      - "3004:3000"
+      - "8083:3000"
     networks:
       - backend
     depends_on:
-      - queue
+      - rabbitmq
       - task-service
     links:
-      - queue
+      - rabbitmq
       - task-service
+
+  notification-service:
+    container_name: notification-service
+    hostname: notification-service
+    command: yarn start:dev
+    build:
+      context: ./notification-service
+      target: development
+    env_file:
+      - ".env.dev"
+    volumes:
+      - "./notification-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment:
+      - NODE_ENV=development
+      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@notification-db:5432/${POSTGRES_DB:-test}
+      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    restart: on-failure
+    ports:
+      - "8084:3000"
+    networks:
+      - backend
+    depends_on:
+      - notification-db
+      - rabbitmq
+    links:
+      - notification-db
+      - rabbitmq
+  
+  monitoring-service:
+    container_name: monitoring-service
+    hostname: monitoring-service
+    command: yarn start:dev
+    build:
+      context: ./monitoring-service
+      target: development
+    env_file:
+      - ".env.dev"
+    volumes:
+      - "./monitoring-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment:
+      - NODE_ENV=development
+    restart: on-failure
+    ports:
+      - "8085:3000"
+    networks:
+      - backend
+    depends_on:
+      - user-service
+      - task-service
+      - notification-service
+    links:
+      - user-service
+      - task-service
+      - notification-service
 
   gateway:
     container_name: gateway
@@ -228,10 +256,14 @@ services:
     depends_on:
       - user-service
       - task-service
+      - notification-service
+      - monitoring-service
       - redis
     links:
       - user-service
       - task-service
+      - notification-service
+      - monitoring-service
       - redis
 
   web:
@@ -240,16 +272,51 @@ services:
     build:
       context: ./web
       target: development
+    env_file: ./.env.dev
     volumes:
       - ./web:/usr/src/app
       - /usr/src/app/node_modules
       - /usr/src/app/.next
     environment:
-      - API_HOST=localhost:8080
+      - API_HOST==${API_GATEWAY_HOST:-localhost:8080}
+    restart: unless-stopped
     ports:
       - "3000:3000"  
     networks:
       - frontend
+
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    build: ./prometheus
+    env_file: ./.env.dev
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    networks:
+      - backend
+    # command:
+    #   - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    build: ./grafana
+    env_file: ./.env.dev
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD==${GRAFANA_PASSWORD:-test}
+    restart: unless-stopped
+    ports:
+      - '3002:3000'
+    networks:
+      - backend
+    links:
+      - prometheus
 
 networks:
   backend:

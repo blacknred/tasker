@@ -11,7 +11,7 @@ export class SharedService {
     this.client = client;
   }
 
-  async feed<T>(pattern: string, args: unknown): Promise<IResponse<T>> {
+  async feed<T>(pattern: string, args?: unknown): Promise<IResponse<T>> {
     // const { data, errors, status } = await firstValueFrom(
     //   this.client.send<IResponse<T>>(pattern, args),
     // );
