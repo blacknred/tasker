@@ -1,39 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Transport } from '@nestjs/microservices';
 import {
   HealthCheck,
   HealthCheckResult,
   HealthCheckService,
-  //
-  HttpHealthIndicator,
-  TypeOrmHealthIndicator,
-  MicroserviceHealthIndicator,
-  MemoryHealthIndicator,
-  DiskHealthIndicator,
-  // MongooseHealthIndicator,
-  // SequelizeHealthIndicator,
-  // GRPCHealthIndicator,
 } from '@nestjs/terminus';
 import { PrometheusService } from '../prometheus/prometheus.service';
-// import { AnyOtherService } from '../any-other-module/any-other.service';
+import { MemoryIndicator } from './indicators/memory.indicator';
+import { MicroserviceIndicator } from './indicators/microservice.indicator';
+import { DiskIndicator } from './indicators/disk.indicator';
 import { HealthIndicator } from './interfaces/health-indicator.interface';
-import { ServiceHealthIndicator } from './indicators/service-health.indicator';
-import { MemHealthIndicator } from './indicators/mem-health.indicator';
-import { Transport } from '@nestjs/microservices';
-// import { AnyOtherHealthIndicator } from './indicators/mem-health.indicator';
 
 @Injectable()
 export class HealthService {
   private readonly targets: HealthIndicator[];
 
   constructor(
+    private configService: ConfigService,
     private health: HealthCheckService,
     private prometheusService: PrometheusService,
-    private microservice: MicroserviceHealthIndicator,
-    private memory: MemoryHealthIndicator,
   ) {
     this.targets = [
-      new ServiceHealthIndicator(
-        this.microservice,
+      new MicroserviceIndicator(
         'user-service',
         {
           transport: Transport.TCP,
@@ -41,8 +30,7 @@ export class HealthService {
         },
         this.prometheusService,
       ),
-      new ServiceHealthIndicator(
-        this.microservice,
+      new MicroserviceIndicator(
         'task-service',
         {
           transport: Transport.TCP,
@@ -50,8 +38,7 @@ export class HealthService {
         },
         this.prometheusService,
       ),
-      new ServiceHealthIndicator(
-        this.microservice,
+      new MicroserviceIndicator(
         'notification-service',
         {
           transport: Transport.TCP,
@@ -59,16 +46,28 @@ export class HealthService {
         },
         this.prometheusService,
       ),
-      new ServiceHealthIndicator(
-        this.microservice,
+      new MicroserviceIndicator(
         'worker-service',
         {
-          transport: Transport.TCP,
-          options: { host: 'worker-service' },
+          transport: Transport.RMQ,
+          options: {
+            urls: [this.configService.get('QUEUE_URL')],
+          },
         },
         this.prometheusService,
       ),
-      new MemHealthIndicator(this.memory, this.prometheusService),
+      new MicroserviceIndicator(
+        'cache',
+        {
+          transport: Transport.REDIS,
+          options: {
+            url: this.configService.get('REDIS_URL'),
+          },
+        },
+        this.prometheusService,
+      ),
+      new MemoryIndicator(this.prometheusService),
+      new DiskIndicator(this.prometheusService),
     ];
   }
 

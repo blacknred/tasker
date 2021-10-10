@@ -3,10 +3,10 @@ import { HealthIndicator, HealthIndicatorResult } from '@nestjs/terminus';
 import { Gauge } from 'prom-client';
 import { PrometheusService } from '../../prometheus/prometheus.service';
 
-export abstract class BaseHealthIndicator extends HealthIndicator {
+export abstract class BaseIndicator extends HealthIndicator {
   protected abstract readonly prometheusService?: PrometheusService;
 
-  public abstract name: string;
+  abstract name: string;
   protected abstract help: string;
   protected readonly labelNames = ['status'];
   protected readonly buckets = [1];
@@ -14,7 +14,7 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
   protected isStateConnected = false;
   protected isMetricsRegistered = false;
   protected isGaugesRegistered = false;
-  public callMetrics: any;
+  callMetrics: any;
   private gauge?: Gauge<string>;
 
   // prometheus logic
@@ -42,7 +42,7 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
     }
   }
 
-  public updatePrometheusData(isConnected: boolean) {
+  updatePrometheusData(isConnected: boolean) {
     if (this.isStateConnected !== isConnected) {
       if (isConnected) {
         Logger.log(this.name + ' is available', true);
@@ -63,9 +63,9 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
 
   // indicator logic
 
-  public abstract isHealthy(): Promise<HealthIndicatorResult>;
+  abstract isHealthy(): Promise<HealthIndicatorResult>;
 
-  public reportUnhealthy(): HealthIndicatorResult {
+  reportUnhealthy(): HealthIndicatorResult {
     this.updatePrometheusData(false);
     return this.getStatus(this.name, false);
   }

@@ -24,15 +24,15 @@ export class PrometheusService {
     });
   }
 
-  public get metrics(): Promise<string> {
+  get metrics(): Promise<string> {
     return this.registry.metrics();
   }
 
-  public removeMetric(name: string) {
+  removeMetric(name: string) {
     return this.registry.removeSingleMetric(name);
   }
 
-  public clearMetrics() {
+  clearMetrics() {
     this.registry.resetMetrics();
 
     return this.registry.clear();
@@ -40,13 +40,13 @@ export class PrometheusService {
 
   // register custom metrics & gauges
 
-  public registerMetrics(
+  registerMetrics(
     name: string,
     help: string,
     labelNames: string[],
     buckets: number[],
   ): Histogram<string> {
-    if (this.registeredMetrics[name] === undefined) {
+    if (!this.registeredMetrics[name]) {
       this.registeredMetrics[name] = new Histogram({
         name,
         help,
@@ -60,7 +60,7 @@ export class PrometheusService {
     return this.registeredMetrics[name];
   }
 
-  public registerGauge(name: string, help: string): Gauge<string> {
+  registerGauge(name: string, help: string): Gauge<string> {
     if (!this.registeredGauges[name]) {
       this.registeredGauges[name] = new Gauge({
         name: this.prefix + name,

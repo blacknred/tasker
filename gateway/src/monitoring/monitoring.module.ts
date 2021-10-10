@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
-import { SharedModule } from 'src/__shared__/shared.module';
-import { MonitoringController } from './monitoring.controller';
-import { monitoringProvider } from './providers/monitoring.provider';
+import { HealthModule } from './health/health.module';
+import { MetricsModule } from './metrics/metrics.module';
+import { PrometheusModule } from './prometheus/prometheus.module';
 
 @Module({
-  imports: [SharedModule],
-  controllers: [MonitoringController],
-  providers: [monitoringProvider],
+  imports: [HealthModule, PrometheusModule, MetricsModule],
 })
 export class MonitoringModule {}

@@ -1,14 +1,13 @@
-import { Controller, ServiceUnavailableException } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { HealthCheckResult } from '@nestjs/terminus';
 import { HealthService } from './health.service';
 
-@Controller()
+@Controller('health')
 export class HealthController {
   constructor(private healthService: HealthService) {}
 
-  @MessagePattern('health')
-  async check(): Promise<HealthCheckResult | undefined> {
+  @Get()
+  async check(): Promise<HealthCheckResult> {
     const healthCheckResult = await this.healthService.check();
 
     for (const key in healthCheckResult?.info) {
