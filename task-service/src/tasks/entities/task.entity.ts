@@ -1,6 +1,12 @@
-import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
-import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 import { Transform } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ObjectID,
+  ObjectIdColumn,
+} from 'typeorm';
+import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 
 @Entity()
 export class Task implements ITask {
@@ -30,7 +36,8 @@ export class Task implements ITask {
   })
   priority: TaskPriority;
 
-  @Column({ type: 'date', default: Date.now() })
+  @CreateDateColumn()
+  // @Column({ type: 'date', default: Date.now() })
   createdAt: Date;
 
   @Column({ type: 'date', nullable: true })

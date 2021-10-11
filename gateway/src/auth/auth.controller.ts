@@ -3,8 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
   Req,
+  Session,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,9 +19,10 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from '../__shared__/dto/empty-response.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { IAuthedRequest } from './interfaces/authed-request.interface';
+import { IAuth } from './interfaces/auth.interface';
 import { AuthedGuard } from './guards/authed.guard';
 import { ConfigService } from '@nestjs/config';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -34,12 +37,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
-  create(
-    @Req() { user }: IAuthedRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Body() createAuthDto: CreateAuthDto,
-  ): AuthResponseDto {
-    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
+  create(@Auth() auth: IAuth): AuthResponseDto {
+    const data = { ...auth, vapidPublicKey: this.vapidPublicKey };
     return { data };
   }
 
@@ -47,9 +46,20 @@ export class AuthController {
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Get Session data' })
   @ApiOkResponse({ type: AuthResponseDto })
-  getOne(@Req() { user }: IAuthedRequest): AuthResponseDto {
-    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
+  getOne(@Auth() data: IAuth): AuthResponseDto {
     return { data };
+  }
+
+  @Patch('push')
+  @ApiOperation({ summary: 'Update authorized user task entity' })
+  @ApiOkResponse({ type: TaskResponseDto })
+  async update(
+    @Auth() { id: userId }: IAuth,
+    @Session() session: Record<string, any>,
+    @Param() { id }: GetTaskDto,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<TaskResponseDto> {
+    return this.tasksService.feed('update', { ...updateTaskDto, id, userId });
   }
 
   @Delete()

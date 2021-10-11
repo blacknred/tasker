@@ -6,6 +6,7 @@ import {
   Module,
   NestModule,
 } from '@nestjs/common';
+import * as helmet from 'helmet';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as RedisStore from 'connect-redis';
 import * as session from 'express-session';
@@ -48,6 +49,7 @@ export class AppModule implements NestModule {
 
     consumer
       .apply(
+        helmet(),
         session({
           store: new (RedisStore(session))({
             client: this.redis,

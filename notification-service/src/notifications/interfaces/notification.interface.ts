@@ -1,4 +1,4 @@
-import { IPushSubscription } from 'src/push-subscriptions/interfaces/push-subscription.interface';
+import { IPushSubscription } from 'src/push-subscriptions/entities/interfaces/push-subscription.interface';
 
 export enum NotificationType {
   PUSH = 'PUSH',
@@ -8,6 +8,6 @@ export enum NotificationType {
 
 export interface INotification {
   type: NotificationType;
-  payload: string;
+  payload: string | Record<string, unknown>;
   subscriptions: Array<IPushSubscription>; // +email & sms
 }

@@ -5,7 +5,7 @@ import { Strategy } from 'passport-local';
 import { SharedService } from 'src/__shared__/shared.service';
 import { USER_SERVICE } from 'src/users/consts';
 import { IUser } from '../../users/interfaces/user.interface';
-import { IAuthData } from '../interfaces/authed-request.interface';
+import { IAuth } from '../interfaces/auth.interface';
 
 // LocalAuthGuard.logIn(req) => LocalStrategy.validate() => SessionSerialiser.serializeUser()
 
@@ -32,16 +32,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
   serializeUser(
-    { id, roles }: IUser,
-    done: (err: Error, user: IAuthData) => void,
+    { id, roles, email }: IUser,
+    done: (err: Error, user: IAuth) => void,
   ) {
-    done(null, { id, roles });
+    done(null, { id, roles, email, pushSubscriptions: [] });
   }
 
-  deserializeUser(
-    payload: IAuthData,
-    done: (err: Error, user: IAuthData) => void,
-  ) {
+  deserializeUser(payload: IAuth, done: (err: Error, user: IAuth) => void) {
     done(null, payload);
   }
 }

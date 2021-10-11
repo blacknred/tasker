@@ -1,6 +1,18 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { map, Observable, timeout, zip } from 'rxjs';
+import {
+  catchError,
+  map,
+  Observable,
+  throwError,
+  timeout,
+  TimeoutError,
+  zip,
+} from 'rxjs';
 import { IResponse } from './interfaces/response.interface';
 
 @Injectable()
@@ -25,11 +37,19 @@ export class SharedService {
 
     return this.client
       .send<T>(pattern, args)
-      .pipe(timeout(5000))
+      .pipe(
+        timeout(5000),
+        catchError((err) => {
+          if (err instanceof TimeoutError) {
+            return throwError(new RequestTimeoutException());
+          }
+          return throwError(err);
+        }),
+      )
       .pipe(map((payload: any) => ({ ...payload, time: Date.now() - startAt })))
       .toPromise()
-      .catch((error) => {
-        throw new HttpException(error, error.status);
+      .catch((err) => {
+        throw new HttpException(err, err.status);
       });
   }
 

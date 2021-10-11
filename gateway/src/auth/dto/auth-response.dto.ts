@@ -1,15 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { Role } from '../../users/interfaces/user.interface';
-import { IAuthData } from '../interfaces/authed-request.interface';
+import { IAuth } from '../interfaces/auth.interface';
 
-export const authExample = {
+export const authMock = {
   id: 1,
   roles: [Role.USER],
+  email: 'test@email.com',
   vapidPublicKey: 'Bsr56...',
 };
 
 export class AuthResponseDto extends ResponseDto {
-  @ApiProperty({ example: authExample })
-  data: IAuthData;
+  @ApiProperty({ example: authMock })
+  data: IAuth & { vapidPublicKey?: string };
 }

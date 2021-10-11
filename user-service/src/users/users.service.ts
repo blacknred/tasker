@@ -35,7 +35,6 @@ export class UsersService {
       // const salt = this.configService.get('SECRET');
       const user = new User();
       Object.assign(user, createUserDto);
-      user.password = bcrypt.hashSync(createUserDto.password, 8);
       await this.userRepository.save(user);
       user.password = undefined;
 

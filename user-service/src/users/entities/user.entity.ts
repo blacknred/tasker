@@ -3,9 +3,12 @@ import {
   Column,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  CreateDateColumn,
+  BeforeInsert,
 } from 'typeorm';
 import { IUser, Role } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';
+import * as bcrypt from 'bcryptjs';
 
 @Entity()
 export class User implements IUser {
@@ -30,9 +33,14 @@ export class User implements IUser {
   })
   roles: [Role];
 
-  @UpdateDateColumn()
+  @CreateDateColumn()
   createdAt = new Date();
 
   @UpdateDateColumn()
   updatedAt = new Date();
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 8);
+  }
 }

@@ -2,8 +2,8 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ObjectID, Repository } from 'typeorm';
-import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto';
-import { GetPushSubscriptionsDto } from './dto/get-push-subscriptions.dto';
+import { CreatePushSubscriptionDto } from './create-push-subscription.dto';
+import { GetPushSubscriptionsDto } from './get-push-subscriptions.dto';
 import { PushSubscription } from './entities/push-subscription.entity';
 
 @Injectable()

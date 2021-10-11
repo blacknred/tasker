@@ -1,10 +1,9 @@
+import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailerModule } from '@nest-modules/mailer';
-import { PushSubscriptionsModule } from 'src/push-subscriptions/push-subscriptions.module';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
-import { queueProvider } from './providers/queue.provider';
+import { cacheProvider } from './providers/cache.provider';
 
 @Module({
   imports: [
@@ -21,9 +20,8 @@ import { queueProvider } from './providers/queue.provider';
         debug: false,
       }),
     }),
-    PushSubscriptionsModule,
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, queueProvider],
+  providers: [NotificationsService, cacheProvider],
 })
 export class NotificationsModule {}

@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -18,11 +17,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
-import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
+import { IAuth } from 'src/auth/interfaces/auth.interface';
+import { Role } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
 import { SharedService } from 'src/__shared__/shared.service';
-import { Role } from 'src/users/interfaces/user.interface';
 import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -46,7 +46,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Create new task entity' })
   @ApiCreatedResponse({ type: TaskResponseDto })
   async create(
-    @Req() { user: { id: userId } }: IAuthedRequest,
+    @Auth() { id: userId }: IAuth,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.tasksService.feed('create', { ...createTaskDto, userId });
@@ -56,7 +56,7 @@ export class TasksController {
   @ApiOperation({ summary: 'List tasks' })
   @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
-    @Req() { user: { id: userId, roles } }: IAuthedRequest,
+    @Auth() { id: userId, roles }: IAuth,
     @Query() params: GetTasksDto,
   ): Promise<TasksResponseDto> {
     const payload = { ...params, userId };
@@ -68,7 +68,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Get task by id' })
   @ApiOkResponse({ type: TaskResponseDto })
   async getOne(
-    @Req() { user: { id: userId, roles } }: IAuthedRequest,
+    @Auth() { id: userId, roles }: IAuth,
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
@@ -80,7 +80,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Update authorized user task entity' })
   @ApiOkResponse({ type: TaskResponseDto })
   async update(
-    @Req() { user: { id: userId } }: IAuthedRequest,
+    @Auth() { id: userId }: IAuth,
     @Param() { id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
@@ -91,7 +91,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Delete authorized user task entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(
-    @Req() { user: { id: userId } }: IAuthedRequest,
+    @Auth() { id: userId }: IAuth,
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
     return this.tasksService.feed('delete', { id, userId });

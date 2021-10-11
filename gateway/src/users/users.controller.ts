@@ -8,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -18,10 +17,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { IAuthedRequest } from 'src/auth/interfaces/authed-request.interface';
+import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
 import { SharedService } from 'src/__shared__/shared.service';
 import { USER_SERVICE } from './consts';
@@ -73,7 +73,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Update authorized user entity' })
   @ApiOkResponse({ type: UserResponseDto })
   async update(
-    @Req() { user: { id } }: IAuthedRequest,
+    @Auth() { id }: IAuth,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.feed('update', { id, ...updateUserDto });
@@ -83,7 +83,7 @@ export class UsersController {
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Delete authorized user entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
-  async remove(@Req() { user }: IAuthedRequest): Promise<EmptyResponseDto> {
-    return this.usersService.feed('delete', +user.id);
+  async remove(@Auth() { id }: IAuth): Promise<EmptyResponseDto> {
+    return this.usersService.feed('delete', +id);
   }
 }
