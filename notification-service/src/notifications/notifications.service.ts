@@ -1,15 +1,11 @@
-import { MailerService } from '@nest-modules/mailer';
+import { ISendMailOptions, MailerService } from '@nest-modules/mailer';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
-import { RedisClient } from 'redis';
-import webpush, { RequestOptions } from 'web-push';
+import webpush, { PushSubscription, RequestOptions } from 'web-push';
 import { CACHE_SERVICE, CHUNK_SIZE, QUEUE_SERVICE } from './consts';
-import { NewNotificationDto } from './dto/new-notification.dto';
-import {
-  INotification,
-  NotificationType,
-} from './interfaces/notification.interface';
+import { NotificationDto, NotificationType } from './dto/notification.dto';
+import { Redis } from './utils/redis.adapter';
 
 @Injectable()
 export class NotificationsService {
@@ -18,7 +14,7 @@ export class NotificationsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
-    @Inject(CACHE_SERVICE) private readonly cacheService: RedisClient,
+    @Inject(CACHE_SERVICE) private readonly cacheService: Redis,
     @Inject(QUEUE_SERVICE) private readonly queueService: ClientProxy,
   ) {
     this.pushOptions = {
@@ -31,32 +27,27 @@ export class NotificationsService {
     };
   }
 
-  async notify({ type, payload, userId, subscriptions }: NewNotificationDto) {
-    if (subscriptions) {
-      const rejectedSubscriptions = [];
+  async notify({ type, payload, userId, targets }: NotificationDto) {
+    if (targets) {
+      const rejectedTargets = [];
 
-      for (const subscription of subscriptions) {
+      for (const target of targets) {
         try {
           switch (type) {
             case NotificationType.PUSH:
               const { statusCode } = await webpush.sendNotification(
-                subscription,
+                target as PushSubscription,
                 JSON.stringify(payload),
                 this.pushOptions,
               );
 
               if (statusCode !== HttpStatus.OK) {
-                rejectedSubscriptions.push(subscription);
+                rejectedTargets.push(target);
               }
 
               break;
             case NotificationType.EMAIL:
-              await this.mailerService.sendMail(subscription);
-              // {
-              //   to: user.email,
-              //   subject: 'Password changed',
-              //   html,
-              // }
+              await this.mailerService.sendMail(target as ISendMailOptions);
               break;
             case NotificationType.SMS:
               break;
@@ -64,46 +55,49 @@ export class NotificationsService {
               break;
           }
         } catch (e) {
-          console.log(e);
-          rejectedSubscriptions.push(subscription);
+          rejectedTargets.push(target);
         }
       }
 
-      if (rejectedSubscriptions.length) {
-        this.queueService.emit<string, INotification>('notify', {
-          subscriptions: rejectedSubscriptions,
+      if (rejectedTargets.length) {
+        this.queueService.emit('notify', {
+          targets: rejectedTargets,
           payload,
           type,
         });
       }
     } else {
-      const subscriptions = [];
+      const allTargets = [];
 
       switch (type) {
         case NotificationType.PUSH:
           if (userId) {
-            const { clients } = await this.cacheService.get(`sess:${userId}`);
-            subscriptions.push(...clients);
+            const { pushSubscriptions } = await this.cacheService.get(
+              `sess:${userId}`,
+            );
+            allTargets.push(...pushSubscriptions);
           } else {
             const sessions = await this.cacheService.get(`sess`);
-            subscriptions.push(...sessions.map(session => session.clients));
+            allTargets.push(...sessions.map((sess) => sess.pushSubscriptions));
           }
           break;
         case NotificationType.EMAIL:
           if (userId) {
             const { email } = await this.cacheService.get(`sess:${userId}`);
-            subscriptions.push({
+            allTargets.push({
               to: email,
-              subject: payload.subject,
-              html: '',
+              subject: 'notification',
+              text: JSON.stringify(payload),
             });
           } else {
             const sessions = await this.cacheService.get(`sess`);
-            subscriptions.push(sessions.map(session => ({
-              to: session.email,
-              subject: payload.subject,
-              html: '',
-            }));
+            allTargets.push(
+              sessions.map((sess) => ({
+                to: sess.email,
+                subject: 'notification',
+                text: JSON.stringify(payload),
+              })),
+            );
           }
           break;
         case NotificationType.SMS:
@@ -112,9 +106,9 @@ export class NotificationsService {
           break;
       }
 
-      for (let i = 0, j = subscriptions.length; i < j; i += CHUNK_SIZE) {
-        this.queueService.emit<string, INotification>('notify', {
-          subscriptions: subscriptions.slice(i, i + CHUNK_SIZE),
+      for (let i = 0, j = allTargets.length; i < j; i += CHUNK_SIZE) {
+        this.queueService.emit('notify', {
+          targets: allTargets.slice(i, i + CHUNK_SIZE),
           payload,
           type,
         });

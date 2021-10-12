@@ -3,26 +3,25 @@ import {
   Controller,
   Delete,
   Get,
-  Patch,
   Post,
   Req,
   Session,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateAuthDto } from './dto/create-auth.dto';
 import { EmptyResponseDto } from '../__shared__/dto/empty-response.dto';
+import { Auth } from './decorators/auth.decorator';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { PushSubscriptionDto } from './dto/push-subscription.dto';
+import { AuthedGuard } from './guards/authed.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuth } from './interfaces/auth.interface';
-import { AuthedGuard } from './guards/authed.guard';
-import { ConfigService } from '@nestjs/config';
-import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -37,8 +36,9 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
-  create(@Auth() auth: IAuth): AuthResponseDto {
-    const data = { ...auth, vapidPublicKey: this.vapidPublicKey };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  create(@Auth() { pushSubscriptions, ...rest }: IAuth): AuthResponseDto {
+    const data = { ...rest, vapidPublicKey: this.vapidPublicKey };
     return { data };
   }
 
@@ -46,20 +46,9 @@ export class AuthController {
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Get Session data' })
   @ApiOkResponse({ type: AuthResponseDto })
-  getOne(@Auth() data: IAuth): AuthResponseDto {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getOne(@Auth() { pushSubscriptions, ...data }: IAuth): AuthResponseDto {
     return { data };
-  }
-
-  @Patch('push')
-  @ApiOperation({ summary: 'Update authorized user task entity' })
-  @ApiOkResponse({ type: TaskResponseDto })
-  async update(
-    @Auth() { id: userId }: IAuth,
-    @Session() session: Record<string, any>,
-    @Param() { id }: GetTaskDto,
-    @Body() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.feed('update', { ...updateTaskDto, id, userId });
   }
 
   @Delete()
@@ -70,68 +59,40 @@ export class AuthController {
     req.logout();
     return { data: null };
   }
+
+  @Post('push')
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Create Push Subscription' })
+  @ApiOkResponse({ type: AuthResponseDto })
+  createPush(
+    @Auth() { pushSubscriptions, ...data }: IAuth,
+    @Session() session: Record<string, any>,
+    @Body() subscriptionDto: PushSubscriptionDto,
+  ): AuthResponseDto {
+    if (pushSubscriptions.every((sub) => sub != subscriptionDto)) {
+      pushSubscriptions.push(subscriptionDto);
+      session.pushSubscriptions = pushSubscriptions;
+    }
+
+    return { data };
+  }
+
+  @Delete('push')
+  @UseGuards(AuthedGuard)
+  @ApiOperation({ summary: 'Delete Push Subscription' })
+  @ApiOkResponse({ type: EmptyResponseDto })
+  deletePush(
+    @Auth() { pushSubscriptions }: IAuth,
+    @Session() session: Record<string, any>,
+    @Body() subscriptionDto: PushSubscriptionDto,
+  ): EmptyResponseDto {
+    const index = pushSubscriptions.findIndex((sub) => sub === subscriptionDto);
+
+    if (index > -1) {
+      pushSubscriptions.splice(index, 1);
+      session.pushSubscriptions = pushSubscriptions;
+    }
+
+    return { data: null };
+  }
 }
-
-// import {
-//   Body,
-//   Controller,
-//   Delete,
-//   Get,
-//   Inject,
-//   Post,
-//   Req,
-//   UseGuards,
-// } from '@nestjs/common';
-// import {
-//   ApiCreatedResponse,
-//   ApiOkResponse,
-//   ApiOperation,
-//   ApiTags,
-// } from '@nestjs/swagger';
-// import { CreateAuthDto } from './dto/create-auth.dto';
-// import { EmptyResponseDto } from '../__shared__/dto/empty-response.dto';
-// import { AuthResponseDto } from './dto/auth-response.dto';
-// import { LocalAuthGuard } from './guards/local-auth.guard';
-// import { IAuthedRequest } from './interfaces/authed-request.interface';
-// import { AuthedGuard } from './guards/authed.guard';
-// import { ConfigService } from '@nestjs/config';
-// import { NOTIFICATION_SERVICE } from './consts';
-// import { ClientProxy } from '@nestjs/microservices';
-// import { SharedService } from 'src/__shared__/shared.service';
-
-// @Controller('notifications')
-// @ApiTags('Notifications')
-// export class PushSubscriptionsController {
-//   constructor(
-//     private readonly pushService: SharedService,
-//     @Inject(NOTIFICATION_SERVICE) protected readonly client: ClientProxy,
-//   ) {
-//     this.pushService.client = client;
-//   }
-
-//   // @Post()
-//   // @UseGuards(LocalAuthGuard)
-//   // @ApiOperation({ summary: 'Login' })
-//   // @ApiCreatedResponse({ type: EmptyResponseDto })
-//   // create(
-//   //   @Req() { user }: IAuthedRequest,
-//   //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//   //   @Body() createAuthDto: CreateAuthDto,
-//   // ): AuthResponseDto {
-//   //   const data = { ...user, vapidPublicKey: this.vapidPublicKey };
-//   //   return { data };
-//   // }
-//   @Post()
-//   @ApiOperation({ summary: 'Create user subscription' })
-//   @ApiCreatedResponse({ type: UserResponseDto })
-//   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-//     return this.pushService.feed('create', createUserDto);
-//   }
-
-//   @Delete()
-//   @ApiOperation({ summary: 'Delete push subscription' })
-//   @ApiOkResponse({ type: EmptyResponseDto })
-//   async remove(@Req() { user }: IAuthedRequest): Promise<EmptyResponseDto> {
-//     return this.pushService.feed('delete', +user.id);
-//   }
-// }

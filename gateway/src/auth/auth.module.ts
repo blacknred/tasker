@@ -8,9 +8,9 @@ import passportProviders from './providers/passport.providers';
 
 @Module({
   imports: [
-    PassportModule.register({ session: true }),
     ConfigModule,
     SharedModule,
+    PassportModule.register({ session: true }),
   ],
   providers: [...passportProviders, usersProvider],
   controllers: [AuthController],

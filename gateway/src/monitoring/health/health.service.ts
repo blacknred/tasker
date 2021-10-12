@@ -39,15 +39,7 @@ export class HealthService {
         this.prometheusService,
       ),
       new MicroserviceIndicator(
-        'notification-service',
-        {
-          transport: Transport.TCP,
-          options: { host: 'notification-service' },
-        },
-        this.prometheusService,
-      ),
-      new MicroserviceIndicator(
-        'worker-service',
+        'queue',
         {
           transport: Transport.RMQ,
           options: {

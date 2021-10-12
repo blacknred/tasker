@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Worker } from 'worker_threads';
 import { TASK_SERVICE } from './consts';
-import { NewTaskDto } from './dto/new-task.dto';
+import { TaskDto } from './dto/task.dto';
 
 @Injectable()
 export class WorkersService {
@@ -47,7 +47,7 @@ export class WorkersService {
     return this.idle.length !== 0;
   }
 
-  mockOperation(task: NewTaskDto): () => any {
+  mockOperation(task: TaskDto): () => any {
     let duration = 0;
     switch (task.type) {
       case 'LONG':
@@ -70,13 +70,13 @@ export class WorkersService {
     return () => fibonacci(duration);
   }
 
-  notify(task: NewTaskDto) {
+  notify(task: TaskDto) {
     task.finishedAt = Date.now();
     this.taskService.send('update', task);
     // send push to client
   }
 
-  do(task: NewTaskDto): Promise<any> {
+  do(task: TaskDto): Promise<any> {
     if (!this.hasIdle) return;
 
     const p = new Promise((r) => this.resolvers.set(task.id, r));

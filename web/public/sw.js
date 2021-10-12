@@ -70,17 +70,17 @@ self.addEventListener("notificationclick", function (event) {
   event.waitUntil(promiseChain);
 });
 
-// self.addEventListener("pushsubscriptionchange", function (event) {
-//   console.log("[Service Worker]: 'pushsubscriptionchange' event fired.");
-//   event.waitUntil(
-//     self.registration.pushManager
-//       .subscribe({
-//         userVisibleOnly: true,
-//         applicationServerKey: VAPID_PUBLIC_KEY,
-//       })
-//       .then(function (newSubscription) {
-//         // TODO: Send to application server
-//         console.log("[Service Worker] New subscription: ", newSubscription);
-//       })
-//   );
-// });
+self.addEventListener("pushsubscriptionchange", function (event) {
+  console.log("[Service Worker]: 'pushsubscriptionchange' event fired by browser.");
+  // event.waitUntil(
+  //   self.registration.pushManager
+  //     .subscribe({
+  //       userVisibleOnly: true,
+  //       applicationServerKey: VAPID_PUBLIC_KEY,
+  //     })
+  //     .then(function (newSubscription) {
+  //       // TODO: Send to application server
+  //       console.log("[Service Worker] New subscription: ", newSubscription);
+  //     })
+  // );
+});

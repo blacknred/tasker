@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
-import { NewTaskDto } from './dto/new-task.dto';
+import { TaskDto } from './dto/task.dto';
 import { WorkersService } from './workers.service';
 
 @Controller()
@@ -8,7 +8,7 @@ export class WorkersController {
   constructor(private readonly workersService: WorkersService) {}
 
   @EventPattern('task')
-  task(@Payload() newTaskDto: NewTaskDto, @Ctx() context: RmqContext) {
+  task(@Payload() newTaskDto: TaskDto, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 

@@ -42,8 +42,8 @@ export default {
     mutate(null);
     pushService.unsubscribe();
   }),
-  createPushSubscription: mutation("push-subscription", "POST"),
-  deletePushSubscription: mutation("push-subscription", "DELETE"),
+  createPushSubscription: mutation("auth/push", "POST"),
+  deletePushSubscription: mutation("auth/push", "DELETE"),
   createTask: mutation("tasks", "POST", () => mutate("tasks", null)),
   updateTask: mutation<ITask>("tasks", "PATCH", (data) =>
     mutate("tasks", (tasks: ITask[]) =>

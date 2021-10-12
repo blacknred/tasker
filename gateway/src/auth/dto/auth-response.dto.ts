@@ -12,5 +12,5 @@ export const authMock = {
 
 export class AuthResponseDto extends ResponseDto {
   @ApiProperty({ example: authMock })
-  data: IAuth & { vapidPublicKey?: string };
+  data: Omit<IAuth, 'pushSubscriptions'> & { vapidPublicKey?: string };
 }
