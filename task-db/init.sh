@@ -1,3 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/bash
+set -m
 
-mongo --eval "db.auth('$MONGO_INITDB_ROOT_USERNAME','$MONGO_INITDB_ROOT_PASSWORD');db.createUser({ user: '$MONGO_USER', pwd: '$MONGO_PASSWORD', roles: [{ role: 'readWrite', db: '$MONGO_INITDB_DATABASE' }] });"
+mongodb_cmd="mongod"
+cmd="$mongodb_cmd --bind_ip 0.0.0.0"
+
+if [ "$AUTH" == "yes" ]; then
+  cmd="$cmd --auth"
+fi
+
+$cmd &
+
+if [ ! -f /data/db/.mongodb_password_set ]; then
+  /auth.sh
+fi
+
+fg

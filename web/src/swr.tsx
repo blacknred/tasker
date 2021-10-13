@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react';
 import { FC } from 'react';
 import { SWRConfig } from 'swr';
-import '../styles/globals.css';
 import { fetcher } from './utils';
 
 const Swr: FC<{}> = ({ children }) => {

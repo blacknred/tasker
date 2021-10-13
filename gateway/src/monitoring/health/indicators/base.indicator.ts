@@ -21,7 +21,7 @@ export abstract class BaseIndicator extends HealthIndicator {
 
   protected registerMetrics() {
     if (this.prometheusService) {
-      Logger.log('Register metrics histogram for: ' + this.name, true);
+      Logger.log('Register metrics histogram for: ' + this.name);
       const histogram = this.prometheusService.registerMetrics(
         this.name,
         this.help,
@@ -36,7 +36,7 @@ export abstract class BaseIndicator extends HealthIndicator {
 
   protected registerGauges() {
     if (this.prometheusService) {
-      Logger.log('Register metrics gauge for: ' + this.name, true);
+      Logger.log('Register metrics gauge for: ' + this.name);
       this.gauge = this.prometheusService.registerGauge(this.name, this.help);
       this.isGaugesRegistered = true;
     }
@@ -45,7 +45,7 @@ export abstract class BaseIndicator extends HealthIndicator {
   updatePrometheusData(isConnected: boolean) {
     if (this.isStateConnected !== isConnected) {
       if (isConnected) {
-        Logger.log(this.name + ' is available', true);
+        Logger.log(this.name + ' is available');
       }
 
       this.isStateConnected = isConnected;

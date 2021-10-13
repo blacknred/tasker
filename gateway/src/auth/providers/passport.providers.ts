@@ -16,7 +16,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     @Inject(USER_SERVICE) protected readonly client: ClientProxy,
   ) {
     super({ usernameField: 'email' });
-    this.usersService.client = client;
+    this.usersService.proxy = client;
   }
 
   async validate(email: string, password: string) {

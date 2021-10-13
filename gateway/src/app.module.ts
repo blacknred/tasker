@@ -31,10 +31,10 @@ import { cacheProvider } from './__shared__/providers/cache.provider';
         NODE_ENV: Joi.string().required(),
       }),
     }),
-    MonitoringModule,
     UsersModule,
     AuthModule,
     TasksModule,
+    MonitoringModule,
   ],
   providers: [Logger, cacheProvider],
 })

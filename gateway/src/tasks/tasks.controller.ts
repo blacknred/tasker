@@ -39,7 +39,7 @@ export class TasksController {
     private readonly tasksService: SharedService,
     @Inject(TASK_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.tasksService.client = client;
+    this.tasksService.proxy = client;
   }
 
   @Post()

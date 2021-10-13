@@ -10,7 +10,7 @@ export const dbProvider = {
   useFactory: async (configService: ConfigService) =>
     createConnection({
       entities: [Task],
-      url: configService.get('DB_URL').slice(0, 34),
+      url: configService.get('DB_URL'),
       type: 'mongodb',
       logging: true,
       synchronize: true,

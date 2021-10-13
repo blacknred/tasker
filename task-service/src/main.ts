@@ -8,9 +8,9 @@ import { TimeoutInterceptor } from './tasks/interceptors/timeout.interceptors';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
-    bufferLogs: true,
     transport: Transport.TCP,
     options: { host: 'task-service' },
+    // bufferLogs: true,
   });
 
   app.useGlobalPipes(new ValidationPipe());

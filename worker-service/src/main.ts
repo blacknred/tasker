@@ -9,7 +9,7 @@ async function bootstrap() {
   const configService = appCtx.get(ConfigService);
 
   const app = await NestFactory.createMicroservice<RmqOptions>(AppModule, {
-    bufferLogs: true,
+    // bufferLogs: true,
     transport: Transport.RMQ,
     options: {
       urls: [configService.get('QUEUE_URL') as string],

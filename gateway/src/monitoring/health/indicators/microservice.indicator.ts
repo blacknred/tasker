@@ -11,7 +11,7 @@ export class MicroserviceIndicator
   extends BaseIndicator
   implements HealthIndicator
 {
-  readonly name = 'Service';
+  readonly name = 'Microservice';
   protected readonly help = 'Status of ' + this.name;
   private readonly indicator: MicroserviceHealthIndicator;
   private readonly key: string;

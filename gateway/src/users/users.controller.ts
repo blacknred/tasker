@@ -40,7 +40,7 @@ export class UsersController {
     private readonly usersService: SharedService,
     @Inject(USER_SERVICE) protected readonly client: ClientProxy,
   ) {
-    this.usersService.client = client;
+    this.usersService.proxy = client;
   }
 
   @Post()

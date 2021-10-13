@@ -1,8 +1,4 @@
-import {
-  HttpException,
-  Injectable,
-  RequestTimeoutException,
-} from '@nestjs/common';
+import { HttpException, RequestTimeoutException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
   catchError,
@@ -15,12 +11,11 @@ import {
 } from 'rxjs';
 import { IResponse } from './interfaces/response.interface';
 
-@Injectable()
 export class SharedService {
-  // protected client: ClientProxy;
+  protected service: ClientProxy;
 
-  set client(client: ClientProxy) {
-    this.client = client;
+  set proxy(proxy: ClientProxy) {
+    this.service = proxy;
   }
 
   async feed<T>(pattern: string, args?: unknown): Promise<IResponse<T>> {
@@ -35,7 +30,7 @@ export class SharedService {
     // return { data };
     const startAt = Date.now();
 
-    return this.client
+    return this.service
       .send<T>(pattern, args)
       .pipe(
         timeout(5000),
