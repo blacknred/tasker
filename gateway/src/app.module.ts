@@ -46,6 +46,7 @@ export class AppModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
     const isProd = this.configService.get('NODE_ENV') === 'production';
+    const secret = this.configService.get('SECRET');
 
     consumer
       .apply(
@@ -56,7 +57,7 @@ export class AppModule implements NestModule {
             logErrors: true,
           }),
           saveUninitialized: false,
-          secret: this.configService.get('SECRET'),
+          secret,
           resave: false,
           cookie: {
             sameSite: 'lax',

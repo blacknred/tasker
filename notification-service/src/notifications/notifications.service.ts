@@ -1,5 +1,5 @@
 import { ISendMailOptions, MailerService } from '@nest-modules/mailer';
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import webpush, { PushSubscription, RequestOptions } from 'web-push';
@@ -10,6 +10,7 @@ import { Redis } from './utils/redis.adapter';
 @Injectable()
 export class NotificationsService {
   pushOptions: RequestOptions;
+  private readonly logger = new Logger(NotificationsService.name);
 
   constructor(
     private readonly configService: ConfigService,

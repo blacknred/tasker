@@ -6,6 +6,7 @@ import {
   Post,
   Req,
   Session,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -15,6 +16,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { EmptyResponseDto } from '../__shared__/dto/empty-response.dto';
 import { Auth } from './decorators/auth.decorator';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -25,6 +27,8 @@ import { IAuth } from './interfaces/auth.interface';
 
 @Controller('auth')
 @ApiTags('Auth')
+@UseFilters(AllExceptionFilter)
+
 export class AuthController {
   vapidPublicKey: string;
 

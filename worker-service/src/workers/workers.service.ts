@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Worker } from 'worker_threads';
@@ -7,6 +7,7 @@ import { TaskDto } from './dto/task.dto';
 
 @Injectable()
 export class WorkersService {
+  private readonly logger = new Logger(WorkersService.name);
   private workers: Map<number, Worker>;
   private resolvers = new Map<string, (data: any) => void>();
   private idle: number[];

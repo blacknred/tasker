@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -23,7 +24,8 @@ import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { Role } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
-import { FeedInterceptor } from 'src/__shared__/interceptors/feed.interceptors';
+import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
+import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -34,7 +36,8 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 @ApiTags('Tasks')
-@UseInterceptors(FeedInterceptor)
+@UseFilters(AllExceptionFilter)
+@UseInterceptors(ProxyInterceptor)
 @UseGuards(AuthedGuard)
 export class TasksController {
   constructor(

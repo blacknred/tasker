@@ -1,6 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   NestInterceptor,
   RequestTimeoutException,
@@ -9,13 +10,8 @@ import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, map, timeout } from 'rxjs/operators';
 import { REQUEST_TIMEOUT } from '../consts';
 
-// export interface Response<T> {
-//   data: T;
-//   lag?: number;
-// }
-
 @Injectable()
-export class FeedInterceptor<T> implements NestInterceptor<T> {
+export class ProxyInterceptor<T> implements NestInterceptor<T> {
   intercept(ctx: ExecutionContext, next: CallHandler): Observable<T> {
     const startAt = Date.now();
 
@@ -25,15 +21,16 @@ export class FeedInterceptor<T> implements NestInterceptor<T> {
       // transform
       map<T, any>((payload) => ({
         ...payload,
-        lag: Date.now() - startAt,
+        meta: {
+          lag: Date.now() - startAt + 'ms',
+        },
       })),
       // exception map
       catchError((err) => {
         if (err instanceof TimeoutError) {
           return throwError(new RequestTimeoutException());
         }
-        return throwError(err);
-        // throw new HttpException(err, err.status);
+        return throwError(new HttpException(err, err.status));
       }),
     );
   }

@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { HealthIndicator, HealthIndicatorResult } from '@nestjs/terminus';
 import { Gauge } from 'prom-client';
 import { PrometheusService } from '../../prometheus/prometheus.service';
@@ -20,44 +19,38 @@ export abstract class BaseIndicator extends HealthIndicator {
   // prometheus logic
 
   protected registerMetrics() {
-    if (this.prometheusService) {
-      Logger.log('Register metrics histogram for: ' + this.name);
-      const histogram = this.prometheusService.registerMetrics(
-        this.name,
-        this.help,
-        this.labelNames,
-        this.buckets,
-      );
+    if (!this.prometheusService) return;
 
-      this.isMetricsRegistered = true;
-      this.callMetrics = histogram.startTimer();
-    }
+    const histogram = this.prometheusService.registerMetrics(
+      this.name,
+      this.help,
+      this.labelNames,
+      this.buckets,
+    );
+
+    this.isMetricsRegistered = true;
+    this.callMetrics = histogram.startTimer();
   }
 
   protected registerGauges() {
-    if (this.prometheusService) {
-      Logger.log('Register metrics gauge for: ' + this.name);
-      this.gauge = this.prometheusService.registerGauge(this.name, this.help);
-      this.isGaugesRegistered = true;
-    }
+    if (!this.prometheusService) return;
+
+    this.gauge = this.prometheusService.registerGauge(this.name, this.help);
+    this.isGaugesRegistered = true;
   }
 
   updatePrometheusData(isConnected: boolean) {
-    if (this.isStateConnected !== isConnected) {
-      if (isConnected) {
-        Logger.log(this.name + ' is available');
-      }
+    if (this.isStateConnected === isConnected) return;
 
-      this.isStateConnected = isConnected;
-      const status = this.isStateConnected ? 1 : 0;
+    this.isStateConnected = isConnected;
+    const status = this.isStateConnected ? 1 : 0;
 
-      if (this.isMetricsRegistered) {
-        this.callMetrics({ status });
-      }
+    if (this.isMetricsRegistered) {
+      this.callMetrics({ status });
+    }
 
-      if (this.isGaugesRegistered) {
-        this.gauge?.set(status);
-      }
+    if (this.isGaugesRegistered) {
+      this.gauge?.set(status);
     }
   }
 

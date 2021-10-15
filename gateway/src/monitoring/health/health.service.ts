@@ -2,13 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import {
-  DiskHealthIndicator,
   HealthCheck,
   HealthCheckResult,
   HealthCheckService,
 } from '@nestjs/terminus';
 import { PrometheusService } from '../prometheus/prometheus.service';
-import { DiskIndicator } from './indicators/disk.indicator';
+// import { DiskIndicator } from './indicators/disk.indicator';
 import { MemoryIndicator } from './indicators/memory.indicator';
 import { MicroserviceIndicator } from './indicators/microservice.indicator';
 import { HealthIndicator } from './interfaces/health-indicator.interface';
@@ -16,12 +15,12 @@ import { HealthIndicator } from './interfaces/health-indicator.interface';
 @Injectable()
 export class HealthService {
   private readonly targets: HealthIndicator[];
+  private readonly logger = new Logger(HealthService.name);
 
   constructor(
     private configService: ConfigService,
     private health: HealthCheckService,
     private prometheusService: PrometheusService,
-    private diskIndicator: DiskHealthIndicator,
   ) {
     this.targets = [
       new MicroserviceIndicator(
@@ -61,7 +60,7 @@ export class HealthService {
       //   this.prometheusService,
       // ),
       new MemoryIndicator(this.prometheusService),
-      new DiskIndicator(diskIndicator, this.prometheusService),
+      // new DiskIndicator(this.prometheusService),
     ];
   }
 
@@ -72,7 +71,7 @@ export class HealthService {
         try {
           return await indicator.isHealthy();
         } catch (e) {
-          Logger.warn(e);
+          this.logger.warn(e);
           return indicator.reportUnhealthy();
         }
       }),

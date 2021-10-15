@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -24,7 +25,8 @@ import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
-import { FeedInterceptor } from 'src/__shared__/interceptors/feed.interceptors';
+import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
+import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
@@ -36,7 +38,8 @@ import { Role } from './interfaces/user.interface';
 
 @Controller('users')
 @ApiTags('Users')
-@UseInterceptors(FeedInterceptor)
+@UseFilters(AllExceptionFilter)
+@UseInterceptors(ProxyInterceptor)
 export class UsersController {
   constructor(
     @Inject(USER_SERVICE) protected readonly userService: ClientProxy,
@@ -50,8 +53,8 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
+  // @Roles(Role.ADMIN)
+  // @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
   async getAll(@Query() params: GetUsersDto): Promise<UsersResponseDto> {

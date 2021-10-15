@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
@@ -10,6 +10,8 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
@@ -68,9 +70,11 @@ export class UsersService {
     const data = users.slice(0, lim).map(({ password, ...rest }) => rest);
 
     return {
-      hasMore: users.length === extraLim,
       status: HttpStatus.OK,
-      data,
+      data: {
+        hasMore: users.length === extraLim,
+        data,
+      },
     };
   }
 

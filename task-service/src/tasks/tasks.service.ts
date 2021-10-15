@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ObjectID, Repository } from 'typeorm';
 import { TASK_REPOSITORY, WORKER_SERVICE } from './consts';
@@ -9,6 +9,8 @@ import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(
     @Inject(TASK_REPOSITORY) private taskRepository: Repository<Task>,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
