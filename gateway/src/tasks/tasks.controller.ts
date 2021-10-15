@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -22,7 +23,7 @@ import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { Role } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
-import { SharedService } from 'src/__shared__/shared.service';
+import { FeedInterceptor } from 'src/__shared__/interceptors/feed.interceptors';
 import { TASK_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
@@ -33,14 +34,12 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Controller('tasks')
 @ApiTags('Tasks')
+@UseInterceptors(FeedInterceptor)
 @UseGuards(AuthedGuard)
 export class TasksController {
   constructor(
-    private readonly tasksService: SharedService,
-    @Inject(TASK_SERVICE) protected readonly client: ClientProxy,
-  ) {
-    this.tasksService.proxy = client;
-  }
+    @Inject(TASK_SERVICE) protected readonly taskService: ClientProxy,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new task entity' })
@@ -49,7 +48,9 @@ export class TasksController {
     @Auth() { id: userId }: IAuth,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.tasksService.feed('create', { ...createTaskDto, userId });
+    return this.taskService
+      .send('create', { ...createTaskDto, userId })
+      .toPromise();
   }
 
   @Get()
@@ -61,7 +62,7 @@ export class TasksController {
   ): Promise<TasksResponseDto> {
     const payload = { ...params, userId };
     if (roles.includes(Role.ADMIN)) delete payload.userId;
-    return this.tasksService.feed('getAll', payload);
+    return this.taskService.send('getAll', payload).toPromise();
   }
 
   @Get(':id')
@@ -73,7 +74,7 @@ export class TasksController {
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
     if (roles.includes(Role.ADMIN)) delete payload.userId;
-    return this.tasksService.feed('findOne', payload);
+    return this.taskService.send('findOne', payload).toPromise();
   }
 
   @Patch(':id')
@@ -84,7 +85,9 @@ export class TasksController {
     @Param() { id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.tasksService.feed('update', { ...updateTaskDto, id, userId });
+    return this.taskService
+      .send('update', { ...updateTaskDto, id, userId })
+      .toPromise();
   }
 
   @Delete(':id')
@@ -94,6 +97,6 @@ export class TasksController {
     @Auth() { id: userId }: IAuth,
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
-    return this.tasksService.feed('delete', { id, userId });
+    return this.taskService.send('delete', { id, userId }).toPromise();
   }
 }

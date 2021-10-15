@@ -2,28 +2,28 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { SharedService } from 'src/__shared__/shared.service';
 import { USER_SERVICE } from 'src/users/consts';
 import { IUser } from '../../users/interfaces/user.interface';
 import { IAuth } from '../interfaces/auth.interface';
+import { IResponse } from 'src/__shared__/interfaces/response.interface';
 
 // LocalAuthGuard.logIn(req) => LocalStrategy.validate() => SessionSerialiser.serializeUser()
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly usersService: SharedService,
-    @Inject(USER_SERVICE) protected readonly client: ClientProxy,
+    @Inject(USER_SERVICE) protected readonly userService: ClientProxy,
   ) {
     super({ usernameField: 'email' });
-    this.usersService.proxy = client;
   }
 
   async validate(email: string, password: string) {
-    const { data } = await this.usersService.feed<IUser>('getOneValidated', {
-      password,
-      email,
-    });
+    const { data } = await this.userService
+      .send<IResponse<IUser>>('getOneValidated', {
+        password,
+        email,
+      })
+      .toPromise();
 
     return data;
   }

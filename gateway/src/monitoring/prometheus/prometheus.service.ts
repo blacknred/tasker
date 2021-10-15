@@ -3,7 +3,7 @@ import { Registry, collectDefaultMetrics, Histogram, Gauge } from 'prom-client';
 
 @Injectable()
 export class PrometheusService {
-  private readonly prefix = 'FrontendMetrics_';
+  private readonly prefix = '';
   private readonly registry: Registry;
   private registeredMetrics: Record<string, Histogram<string>> = {};
   private registeredGauges: Record<string, Gauge<string>> = {};

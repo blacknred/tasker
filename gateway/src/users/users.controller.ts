@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
@@ -23,7 +24,7 @@ import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
-import { SharedService } from 'src/__shared__/shared.service';
+import { FeedInterceptor } from 'src/__shared__/interceptors/feed.interceptors';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
@@ -35,19 +36,17 @@ import { Role } from './interfaces/user.interface';
 
 @Controller('users')
 @ApiTags('Users')
+@UseInterceptors(FeedInterceptor)
 export class UsersController {
   constructor(
-    private readonly usersService: SharedService,
-    @Inject(USER_SERVICE) protected readonly client: ClientProxy,
-  ) {
-    this.usersService.proxy = client;
-  }
+    @Inject(USER_SERVICE) protected readonly userService: ClientProxy,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create new user entity' })
   @ApiCreatedResponse({ type: UserResponseDto })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.usersService.feed('create', createUserDto);
+    return this.userService.send('create', createUserDto).toPromise();
   }
 
   @Get()
@@ -56,7 +55,7 @@ export class UsersController {
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
   async getAll(@Query() params: GetUsersDto): Promise<UsersResponseDto> {
-    return this.usersService.feed('getAll', params);
+    return this.userService.send('getAll', params).toPromise();
   }
 
   @Get(':id')
@@ -65,7 +64,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })
   async getOne(@Param() { id }: GetUserDto): Promise<UserResponseDto> {
-    return this.usersService.feed('getOne', +id);
+    return this.userService.send('getOne', +id).toPromise();
   }
 
   @Patch()
@@ -76,7 +75,9 @@ export class UsersController {
     @Auth() { id }: IAuth,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.usersService.feed('update', { id, ...updateUserDto });
+    return this.userService
+      .send('update', { id, ...updateUserDto })
+      .toPromise();
   }
 
   @Delete()
@@ -84,6 +85,6 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete authorized user entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth() { id }: IAuth): Promise<EmptyResponseDto> {
-    return this.usersService.feed('delete', +id);
+    return this.userService.send('delete', +id).toPromise();
   }
 }

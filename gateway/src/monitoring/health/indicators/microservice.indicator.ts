@@ -11,9 +11,9 @@ export class MicroserviceIndicator
   extends BaseIndicator
   implements HealthIndicator
 {
-  readonly name = 'Microservice';
+  name = 'Indicator';
   protected readonly help = 'Status of ' + this.name;
-  private readonly indicator: MicroserviceHealthIndicator;
+  private readonly indicator = new MicroserviceHealthIndicator();
   private readonly key: string;
   private readonly options: MicroserviceHealthIndicatorOptions;
   protected readonly prometheusService?: PrometheusService;
@@ -24,6 +24,7 @@ export class MicroserviceIndicator
     prometheusService?: PrometheusService,
   ) {
     super();
+    this.name = key + this.name;
     this.key = key;
     this.options = options;
     this.prometheusService = prometheusService;

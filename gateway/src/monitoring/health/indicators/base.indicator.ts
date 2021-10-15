@@ -6,7 +6,7 @@ import { PrometheusService } from '../../prometheus/prometheus.service';
 export abstract class BaseIndicator extends HealthIndicator {
   protected abstract readonly prometheusService?: PrometheusService;
 
-  abstract name: string;
+  protected abstract name: string;
   protected abstract help: string;
   protected readonly labelNames = ['status'];
   protected readonly buckets = [1];

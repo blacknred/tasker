@@ -2,14 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import {
+  DiskHealthIndicator,
   HealthCheck,
   HealthCheckResult,
   HealthCheckService,
 } from '@nestjs/terminus';
 import { PrometheusService } from '../prometheus/prometheus.service';
+import { DiskIndicator } from './indicators/disk.indicator';
 import { MemoryIndicator } from './indicators/memory.indicator';
 import { MicroserviceIndicator } from './indicators/microservice.indicator';
-import { DiskIndicator } from './indicators/disk.indicator';
 import { HealthIndicator } from './interfaces/health-indicator.interface';
 
 @Injectable()
@@ -20,10 +21,11 @@ export class HealthService {
     private configService: ConfigService,
     private health: HealthCheckService,
     private prometheusService: PrometheusService,
+    private diskIndicator: DiskHealthIndicator,
   ) {
     this.targets = [
       new MicroserviceIndicator(
-        'user-service',
+        'UserMicroservice',
         {
           transport: Transport.TCP,
           options: { host: 'user-service' },
@@ -31,7 +33,7 @@ export class HealthService {
         this.prometheusService,
       ),
       new MicroserviceIndicator(
-        'task-service',
+        'TaskMicroservice',
         {
           transport: Transport.TCP,
           options: { host: 'task-service' },
@@ -39,17 +41,7 @@ export class HealthService {
         this.prometheusService,
       ),
       new MicroserviceIndicator(
-        'queue',
-        {
-          transport: Transport.RMQ,
-          options: {
-            urls: [this.configService.get('QUEUE_URL')],
-          },
-        },
-        this.prometheusService,
-      ),
-      new MicroserviceIndicator(
-        'cache',
+        'Cache',
         {
           transport: Transport.REDIS,
           options: {
@@ -58,8 +50,18 @@ export class HealthService {
         },
         this.prometheusService,
       ),
+      // new MicroserviceIndicator(
+      //   'queue',
+      //   {
+      //     transport: Transport.RMQ,
+      //     options: {
+      //       urls: [this.configService.get('QUEUE_URL')],
+      //     },
+      //   },
+      //   this.prometheusService,
+      // ),
       new MemoryIndicator(this.prometheusService),
-      new DiskIndicator(this.prometheusService),
+      new DiskIndicator(diskIndicator, this.prometheusService),
     ];
   }
 
