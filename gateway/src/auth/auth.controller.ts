@@ -3,9 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
   Req,
-  Session,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -39,9 +39,8 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(@Auth() { pushSubscriptions, ...rest }: IAuth): AuthResponseDto {
-    const data = { ...rest, vapidPublicKey: this.vapidPublicKey };
+  create(@Auth() user): AuthResponseDto {
+    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
     return { data };
   }
 
@@ -49,8 +48,7 @@ export class AuthController {
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Get Session data' })
   @ApiOkResponse({ type: AuthResponseDto })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getOne(@Auth() { pushSubscriptions, ...data }: IAuth): AuthResponseDto {
+  getOne(@Auth('user') data): AuthResponseDto {
     return { data };
   }
 
@@ -59,41 +57,42 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout' })
   @ApiOkResponse({ type: EmptyResponseDto })
   delete(@Req() req): EmptyResponseDto {
-    req.logout();
+    req.logout(); // req.session.destroy();
     return { data: null };
   }
 
-  @Post('push')
+  @Patch('createPush')
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Create Push Subscription' })
   @ApiOkResponse({ type: AuthResponseDto })
   createPush(
     @Auth() { pushSubscriptions, ...data }: IAuth,
-    @Session() session: Record<string, any>,
     @Body() subscriptionDto: PushSubscriptionDto,
   ): AuthResponseDto {
-    if (pushSubscriptions.every((sub) => sub != subscriptionDto)) {
+    const dto = JSON.stringify(subscriptionDto);
+
+    if (pushSubscriptions.every((sub) => JSON.stringify(sub) !== dto)) {
       pushSubscriptions.push(subscriptionDto);
-      session.pushSubscriptions = pushSubscriptions;
     }
 
     return { data };
   }
 
-  @Delete('push')
+  @Patch('deletePush')
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Delete Push Subscription' })
   @ApiOkResponse({ type: EmptyResponseDto })
   deletePush(
-    @Auth() { pushSubscriptions }: IAuth,
-    @Session() session: Record<string, any>,
+    @Auth('pushSubscriptions') pushSubscriptions,
     @Body() subscriptionDto: PushSubscriptionDto,
   ): EmptyResponseDto {
-    const index = pushSubscriptions.findIndex((sub) => sub === subscriptionDto);
+    const dto = JSON.stringify(subscriptionDto);
+    const index = pushSubscriptions.findIndex(
+      (sub) => JSON.stringify(sub) === dto,
+    );
 
     if (index > -1) {
       pushSubscriptions.splice(index, 1);
-      session.pushSubscriptions = pushSubscriptions;
     }
 
     return { data: null };

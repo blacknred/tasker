@@ -3,7 +3,7 @@ import { IsNumber } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
 export class GetUserDto {
-  @IsNumber(null, { message: 'Must be an integer' })
+  @IsNumber({}, { message: 'Must be a number' })
   id: number;
 }
 

@@ -18,7 +18,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    // throw new Error('uuuuoiui9809089');
     try {
       const emailInUse = await this.userRepository.findOne({
         email: createUserDto.email,
@@ -40,7 +39,7 @@ export class UsersService {
       const user = new User();
       Object.assign(user, createUserDto);
       await this.userRepository.save(user);
-      user.password = undefined;
+      // user.password = undefined;
 
       return {
         status: HttpStatus.CREATED,
@@ -80,7 +79,6 @@ export class UsersService {
 
   async findOne(id: number) {
     const user = await this.userRepository.findOne(id);
-    user.password = undefined;
 
     if (!user) {
       return {

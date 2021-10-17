@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseFilters,
   UseGuards,
   UseInterceptors,
@@ -23,7 +24,6 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { RoleGuard } from 'src/auth/guards/role.guard';
-import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
@@ -57,8 +57,8 @@ export class UsersController {
   @UseGuards(RoleGuard)
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
-  async getAll(@Query() params: GetUsersDto): Promise<UsersResponseDto> {
-    return this.userService.send('getAll', params).toPromise();
+  async getAll(@Query() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
+    return this.userService.send('getAll', getUsersDto).toPromise();
   }
 
   @Get(':id')
@@ -66,8 +66,8 @@ export class UsersController {
   @UseGuards(RoleGuard)
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })
-  async getOne(@Param() { id }: GetUserDto): Promise<UserResponseDto> {
-    return this.userService.send('getOne', +id).toPromise();
+  async getOne(@Param() getUserDto: GetUserDto): Promise<UserResponseDto> {
+    return this.userService.send('getOne', getUserDto).toPromise();
   }
 
   @Patch()
@@ -75,7 +75,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Update authorized user entity' })
   @ApiOkResponse({ type: UserResponseDto })
   async update(
-    @Auth() { id }: IAuth,
+    @Auth('user') { id },
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.userService
@@ -87,7 +87,8 @@ export class UsersController {
   @UseGuards(AuthedGuard)
   @ApiOperation({ summary: 'Delete authorized user entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
-  async remove(@Auth() { id }: IAuth): Promise<EmptyResponseDto> {
-    return this.userService.send('delete', +id).toPromise();
+  async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {
+    req.session.destroy();
+    return this.userService.send('delete', { id }).toPromise();
   }
 }

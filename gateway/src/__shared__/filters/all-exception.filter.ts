@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TimeoutError } from 'rxjs';
+import { IResponse } from '../interfaces/response.interface';
 
 @Catch()
 export class AllExceptionFilter<T> implements ExceptionFilter<T> {
@@ -17,23 +18,25 @@ export class AllExceptionFilter<T> implements ExceptionFilter<T> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    // console.log(exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let errors = null;
+    let payload: IResponse<T> = {};
 
     if (exception instanceof TimeoutError) {
       status = HttpStatus.REQUEST_TIMEOUT;
-      errors = [exception.message];
+      payload.message = exception.message;
     } else if (exception instanceof HttpException) {
-      const error = exception.getResponse() as any;
       status = exception.getStatus();
-      errors = error.errors || [error.error];
+      const res = exception.getResponse() as any;
+      if (!res.message) payload = res;
+      else payload.message = res.message;
     } else {
-      this.logger.error(`${request.method} ${request.url}`, exception.message);
+      this.logger.error(`${request.method} ${request.url}`, exception);
     }
 
     response.status(status).json({
-      errors,
+      ...payload,
       meta: {
         path: request.url,
         time: new Date().toTimeString(),

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
@@ -18,14 +18,18 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
-    const { data } = await this.userService
+    const { status, ...rest } = await this.userService
       .send<IResponse<IUser>>('getOneValidated', {
         password,
         email,
       })
       .toPromise();
 
-    return data;
+    if (status !== HttpStatus.OK) {
+      throw new HttpException(rest, status);
+    }
+
+    return rest.data;
   }
 }
 
@@ -35,7 +39,7 @@ export class SessionSerializer extends PassportSerializer {
     { id, roles, email }: IUser,
     done: (err: Error, user: IAuth) => void,
   ) {
-    done(null, { id, roles, email, pushSubscriptions: [] });
+    done(null, { user: { id, roles, email }, pushSubscriptions: [] });
   }
 
   deserializeUser(payload: IAuth, done: (err: Error, user: IAuth) => void) {

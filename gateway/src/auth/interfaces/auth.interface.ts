@@ -9,6 +9,7 @@ export interface IPushSubscription {
   };
 }
 
-export type IAuth = Pick<IUser, 'id' | 'roles' | 'email'> & {
+export type IAuth = {
+  user: Pick<IUser, 'id' | 'roles' | 'email'>;
   pushSubscriptions: IPushSubscription[];
 };

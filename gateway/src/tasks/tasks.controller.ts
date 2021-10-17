@@ -21,7 +21,6 @@ import {
 } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
-import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { Role } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
@@ -48,7 +47,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Create new task entity' })
   @ApiCreatedResponse({ type: TaskResponseDto })
   async create(
-    @Auth() { id: userId }: IAuth,
+    @Auth('user') { id: userId },
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.taskService
@@ -60,10 +59,10 @@ export class TasksController {
   @ApiOperation({ summary: 'List tasks' })
   @ApiOkResponse({ type: TasksResponseDto })
   async getAll(
-    @Auth() { id: userId, roles }: IAuth,
-    @Query() params: GetTasksDto,
+    @Auth('user') { id: userId, roles },
+    @Query() getTasksDto: GetTasksDto,
   ): Promise<TasksResponseDto> {
-    const payload = { ...params, userId };
+    const payload = { ...getTasksDto, userId };
     if (roles.includes(Role.ADMIN)) delete payload.userId;
     return this.taskService.send('getAll', payload).toPromise();
   }
@@ -72,7 +71,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Get task by id' })
   @ApiOkResponse({ type: TaskResponseDto })
   async getOne(
-    @Auth() { id: userId, roles }: IAuth,
+    @Auth('user') { id: userId, roles },
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
@@ -84,7 +83,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Update authorized user task entity' })
   @ApiOkResponse({ type: TaskResponseDto })
   async update(
-    @Auth() { id: userId }: IAuth,
+    @Auth('user') { id: userId },
     @Param() { id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
@@ -97,7 +96,7 @@ export class TasksController {
   @ApiOperation({ summary: 'Delete authorized user task entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(
-    @Auth() { id: userId }: IAuth,
+    @Auth('user') { id: userId },
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
     return this.taskService.send('delete', { id, userId }).toPromise();
