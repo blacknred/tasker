@@ -1,4 +1,5 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
@@ -17,6 +18,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    // throw new Error('uuuuoiui9809089');
     try {
       const emailInUse = await this.userRepository.findOne({
         email: createUserDto.email,
@@ -45,16 +47,13 @@ export class UsersService {
         data: user,
       };
     } catch (e) {
-      return {
+      throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
-      };
+      });
     }
   }
 
-  async findAll({ limit, cursor, ...filters }: GetUsersDto) {
-    console.log(limit, cursor);
-
+  async findAll({ limit, cursor, sorting, ...filters }: GetUsersDto) {
     const lim = Math.min(50, limit);
     const extraLim = lim + 1;
     const cur = cursor ? new Date(+cursor) : new Date();
@@ -67,13 +66,14 @@ export class UsersService {
       .getMany();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const data = users.slice(0, lim).map(({ password, ...rest }) => rest);
+    const items = users.slice(0, lim).map(({ password, ...rest }) => rest);
 
     return {
       status: HttpStatus.OK,
       data: {
         hasMore: users.length === extraLim,
-        data,
+        total: 10,
+        items,
       },
     };
   }
@@ -128,10 +128,9 @@ export class UsersService {
         data: user,
       };
     } catch (e) {
-      return {
+      throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
-      };
+      });
     }
   }
 
@@ -154,10 +153,9 @@ export class UsersService {
         data: updatedUser,
       };
     } catch (e) {
-      return {
+      throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
-      };
+      });
     }
   }
 
@@ -177,10 +175,9 @@ export class UsersService {
         data: null,
       };
     } catch (e) {
-      return {
+      throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
-      };
+      });
     }
   }
 }

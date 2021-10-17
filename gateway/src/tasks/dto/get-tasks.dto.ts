@@ -1,16 +1,8 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IntersectionType, PartialType } from '@nestjs/swagger';
+import { PaginatedRequestDto } from 'src/__shared__/dto/request.dto';
 import { CreateTaskDto } from './create-task.dto';
 
-export class GetTasksDto extends PartialType(CreateTaskDto) {
-  @ApiProperty({
-    required: false,
-    example: 20,
-    nullable: false,
-  })
-  limit: number;
-  @ApiProperty({
-    required: false,
-    example: 1,
-  })
-  page: number;
-}
+export class GetTasksDto extends IntersectionType(
+  PaginatedRequestDto,
+  PartialType(CreateTaskDto),
+) {}

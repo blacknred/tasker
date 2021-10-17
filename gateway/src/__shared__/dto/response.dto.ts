@@ -1,9 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ValidationError } from '../interfaces/response.interface';
 
-export class ResponseDto {
+export class ValidationError {
+  field: string;
+  message: string;
+}
+
+export class Pagination<T> {
+  hasMore: boolean;
+  total: number;
+  items: T[];
+}
+
+export class ResponseDto<T = unknown> {
   @ApiProperty({ example: null, nullable: true, required: false })
-  data?: unknown;
+  data?: T;
   @ApiProperty({ example: null, nullable: true, required: false })
   errors?: ValidationError[];
 }
+
+export class EmptyResponseDto extends ResponseDto<null> {
+  @ApiProperty({ example: null, nullable: true, type: 'null' })
+  data: null;
+}
+
+export class PaginatedResponseDto<T> extends ResponseDto<Pagination<T>> {}

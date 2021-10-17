@@ -1,11 +1,8 @@
-import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
+import { IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
+import { PaginatedRequestDto } from 'src/__shared__/dto/request.dto';
 import { CreateUserDto } from './create-user.dto';
 
-export class GetUsersDto extends PartialType(
-  OmitType(CreateUserDto, ['password']),
-) {
-  @ApiProperty({ required: false, example: 20 })
-  limit: number;
-  @ApiProperty({ required: false, example: 1 })
-  page: number;
-}
+export class GetUsersDto extends IntersectionType(
+  PaginatedRequestDto,
+  PartialType(OmitType(CreateUserDto, ['password'])),
+) {}

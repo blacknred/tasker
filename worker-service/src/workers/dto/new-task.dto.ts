@@ -11,7 +11,7 @@ export enum TaskPriority {
   LOW = 'LOW',
 }
 
-export class TaskDto {
+export class NewTaskDto {
   id: string;
   name: string;
   description: string;

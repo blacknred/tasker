@@ -31,17 +31,29 @@ export class TasksService {
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
       });
     }
   }
 
-  async findAll(getTasksDto: GetTasksDto) {
-    const tasks = await this.taskRepository.find(getTasksDto);
+  async findAll({ limit, cursor, sorting, ...filters }: GetTasksDto) {
+    const lim = Math.min(50, limit);
+    const extraLim = lim + 1;
+    const cur = cursor ? new Date(+cursor) : new Date();
+
+    const tasks = await this.taskRepository
+      .createQueryBuilder('p')
+      .where(filters)
+      .andWhere('p.createdAt < :cur', { cur })
+      .limit(extraLim)
+      .getMany();
 
     return {
       status: HttpStatus.OK,
-      data: tasks,
+      data: {
+        hasMore: tasks.length === extraLim,
+        items: tasks.slice(0, lim),
+        total: 10,
+      },
     };
   }
 
@@ -96,7 +108,6 @@ export class TasksService {
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
       });
     }
   }
@@ -128,7 +139,6 @@ export class TasksService {
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
-        errors: [e.message],
       });
     }
   }

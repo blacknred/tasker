@@ -2,37 +2,37 @@ import {
   CallHandler,
   ExecutionContext,
   HttpException,
+  HttpStatus,
   Injectable,
   NestInterceptor,
-  RequestTimeoutException,
 } from '@nestjs/common';
-import { Observable, throwError, TimeoutError } from 'rxjs';
-import { catchError, map, timeout } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, timeout } from 'rxjs/operators';
 import { REQUEST_TIMEOUT } from '../consts';
+import { IResponse } from '../interfaces/response.interface';
 
 @Injectable()
-export class ProxyInterceptor<T> implements NestInterceptor<T> {
-  intercept(ctx: ExecutionContext, next: CallHandler): Observable<T> {
+export class ProxyInterceptor<T> implements NestInterceptor<T, IResponse<T>> {
+  intercept(_: ExecutionContext, next: CallHandler): Observable<IResponse<T>> {
     const startAt = Date.now();
 
     return next.handle().pipe(
       // timeout
       timeout(REQUEST_TIMEOUT),
       // transform
-      map<T, any>((payload) => ({
-        ...payload,
-        meta: {
-          lag: Date.now() - startAt + 'ms',
-        },
-      })),
-      // exception map
-      catchError((err) => {
-        if (err instanceof TimeoutError) {
-          return throwError(new RequestTimeoutException());
+      map<IResponse<T>, any>(({ status, ...payload }) => {
+        // return zip(...reqs).pipe(map((resps) => ({ ...resps })));
+        if (status !== HttpStatus.OK && status !== HttpStatus.CREATED) {
+          throw new HttpException(payload, status);
         }
-        return throwError(new HttpException(err, err.status));
+
+        return {
+          ...payload,
+          meta: {
+            lat: Date.now() - startAt + 'ms',
+          },
+        };
       }),
     );
   }
 }
-// return zip(...reqs).pipe(map((resps) => ({ ...resps })));

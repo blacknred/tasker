@@ -8,7 +8,7 @@ import { ROLES_KEY } from '../consts';
 import { AuthedGuard } from './authed.guard';
 
 @Injectable()
-export class RolesGuard extends AuthedGuard {
+export class RoleGuard extends AuthedGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }

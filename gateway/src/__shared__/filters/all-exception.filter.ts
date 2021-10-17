@@ -6,43 +6,38 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { Request, Response } from 'express';
-import { IResponse } from '../interfaces/response.interface';
+import { TimeoutError } from 'rxjs';
 
 @Catch()
-export class AllExceptionFilter implements ExceptionFilter {
+export class AllExceptionFilter<T> implements ExceptionFilter<T> {
   private readonly logger = new Logger(AllExceptionFilter.name);
 
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = exception.message;
+    let errors = null;
 
-    if (exception instanceof RpcException) {
-      const resp = exception.getError() as IResponse<unknown>;
-      response.status(resp.status).json(resp);
+    if (exception instanceof TimeoutError) {
+      status = HttpStatus.REQUEST_TIMEOUT;
+      errors = [exception.message];
     } else if (exception instanceof HttpException) {
+      const error = exception.getResponse() as any;
       status = exception.getStatus();
-      message = exception.getResponse();
-
-      response.status(status).json({
-        status,
-        errors: [{ field: '', message: exception.message }],
-        meta: {
-          path: request.url,
-          time: new Date().toTimeString(),
-        },
-      } as IResponse<unknown>);
+      errors = error.errors || [error.error];
     } else {
-      response.status(status).json({});
+      this.logger.error(`${request.method} ${request.url}`, exception.message);
     }
 
-    this.logger.error(
-      `${request.method} ${request.url}`,
-      JSON.stringify(message),
-    );
+    response.status(status).json({
+      errors,
+      meta: {
+        path: request.url,
+        time: new Date().toTimeString(),
+      },
+    });
   }
 }

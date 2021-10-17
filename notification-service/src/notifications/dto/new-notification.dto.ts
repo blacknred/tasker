@@ -7,7 +7,7 @@ export enum NotificationType {
   SMS = 'SMS',
 }
 
-export class NotificationDto {
+export class NewNotificationDto {
   type: NotificationType;
   payload: string | Record<string, unknown>;
   userId?: number;

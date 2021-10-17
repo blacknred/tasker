@@ -11,7 +11,7 @@ export const userMock = {
   updatedAt: +new Date(),
 };
 
-export class UserResponseDto extends ResponseDto {
+export class UserResponseDto extends ResponseDto<IUser> {
   @ApiProperty({ example: userMock, nullable: true })
   data?: IUser;
 }

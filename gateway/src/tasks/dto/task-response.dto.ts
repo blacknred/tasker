@@ -13,7 +13,7 @@ export const taskMock = {
   finishedAt: +new Date(),
 };
 
-export class TaskResponseDto extends ResponseDto {
+export class TaskResponseDto extends ResponseDto<ITask> {
   @ApiProperty({ example: taskMock, nullable: false })
   data: ITask;
 }

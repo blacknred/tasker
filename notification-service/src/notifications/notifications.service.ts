@@ -4,7 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import webpush, { PushSubscription, RequestOptions } from 'web-push';
 import { CACHE_SERVICE, CHUNK_SIZE, QUEUE_SERVICE } from './consts';
-import { NotificationDto, NotificationType } from './dto/notification.dto';
+import {
+  NewNotificationDto,
+  NotificationType,
+} from './dto/new-notification.dto';
 import { Redis } from './utils/redis.adapter';
 
 @Injectable()
@@ -28,7 +31,7 @@ export class NotificationsService {
     };
   }
 
-  async notify({ type, payload, userId, targets }: NotificationDto) {
+  async notify({ type, payload, userId, targets }: NewNotificationDto) {
     if (targets) {
       const rejectedTargets = [];
 

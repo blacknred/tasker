@@ -23,7 +23,7 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AuthedGuard } from 'src/auth/guards/authed.guard';
 import { IAuth } from 'src/auth/interfaces/auth.interface';
 import { Role } from 'src/users/interfaces/user.interface';
-import { EmptyResponseDto } from 'src/__shared__/dto/empty-response.dto';
+import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { TASK_SERVICE } from './consts';
