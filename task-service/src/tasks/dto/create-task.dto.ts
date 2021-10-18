@@ -10,7 +10,7 @@ export class CreateTaskDto {
     message: `Must be one of ${Object.values(TaskType)}`,
   })
   type: TaskType;
-  @IsNumber(null, { message: 'Must be an integer' })
+  @IsNumber({}, { message: 'Must be an integer' })
   userId: number;
   @IsEnum(TaskPriority, {
     message: `Must be one of ${Object.values(TaskPriority)}`,

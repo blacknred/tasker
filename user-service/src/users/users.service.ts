@@ -36,10 +36,8 @@ export class UsersService {
       }
 
       // const salt = this.configService.get('SECRET');
-      const user = new User();
-      Object.assign(user, createUserDto);
+      const user = new User(createUserDto);
       await this.userRepository.save(user);
-      // user.password = undefined;
 
       return {
         status: HttpStatus.CREATED,

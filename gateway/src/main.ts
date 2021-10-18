@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { API_PREFIX } from './__shared__/consts';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: false });
@@ -16,9 +17,9 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api/v1', app, document);
+  SwaggerModule.setup(API_PREFIX, app, document);
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(API_PREFIX);
 
   await app.listen(3000);
 }

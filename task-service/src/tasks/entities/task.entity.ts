@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+// import { Transform } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -37,14 +37,18 @@ export class Task implements ITask {
   priority: TaskPriority;
 
   @CreateDateColumn()
-  // @Column({ type: 'date', default: Date.now() })
   createdAt: Date;
 
   @Column({ type: 'date', nullable: true })
-  @Transform((value) => {
-    if (value !== null) {
-      return value;
-    }
-  })
+  // @Transform((value) => {
+  //   if (value !== null) {
+  //     return value;
+  //   }
+  //   return undefined;
+  // })
   finishedAt?: Date;
+
+  constructor(task?: Partial<Task>) {
+    Object.assign(this, task);
+  }
 }

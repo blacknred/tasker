@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTaskDto } from './create-task.dto';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class SortingDto {
   @IsString({ message: 'Must be a string' })
@@ -10,7 +10,7 @@ export class SortingDto {
 }
 
 export class GetTasksDto extends PartialType(CreateTaskDto) {
-  @IsNumber(null, { message: 'Must be an integer' })
+  @IsNumberString({}, { message: 'Must be an integer' })
   limit: number;
   @IsString({ message: 'Must be a string' })
   cursor: string;

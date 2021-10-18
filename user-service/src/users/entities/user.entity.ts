@@ -43,4 +43,8 @@ export class User implements IUser {
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
+
+  constructor(user?: Partial<User>) {
+    Object.assign(this, user);
+  }
 }

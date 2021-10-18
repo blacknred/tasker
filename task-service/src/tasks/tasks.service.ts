@@ -18,15 +18,17 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto) {
     try {
-      const task = new Task();
-      Object.assign(task, createTaskDto);
-      await this.taskRepository.save(task);
+      const task = new Task(createTaskDto);
+      const data = await this.taskRepository.save(task);
+      data.id = data.id.toString() as unknown as ObjectID;
 
-      this.workerService.emit<any>('task', task);
+      await this.workerService
+        .emit('task', JSON.stringify({ data }))
+        .toPromise();
 
       return {
         status: HttpStatus.CREATED,
-        data: task,
+        data,
       };
     } catch (e) {
       throw new RpcException({
