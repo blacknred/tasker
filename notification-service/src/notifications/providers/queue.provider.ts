@@ -11,9 +11,6 @@ export const queueProvider = {
       options: {
         urls: [configService.get('QUEUE_URL')],
         queue: 'notifications',
-        queueOptions: {
-          durable: true,
-        },
       },
     }),
 };

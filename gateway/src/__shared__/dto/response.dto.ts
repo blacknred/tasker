@@ -5,16 +5,17 @@ export class ValidationError {
   message: string;
 }
 
-export class Pagination<T> {
+export class Paginated<T> {
   hasMore: boolean;
   total: number;
   items: T[];
 }
 
 export class ResponseDto<T = unknown> {
-  @ApiProperty({ example: null, nullable: true, required: false })
+  @ApiProperty({ example: null, nullable: true })
   data?: T;
-  @ApiProperty({ example: null, nullable: true, required: false })
+
+  @ApiProperty({ example: null, nullable: true })
   errors?: ValidationError[];
 }
 
@@ -23,4 +24,6 @@ export class EmptyResponseDto extends ResponseDto<null> {
   data: null;
 }
 
-export class PaginatedResponseDto<T> extends ResponseDto<Pagination<T>> {}
+export class PaginatedResponseDto<T> extends ResponseDto<
+  Paginated<T>
+> {}

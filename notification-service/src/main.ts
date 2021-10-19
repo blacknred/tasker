@@ -14,9 +14,6 @@ async function bootstrap() {
     options: {
       urls: [configService.get('QUEUE_URL') as string],
       queue: 'notifications',
-      queueOptions: {
-        durable: true,
-      },
     },
   });
 

@@ -11,10 +11,10 @@ export const workerProvider = {
       options: {
         urls: [configService.get('QUEUE_URL')],
         queue: 'tasks',
-        // noAck: false,
-        // queueOptions: {
-        //   durable: true,
-        // },
+        noAck: false,
+        queueOptions: {
+          durable: true,
+        },
       },
     }),
 };

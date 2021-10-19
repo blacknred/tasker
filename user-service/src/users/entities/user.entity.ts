@@ -5,6 +5,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   BeforeInsert,
+  Index,
 } from 'typeorm';
 import { IUser, Role } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';
@@ -34,6 +35,7 @@ export class User implements IUser {
   roles: [Role];
 
   @CreateDateColumn()
+  @Index('user_createdAt_index')
   createdAt = new Date();
 
   @UpdateDateColumn()

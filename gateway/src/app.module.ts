@@ -13,12 +13,11 @@ import * as helmet from 'helmet';
 import * as passport from 'passport';
 import { RedisClient } from 'redis';
 import { AuthModule } from './auth/auth.module';
+import { cacheProvider } from './auth/providers/cache.provider';
 import { MonitoringModule } from './monitoring/monitoring.module';
-// import { exceptionProvider } from './shared/providers/exception.provider';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
 import { CACHE_SERVICE } from './__shared__/consts';
-import { cacheProvider } from './__shared__/providers/cache.provider';
 
 @Module({
   imports: [
@@ -29,6 +28,7 @@ import { cacheProvider } from './__shared__/providers/cache.provider';
         SECRET: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
+        FRONTEND_URL: Joi.string().required(),
       }),
     }),
     UsersModule,

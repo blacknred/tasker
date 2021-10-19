@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { CACHE_SERVICE } from '../consts';
+import { CACHE_SERVICE } from '../../__shared__/consts';
 import * as Redis from 'redis';
 
 export const cacheProvider = {

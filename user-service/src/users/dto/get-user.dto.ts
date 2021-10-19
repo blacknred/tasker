@@ -10,4 +10,4 @@ export class GetUserDto {
 export class GetValidatedUserDto extends PickType(CreateUserDto, [
   'email',
   'password',
-]) {}
+] as const) {}

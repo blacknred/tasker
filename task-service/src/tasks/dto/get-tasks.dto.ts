@@ -1,20 +1,41 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { IntersectionType, PartialType } from '@nestjs/mapped-types';
+import { Type } from 'class-transformer';
+import { IsIn, IsOptional, Min } from 'class-validator';
 import { CreateTaskDto } from './create-task.dto';
-import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class SortingDto {
-  @IsString({ message: 'Must be a string' })
-  field: string;
-  @IsString({ message: 'Must be a string' })
-  direction: string;
+  @IsOptional()
+  @Type(() => String)
+  @IsIn(['name', 'description', 'type', 'userId', 'priority', 'createdAt'], {
+    message: 'Must be a one of fields of the Task entity',
+  })
+  'sort.field'?:
+    | 'name'
+    | 'description'
+    | 'type'
+    | 'userId'
+    | 'priority'
+    | 'createdAt';
+
+  @IsOptional()
+  @Type(() => String)
+  @IsIn(['ASC', 'DESC'], { message: 'Must be an ASC or DESC' })
+  'sort.order'?: 'ASC' | 'DESC';
 }
 
-export class GetTasksDto extends PartialType(CreateTaskDto) {
-  @IsNumberString({}, { message: 'Must be an integer' })
+export class PaginationDto {
+  @Type(() => Number)
+  @Min(1)
   limit: number;
-  @IsString({ message: 'Must be a string' })
-  cursor: string;
+
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  sorting?: SortingDto;
+  @Type(() => Number)
+  @Min(0)
+  offset?: number;
 }
+
+export class GetTasksDto extends IntersectionType(
+  PartialType(CreateTaskDto),
+  PaginationDto,
+  SortingDto,
+) {}

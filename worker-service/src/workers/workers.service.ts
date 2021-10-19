@@ -4,6 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Worker } from 'worker_threads';
 import { TASK_SERVICE } from './consts';
 import { NewTaskDto } from './dto/new-task.dto';
+import { mockTaskExecutor } from './utils/mockTaskExecutor';
 
 @Injectable()
 export class WorkersService {
@@ -25,7 +26,7 @@ export class WorkersService {
       }),
     );
 
-    // idle workers idsˇ
+    // idle workers ids
     this.idle = Array.from(this.workers.keys());
 
     this.workers.forEach((w, i) => {
@@ -40,42 +41,18 @@ export class WorkersService {
     });
   }
 
-  // async onApplicationBootstrap() {
-  //   await this.taskService.connect();
-  // }
-
   get hasIdle(): boolean {
     return this.idle.length !== 0;
   }
 
-  mockOperation(task: NewTaskDto): () => any {
-    let duration = 0;
-    switch (task.type) {
-      case 'LONG':
-        duration = 70;
-        break;
-      case 'MEDIUM':
-        duration = 50;
-        break;
-      case 'SHORT':
-        duration = 30;
-        break;
-      default:
-    }
-
-    function fibonacci(n) {
-      if (n < 2) return task;
-      return fibonacci(n - 2) + fibonacci(n - 1);
-    }
-
-    return () => fibonacci(duration);
+  get count(): number {
+    return this.workers.size;
   }
 
-  notify(task: NewTaskDto) {
+  notify = (task: NewTaskDto) => {
     task.finishedAt = Date.now();
     this.taskService.send('update', task);
-    // send push to client
-  }
+  };
 
   do(task: NewTaskDto): Promise<any> {
     if (!this.hasIdle) return;
@@ -84,8 +61,8 @@ export class WorkersService {
 
     const workerId = this.idle.shift();
     this.workers.get(workerId).postMessage({
-      task: this.mockOperation(task).toString(),
-      data: task,
+      fn: mockTaskExecutor.toString(),
+      args: task,
       id: task.id,
     });
 

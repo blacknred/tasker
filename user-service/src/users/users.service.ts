@@ -50,27 +50,31 @@ export class UsersService {
     }
   }
 
-  async findAll({ limit, cursor, sorting, ...filters }: GetUsersDto) {
-    const lim = Math.min(50, limit);
-    const extraLim = lim + 1;
-    const cur = cursor ? new Date(+cursor) : new Date();
+  async findAll({ limit, offset: skip, ...rest }: GetUsersDto) {
+    const take = limit + 1;
+    const order = { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' };
+    const where = Object.keys(rest).reduce((acc, key) => {
+      const exist = this.userRepository.metadata.hasColumnWithPropertyPath(key);
+      if (exist && rest[key]) {
+        acc[key] = rest[key];
+      }
 
-    const users = await this.userRepository
-      .createQueryBuilder('p')
-      .where(filters)
-      .andWhere('p.createdAt < :cur', { cur })
-      .limit(extraLim)
-      .getMany();
+      return acc;
+    }, {});
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const items = users.slice(0, lim).map(({ password, ...rest }) => rest);
+    const [users, total] = await this.userRepository.findAndCount({
+      where,
+      order,
+      skip,
+      take,
+    });
 
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: users.length === extraLim,
-        total: 10,
-        items,
+        hasMore: users.length === take,
+        items: users.slice(0, limit),
+        total,
       },
     };
   }
@@ -142,7 +146,7 @@ export class UsersService {
       }
 
       const updatedUser = Object.assign(user, updateUserDto) as User;
-      await this.userRepository.save(updatedUser);
+      await this.userRepository.update(id, updateUserDto);
 
       return {
         status: HttpStatus.OK,

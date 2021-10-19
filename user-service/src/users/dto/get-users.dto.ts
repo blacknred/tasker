@@ -1,22 +1,35 @@
-import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { IsString, IsNumberString, IsOptional } from 'class-validator';
+import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
+import { IsOptional, Min, IsIn } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
+import { Type } from 'class-transformer';
 
 export class SortingDto {
-  @IsString({ message: 'Must be a string' })
-  field: string;
-  @IsString({ message: 'Must be a string' })
-  direction: string;
+  @IsOptional()
+  @Type(() => String)
+  @IsIn(['name', 'email', 'createdAt'], {
+    message: 'Must be a one of fields of the User entity',
+  })
+  'sort.field'?: 'name' | 'email' | 'createdAt';
+
+  @IsOptional()
+  @Type(() => String)
+  @IsIn(['ASC', 'DESC'], { message: 'Must be an ASC or DESC' })
+  'sort.order'?: 'ASC' | 'DESC';
 }
 
-export class GetUsersDto extends PartialType(
-  OmitType(CreateUserDto, ['password']),
-) {
-  @IsNumberString({}, { message: 'Must be an number' })
+export class PaginationDto {
+  @Type(() => Number)
+  @Min(1)
   limit: number;
-  @IsString({ message: 'Must be a string' })
-  cursor: string;
+
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  sorting?: SortingDto;
+  @Type(() => Number)
+  @Min(0)
+  offset?: number;
 }
+
+export class GetUsersDto extends IntersectionType(
+  PartialType(OmitType(CreateUserDto, ['password'] as const)),
+  PaginationDto,
+  SortingDto,
+) {}

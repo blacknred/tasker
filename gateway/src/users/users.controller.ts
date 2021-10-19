@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -36,8 +37,8 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
 import { Role } from './interfaces/user.interface';
 
-@Controller('users')
 @ApiTags('Users')
+@Controller('users')
 @UseFilters(AllExceptionFilter)
 @UseInterceptors(ProxyInterceptor)
 export class UsersController {
@@ -53,8 +54,9 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
-  @UseGuards(RoleGuard)
+  // @Roles(Role.ADMIN)
+  // @UseGuards(RoleGuard)
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
   async getAll(@Query() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
@@ -64,6 +66,7 @@ export class UsersController {
   @Get(':id')
   @Roles(Role.ADMIN)
   @UseGuards(RoleGuard)
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })
   async getOne(@Param() getUserDto: GetUserDto): Promise<UserResponseDto> {
@@ -72,6 +75,7 @@ export class UsersController {
 
   @Patch()
   @UseGuards(AuthedGuard)
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Update authorized user entity' })
   @ApiOkResponse({ type: UserResponseDto })
   async update(
@@ -85,6 +89,7 @@ export class UsersController {
 
   @Delete()
   @UseGuards(AuthedGuard)
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Delete authorized user entity' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {

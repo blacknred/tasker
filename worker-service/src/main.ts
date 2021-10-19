@@ -12,12 +12,12 @@ async function bootstrap() {
     // bufferLogs: true,
     transport: Transport.RMQ,
     options: {
-      urls: [configService.get('QUEUE_URL') as string],
+      urls: [<string>configService.get('QUEUE_URL')],
       queue: 'tasks',
-      // noAck: false,
-      // queueOptions: {
-      //   durable: true,
-      // },
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
     },
   });
 

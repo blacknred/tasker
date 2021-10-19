@@ -1,8 +1,9 @@
-// import { Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ObjectID,
   ObjectIdColumn,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 @Entity()
 export class Task implements ITask {
   @ObjectIdColumn()
+  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
 
   @Column({ type: 'text', length: 100 })
@@ -37,15 +39,10 @@ export class Task implements ITask {
   priority: TaskPriority;
 
   @CreateDateColumn()
+  @Index('task_createdAt_index')
   createdAt: Date;
 
   @Column({ type: 'date', nullable: true })
-  // @Transform((value) => {
-  //   if (value !== null) {
-  //     return value;
-  //   }
-  //   return undefined;
-  // })
   finishedAt?: Date;
 
   constructor(task?: Partial<Task>) {

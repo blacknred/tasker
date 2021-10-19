@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -33,8 +34,9 @@ import { TaskResponseDto } from './dto/task-response.dto';
 import { TasksResponseDto } from './dto/tasks-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
-@Controller('tasks')
 @ApiTags('Tasks')
+@ApiCookieAuth()
+@Controller('tasks')
 @UseFilters(AllExceptionFilter)
 @UseInterceptors(ProxyInterceptor)
 @UseGuards(AuthedGuard)
@@ -76,7 +78,7 @@ export class TasksController {
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
     if (roles.includes(Role.ADMIN)) delete payload.userId;
-    return this.taskService.send('findOne', payload).toPromise();
+    return this.taskService.send('getOne', payload).toPromise();
   }
 
   @Patch(':id')

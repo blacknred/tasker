@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SortingDto {
-  @ApiProperty({ required: true, example: 'createdAt' })
-  field: string;
-  @ApiProperty({ required: true, example: 'DESC' })
-  direction: string;
+  @ApiProperty({ required: false, example: 'createdAt' })
+  'sort.field'?: string;
+
+  @ApiProperty({ required: false, example: 'DESC', enum: ['ASC', 'DESC'] })
+  'sort.order'?: 'ASC' | 'DESC';
 }
 
-export class PaginatedRequestDto {
-  @ApiProperty({ required: false, example: 20 })
+export class PaginationDto extends SortingDto {
+  @ApiProperty({ example: 10 })
   limit: number;
-  @ApiProperty({ required: false, example: 1 })
-  page: number;
-  @ApiProperty({ required: false, type: SortingDto })
-  sorting?: SortingDto;
+
+  @ApiProperty({ required: false, example: 20 })
+  offset?: number;
 }

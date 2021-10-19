@@ -43,6 +43,7 @@ export class SessionSerializer extends PassportSerializer {
   }
 
   deserializeUser(payload: IAuth, done: (err: Error, user: IAuth) => void) {
+    // external requests
     done(null, payload);
   }
 }

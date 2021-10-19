@@ -22,9 +22,7 @@ export class TasksService {
       const data = await this.taskRepository.save(task);
       data.id = data.id.toString() as unknown as ObjectID;
 
-      await this.workerService
-        .emit('task', JSON.stringify({ data }))
-        .toPromise();
+      this.workerService.emit('new-task', data);
 
       return {
         status: HttpStatus.CREATED,
@@ -37,24 +35,33 @@ export class TasksService {
     }
   }
 
-  async findAll({ limit, cursor, sorting, ...filters }: GetTasksDto) {
-    const lim = Math.min(50, limit);
-    const extraLim = lim + 1;
-    const cur = cursor ? new Date(+cursor) : new Date();
+  async findAll({ limit, offset, ...rest }: GetTasksDto) {
+    const take = +limit + 1;
+    const skip = +offset;
+    const order = { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' };
+    const where = Object.keys(rest).reduce((acc, key) => {
+      const exist = this.taskRepository.metadata.hasColumnWithPropertyPath(key);
 
-    const tasks = await this.taskRepository
-      .createQueryBuilder('p')
-      .where(filters)
-      .andWhere('p.createdAt < :cur', { cur })
-      .limit(extraLim)
-      .getMany();
+      if (exist && rest[key]) {
+        acc[key] = rest[key];
+      }
+
+      return acc;
+    }, {});
+
+    const [tasks, total] = await this.taskRepository.findAndCount({
+      where,
+      order,
+      skip,
+      take,
+    });
 
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: tasks.length === extraLim,
-        items: tasks.slice(0, lim),
-        total: 10,
+        hasMore: tasks.length === take,
+        items: tasks.slice(0, limit),
+        total,
       },
     };
   }
@@ -63,17 +70,17 @@ export class TasksService {
     const task = await this.taskRepository.findOne(id);
 
     if (!task) {
-      throw new RpcException({
+      return {
         status: HttpStatus.NOT_FOUND,
         data: null,
-      });
+      };
     }
 
     if (userId != null && task.userId !== userId) {
-      throw new RpcException({
+      return {
         status: HttpStatus.FORBIDDEN,
         data: null,
-      });
+      };
     }
 
     return {
@@ -87,21 +94,21 @@ export class TasksService {
       const task = await this.taskRepository.findOne(id);
 
       if (!task) {
-        throw new RpcException({
+        return {
           status: HttpStatus.NOT_FOUND,
           data: null,
-        });
+        };
       }
 
       if (task.userId !== updateTaskDto.userId) {
-        throw new RpcException({
+        return {
           status: HttpStatus.FORBIDDEN,
           data: null,
-        });
+        };
       }
 
       const updatedTask = Object.assign(task, updateTaskDto) as Task;
-      await this.taskRepository.save(updatedTask);
+      await this.taskRepository.update(id, updateTaskDto);
 
       return {
         status: HttpStatus.OK,
@@ -119,17 +126,17 @@ export class TasksService {
       const task = await this.taskRepository.findOne(id);
 
       if (!task) {
-        throw new RpcException({
+        return {
           status: HttpStatus.NOT_FOUND,
           data: null,
-        });
+        };
       }
 
       if (task.userId !== userId) {
-        throw new RpcException({
+        return {
           status: HttpStatus.FORBIDDEN,
           data: null,
-        });
+        };
       }
 
       await this.taskRepository.delete(id);

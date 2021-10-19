@@ -6,7 +6,7 @@ export class ValidationError {
   message: string;
 }
 
-export class Pagination<T> {
+export class Paginated<T> {
   hasMore: boolean;
   total: number;
   items: T[];
@@ -20,4 +20,4 @@ export class ResponseDto<T = null> {
 
 export class UserResponseDto extends ResponseDto<IUser> {}
 
-export class UsersResponseDto extends ResponseDto<Pagination<IUser>> {}
+export class UsersResponseDto extends ResponseDto<Paginated<IUser>> {}

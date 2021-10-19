@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
-import { TasksResponseDto, TaskResponseDto } from './dto/response.dto';
+import { TaskResponseDto, TasksResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 
