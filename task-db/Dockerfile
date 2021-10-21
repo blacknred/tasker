@@ -5,8 +5,6 @@
 #requilence/mongodb-backup
 FROM alpine:3.9
 
-MAINTAINER Blcknrd
-
 RUN apk update &&\
     apk upgrade &&\
     apk add --no-cache mongodb &&\

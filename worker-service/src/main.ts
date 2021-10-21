@@ -21,6 +21,7 @@ async function bootstrap() {
     },
   });
 
+  app.enableShutdownHooks();
   await app.listen();
   appCtx.close();
 }

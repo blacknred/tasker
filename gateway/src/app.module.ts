@@ -7,10 +7,12 @@ import {
   NestModule,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import * as RedisStore from 'connect-redis';
 import * as session from 'express-session';
 import * as helmet from 'helmet';
 import * as passport from 'passport';
+import { join } from 'path';
 import { RedisClient } from 'redis';
 import { AuthModule } from './auth/auth.module';
 import { cacheProvider } from './auth/providers/cache.provider';
@@ -28,8 +30,12 @@ import { CACHE_SERVICE } from './__shared__/consts';
         SECRET: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
-        FRONTEND_URL: Joi.string().required(),
+        FRONTEND_HOST: Joi.string().required(),
       }),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'documentation'),
+      serveRoot: '/docs',
     }),
     UsersModule,
     AuthModule,

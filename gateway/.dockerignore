@@ -1,2 +1,4 @@
-**/.git
-**/node_modules
+.git
+.vscode
+node_modules
+*Dockerfile*

@@ -16,6 +16,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new AllExceptionFilter());
 
+  app.enableShutdownHooks();
   await app.listen();
 }
 

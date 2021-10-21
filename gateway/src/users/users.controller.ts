@@ -54,8 +54,8 @@ export class UsersController {
   }
 
   @Get()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(RoleGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(RoleGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })

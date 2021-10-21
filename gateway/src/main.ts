@@ -10,7 +10,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.enableCors({
-    origin: configService.get('FRONTEND_URL'),
+    origin: configService.get('FRONTEND_HOST'),
     credentials: true,
   });
 
@@ -28,6 +28,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup(API_PREFIX, app, document);
 
+  app.enableShutdownHooks();
   await app.listen(3000);
 }
 
