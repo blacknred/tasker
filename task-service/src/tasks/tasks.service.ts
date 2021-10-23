@@ -4,6 +4,7 @@ import { ObjectID, Repository } from 'typeorm';
 import { TASK_REPOSITORY, WORKER_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
+import { ResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 
@@ -18,7 +19,7 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto) {
     try {
-      const task = new Task(createTaskDto);
+      const task = this.taskRepository.create(createTaskDto);
       const data = await this.taskRepository.save(task);
       data.id = data.id.toString() as unknown as ObjectID;
 
@@ -36,30 +37,25 @@ export class TasksService {
   }
 
   async findAll({ limit, offset, ...rest }: GetTasksDto) {
-    const take = +limit + 1;
-    const skip = +offset;
-    const order = { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' };
-    const where = Object.keys(rest).reduce((acc, key) => {
-      const exist = this.taskRepository.metadata.hasColumnWithPropertyPath(key);
-
-      if (exist && rest[key]) {
-        acc[key] = rest[key];
-      }
-
-      return acc;
-    }, {});
-
     const [tasks, total] = await this.taskRepository.findAndCount({
-      where,
-      order,
-      skip,
-      take,
+      where: Object.keys(rest).reduce((acc, key) => {
+        if (
+          this.taskRepository.metadata.hasColumnWithPropertyPath(key) &&
+          rest[key]
+        ) {
+          acc[key] = rest[key];
+        }
+        return acc;
+      }, {}),
+      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      skip: +offset,
+      take: +limit + 1,
     });
 
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: tasks.length === take,
+        hasMore: tasks.length === +limit + 1,
         items: tasks.slice(0, limit),
         total,
       },
@@ -91,23 +87,10 @@ export class TasksService {
 
   async update(id: ObjectID, updateTaskDto: UpdateTaskDto) {
     try {
-      const task = await this.taskRepository.findOne(id);
+      const res = await this.findOne(id, updateTaskDto.userId);
+      if (!res.data) return res as ResponseDto;
 
-      if (!task) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          data: null,
-        };
-      }
-
-      if (task.userId !== updateTaskDto.userId) {
-        return {
-          status: HttpStatus.FORBIDDEN,
-          data: null,
-        };
-      }
-
-      const updatedTask = Object.assign(task, updateTaskDto) as Task;
+      const updatedTask = Object.assign(res.data, updateTaskDto) as Task;
       await this.taskRepository.update(id, updateTaskDto);
 
       return {
@@ -123,21 +106,8 @@ export class TasksService {
 
   async remove(id: ObjectID, userId: number) {
     try {
-      const task = await this.taskRepository.findOne(id);
-
-      if (!task) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          data: null,
-        };
-      }
-
-      if (task.userId !== userId) {
-        return {
-          status: HttpStatus.FORBIDDEN,
-          data: null,
-        };
-      }
+      const res = await this.findOne(id, userId);
+      if (!res.data) return res as ResponseDto;
 
       await this.taskRepository.delete(id);
 

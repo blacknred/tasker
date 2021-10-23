@@ -31,7 +31,7 @@ export class UsersController {
   }
 
   @MessagePattern('getOneValidated')
-  getdOneValidate(
+  getOneValidate(
     @Payload() getValidatedUserDto: GetValidatedUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.findOneValidated(getValidatedUserDto);
@@ -43,7 +43,7 @@ export class UsersController {
   }
 
   @MessagePattern('delete')
-  remove(@Payload() id: number): Promise<ResponseDto> {
+  remove(@Payload() { id }: GetUserDto): Promise<ResponseDto> {
     return this.usersService.remove(id);
   }
 }

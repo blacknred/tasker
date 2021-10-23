@@ -3,7 +3,11 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/response.dto';
+import {
+  ResponseDto,
+  TaskResponseDto,
+  TasksResponseDto,
+} from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 
@@ -32,7 +36,7 @@ export class TasksController {
   }
 
   @MessagePattern('delete')
-  remove(@Payload() { id, userId }: GetTaskDto): Promise<TaskResponseDto> {
+  remove(@Payload() { id, userId }: GetTaskDto): Promise<ResponseDto> {
     return this.tasksService.remove(id, userId);
   }
 }

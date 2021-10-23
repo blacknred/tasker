@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetValidatedUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
+import { ResponseDto } from './dto/response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
@@ -36,7 +37,7 @@ export class UsersService {
       }
 
       // const salt = this.configService.get('SECRET');
-      const user = new User(createUserDto);
+      const user = this.userRepository.create(createUserDto);
       await this.userRepository.save(user);
 
       return {
@@ -50,29 +51,27 @@ export class UsersService {
     }
   }
 
-  async findAll({ limit, offset: skip, ...rest }: GetUsersDto) {
-    const take = limit + 1;
-    const order = { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' };
-    const where = Object.keys(rest).reduce((acc, key) => {
-      const exist = this.userRepository.metadata.hasColumnWithPropertyPath(key);
-      if (exist && rest[key]) {
-        acc[key] = rest[key];
-      }
-
-      return acc;
-    }, {});
-
+  async findAll({ limit, offset, ...rest }: GetUsersDto) {
     const [users, total] = await this.userRepository.findAndCount({
-      where,
-      order,
-      skip,
-      take,
+      where: Object.keys(rest).reduce((acc, key) => {
+        if (
+          this.userRepository.metadata.hasColumnWithPropertyPath(key) &&
+          rest[key]
+        ) {
+          acc[key] = rest[key];
+        }
+
+        return acc;
+      }, {}),
+      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      skip: offset,
+      take: limit + 1,
     });
 
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: users.length === take,
+        hasMore: users.length === limit + 1,
         items: users.slice(0, limit),
         total,
       },
@@ -104,8 +103,8 @@ export class UsersService {
           status: HttpStatus.NOT_FOUND,
           errors: [
             {
-              field: 'email',
               message: 'Email not in use',
+              field: 'email',
             },
           ],
         };
@@ -116,8 +115,8 @@ export class UsersService {
           status: HttpStatus.UNAUTHORIZED,
           errors: [
             {
-              field: 'password',
               message: 'Wrong password',
+              field: 'password',
             },
           ],
         };
@@ -136,16 +135,10 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
-      const user = await this.userRepository.findOne(id);
+      const res = await this.findOne(id);
+      if (!res.data) return res;
 
-      if (!user) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          data: null,
-        };
-      }
-
-      const updatedUser = Object.assign(user, updateUserDto) as User;
+      const updatedUser = Object.assign(res.data, updateUserDto) as User;
       await this.userRepository.update(id, updateUserDto);
 
       return {
@@ -161,12 +154,8 @@ export class UsersService {
 
   async remove(id: number) {
     try {
-      if (!(await this.userRepository.findOne(id))) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          data: null,
-        };
-      }
+      const res = await this.findOne(id);
+      if (!res.data) return res as ResponseDto;
 
       await this.userRepository.delete(id);
 
