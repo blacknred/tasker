@@ -1,7 +1,7 @@
 import { Button, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, Select, VStack } from '@chakra-ui/react';
 import { Form, Formik, FormikErrors } from 'formik';
 import { FC } from "react";
-import api from '../../../api';
+import api from '../../../mutations';
 import { ITask, TaskPriority, TaskType } from '../../../typings';
 import InputField from '../../InputField';
 

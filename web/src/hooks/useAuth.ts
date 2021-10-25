@@ -1,16 +1,16 @@
-import useSWR from "swr";
-import { HOST } from "../api";
+import useSWR, {} from "swr";
+import { HOST } from "../mutations";
 
 const ENDPOINT = HOST + "auth";
 
 export default function useAuth() {
-  const { data, mutate, error } = useSWR(ENDPOINT, null, {
+  const { data, mutate, error } = useSWRImmutable(ENDPOINT, null, {
     refreshInterval: 60 * 10 * 1000,
     shouldRetryOnError: false,
     errorRetryCount: 0,
     // onError: () => null,
     // errorRetryInterval: 10000,
-    // fallbackData: {},
+    fallbackData: {} as any,
   });
 
   return {

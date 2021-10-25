@@ -2,7 +2,7 @@ import { IUser } from '../../users/interfaces/user.interface';
 
 export interface IPushSubscription {
   endpoint: string;
-  expirationTime?: number;
+  expirationTime?: string;
   keys: {
     auth: string;
     p256dh: string;

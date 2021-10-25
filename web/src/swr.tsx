@@ -15,14 +15,14 @@ const Swr: FC<{}> = ({ children }) => (
       },
       isPaused: isServer,
       revalidateOnReconnect: true,
-      loadingTimeout: 5000,
-      onError: (error, key) => {
-        if (error.status !== 403 && error.status !== 404) {
+      loadingTimeout: 10000,
+      onError: (error) => {
+        // if (error.status !== 403 && error.status !== 404) {
           showToast({
             title: "Network error.",
             description: error.message,
           })
-        }
+        // }
       }
     }}>
       {children}

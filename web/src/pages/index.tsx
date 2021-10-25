@@ -18,7 +18,7 @@ export default function Index() {
           <Heading color={color} fontSize="xxx-large">Task management application</Heading>
         </Center>
         <SlideFade in offsetY="100px">
-          {session ? (
+          {session?.o ? (
             <NextLink href="/dashboard">
               <Button variant="link" colorScheme={color} size="md">Return to dashboard</Button>
             </NextLink>

@@ -19,13 +19,14 @@ import {
 } from '@nestjs/swagger';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { EmptyResponseDto } from '../__shared__/dto/response.dto';
-import { Auth } from './decorators/auth.decorator';
+import { Auth } from '../__shared__/decorators/auth.decorator';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { PushSubscriptionDto } from './dto/push-subscription.dto';
-import { AuthedGuard } from './guards/authed.guard';
+import { AuthedGuard } from '../__shared__/guards/authed.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { IAuth } from './interfaces/auth.interface';
+import { ValidationPipe } from './pipes/validation.pipe';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -73,8 +74,8 @@ export class AuthController {
   @ApiOkResponse({ type: AuthResponseDto })
   createPush(
     @Auth() { pushSubscriptions, ...data }: IAuth,
-    @Body() subscriptionDto: PushSubscriptionDto,
-  ): AuthResponseDto {
+    @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
+  ): any {
     const dto = JSON.stringify(subscriptionDto);
 
     if (pushSubscriptions.every((sub) => JSON.stringify(sub) !== dto)) {
@@ -91,7 +92,7 @@ export class AuthController {
   @ApiOkResponse({ type: EmptyResponseDto })
   deletePush(
     @Auth('pushSubscriptions') pushSubscriptions,
-    @Body() subscriptionDto: PushSubscriptionDto,
+    @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
   ): EmptyResponseDto {
     const dto = JSON.stringify(subscriptionDto);
     const index = pushSubscriptions.findIndex(

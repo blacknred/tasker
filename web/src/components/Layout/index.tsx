@@ -3,7 +3,7 @@ import { Box, Button, Flex, Heading, IconButton, useColorMode, useColorModeValue
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
-import api from '../../api';
+import api from '../../mutations';
 import useAuth from '../../hooks/useAuth';
 
 interface IProps {

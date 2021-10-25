@@ -20,8 +20,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { AuthedGuard } from 'src/auth/guards/authed.guard';
+import { Auth } from 'src/__shared__/decorators/auth.decorator';
+import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
 import { Role } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';

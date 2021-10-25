@@ -6,8 +6,8 @@ import { API_PREFIX } from './__shared__/consts';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix(API_PREFIX);
   const configService = app.get(ConfigService);
+  app.setGlobalPrefix(API_PREFIX);
 
   app.enableCors({
     origin: configService.get('FRONTEND_HOST'),

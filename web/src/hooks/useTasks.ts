@@ -1,5 +1,5 @@
 import useSWRInfinite from "swr/infinite";
-import { HOST } from "../api";
+import { HOST } from "../mutations";
 
 const ENDPOINT = HOST + "tasks/getAll";
 

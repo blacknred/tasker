@@ -21,10 +21,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AuthedGuard } from 'src/auth/guards/authed.guard';
-import { RoleGuard } from 'src/auth/guards/role.guard';
+import { Auth } from 'src/__shared__/decorators/auth.decorator';
+import { Roles } from 'src/__shared__/decorators/roles.decorator';
+import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
+import { RoleGuard } from 'src/__shared__/guards/role.guard';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';

@@ -28,6 +28,7 @@ export function mutation<T = unknown>(
         onSuccess?.(res.data);
       }
     }).catch((e: Error) => {
+      cb?.({});
       showToast({
         title: "Network error.",
         description: e.message,

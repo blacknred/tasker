@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../consts';
+import { ROLES_KEY } from '../../auth/consts';
 import { AuthedGuard } from './authed.guard';
 
 @Injectable()

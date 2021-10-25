@@ -9,7 +9,7 @@ import theme from '../theme';
 function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
-    pushService.init("/sw.js");
+    // pushService.init("/sw.js");
   }, [])
 
   return (
