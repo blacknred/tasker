@@ -2,16 +2,16 @@ import { FormikErrors } from "formik";
 import { mutate } from "swr";
 import pushService from "./push";
 import { IAuthData, IResponse, ITask } from "./typings";
-import { errorMap, fetcher } from "./utils";
+import { errorMap, fetcher, showToast } from "./utils";
 
-export const HOST = `http://${process.env.API_HOST}/api/v1/`;
+export const HOST = `${process.env.API_HOST}/api/v1/`;
 
 export function mutation<T = unknown>(
   endpoint: string,
   method: RequestInit["method"],
   onSuccess?: (data?: T) => void
 ) {
-  return (
+  return async (
     payload?: unknown,
     cb?: (err?: FormikErrors<typeof payload>, data?: T) => void,
     id?: string
@@ -27,6 +27,12 @@ export function mutation<T = unknown>(
         cb?.(undefined, res.data);
         onSuccess?.(res.data);
       }
+    }).catch((e: Error) => {
+      showToast({
+        title: "Network error.",
+        description: e.message,
+        status: 'error'
+      });
     });
   };
 }

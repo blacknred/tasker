@@ -15,7 +15,7 @@ function Register() {
     <Layout variant="sm">
       <Meta title="Registration" />
       <Formik
-        initialValues={{ username: "", email: "", password: "" }}
+        initialValues={{ name: "", email: "", password: "" }}
         onSubmit={(values, actions) => {
           api.createUser(values, (err) => {
             if (err) {
@@ -29,24 +29,24 @@ function Register() {
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField name="username" label="Username" />
+            <InputField name="name" label="Name" />
             <Box mt={4}>
               <InputField name="email" label="Email" type="email" />
             </Box>
             <Box mt={4}>
               <InputField name="password" label="Password" type="password" />
             </Box>
-            <Flex justifyContent="space-between" alignItems="baseline">
+            <Flex justifyContent="space-between" alignItems="end">
               <Button
                 mt={4}
-                colorScheme="teal"
+                colorScheme="telegram"
                 isLoading={isSubmitting}
                 type="submit"
               >
                 Register
               </Button>
               <NextLink href="/login">
-                <Button>Already have an account</Button>
+                <Button  variant="link">Already have an account</Button>
               </NextLink>
             </Flex>
           </Form>

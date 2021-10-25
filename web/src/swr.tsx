@@ -1,38 +1,33 @@
-import { useToast } from '@chakra-ui/react';
+import { createStandaloneToast } from '@chakra-ui/react';
 import { FC } from 'react';
 import { SWRConfig } from 'swr';
-import { fetcher } from './utils';
+import { fetcher, isServer, localStorageProvider, showToast } from './utils';
 
-const Swr: FC<{}> = ({ children }) => {
-  const toast = useToast();
-
-  return (
+const Swr: FC<{}> = ({ children }) => (
+  <>
     <SWRConfig value={{
       fetcher,
-      // provider: localStorageProvider,
+      provider: localStorageProvider,
       onLoadingSlow: () => {
-        toast({
+        showToast({
           title: "Slow network.",
-          status: "warning",
-          duration: 5000,
-          isClosable: true,
         })
       },
+      isPaused: isServer,
+      revalidateOnReconnect: true,
+      loadingTimeout: 5000,
       onError: (error, key) => {
         if (error.status !== 403 && error.status !== 404) {
-          toast({
+          showToast({
             title: "Network error.",
             description: error.message,
-            status: "error",
-            duration: 9000,
-            isClosable: true,
           })
         }
       }
     }}>
       {children}
     </SWRConfig>
-  )
-}
+  </>
+)
 
 export default Swr;

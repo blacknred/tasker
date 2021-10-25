@@ -11,7 +11,7 @@ interface IProps {
 }
 
 const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode()
 
@@ -23,13 +23,13 @@ const Layout: FC<IProps> = ({ children, variant = 'lg' }) => {
     <Box bgColor={bg} minH="100vh" pt={variant === 'sm' ? '50' : 0}>
       <Flex py={4} justifyContent="space-between" maxW={width} m="auto">
         <NextLink href="/">
-          <Heading color={color} cursor="pointer" fontSize="xx-large">Tasker</Heading>
+          <Heading color={color} cursor="pointer" fontSize="x-large">Tasker</Heading>
         </NextLink>
         {variant === 'lg' && (
           <Box>
-            {user && (
+            {session && (
               <>
-                <Button variant="link" color={color} size="md">{user?.username}</Button>
+                <Button variant="link" color={color} size="md">{session?.username}</Button>
                 <IconButton
                   ml={4}
                   size="sm"

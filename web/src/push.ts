@@ -1,19 +1,15 @@
-import { createStandaloneToast } from "@chakra-ui/react";
 import api from "./api";
-import { urlB64ToUint8Array } from "./utils";
+import { showToast, urlB64ToUint8Array } from "./utils";
 
 export class PushNotificationService {
   private registration?: ServiceWorkerRegistration;
-  logger = createStandaloneToast();
 
   private error(e: Error) {
     console.error(e.message);
-    this.logger?.({
+    showToast({
       title: "Push Notifications error.",
       description: e.message,
       status: "error",
-      duration: 9000,
-      isClosable: true,
     });
   }
 

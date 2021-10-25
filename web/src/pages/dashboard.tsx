@@ -1,19 +1,12 @@
 import { Button } from '@chakra-ui/react';
-import router from "next/router";
-import { useEffect } from "react";
+import React from "react";
+import withAuth from '../components/Auth/withAuth';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
 import TaskList from '../components/TaskList';
-import useAuth from "../hooks/useAuth";
 import useTasks from "../hooks/useTasks";
 
-export default function Dashboard() {
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user) router.replace("/");
-  }, [user]);
-
+function Dashboard() {
   const { data, error, loadMore, isLoadingMore, isReachingEnd } = useTasks();
 
   if (error) return <>An error has occurred.</>;
@@ -33,3 +26,6 @@ export default function Dashboard() {
     </Layout>
   );
 }
+
+export default withAuth(Dashboard);
+

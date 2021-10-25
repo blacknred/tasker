@@ -21,6 +21,7 @@ export class ProxyInterceptor<T> implements NestInterceptor<T, IResponse<T>> {
       timeout(REQUEST_TIMEOUT),
       // transform
       map<IResponse<T>, any>(({ status, ...payload }) => {
+        console.log(7777, status, payload);
         // return zip(...reqs).pipe(map((resps) => ({ ...resps })));
         if (status !== HttpStatus.OK && status !== HttpStatus.CREATED) {
           throw new HttpException(payload, status);

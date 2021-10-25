@@ -1,23 +1,42 @@
+import { createStandaloneToast } from "@chakra-ui/toast";
 import { ValidationError } from "./typings";
 
+export const showToast = createStandaloneToast({
+  defaultOptions: {
+    status: "warning",
+    duration: 5000,
+    isClosable: true,
+    position: "bottom-left",
+  },
+});
+
 export function localStorageProvider() {
+  if (isServer()) return new Map();
+
   const map = new Map(JSON.parse(localStorage.getItem("app-cache") || "[]"));
   window.addEventListener("beforeunload", () => {
     const appCache = JSON.stringify(Array.from(map.entries()));
     localStorage.setItem("app-cache", appCache);
   });
+
   return map;
 }
+
+export const isServer = () => typeof window === "undefined";
 
 export function delay(ms = 1000): Promise<void> {
   return new Promise((r) => setInterval(r, ms));
 }
 
-export function fetcher<T = unknown>(res: RequestInfo, init: RequestInit) {
+export async function fetcher<T = unknown>(
+  res: RequestInfo,
+  init: RequestInit
+) {
   return fetch(res, init)
+    .then((res) => res.json())
     .then((res) => {
-      if (!res.ok) throw new Error("Bad status code from server.");
-      return res.json() as Promise<T>;
+      if (res.message) throw new Error(res.message);
+      return res as T; //as Promise<T>;
     })
     .catch((e: Error) => {
       throw e;

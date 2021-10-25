@@ -5,13 +5,26 @@ const ENDPOINT = HOST + "auth";
 
 export default function useAuth() {
   const { data, mutate, error } = useSWR(ENDPOINT, null, {
-    refreshInterval: 100000,
+    refreshInterval: 60 * 10 * 1000,
+    shouldRetryOnError: false,
+    errorRetryCount: 0,
+    // onError: () => null,
+    // errorRetryInterval: 10000,
+    // fallbackData: {},
   });
 
   return {
     loading: !data && !error,
     // loggedOut: error && error.status === 403,
-    user: data,
+    session: data,
     mutate,
   };
 }
+
+// useSWR(key, fetcher, {
+//   revalidateIfStale: false,
+//   revalidateOnFocus: false,
+//   revalidateOnReconnect: false
+// })
+// // equivalent to
+// useSWRImmutable(key, fetcher)
