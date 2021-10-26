@@ -29,21 +29,22 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new HttpException(rest, status);
     }
 
-    return rest.data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { createdAt, updatedAt, ...user } = rest.data;
+    return user;
   }
 }
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
   serializeUser(
-    { id, roles, email }: IUser,
-    done: (err: Error, user: IAuth) => void,
+    user: Partial<IUser>,
+    done: (err: Error, payload: IAuth) => void,
   ) {
-    done(null, { user: { id, roles, email }, pushSubscriptions: [] });
+    done(null, { user, pushSubscriptions: [] });
   }
 
   deserializeUser(payload: IAuth, done: (err: Error, user: IAuth) => void) {
-    // external requests
     done(null, payload);
   }
 }

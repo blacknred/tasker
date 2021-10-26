@@ -1,4 +1,6 @@
 import { createStandaloneToast } from "@chakra-ui/toast";
+import { dataAttr } from "@chakra-ui/utils";
+import { Fetcher, Key, SWRConfiguration, SWRHook } from "swr";
 import { ValidationError } from "./typings";
 
 export const showToast = createStandaloneToast({
@@ -22,6 +24,8 @@ export function localStorageProvider() {
   return map;
 }
 
+export const HOST = `${process.env.API_HOST}/api/v1/`;
+
 export const isServer = () => typeof window === "undefined";
 
 export function delay(ms = 1000): Promise<void> {
@@ -32,15 +36,25 @@ export async function fetcher<T = unknown>(
   res: RequestInfo,
   init: RequestInit
 ) {
-  return fetch(res, init)
+  return fetch(res, {
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    ...init,
+  })
     .then((res) => res.json())
     .then((res) => {
       if (res.message) throw new Error(res.message);
-      return res as T; //as Promise<T>;
-    })
-    .catch((e: Error) => {
-      throw e;
+      return res as T;
     });
+}
+
+export function logger(useSWRNext: SWRHook) {
+  return (key: Key, fetcher: Fetcher<unknown> | null, config: SWRConfiguration) => {
+    const res = useSWRNext(key, fetcher, config);
+    console.log("SWR Request:", key, res.data);
+
+    return res;
+  };
 }
 
 export function errorMap(errors: ValidationError[]) {

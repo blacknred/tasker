@@ -20,8 +20,8 @@ const InputField: React.FC<IProps> = ({ label, size, area, ...props }) => {
     <FormControl isInvalid={!!error}>
       {label && <FormLabel htmlFor={field.name} color={color}>{label}</FormLabel>}
       {/* @ts-ignore */}
-      {area ? <Textarea bgColor={bg} {...field} {...props} id={field.name} />
-        : <Input bgColor={bg} {...field} {...props} id={field.name} />}
+      {area ? <Textarea bgColor={bg} color={color} {...field} {...props} id={field.name} />
+        : <Input bgColor={bg} color={color} {...field} {...props} id={field.name} />}
       <FormErrorMessage>{error}</FormErrorMessage>
     </FormControl>
   );

@@ -10,6 +10,6 @@ export interface IPushSubscription {
 }
 
 export type IAuth = {
-  user: Pick<IUser, 'id' | 'roles' | 'email'>;
+  user: Partial<IUser>;
   pushSubscriptions: IPushSubscription[];
 };

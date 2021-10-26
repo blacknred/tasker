@@ -21,7 +21,6 @@ import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter'
 import { EmptyResponseDto } from '../__shared__/dto/response.dto';
 import { Auth } from '../__shared__/decorators/auth.decorator';
 import { AuthResponseDto } from './dto/auth-response.dto';
-import { CreateAuthDto } from './dto/create-auth.dto';
 import { PushSubscriptionDto } from './dto/push-subscription.dto';
 import { AuthedGuard } from '../__shared__/guards/authed.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -43,7 +42,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(@Auth() user, @Body() createTaskDto: CreateAuthDto): AuthResponseDto {
+  create(@Auth() user): AuthResponseDto {
     const data = { ...user, vapidPublicKey: this.vapidPublicKey };
     return { data };
   }

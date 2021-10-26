@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, useColorModeValue } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -15,11 +15,16 @@ const MESSAGES: Record<string, string> = {
 
 function Login() {
   const router = useRouter();
+  const color = useColorModeValue('gray.500', 'gray.400')
   const notification = MESSAGES[router.asPath.split('#')[1]]
 
   return (
-    <Layout variant="sm">
+    <Layout variant="sm" slide={false}>
       <Meta title="Login" />
+      <Center mb="70px" >
+        <Heading color={color} fontSize="xx-large">Athentication</Heading>
+      </Center>
+
       <Formik
         initialValues={{ email: "", password: "" }}
         onSubmit={(values, actions) => {
@@ -28,8 +33,8 @@ function Login() {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              const target = typeof router.query.next || '/dashboard'
-              router.push(target)
+              const target = router.query.next || '/dashboard'
+              router.push(target as string)
             }
           });
         }}
@@ -41,10 +46,8 @@ function Login() {
             <Box mt={4}>
               <InputField name="password" label="Password" type="password" />
             </Box>
-
-            <Flex justifyContent="space-between" alignItems="end">
+            <Flex justifyContent="space-between" alignItems="end" mt={8}>
               <Button
-                mt={4}
                 colorScheme="telegram"
                 isLoading={isSubmitting}
                 type="submit"
@@ -52,7 +55,7 @@ function Login() {
                 Login
               </Button>
               <NextLink href="/forgot-password">
-                <Button variant="link">Forgot password</Button>
+                <Button variant="link" color="telegram.300">Forgot password</Button>
               </NextLink>
             </Flex>
           </Form>

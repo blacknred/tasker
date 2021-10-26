@@ -3,6 +3,12 @@ export enum Role {
   ADMIN = "ADMIN",
 }
 
+export enum Width {
+  lg = 1050,
+  md = 800,
+  sm = 400
+}
+
 export interface IUser {
   id: number;
   name: string;
@@ -12,7 +18,7 @@ export interface IUser {
   updatedAt: number;
 }
 
-export type IAuthData = Pick<IUser, 'id' | 'roles'> & {
+export type IAuth = Partial<IUser> & {
   vapidPublicKey?: string;
 };
 

@@ -6,7 +6,7 @@ import { ValidationPipe } from '../pipes/validation.pipe';
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
-    // input validation
+    // input dto validation
     const { body } = ctx.switchToHttp().getRequest();
     await new ValidationPipe().transform(body, {
       metatype: CreateAuthDto,
@@ -14,12 +14,12 @@ export class LocalAuthGuard extends AuthGuard('local') {
     });
 
     // call LocalStrategy.validate()
-    const result = (await super.canActivate(ctx)) as boolean;
+    const result = await super.canActivate(ctx);
 
     // gets a user session
     await super.logIn(ctx.switchToHttp().getRequest());
 
-    return result;
+    return result as boolean;
   }
 
   // handleRequest(err, user, info) {

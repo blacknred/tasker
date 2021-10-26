@@ -18,7 +18,7 @@ export class AllExceptionFilter<T> implements ExceptionFilter<T> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    console.log(9999, exception);
+    // console.log(9999, exception);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let payload: IResponse<T> = {};

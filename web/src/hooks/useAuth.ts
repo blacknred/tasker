@@ -1,30 +1,28 @@
-import useSWR, {} from "swr";
-import { HOST } from "../mutations";
-
-const ENDPOINT = HOST + "auth";
+import useSWR from "swr/immutable";
+import { IAuth, IResponse } from "../typings";
+import { HOST } from "../utils";
 
 export default function useAuth() {
-  const { data, mutate, error } = useSWRImmutable(ENDPOINT, null, {
-    refreshInterval: 60 * 10 * 1000,
-    shouldRetryOnError: false,
-    errorRetryCount: 0,
-    // onError: () => null,
-    // errorRetryInterval: 10000,
-    fallbackData: {} as any,
-  });
+  const { data, mutate, error } = useSWR<IResponse<IAuth>>(
+    `${HOST}auth`,
+    null,
+    {
+      // refreshInterval: 10 * 60 * 1000,
+      shouldRetryOnError: false,
+      // revalidateIfStale: true,
+      // revalidateOnFocus: true,
+      // errorRetryCount: 0,
+      // revalidateOnMount: false,
+      onError: () => null,
+      // errorRetryInterval: 10000,
+      // fallbackData: {} as any,
+    }
+  );
 
   return {
     loading: !data && !error,
     // loggedOut: error && error.status === 403,
-    session: data,
+    session: data?.data,
     mutate,
   };
 }
-
-// useSWR(key, fetcher, {
-//   revalidateIfStale: false,
-//   revalidateOnFocus: false,
-//   revalidateOnReconnect: false
-// })
-// // equivalent to
-// useSWRImmutable(key, fetcher)

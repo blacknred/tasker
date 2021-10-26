@@ -5,7 +5,6 @@ export class PushNotificationService {
   private registration?: ServiceWorkerRegistration;
 
   private error(e: Error) {
-    console.error(e.message);
     showToast({
       title: "Push Notifications error.",
       description: e.message,

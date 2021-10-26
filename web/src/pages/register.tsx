@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, useColorModeValue } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -10,10 +10,15 @@ import Meta from '../components/Meta';
 
 function Register() {
   const router = useRouter();
-  
+  const color = useColorModeValue('gray.500', 'gray.400')
+
   return (
-    <Layout variant="sm">
+    <Layout variant="sm" slide={false}>
       <Meta title="Registration" />
+      <Center mb="70px" >
+        <Heading color={color} fontSize="xx-large">Athentication</Heading>
+      </Center>
+
       <Formik
         initialValues={{ name: "", email: "", password: "" }}
         onSubmit={(values, actions) => {
@@ -36,9 +41,8 @@ function Register() {
             <Box mt={4}>
               <InputField name="password" label="Password" type="password" />
             </Box>
-            <Flex justifyContent="space-between" alignItems="end">
+            <Flex justifyContent="space-between" alignItems="end" mt={8}>
               <Button
-                mt={4}
                 colorScheme="telegram"
                 isLoading={isSubmitting}
                 type="submit"
@@ -46,7 +50,7 @@ function Register() {
                 Register
               </Button>
               <NextLink href="/login">
-                <Button  variant="link">Already have an account</Button>
+                <Button variant="link" color="telegram.300">Already have an account</Button>
               </NextLink>
             </Flex>
           </Form>
