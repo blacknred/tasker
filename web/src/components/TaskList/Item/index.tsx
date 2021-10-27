@@ -1,48 +1,41 @@
-import {
-  Box, Flex, Heading, Td, Text, Tr, useColorModeValue, VStack
-} from '@chakra-ui/react';
+import { Badge, Heading, Stack, Td, Text, Tr, useColorModeValue, VStack } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ITask, ListOptions } from '../../../typings';
-import { getRandBgColor, timeSince } from '../../../utils';
-import EditTaskModal from '../../TaskModal';
+import { ITask, ViewOptions } from '../../../typings';
+import { timeSince } from '../../../utils';
+import EditTaskButton from '../../TaskToolbar/ModalButton';
 
-interface IProps {
-  data: ITask,
-  variant: ListOptions['variant']
+interface IProps extends ViewOptions {
+  data: ITask
 }
 
 const Item: FC<IProps> = ({ data, variant }) => {
-  // const bg = useColorModeValue('gray.800', 'white')
-  const color = useColorModeValue('gray.300', 'blackAlpha')
-  const saturation = useColorModeValue(500, 200)
+  const bg = useColorModeValue('gray.800', 'white')
 
   if (variant === 'grid') {
-    return (
-      <Box bg={getRandBgColor(saturation)} h={300}>
-        <VStack spacing={4}>
-          <Heading color={color}>{data.name}</Heading>
-          <Text color={color}>{data.description}</Text>
-          <Flex px="7" py="5" alignItems="center">
-            <Text fontSize="xs" color={color}>{timeSince(data.createdAt)}</Text>
-            <Text fontSize="xs" color={color}>{data.finishedAt ? timeSince(data.finishedAt) : 'In process'}</Text>
-            <EditTaskModal data={data} />
-          </Flex>
-        </VStack>
-      </Box>
-    )
+    return <VStack bg={bg} p="8" justifyContent="space-between" align="start">
+      <VStack spacing={3} pb="4" align="flex-start">
+        <Heading fontSize="md" size="xs" mb="2">{data.name.slice(0, 200)}</Heading>
+        <Stack isInline spacing="2">
+          <Badge variant="outline" colorScheme="telegram">{data.type}</Badge>
+          <Badge variant="outline" colorScheme="telegram">{data.priority}</Badge>
+          <Badge colorScheme="telegram">{data.finishedAt ? 'Finished' : 'In process'}</Badge>
+        </Stack>
+        <Text fontSize="xs">{timeSince(data.createdAt)}</Text>
+        <Text fontSize="sm">{data.description.slice(0, 200)}</Text>
+      </VStack>
+      <EditTaskButton data={data} />
+    </VStack>
   }
 
-  return (
-    <Tr>
-      <Td>{data.name}</Td>
-      <Td>{data.description}</Td>
-      <Td>{data.type}</Td>
-      <Td>{data.priority}</Td>
-      <Td isNumeric>{timeSince(data.createdAt)}</Td>
-      <Td isNumeric>{data.finishedAt ? timeSince(data.finishedAt) : 'In process'}</Td>
-      <Td><EditTaskModal data={data} /></Td>
-    </Tr>
-  )
+  return <Tr>
+    <Td>{data.name.slice(0, 200)}</Td>
+    <Td>{data.description.slice(0, 200)}</Td>
+    <Td><Badge variant="outline" colorScheme="telegram">{data.type}</Badge></Td>
+    <Td><Badge variant="outline" colorScheme="telegram">{data.priority}</Badge></Td>
+    <Td isNumeric>{timeSince(data.createdAt)}</Td>
+    <Td isNumeric><Badge colorScheme="telegram">{data.finishedAt ? 'Finished' : 'In process'}</Badge></Td>
+    <Td w="10"><EditTaskButton data={data} /></Td>
+  </Tr>
 }
 
 export default Item;

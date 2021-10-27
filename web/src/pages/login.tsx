@@ -3,10 +3,10 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import api from '../mutations';
-import InputField from '../components/InputField';
+import Input from '../components/Form/Input';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
+import api from '../mutations';
 
 const MESSAGES: Record<string, string> = {
   'new-password-sent': 'The confirmation link was sent to the email address.',
@@ -42,9 +42,9 @@ function Login() {
         {({ isSubmitting }) => (
           <Form>
             {notification && <Box mb={5} p="4" bgColor="teal.50" color="green">{notification}</Box>}
-            <InputField name="email" label="Email" />
+            <Input name="email" label="Email" />
             <Box mt={4}>
-              <InputField name="password" label="Password" type="password" />
+              <Input name="password" label="Password" type="password" />
             </Box>
             <Flex justifyContent="space-between" alignItems="end" mt={8}>
               <Button

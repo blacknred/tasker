@@ -1,16 +1,16 @@
 import router from "next/router";
-import { FC, useEffect } from "react";
+import { ComponentType, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 
-function withAuth(Component: FC) {
-  return function () {
+function withAuth<T>(Component: ComponentType<T>) {
+  return function (props: T) {
     const { session } = useAuth();
 
     useEffect(() => {
       if (!session) router.replace("/");
     }, [session]);
 
-    return session ? <Component /> : null;
+    return session ? <Component {...props} /> : null;
   };
 }
 

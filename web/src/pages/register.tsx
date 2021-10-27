@@ -3,10 +3,10 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import api from '../mutations';
-import InputField from '../components/InputField';
+import Input from '../components/Form/Input';
 import Layout from '../components/Layout';
 import Meta from '../components/Meta';
+import mutations from '../mutations';
 
 function Register() {
   const router = useRouter();
@@ -22,7 +22,7 @@ function Register() {
       <Formik
         initialValues={{ name: "", email: "", password: "" }}
         onSubmit={(values, actions) => {
-          api.createUser(values, (err) => {
+          mutations.createUser(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
@@ -34,12 +34,12 @@ function Register() {
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField name="name" label="Name" />
+            <Input name="name" label="Name" />
             <Box mt={4}>
-              <InputField name="email" label="Email" type="email" />
+              <Input name="email" label="Email" type="email" />
             </Box>
             <Box mt={4}>
-              <InputField name="password" label="Password" type="password" />
+              <Input name="password" label="Password" type="password" />
             </Box>
             <Flex justifyContent="space-between" alignItems="end" mt={8}>
               <Button

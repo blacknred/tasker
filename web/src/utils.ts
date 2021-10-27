@@ -3,6 +3,17 @@ import { dataAttr } from "@chakra-ui/utils";
 import { Fetcher, Key, SWRConfiguration, SWRHook } from "swr";
 import { ValidationError } from "./typings";
 
+const INTERVALS = [
+  { label: "year", seconds: 31536000 },
+  { label: "month", seconds: 2592000 },
+  { label: "day", seconds: 86400 },
+  { label: "hour", seconds: 3600 },
+  { label: "minute", seconds: 60 },
+  { label: "second", seconds: 1 },
+];
+
+export const HOST = `${process.env.API_HOST}/api/v1/`;
+
 export const showToast = createStandaloneToast({
   defaultOptions: {
     status: "warning",
@@ -23,8 +34,6 @@ export function localStorageProvider() {
 
   return map;
 }
-
-export const HOST = `${process.env.API_HOST}/api/v1/`;
 
 export const isServer = () => typeof window === "undefined";
 
@@ -66,23 +75,15 @@ export function errorMap(errors: ValidationError[]) {
   return map;
 }
 
-const intervals = [
-  { label: "year", seconds: 31536000 },
-  { label: "month", seconds: 2592000 },
-  { label: "day", seconds: 86400 },
-  { label: "hour", seconds: 3600 },
-  { label: "minute", seconds: 60 },
-  { label: "second", seconds: 1 },
-];
-
 export function timeSince(date: number | string) {
+  if (typeof date === 'string') date = Date.parse(date);
   const seconds = Math.floor((Date.now() - new Date(+date).getTime()) / 1000);
-  const interval = intervals.find((i) => i.seconds < seconds) || intervals[5];
+  const interval = INTERVALS.find((i) => i.seconds < seconds) || INTERVALS[5];
   const count = Math.floor(seconds / interval.seconds);
   return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
 }
 
-export function getRandBgColor(saturation = 50) {
+export function getRandColor(saturation = 50) {
   const colors = ["pink", "green", "orange", "gray", "facebook", "violet"];
   const index = Math.floor(Math.random() * colors.length);
   return `${colors[index]}.${saturation}`;

@@ -4,9 +4,15 @@ export enum Role {
 }
 
 export enum Width {
-  lg = 1050,
-  md = 800,
-  sm = 400
+  lg = "full",
+  md = "3xl",
+  sm = "md",
+}
+
+export interface IPaginated<T> {
+  hasMore: boolean;
+  total: number;
+  items: T[];
 }
 
 export interface IUser {
@@ -56,8 +62,8 @@ export interface ITask {
   finishedAt?: number;
 }
 
-export interface ListOptions {
-  variant: "list" | "grid";
+export interface ViewOptions {
+  variant?: "list" | "grid";
 }
 
 export type ValidationError = {

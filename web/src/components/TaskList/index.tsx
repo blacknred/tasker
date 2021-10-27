@@ -1,51 +1,49 @@
-import { Grid, Table, TableCaption, Thead, Tr, Th, Tbody } from '@chakra-ui/react';
-import { useState } from 'react';
-import { ITask, ListOptions } from '../../typings';
+import { Grid, Table, Tbody, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
+import useTasks from '../../hooks/useTasks';
+import { ViewOptions } from '../../typings';
 import Item from "./Item";
-import Toolbar from "./Toolbar";
+import withPagination from './withPagination';
 
-interface IProps {
-  items: ITask[]
-}
-
-const TaskList: React.FC<IProps> = ({ items }) => {
-  const [options, setOptions] = useState<ListOptions>({
-    variant: 'list'
-  })
-
-  const content = items.map(p => p.id && (
-    <Item data={p} key={p.id} variant={options.variant} />
-  ))
-
-  return (
-    <>
-      <Toolbar onChange={setOptions} />
-
-      {options.variant === 'list' && (
-        <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-          {content}
-        </Grid>
-      )}
-
-      {options.variant === 'grid' && (
-        <Table variant="striped" colorScheme="teal">
-          <TableCaption>Tasks</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Description</Th>
-              <Th>Type</Th>
-              <Th>Priority</Th>
-              <Th isNumeric>Created</Th>
-              <Th isNumeric>Finished</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>{content}</Tbody>
-        </Table>
-      )}
-    </>
-  )
+type IProps = ViewOptions & {
+  page?: number;
 };
 
-export default TaskList
+const TaskList: React.FC<IProps> = ({ page = 1, variant }) => {
+  const color = useColorModeValue('gray.300', 'gray.600')
+  const { items, hasMore, total, error } = useTasks(page);
+  console.log(items);
+
+  if (!error) return <>An error has occurred. Try reload later.</>;
+  if (!items) return <>Loading...</>;
+
+  const content = items.map(p => p.id && (
+    <Item data={p} key={p.id} variant={variant} />
+  ))
+
+  if (variant === 'grid') {
+    return <Grid templateColumns="repeat(4, 1fr)" gap={6} color={color}>
+      {content}
+    </Grid>
+  }
+
+  if (variant === 'list') {
+    return <Table variant="unstyled" color={color} size="sm">
+      <Thead>
+        <Tr>
+          <Th>Name</Th>
+          <Th>Description</Th>
+          <Th>Type</Th>
+          <Th>Priority</Th>
+          <Th isNumeric>Created</Th>
+          <Th isNumeric>Status</Th>
+          <Th></Th>
+        </Tr>
+      </Thead>
+      <Tbody>{content}</Tbody>
+    </Table>
+  }
+  
+  return null;
+};
+
+export default withPagination<IProps>(TaskList)

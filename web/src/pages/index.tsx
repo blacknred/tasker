@@ -5,7 +5,7 @@ import Layout from '../components/Layout'
 import Meta from '../components/Meta'
 import useAuth from '../hooks/useAuth'
 
-export default function Index() {
+function Index() {
   const color = useColorModeValue('gray.300', 'gray.600')
   const { session } = useAuth();
 
@@ -36,6 +36,7 @@ export default function Index() {
   )
 }
 
+export default Index;
 export async function getStaticProps() {
   return {
     props: {}

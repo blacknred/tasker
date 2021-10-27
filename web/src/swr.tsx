@@ -12,13 +12,13 @@ const Swr: FC<{}> = ({ children }) => (
       loadingTimeout: 10000,
       onLoadingSlow: () => {
         showToast({
-          title: "Slow network.",
+          title: "Slow network",
         })
       },
       // use: [logger],
       onError: (error) => {
         showToast({
-          title: "Network error.",
+          title: "Network error",
           description: error.message,
         })
       }

@@ -29,7 +29,7 @@ export function mutation<T = unknown>(
       .catch((e: Error) => {
         cb?.({});
         showToast({
-          title: "Network error.",
+          title: "Network error",
           description: e.message,
           status: "error",
         });
@@ -42,18 +42,17 @@ export default {
   createUser: mutation("users", "POST", (data) => mutate(`${HOST}auth`, data)),
   createAuth: mutation<IAuth>("auth", "POST", (data) => {
     mutate(`${HOST}auth`, data);
-    pushService.subscribe(data!.vapidPublicKey!);
+    if (data?.vapidPublicKey) {
+      pushService.subscribe(data.vapidPublicKey);
+    }
   }),
   deleteAuth: mutation("auth", "DELETE", () => {
     mutate(`${HOST}auth`, null);
-    // pushService.unsubscribe();
+    pushService.unsubscribe();
   }),
   createPushSubscription: mutation("auth/createPush", "PATCH"),
   deletePushSubscription: mutation("auth/deletePush", "PATCH"),
   createTask: mutation("tasks", "POST", () => mutate(`${HOST}tasks`, null)),
-  updateTask: mutation<ITask>("tasks", "PATCH", (data) =>
-    mutate(`${HOST}tasks`, (tasks: ITask[]) =>
-      tasks.map((task) => (task.id === data!.id ? data : task))
-    )
-  ),
+  deleteTask: mutation("tasks", "DELETE", () => mutate(`${HOST}tasks`, null)),
+  updateTask: mutation("tasks", "PATCH", () => mutate(`${HOST}tasks`, null)),
 };

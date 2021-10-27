@@ -24,6 +24,4 @@ export class EmptyResponseDto extends ResponseDto<null> {
   data: null;
 }
 
-export class PaginatedResponseDto<T> extends ResponseDto<
-  Paginated<T>
-> {}
+export class PaginatedResponseDto<T> extends ResponseDto<Paginated<T>> {}

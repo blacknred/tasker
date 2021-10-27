@@ -6,33 +6,52 @@ export class PushNotificationService {
 
   private error(e: Error) {
     showToast({
-      title: "Push Notifications error.",
+      title: "Push Notifications",
       description: e.message,
-      status: "error",
+      duration: 20000,
     });
   }
 
   init(path: string) {
-    if (!("serviceWorker" in navigator && "PushManager" in window)) {
-      console.warn("Push Notifications is not supported");
+    // is enabled
+    if (
+      !(
+        "serviceWorker" in navigator &&
+        "PushManager" in window &&
+        "Notification" in window
+      )
+    ) {
+      this.error(new Error("Push Notifications is not supported."));
       return;
     }
 
-    // get notifications from sw
-    navigator.serviceWorker.addEventListener("message", (event) => {
-      console.log("Received a message from SW: ", event.data);
-    });
+    // permission
+    Notification.requestPermission().then((permission) => {
+      if (permission !== "granted") {
+        this.error(
+          new Error("Access is not granted. Notifications will be disabled.")
+        );
+        return;
+      }
 
-    navigator.serviceWorker.register(path).then((registration) => {
-      console.log("SW registration scope: ", registration.scope);
-      this.registration = registration;
-
-      // initial subscription
-      registration.pushManager.getSubscription().then((sub) => {
-        if (sub) api.createPushSubscription(sub);
-        else api.deletePushSubscription();
+      // new Notification("Hi there!");
+      // get notifications from sw
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        console.log("Received a message from SW: ", event.data);
       });
-    }, this.error);
+
+      // register
+      navigator.serviceWorker.register(path).then((registration) => {
+        console.log("SW registration scope: ", registration.scope);
+        this.registration = registration;
+
+        // initial subscription
+        registration.pushManager.getSubscription().then((sub) => {
+          if (sub) api.createPushSubscription(sub);
+          // else api.deletePushSubscription();
+        });
+      }, this.error);
+    });
   }
 
   subscribe(vapidPublicKey: string) {
@@ -55,12 +74,9 @@ export class PushNotificationService {
 
   unsubscribe() {
     // unsubscribe from notifications
-    this.registration?.pushManager
-      .getSubscription()
-      .then((sub) => {
-        sub?.unsubscribe();
-      })
-      .then(api.deletePushSubscription, this.error);
+    this.registration?.pushManager.getSubscription().then((sub) => {
+      return sub?.unsubscribe();
+    }, this.error);
   }
 }
 
