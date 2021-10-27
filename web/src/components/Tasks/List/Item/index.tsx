@@ -1,15 +1,17 @@
+import { EditIcon } from '@chakra-ui/icons';
 import { Badge, Heading, Stack, Td, Text, Tr, useColorModeValue, VStack } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ITask, ViewOptions } from '../../../typings';
-import { timeSince } from '../../../utils';
-import EditTaskButton from '../../TaskToolbar/ModalButton';
+import { ITask, ViewOptions } from '../../../../typings';
+import { timeSince } from '../../../../utils';
+import { ModalTaskForm } from '../../Form';
 
 interface IProps extends ViewOptions {
   data: ITask
 }
 
-const Item: FC<IProps> = ({ data, variant }) => {
+const TaskItem: FC<IProps> = ({ data, variant }) => {
   const bg = useColorModeValue('gray.800', 'white')
+  const btnProps = { size: 'sm', leftIcon: <EditIcon />, children: 'Edit' };
 
   if (variant === 'grid') {
     return <VStack bg={bg} p="8" justifyContent="space-between" align="start">
@@ -23,7 +25,7 @@ const Item: FC<IProps> = ({ data, variant }) => {
         <Text fontSize="xs">{timeSince(data.createdAt)}</Text>
         <Text fontSize="sm">{data.description.slice(0, 200)}</Text>
       </VStack>
-      <EditTaskButton data={data} />
+      <ModalTaskForm btnProps={btnProps} data={data} />
     </VStack>
   }
 
@@ -32,11 +34,11 @@ const Item: FC<IProps> = ({ data, variant }) => {
     <Td>{data.description.slice(0, 200)}</Td>
     <Td><Badge variant="outline" colorScheme="telegram">{data.type}</Badge></Td>
     <Td><Badge variant="outline" colorScheme="telegram">{data.priority}</Badge></Td>
-    <Td isNumeric>{timeSince(data.createdAt)}</Td>
+    <Td isNumeric whiteSpace="nowrap">{timeSince(data.createdAt)}</Td>
     <Td isNumeric><Badge colorScheme="telegram">{data.finishedAt ? 'Finished' : 'In process'}</Badge></Td>
-    <Td w="10"><EditTaskButton data={data} /></Td>
+    <Td w="10"><ModalTaskForm btnProps={btnProps} data={data} /></Td>
   </Tr>
 }
 
-export default Item;
+export default TaskItem;
 

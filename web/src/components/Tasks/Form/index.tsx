@@ -5,13 +5,14 @@ import api from '../../../mutations';
 import { ITask, TaskPriority, TaskType } from '../../../typings';
 import InputField from '../../Form/Input';
 import SelectField from '../../Form/Select';
+import withModal from '../../Layout/withModal';
 
 interface IProps {
   data?: ITask;
-  onSaved: () => void;
+  onSaved?: () => void;
 }
 
-const Task: FC<IProps> = ({ data, onSaved }) => {
+const TaskForm: FC<IProps> = ({ data, onSaved }) => {
   const bg = useColorModeValue('gray.700', 'gray.100')
   const color = useColorModeValue('gray.500', 'gray.400')
 
@@ -30,7 +31,7 @@ const Task: FC<IProps> = ({ data, onSaved }) => {
             actions.setErrors(err);
             actions.setSubmitting(false)
           } else {
-            onSaved()
+            onSaved?.()
           }
         }, data?.id);
       }}
@@ -60,4 +61,5 @@ const Task: FC<IProps> = ({ data, onSaved }) => {
   )
 }
 
-export default Task;
+export default TaskForm;
+export const ModalTaskForm = withModal(TaskForm);

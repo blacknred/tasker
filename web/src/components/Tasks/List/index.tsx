@@ -1,8 +1,8 @@
 import { Grid, Table, Tbody, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
-import useTasks from '../../hooks/useTasks';
-import { ViewOptions } from '../../typings';
+import useTasks from '../../../hooks/useTasks';
+import { ViewOptions } from '../../../typings';
 import Item from "./Item";
-import withPagination from './withPagination';
+import withPagination from '../../Layout/withPagination';
 
 type IProps = ViewOptions & {
   page?: number;
@@ -13,7 +13,7 @@ const TaskList: React.FC<IProps> = ({ page = 1, variant }) => {
   const { items, hasMore, total, error } = useTasks(page);
   console.log(items);
 
-  if (!error) return <>An error has occurred. Try reload later.</>;
+  if (error) return <>An error has occurred. Try reload later.</>;
   if (!items) return <>Loading...</>;
 
   const content = items.map(p => p.id && (

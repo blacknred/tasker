@@ -2,8 +2,8 @@ import React from "react";
 import withAuth from "../components/Auth/withAuth";
 import Layout from "../components/Layout";
 import Meta from '../components/Meta';
-import TaskList from '../components/TaskList';
-import TaskToolbar from "../components/TaskToolbar";
+import TaskList from '../components/Tasks/List';
+import TaskToolbar from "../components/Tasks/Toolbar";
 
 function Dashboard() {
   return (
