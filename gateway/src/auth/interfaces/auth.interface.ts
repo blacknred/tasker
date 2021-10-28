@@ -1,4 +1,4 @@
-import { IUser } from '../../users/interfaces/user.interface';
+import { IUser } from './user.interface';
 
 export interface IPushSubscription {
   endpoint: string;

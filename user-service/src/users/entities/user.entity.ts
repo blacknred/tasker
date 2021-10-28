@@ -8,7 +8,7 @@ import {
   Index,
   DeleteDateColumn,
 } from 'typeorm';
-import { IUser, Role } from '../interfaces/user.interface';
+import { IUser, UserRole } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
 
@@ -29,11 +29,11 @@ export class User implements IUser {
 
   @Column({
     type: 'enum',
-    enum: Role,
+    enum: UserRole,
     array: true,
-    default: [Role.USER],
+    default: [UserRole.USER],
   })
-  roles: [Role];
+  roles: [UserRole];
 
   @CreateDateColumn()
   @Index('user_createdAt_index')

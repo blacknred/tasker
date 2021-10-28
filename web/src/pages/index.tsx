@@ -1,6 +1,8 @@
+import { PlusSquareIcon } from '@chakra-ui/icons'
 import { Button, Center, Flex, Heading, Square, useColorModeValue } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
+import AuthLink from '../components/Auth/Link'
 import Layout from '../components/Layout'
 import Meta from '../components/Meta'
 import useAuth from '../hooks/useAuth'
@@ -31,6 +33,12 @@ function Index() {
             </NextLink>
           </Flex>
         )}
+
+        <AuthLink href="/workspace">
+          <Button isFullWidth leftIcon={<PlusSquareIcon />} size="lg" variant="outline" colorScheme="telegram" mr={8}>
+            Create a workspace
+          </Button>
+        </AuthLink>
       </Square>
     </Layout>
   )

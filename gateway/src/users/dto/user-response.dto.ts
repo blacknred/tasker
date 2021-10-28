@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { IUser, Role } from '../interfaces/user.interface';
+import { IUser, UserRole } from '../interfaces/user.interface';
 
 export const userMock = {
   id: 1,
   name: 'username',
   email: 'test@email.com',
-  roles: [Role.USER],
+  roles: [UserRole.USER],
   createdAt: +new Date(),
   updatedAt: +new Date(),
 };

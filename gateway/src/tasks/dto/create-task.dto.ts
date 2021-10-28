@@ -6,7 +6,7 @@ export class CreateTaskDto
 {
   @ApiProperty({ example: 'first task', nullable: false })
   name: string;
-  @ApiProperty({ example: 'first task description', nullable: false })
+  @ApiProperty({ example: 'first task description' })
   description: string;
   @ApiProperty({
     default: TaskType.SHORT,

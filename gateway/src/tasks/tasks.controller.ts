@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
 import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
-import { Role } from 'src/users/interfaces/user.interface';
+import { UserRole } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
@@ -65,7 +65,7 @@ export class TasksController {
     @Query() getTasksDto: GetTasksDto,
   ): Promise<TasksResponseDto> {
     const payload = { ...getTasksDto, userId };
-    if (roles.includes(Role.ADMIN)) delete payload.userId;
+    if (roles.includes(UserRole.ADMIN)) delete payload.userId;
     return this.taskService.send('getAll', payload).toPromise();
   }
 
@@ -77,7 +77,7 @@ export class TasksController {
     @Param() { id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
-    if (roles.includes(Role.ADMIN)) delete payload.userId;
+    if (roles.includes(UserRole.ADMIN)) delete payload.userId;
     return this.taskService.send('getOne', payload).toPromise();
   }
 

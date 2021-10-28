@@ -2,10 +2,10 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PassportSerializer, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { USER_SERVICE } from 'src/users/consts';
-import { IUser } from '../../users/interfaces/user.interface';
-import { IAuth } from '../interfaces/auth.interface';
 import { IResponse } from 'src/__shared__/interfaces/response.interface';
+import { USER_SERVICE } from '../consts';
+import { IAuth } from '../interfaces/auth.interface';
+import { IUser } from '../interfaces/user.interface';
 
 // LocalAuthGuard.logIn(req) => LocalStrategy.validate() => SessionSerialiser.serializeUser()
 

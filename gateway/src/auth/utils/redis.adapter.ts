@@ -9,6 +9,7 @@ export class RedisAdapter extends RedisClient {
   public setAsync: any;
   public delAsync: any;
   public scanAsync: any;
+  public dbsizeAsync: any;
 
   private static retryStrategy(opts: RetryStrategyOptions) {
     if (opts.error && opts.error.code === 'ECONNREFUSED') {
@@ -49,5 +50,6 @@ export class RedisAdapter extends RedisClient {
     this.setAsync = promisify(this.set).bind(this);
     this.delAsync = promisify(this.del).bind(this);
     this.scanAsync = promisify(this.scan).bind(this);
+    this.dbsizeAsync = promisify(this.dbsize).bind(this);
   }
 }

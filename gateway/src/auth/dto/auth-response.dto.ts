@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { Role } from '../../users/interfaces/user.interface';
+import { UserRole } from '../interfaces/user.interface';
 import { IAuth } from '../interfaces/auth.interface';
 
 export const authMock = {
   id: 1,
-  roles: [Role.USER],
+  name: 'testname',
+  roles: [UserRole.USER],
   email: 'test@email.com',
   vapidPublicKey: 'Bsr56...',
 };

@@ -13,13 +13,13 @@ import * as session from 'express-session';
 import * as helmet from 'helmet';
 import * as passport from 'passport';
 import { join } from 'path';
-import { RedisClient } from 'redis';
 import { AuthModule } from './auth/auth.module';
+import { CACHE_SERVICE, SESSION_LIVESPAN } from './auth/consts';
 import { cacheProvider } from './auth/providers/cache.provider';
+import { RedisAdapter } from './auth/utils/redis.adapter';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { TasksModule } from './tasks/tasks.module';
 import { UsersModule } from './users/users.module';
-import { CACHE_SERVICE } from './__shared__/consts';
 
 @Module({
   imports: [
@@ -46,7 +46,7 @@ import { CACHE_SERVICE } from './__shared__/consts';
 })
 export class AppModule implements NestModule {
   constructor(
-    @Inject(CACHE_SERVICE) private readonly redis: RedisClient,
+    @Inject(CACHE_SERVICE) private readonly redisService: RedisAdapter,
     private readonly configService: ConfigService,
   ) {}
 
@@ -59,7 +59,7 @@ export class AppModule implements NestModule {
         helmet(),
         session({
           store: new (RedisStore(session))({
-            client: this.redis,
+            client: this.redisService,
             logErrors: true,
           }),
           saveUninitialized: false,
@@ -68,7 +68,7 @@ export class AppModule implements NestModule {
           cookie: {
             sameSite: 'lax',
             httpOnly: true,
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: SESSION_LIVESPAN,
             signed: isProd,
             secure: isProd,
           },

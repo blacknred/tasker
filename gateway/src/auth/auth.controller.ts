@@ -5,11 +5,11 @@ import {
   Get,
   Patch,
   Post,
+  Query,
   Req,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   ApiCookieAuth,
   ApiCreatedResponse,
@@ -17,40 +17,50 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { UserRole } from 'src/users/interfaces/user.interface';
+import { Roles } from 'src/__shared__/decorators/roles.decorator';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
-import { EmptyResponseDto } from '../__shared__/dto/response.dto';
+import { RoleGuard } from 'src/__shared__/guards/role.guard';
 import { Auth } from '../__shared__/decorators/auth.decorator';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { PushSubscriptionDto } from './dto/push-subscription.dto';
+import { EmptyResponseDto } from '../__shared__/dto/response.dto';
 import { AuthedGuard } from '../__shared__/guards/authed.guard';
+import { AuthService } from './auth.service';
+import { AuthResponseDto } from './dto/auth-response.dto';
+import { AuthsResponseDto } from './dto/auths-response.dto';
+import { GetAuthsDto } from './dto/get-auths.dto';
+import { PushSubscriptionResponseDto } from './dto/push-subscription-response.dto';
+import { PushSubscriptionDto } from './dto/push-subscription.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { IAuth } from './interfaces/auth.interface';
 import { ValidationPipe } from './pipes/validation.pipe';
 
 @Controller('auth')
 @ApiTags('Auth')
 @UseFilters(AllExceptionFilter)
 export class AuthController {
-  vapidPublicKey: string;
-
-  constructor(private readonly configService: ConfigService) {
-    this.vapidPublicKey = this.configService.get('VAPID_PUBLIC_KEY');
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Post()
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ summary: 'Login' })
   @ApiCreatedResponse({ type: EmptyResponseDto })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  create(@Auth() user): AuthResponseDto {
-    const data = { ...user, vapidPublicKey: this.vapidPublicKey };
-    return { data };
+  create(@Auth() auth): AuthResponseDto {
+    return this.authService.create(auth);
   }
 
   @Get()
+  // @Roles(UserRole.ADMIN)
+  // @UseGuards(RoleGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Get all sessions' })
+  @ApiOkResponse({ type: AuthsResponseDto })
+  async getAll(@Query() getUsersDto: GetAuthsDto): Promise<AuthsResponseDto> {
+    return this.authService.findAll(getUsersDto);
+  }
+
+  @Get('me')
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Get Session data' })
+  @ApiOperation({ summary: 'Get session' })
   @ApiOkResponse({ type: AuthResponseDto })
   getOne(@Auth('user') data): AuthResponseDto {
     return { data };
@@ -69,39 +79,24 @@ export class AuthController {
   @Patch('createPush')
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Create Push Subscription' })
+  @ApiOperation({ summary: 'Create push subscription' })
   @ApiOkResponse({ type: AuthResponseDto })
   createPush(
-    @Auth() { pushSubscriptions, ...data }: IAuth,
+    @Auth('pushSubscriptions') subscriptions,
     @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
-  ): any {
-    const dto = JSON.stringify(subscriptionDto);
-
-    if (pushSubscriptions.every((sub) => JSON.stringify(sub) !== dto)) {
-      pushSubscriptions.push(subscriptionDto);
-    }
-
-    return { data };
+  ): PushSubscriptionResponseDto {
+    return this.authService.createPush(subscriptions, subscriptionDto);
   }
 
   @Patch('deletePush')
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Delete Push Subscription' })
+  @ApiOperation({ summary: 'Delete push subscription' })
   @ApiOkResponse({ type: EmptyResponseDto })
   deletePush(
-    @Auth('pushSubscriptions') pushSubscriptions,
+    @Auth('pushSubscriptions') subscriptions,
     @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
   ): EmptyResponseDto {
-    const dto = JSON.stringify(subscriptionDto);
-    const index = pushSubscriptions.findIndex(
-      (sub) => JSON.stringify(sub) === dto,
-    );
-
-    if (index > -1) {
-      pushSubscriptions.splice(index, 1);
-    }
-
-    return { data: null };
+    return this.authService.deletePush(subscriptions, subscriptionDto);
   }
 }

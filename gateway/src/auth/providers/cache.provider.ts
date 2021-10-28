@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
-import { CACHE_SERVICE } from '../../__shared__/consts';
-import * as Redis from 'redis';
+import { CACHE_SERVICE } from '../consts';
+import { RedisAdapter } from '../utils/redis.adapter';
 
 export const cacheProvider = {
   provide: CACHE_SERVICE,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) =>
-    Redis.createClient({ url: configService.get('REDIS_URL') }),
+    new RedisAdapter({ url: configService.get('REDIS_URL') }),
 };

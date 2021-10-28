@@ -25,7 +25,7 @@ export class PushSubscriptionDto {
   @ValidateNested({ each: true })
   @Type(() => PushSubscriptionKeysDto)
   keys: PushSubscriptionKeysDto;
-  @ApiProperty({ example: 12 })
+  @ApiProperty({ example: '1234349084' })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   expirationTime?: string;

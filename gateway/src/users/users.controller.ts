@@ -35,7 +35,7 @@ import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
-import { Role } from './interfaces/user.interface';
+import { UserRole } from './interfaces/user.interface';
 
 @ApiTags('Users')
 @Controller('users')
@@ -54,8 +54,8 @@ export class UsersController {
   }
 
   @Get()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(RoleGuard)
+  @Roles(UserRole.ADMIN)
+  @UseGuards(RoleGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
@@ -64,7 +64,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN)
+  @Roles(UserRole.ADMIN)
   @UseGuards(RoleGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Get user by id' })
