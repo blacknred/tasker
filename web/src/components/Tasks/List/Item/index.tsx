@@ -1,17 +1,17 @@
 import { EditIcon } from '@chakra-ui/icons';
 import { Badge, Heading, Stack, Td, Text, Tr, useColorModeValue, VStack } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ITask, ViewOptions } from '../../../../typings';
+import { ITask, ITaskViewOptions } from '../../../../typings';
 import { timeSince } from '../../../../utils';
 import { ModalTaskForm } from '../../Form';
 
-interface IProps extends ViewOptions {
+interface IProps extends ITaskViewOptions {
   data: ITask
 }
 
 const TaskItem: FC<IProps> = ({ data, variant }) => {
-  const bg = useColorModeValue('gray.800', 'white')
-  const btnProps = { size: 'sm', leftIcon: <EditIcon />, children: 'Edit' };
+  const bg = useColorModeValue('blackAlpha.300', 'white')
+  const btnProps = { size: 'sm', leftIcon: <EditIcon />, children: 'Edit', variant: 'outline' };
 
   if (variant === 'grid') {
     return <VStack bg={bg} p="8" justifyContent="space-between" align="start">

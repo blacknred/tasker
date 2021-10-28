@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   BeforeInsert,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
 import { IUser, Role } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';
@@ -22,8 +23,8 @@ export class User implements IUser {
   @Column({ type: 'text', unique: true })
   email: string;
 
-  @Column({ type: 'text' })
   @Exclude()
+  @Column({ type: 'text' })
   password: string;
 
   @Column({
@@ -40,6 +41,10 @@ export class User implements IUser {
 
   @UpdateDateColumn()
   updatedAt = new Date();
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @BeforeInsert()
   async hashPassword() {

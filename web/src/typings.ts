@@ -6,36 +6,7 @@ export enum Role {
 export enum Width {
   lg = "full",
   md = "3xl",
-  sm = "md",
-}
-
-export interface IPaginated<T> {
-  hasMore: boolean;
-  total: number;
-  items: T[];
-}
-
-export interface IUser {
-  id: number;
-  name: string;
-  email: string;
-  roles: [Role];
-  createdAt: number;
-  updatedAt: number;
-}
-
-export type IAuth = Partial<IUser> & {
-  vapidPublicKey?: string;
-};
-
-export interface IPushSubscription {
-  userId: number;
-  endpoint: string;
-  expirationTime?: number;
-  keys: {
-    auth: string;
-    p256dh: string;
-  };
+  sm = "sm",
 }
 
 export enum TaskType {
@@ -51,19 +22,11 @@ export enum TaskPriority {
   LOW = "LOW",
 }
 
-export interface ITask {
-  id: string;
-  name: string;
-  description: string;
-  userId: number;
-  type: TaskType;
-  priority: TaskPriority;
-  createdAt: number;
-  finishedAt?: number;
-}
-
-export interface ViewOptions {
-  variant?: "list" | "grid";
+// Dto
+export interface IPaginated<T> {
+  hasMore: boolean;
+  total: number;
+  items: T[];
 }
 
 export type ValidationError = {
@@ -76,3 +39,55 @@ export interface IResponse<T = unknown> {
   errors: ValidationError[] | null;
   data: T;
 }
+
+// User entity
+export interface IUser {
+  id: number;
+  name: string;
+  email: string;
+  roles: [Role];
+  createdAt: number;
+  updatedAt: number;
+}
+
+// Auth entity
+
+export type IAuth = Partial<IUser> & {
+  vapidPublicKey?: string;
+};
+
+export interface IPushSubscription {
+  userId: number;
+  endpoint: string;
+  expirationTime?: number;
+  keys: {
+    auth: string;
+    p256dh: string;
+  };
+}
+
+// Task entity
+
+export interface ITask {
+  id: string;
+  name: string;
+  description: string;
+  userId: number;
+  type: TaskType;
+  priority: TaskPriority;
+  createdAt: number;
+  finishedAt?: number;
+}
+
+// Ui
+
+export interface ViewOptions<T> {
+  variant?: "list" | "grid";
+  "sort.field"?: keyof T;
+  "sort.order"?: "ASC" | "DESC";
+  limit?: 10 | 50 | 100;
+}
+
+export type ITaskViewOptions = ViewOptions<
+  Omit<ITask, "id" | "description" | "userId">
+>;

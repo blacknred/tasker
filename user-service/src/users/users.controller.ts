@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUserDto, GetValidatedUserDto } from './dto/get-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import {
-  UsersResponseDto,
   ResponseDto,
   UserResponseDto,
+  UsersResponseDto,
 } from './dto/response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -26,18 +26,12 @@ export class UsersController {
   }
 
   @MessagePattern('getOne')
-  getOne(@Payload() { id }: GetUserDto): Promise<UserResponseDto> {
-    return this.usersService.findOne(id);
+  getOne(@Payload() { id, ...rest }: GetUserDto): Promise<UserResponseDto> {
+    if (id) return this.usersService.findOne(id);
+    return this.usersService.findOneValidated(rest);
   }
 
-  @MessagePattern('getOneValidated')
-  getOneValidate(
-    @Payload() getValidatedUserDto: GetValidatedUserDto,
-  ): Promise<UserResponseDto> {
-    return this.usersService.findOneValidated(getValidatedUserDto);
-  }
-
-  @MessagePattern('update')
+  @MessagePattern('patch')
   update(@Payload() updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
     return this.usersService.update(updateUserDto.id, updateUserDto);
   }
@@ -45,5 +39,10 @@ export class UsersController {
   @MessagePattern('delete')
   remove(@Payload() { id }: GetUserDto): Promise<ResponseDto> {
     return this.usersService.remove(id);
+  }
+
+  @MessagePattern('restore')
+  restore(@Payload() { id }: GetUserDto): Promise<UserResponseDto> {
+    return this.usersService.restore(id);
   }
 }

@@ -30,7 +30,7 @@ export class TasksController {
     return this.tasksService.findOne(id, userId);
   }
 
-  @MessagePattern('update')
+  @MessagePattern('patch')
   update(@Payload() updateTaskDto: UpdateTaskDto): Promise<TaskResponseDto> {
     return this.tasksService.update(updateTaskDto.id, updateTaskDto);
   }

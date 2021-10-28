@@ -1,13 +1,9 @@
-import { PickType } from '@nestjs/mapped-types';
-import { IsNumber } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { IsNumber, IsOptional } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
-export class GetUserDto {
+export class GetUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
   @IsNumber({}, { message: 'Must be a number' })
-  id: number;
+  id?: number;
 }
-
-export class GetValidatedUserDto extends PickType(CreateUserDto, [
-  'email',
-  'password',
-] as const) {}

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetValidatedUserDto } from './dto/get-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { ResponseDto } from './dto/response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,6 +17,10 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
+
+  private hasColumn(key: string) {
+    return this.userRepository.metadata.hasColumnWithPropertyPath(key);
+  }
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -54,18 +58,14 @@ export class UsersService {
   async findAll({ limit, offset, ...rest }: GetUsersDto) {
     const [users, total] = await this.userRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (
-          this.userRepository.metadata.hasColumnWithPropertyPath(key) &&
-          rest[key]
-        ) {
-          acc[key] = rest[key];
-        }
-
+        if (!(this.hasColumn(key) && rest[key])) return acc;
+        acc[key] = rest[key];
         return acc;
       }, {}),
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       skip: offset,
       take: limit + 1,
+      withDeleted: false,
     });
 
     return {
@@ -79,7 +79,7 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findOne(id, { withDeleted: false });
 
     if (!user) {
       return {
@@ -94,9 +94,12 @@ export class UsersService {
     };
   }
 
-  async findOneValidated({ email, password }: GetValidatedUserDto) {
+  async findOneValidated({ email, password }: GetUserDto) {
     try {
-      const user = await this.userRepository.findOne({ email });
+      const user = await this.userRepository.findOne(
+        { email },
+        { withDeleted: false },
+      );
 
       if (!user) {
         return {
@@ -157,11 +160,43 @@ export class UsersService {
       const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
-      await this.userRepository.delete(id);
+      const deleted = await this.userRepository.softDelete(id);
+
+      if (!deleted.affected) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+        };
+      }
 
       return {
         status: HttpStatus.OK,
         data: null,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
+
+  async restore(id: number) {
+    try {
+      const res = await this.findOne(id);
+      if (!res.data) return res as ResponseDto;
+
+      const restored = await this.userRepository.restore(id);
+
+      if (!restored.affected) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

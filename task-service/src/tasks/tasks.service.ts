@@ -17,6 +17,10 @@ export class TasksService {
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
   ) {}
 
+  private hasColumn(key: string) {
+    return this.taskRepository.metadata.hasColumnWithPropertyPath(key);
+  }
+
   async create(createTaskDto: CreateTaskDto) {
     try {
       const task = this.taskRepository.create(createTaskDto);
@@ -39,12 +43,8 @@ export class TasksService {
   async findAll({ limit, offset, ...rest }: GetTasksDto) {
     const [tasks, total] = await this.taskRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (
-          this.taskRepository.metadata.hasColumnWithPropertyPath(key) &&
-          rest[key]
-        ) {
-          acc[key] = rest[key];
-        }
+        if (!(this.hasColumn(key) && rest[key])) return acc;
+        acc[key] = rest[key];
         return acc;
       }, {}),
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
@@ -109,7 +109,14 @@ export class TasksService {
       const res = await this.findOne(id, userId);
       if (!res.data) return res as ResponseDto;
 
-      await this.taskRepository.delete(id);
+      const deleted = await this.taskRepository.delete(id);
+
+      if (!deleted.affected) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+        };
+      }
 
       return {
         status: HttpStatus.OK,

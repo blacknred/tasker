@@ -18,11 +18,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string) {
+    const params = { password, email };
     const { status, ...rest } = await this.userService
-      .send<IResponse<IUser>>('getOneValidated', {
-        password,
-        email,
-      })
+      .send<IResponse<IUser>>('getOne', params)
       .toPromise();
 
     if (status !== HttpStatus.OK) {

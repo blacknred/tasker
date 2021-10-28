@@ -90,7 +90,7 @@ export class TasksController {
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.taskService
-      .send('update', { ...updateTaskDto, id, userId })
+      .send('patch', { ...updateTaskDto, id, userId })
       .toPromise();
   }
 

@@ -54,8 +54,8 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(Role.ADMIN)
-  @UseGuards(RoleGuard)
+  // @Roles(Role.ADMIN)
+  // @UseGuards(RoleGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
@@ -82,8 +82,20 @@ export class UsersController {
     @Auth('user') { id },
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
+    return this.userService.send('patch', { id, ...updateUserDto }).toPromise();
+  }
+
+  @Patch('restore')
+  @UseGuards(AuthedGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: 'Update authorized user entity' })
+  @ApiOkResponse({ type: UserResponseDto })
+  async restore(
+    @Auth('user') { id },
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
     return this.userService
-      .send('update', { id, ...updateUserDto })
+      .send('restore', { id, ...updateUserDto })
       .toPromise();
   }
 
