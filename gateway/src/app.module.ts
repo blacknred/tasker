@@ -18,7 +18,7 @@ import { CACHE_SERVICE, SESSION_LIVESPAN } from './auth/consts';
 import { cacheProvider } from './auth/providers/cache.provider';
 import { RedisAdapter } from './auth/utils/redis.adapter';
 import { MonitoringModule } from './monitoring/monitoring.module';
-import { TasksModule } from './workspaces/tasks.module';
+import { TasksModule } from './workspaces/workspaces.module';
 import { UsersModule } from './users/users.module';
 
 @Module({

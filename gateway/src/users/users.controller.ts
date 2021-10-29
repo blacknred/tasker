@@ -22,11 +22,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
-import { Roles } from 'src/__shared__/decorators/roles.decorator';
-import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
-import { RoleGuard } from 'src/__shared__/guards/role.guard';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
+import { AdminGuard } from 'src/__shared__/guards/admin.guard';
+import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -35,7 +34,6 @@ import { GetUsersDto } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
-import { UserRole } from './interfaces/user.interface';
 
 @ApiTags('Users')
 @Controller('users')
@@ -54,8 +52,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles(UserRole.ADMIN)
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
@@ -64,8 +61,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN)
-  @UseGuards(RoleGuard)
+  @UseGuards(AdminGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })

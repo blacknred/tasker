@@ -1,8 +1,12 @@
-import { IUser } from 'src/users/interfaces/user.interface';
 import { IAuth, IPushSubscription } from '../interfaces/auth.interface';
 
 export class Auth implements IAuth {
-  user: Partial<IUser>;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    isAdmin: null;
+  };
   pushSubscriptions: IPushSubscription[];
 
   // constructor(user?: Partial<User>) {

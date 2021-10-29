@@ -30,6 +30,7 @@ export class User implements IUser {
   @Column({ default: false })
   isAdmin: boolean;
 
+  @Exclude()
   @Column({ default: false })
   isConfirmed: boolean;
 

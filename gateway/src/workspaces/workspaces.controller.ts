@@ -22,7 +22,6 @@ import {
 } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
 import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
-import { UserRole } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
@@ -34,15 +33,16 @@ import { TaskResponseDto } from './dto/task-response.dto';
 import { TasksResponseDto } from './dto/tasks-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
-@ApiTags('Tasks')
+@ApiTags('Workspaces')
 @ApiCookieAuth()
-@Controller('tasks')
+@Controller('workspaces')
 @UseFilters(AllExceptionFilter)
 @UseInterceptors(ProxyInterceptor)
 @UseGuards(AuthedGuard)
-export class TasksController {
+export class WorkspacesController {
   constructor(
-    @Inject(WORKSPACE_SERVICE) protected readonly taskService: ClientProxy,
+    @Inject(WORKSPACE_SERVICE)
+    protected readonly workspaceRepository: ClientProxy,
   ) {}
 
   @Post()
@@ -52,7 +52,7 @@ export class TasksController {
     @Auth('user') { id: userId },
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.taskService
+    return this.workspaceRepository
       .send('create', { ...createTaskDto, userId })
       .toPromise();
   }
@@ -66,7 +66,7 @@ export class TasksController {
   ): Promise<TasksResponseDto> {
     const payload = { ...getTasksDto, userId };
     if (roles.includes(UserRole.ADMIN)) delete payload.userId;
-    return this.taskService.send('getAll', payload).toPromise();
+    return this.workspaceRepository.send('getAll', payload).toPromise();
   }
 
   @Get(':id')
@@ -78,7 +78,7 @@ export class TasksController {
   ): Promise<TaskResponseDto> {
     const payload = { id, userId };
     if (roles.includes(UserRole.ADMIN)) delete payload.userId;
-    return this.taskService.send('getOne', payload).toPromise();
+    return this.workspaceRepository.send('getOne', payload).toPromise();
   }
 
   @Patch(':id')
@@ -89,7 +89,7 @@ export class TasksController {
     @Param() { id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.taskService
+    return this.workspaceRepository
       .send('patch', { ...updateTaskDto, id, userId })
       .toPromise();
   }
@@ -101,6 +101,6 @@ export class TasksController {
     @Auth('user') { id: userId },
     @Param() { id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
-    return this.taskService.send('delete', { id, userId }).toPromise();
+    return this.workspaceRepository.send('delete', { id, userId }).toPromise();
   }
 }

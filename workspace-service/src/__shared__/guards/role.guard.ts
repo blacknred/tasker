@@ -33,3 +33,6 @@ export class RoleGuard extends AuthedGuard {
     }
   }
 }
+
+// @Roles(UserRole.ADMIN)
+// @UseGuards(RoleGuard)

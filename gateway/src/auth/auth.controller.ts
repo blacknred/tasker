@@ -17,10 +17,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserRole } from 'src/users/interfaces/user.interface';
-import { Roles } from 'src/__shared__/decorators/roles.decorator';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
-import { RoleGuard } from 'src/__shared__/guards/role.guard';
+import { AdminGuard } from 'src/__shared__/guards/admin.guard';
 import { Auth } from '../__shared__/decorators/auth.decorator';
 import { EmptyResponseDto } from '../__shared__/dto/response.dto';
 import { AuthedGuard } from '../__shared__/guards/authed.guard';
@@ -48,8 +46,7 @@ export class AuthController {
   }
 
   @Get()
-  // @Roles(UserRole.ADMIN)
-  // @UseGuards(RoleGuard)
+  @UseGuards(AdminGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Get all sessions' })
   @ApiOkResponse({ type: AuthsResponseDto })

@@ -9,7 +9,7 @@ export interface IPushSubscription {
   };
 }
 
-export type IAuth = {
+export interface IAuth {
   user: Partial<IUser>;
   pushSubscriptions: IPushSubscription[];
-};
+}

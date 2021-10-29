@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
-import { UserRole } from 'src/users/interfaces/user.interface';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { PaginationDto } from 'src/__shared__/dto/request.dto';
 
 export class GetAuthsDto extends PaginationDto {
@@ -20,15 +13,4 @@ export class GetAuthsDto extends PaginationDto {
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email' })
   email?: string;
-
-  @ApiProperty({
-    default: UserRole.USER,
-    example: UserRole.USER,
-    enum: UserRole,
-  })
-  @IsOptional()
-  @IsEnum(UserRole, {
-    message: `Must be one of ${Object.values(UserRole)}`,
-  })
-  role?: UserRole;
 }

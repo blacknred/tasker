@@ -1,4 +1,6 @@
 import { ObjectID } from 'typeorm';
+import { IAgent } from './agent.interface';
+import { IStage } from './stage.interface';
 
 export enum TaskType {
   SHORT = 'SHORT',
@@ -13,13 +15,20 @@ export enum TaskPriority {
   CRITICAL = 'CRITICAL',
 }
 
+export interface IStageUpdate {
+  stage: IStage;
+  agent: IAgent;
+}
+
 export interface ITask {
   id: ObjectID;
   name: string;
-  description: string;
-  userId: number;
+  description?: string;
   type: TaskType;
   priority: TaskPriority;
+  creator: IAgent;
+  history: IStageUpdate[];
   createdAt: Date;
-  finishedAt?: Date;
+  updatedAt: Date;
+  expiresAt?: Date;
 }
