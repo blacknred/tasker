@@ -3,13 +3,13 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ObjectID, Repository } from 'typeorm';
 import { WORKER_SERVICE, TASK_REPOSITORY } from './consts';
-import { GetTasksDto } from './dto/get-tasks.dto';
+import { GetTasksDto } from './dto/get-workspaces.dto';
 import {
   ResponseDto,
   TaskResponseDto,
   TasksResponseDto,
 } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto } from './dto/update-workspace.dto';
 import { Task } from './entities/task.entity';
 import { TaskPriority, TaskType } from './interfaces/task.interface';
 import { TasksService } from './workspaces.service';

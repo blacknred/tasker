@@ -1,33 +1,37 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { ObjectID, Repository } from 'typeorm';
-import { TASK_REPOSITORY, WORKER_SERVICE } from './consts';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTasksDto } from './dto/get-tasks.dto';
+import {
+  TASK_REPOSITORY,
+  WORKER_SERVICE,
+  WORKSPACE_REPOSITORY,
+} from './consts';
+import { CreateTaskDto, CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { GetTasksDto } from './dto/get-workspaces.dto';
 import { ResponseDto } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto } from './dto/update-workspace.dto';
 import { Task } from './entities/task.entity';
+import { Workspace } from './entities/workspace.entity';
 
 @Injectable()
 export class WorkspacesService {
   private readonly logger = new Logger(WorkspacesService.name);
 
   constructor(
-    @Inject(TASK_REPOSITORY) private taskRepository: Repository<Task>,
+    @Inject(WORKSPACE_REPOSITORY)
+    private workspaceRepository: Repository<Workspace>,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
   ) {}
 
   private hasColumn(key: string) {
-    return this.taskRepository.metadata.hasColumnWithPropertyPath(key);
+    return this.workspaceRepository.metadata.hasColumnWithPropertyPath(key);
   }
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createWorkspaceDto: CreateWorkspaceDto) {
     try {
-      const task = this.taskRepository.create(createTaskDto);
-      const data = await this.taskRepository.save(task);
+      const workspace = this.workspaceRepository.create(createWorkspaceDto);
+      const data = await this.workspaceRepository.save(workspace);
       data.id = data.id.toString() as unknown as ObjectID;
-
-      this.workerService.emit('new-task', data);
 
       return {
         status: HttpStatus.CREATED,
@@ -41,7 +45,7 @@ export class WorkspacesService {
   }
 
   async findAll({ limit, offset, ...rest }: GetTasksDto) {
-    const [tasks, total] = await this.taskRepository.findAndCount({
+    const [tasks, total] = await this.workspaceRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
         if (!(this.hasColumn(key) && rest[key])) return acc;
         acc[key] = rest[key];
@@ -63,7 +67,7 @@ export class WorkspacesService {
   }
 
   async findOne(id: ObjectID, userId: number) {
-    const task = await this.taskRepository.findOne(id);
+    const task = await this.workspaceRepository.findOne(id);
 
     if (!task) {
       return {
@@ -91,8 +95,8 @@ export class WorkspacesService {
       if (!res.data) return res as ResponseDto;
 
       const updatedTask = Object.assign(res.data, updateTaskDto) as Task;
-      await this.taskRepository.update(id, updateTaskDto);
-
+      await this.workspaceRepository.update(id, updateTaskDto);
+      // this.workerService.emit('new-task', data);
       return {
         status: HttpStatus.OK,
         data: updatedTask,
@@ -109,7 +113,7 @@ export class WorkspacesService {
       const res = await this.findOne(id, userId);
       if (!res.data) return res as ResponseDto;
 
-      const deleted = await this.taskRepository.delete(id);
+      const deleted = await this.workspaceRepository.delete(id);
 
       if (!deleted.affected) {
         return {

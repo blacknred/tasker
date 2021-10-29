@@ -1,7 +1,7 @@
 import { IntersectionType, PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsIn, IsOptional, Min } from 'class-validator';
-import { CreateTaskDto } from './create-task.dto';
+import { CreateWorkspaceDto } from './create-workspace.dto';
 
 export class SortingDto {
   @IsOptional()
@@ -34,8 +34,8 @@ export class PaginationDto {
   offset?: number;
 }
 
-export class GetTasksDto extends IntersectionType(
-  PartialType(CreateTaskDto),
+export class GetWorkspacesDto extends IntersectionType(
+  PartialType(CreateWorkspaceDto),
   PaginationDto,
   SortingDto,
 ) {}

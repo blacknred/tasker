@@ -1,14 +1,14 @@
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
-import { ValidationPipe } from './tasks/pipes/validation.pipe';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor } from '@nestjs/common';
-import { AllExceptionFilter } from './tasks/filters/all-exception.filter';
+import { AllExceptionFilter } from './workspaces/filters/all-exception.filter';
+import { ValidationPipe } from './workspaces/pipes/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
     transport: Transport.TCP,
-    options: { host: 'task-service' },
+    options: { host: 'workspace-service' },
     // bufferLogs: true,
   });
 

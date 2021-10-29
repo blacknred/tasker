@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { ITask } from '../interfaces/task.interface';
+import { IWorkspace } from '../interfaces/workspace.interface';
 
 export class ValidationError {
   field: string;
@@ -18,6 +18,6 @@ export class ResponseDto<T = null> {
   data?: T;
 }
 
-export class TaskResponseDto extends ResponseDto<ITask> {}
+export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {}
 
-export class TasksResponseDto extends ResponseDto<Paginated<ITask>> {}
+export class WorkspacesResponseDto extends ResponseDto<Paginated<IWorkspace>> {}

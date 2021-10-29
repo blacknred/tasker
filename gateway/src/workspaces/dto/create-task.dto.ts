@@ -6,8 +6,10 @@ export class CreateTaskDto
 {
   @ApiProperty({ example: 'first task', nullable: false })
   name: string;
+
   @ApiProperty({ example: 'first task description' })
   description: string;
+
   @ApiProperty({
     default: TaskType.SHORT,
     example: TaskType.SHORT,
@@ -15,6 +17,7 @@ export class CreateTaskDto
     enum: TaskType,
   })
   type: TaskType;
+
   @ApiProperty({
     default: TaskPriority.LOW,
     example: TaskPriority.LOW,

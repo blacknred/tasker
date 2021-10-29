@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TasksModule } from './tasks/tasks.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { TasksModule } from './tasks/tasks.module';
         QUEUE_URL: Joi.string().required(),
       }),
     }),
-    TasksModule,
+    WorkspacesModule,
   ],
 })
 export class AppModule {}

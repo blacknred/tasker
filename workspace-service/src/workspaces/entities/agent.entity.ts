@@ -4,9 +4,9 @@ import { Role } from './role.entity';
 
 @Entity()
 export class Agent {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  // @ObjectIdColumn()
+  // @Transform(({ value }) => value.toString(), { toPlainOnly: true })
+  // id: ObjectID;
 
   @Column()
   userId: number;

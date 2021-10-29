@@ -15,10 +15,12 @@ export class GetAuthsDto extends PaginationDto {
   @IsString({ message: 'Must be a string' })
   @MinLength(5, { message: 'Must include atleast 5 chars' })
   name?: string;
+
   @ApiProperty({ example: 'test@email.com' })
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email' })
   email?: string;
+
   @ApiProperty({
     default: UserRole.USER,
     example: UserRole.USER,

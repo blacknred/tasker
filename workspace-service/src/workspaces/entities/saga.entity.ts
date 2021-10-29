@@ -17,8 +17,8 @@ export class Saga {
   @Column()
   name: string;
 
-  @Column()
-  description: string;
+  @Column({ nullable: true })
+  description?: string;
 
   @Column(() => Agent)
   creator: Agent;
