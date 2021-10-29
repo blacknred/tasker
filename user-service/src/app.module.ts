@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/entities/user.entity';
+import { databaseProvider } from './users/providers/database.provider';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -11,22 +11,10 @@ import { UsersModule } from './users/users.module';
       validationSchema: Joi.object({
         DB_URL: Joi.string().required(),
         QUEUE_URL: Joi.string().required(),
-        CACHE_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
       }),
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        entities: [User],
-        url: configService.get('DB_URL'),
-        type: 'postgres',
-        logging: true,
-        synchronize: true,
-        useUTC: true,
-      }),
-    }),
+    TypeOrmModule.forRootAsync(databaseProvider),
     UsersModule,
   ],
 })

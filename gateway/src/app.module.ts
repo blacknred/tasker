@@ -37,10 +37,10 @@ import { UsersModule } from './users/users.module';
       rootPath: join(__dirname, '..', 'documentation'),
       serveRoot: '/docs',
     }),
-    UsersModule,
-    AuthModule,
-    TasksModule,
     MonitoringModule,
+    AuthModule,
+    UsersModule,
+    TasksModule,
   ],
   providers: [Logger, cacheProvider],
 })
