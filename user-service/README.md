@@ -1,4 +1,4 @@
-# Tasker User Crud microservice
+# TaskQ User Crud microservice
 
 ## Stack
 

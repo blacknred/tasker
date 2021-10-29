@@ -68,31 +68,31 @@ services:
     healthcheck:
       test: exit 0
 
-  auth-service:
-    container_name: auth-service
-    hostname: auth-service
-    command: yarn start:dev
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: backend
-    build:
-      context: ./auth-service
-      target: development
-    volumes:
-      - "./auth-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
-    environment:
-      - NODE_ENV=development
-      - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-    ports:
-      - "8081:3000"
-    depends_on:
-      - redis
-      - user-service
-    links:
-      - redis
-      - user-service
+  # auth-service:
+  #   container_name: auth-service
+  #   hostname: auth-service
+  #   command: yarn start:dev
+  #   env_file: ./.env.dev
+  #   restart: on-failure
+  #   networks: backend
+  #   build:
+  #     context: ./auth-service
+  #     target: development
+  #   volumes:
+  #     - "./auth-service:/usr/src/app"
+  #     - "/usr/src/app/node_modules"
+  #     - "/usr/src/app/dist"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+  #   ports:
+  #     - "8081:3000"
+  #   depends_on:
+  #     - redis
+  #     - user-service
+  #   links:
+  #     - redis
+  #     - user-service
 
   user-service:
     container_name: user-service

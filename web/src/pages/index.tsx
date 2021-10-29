@@ -13,7 +13,7 @@ function Index() {
 
   return (
     <Layout>
-      <Meta title="Tasker" />
+      <Meta title="TaskQ" />
       <Square flexDirection="column" justifyContent="center" py="80px">
         <Center mb="60px" >
           <Heading color={color} fontSize="xxx-large">Task management application</Heading>

@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUserDto, GetValidatedUserDto } from './dto/get-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import {
   ResponseDto,
@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
-const mockCreateUserDto = {
+const mockCreateUserDto: CreateUserDto = {
   name: 'testname',
   email: 'test@email.com',
   password: 'testpassword',
@@ -63,10 +63,14 @@ describe('UsersController', () => {
                 name: 'supertestname',
               },
             }),
-            remove: jest.fn((params: CreateUserDto) =>
+            remove: jest.fn().mockResolvedValue({
+              status: HttpStatus.OK,
+              data: null,
+            }),
+            restore: jest.fn((params: GetUserDto) =>
               Promise.resolve({
                 status: HttpStatus.OK,
-                data: null,
+                data: mockUser,
               }),
             ),
           },
@@ -116,25 +120,26 @@ describe('UsersController', () => {
   });
 
   describe('When getting one', () => {
-    it('should return an user', async () => {
+    describe('by id', () => {
       const params: GetUserDto = { id: 1 };
-      await expect(controller.getOne(params)).resolves.toEqual<UserResponseDto>(
-        {
+      it('should return an user', async () => {
+        await expect(
+          controller.getOne(params),
+        ).resolves.toEqual<UserResponseDto>({
           status: HttpStatus.OK,
           data: mockUser,
-        },
-      );
+        });
+      });
     });
-  });
 
-  describe('When getting validated one', () => {
-    it('should return an user', async () => {
-      const params: GetValidatedUserDto = { ...mockCreateUserDto };
-      await expect(
-        controller.getOneValidate(params),
-      ).resolves.toEqual<UserResponseDto>({
-        status: HttpStatus.OK,
-        data: mockUser,
+    describe('by validation', () => {
+      it('should return an user', async () => {
+        await expect(
+          controller.getOne(mockCreateUserDto),
+        ).resolves.toEqual<UserResponseDto>({
+          status: HttpStatus.OK,
+          data: mockUser,
+        });
       });
     });
   });
@@ -142,13 +147,11 @@ describe('UsersController', () => {
   describe('When updating one', () => {
     it('should update an user', async () => {
       const params: UpdateUserDto = { id: 1, name: 'supertestname' };
+      mockUser.name = 'supertestname';
       await expect(controller.update(params)).resolves.toEqual<UserResponseDto>(
         {
           status: HttpStatus.OK,
-          data: {
-            ...mockUser,
-            name: 'supertestname',
-          },
+          data: mockUser,
         },
       );
     });
@@ -160,6 +163,18 @@ describe('UsersController', () => {
       await expect(controller.remove(params)).resolves.toEqual<ResponseDto>({
         status: HttpStatus.OK,
         data: null,
+      });
+    });
+  });
+
+  describe('When restoring one', () => {
+    it('should restore an user', async () => {
+      const params: GetUserDto = { id: 1 };
+      await expect(
+        controller.restore(params),
+      ).resolves.toEqual<UserResponseDto>({
+        status: HttpStatus.OK,
+        data: mockUser,
       });
     });
   });

@@ -1,4 +1,4 @@
-# Tasker Gateway
+# TaskQ Gateway
 
 ## Stack
 

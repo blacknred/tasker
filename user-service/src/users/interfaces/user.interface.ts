@@ -1,13 +1,9 @@
-export enum UserRole {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-}
-
 export interface IUser {
   id: number;
   name: string;
   email: string;
-  roles: [UserRole];
+  isAdmin: boolean;
+  isConfirmed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

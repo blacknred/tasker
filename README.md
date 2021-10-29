@@ -1,4 +1,4 @@
-# Tasker
+# TaskQ
 
 Microservice boilerplate for task manager app
 

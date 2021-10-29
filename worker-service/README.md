@@ -1,4 +1,4 @@
-# Tasker Worker microservice
+# TaskQ Worker microservice
 
 ## Stack
 

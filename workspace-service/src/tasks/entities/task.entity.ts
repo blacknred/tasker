@@ -9,6 +9,15 @@ import {
 } from 'typeorm';
 import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
 
+
+
+@Column({
+  type: 'enum',
+  enum: UserRole,
+  array: true,
+  default: [UserRole.USER],
+})
+roles: [UserRole];
 @Entity()
 export class Task implements ITask {
   @ObjectIdColumn()

@@ -26,7 +26,7 @@ import { UserRole } from 'src/users/interfaces/user.interface';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
-import { TASK_SERVICE } from './consts';
+import { WORKSPACE_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
@@ -42,7 +42,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 @UseGuards(AuthedGuard)
 export class TasksController {
   constructor(
-    @Inject(TASK_SERVICE) protected readonly taskService: ClientProxy,
+    @Inject(WORKSPACE_SERVICE) protected readonly taskService: ClientProxy,
   ) {}
 
   @Post()

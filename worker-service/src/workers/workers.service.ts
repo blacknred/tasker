@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Worker } from 'worker_threads';
-import { TASK_SERVICE } from './consts';
+import { WORKSPACE_SERVICE } from './consts';
 import { NewTaskDto } from './dto/new-task.dto';
 import { mockTaskExecutor } from './utils/mockTaskExecutor';
 
@@ -15,7 +15,7 @@ export class WorkersService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject(TASK_SERVICE) private readonly taskService: ClientProxy,
+    @Inject(WORKSPACE_SERVICE) private readonly workspaceService: ClientProxy,
   ) {
     const workersQnt = this.configService.get('WORKERS_QNT');
 
@@ -51,7 +51,7 @@ export class WorkersService {
 
   notify = (task: NewTaskDto) => {
     task.finishedAt = Date.now();
-    this.taskService.send('update', task);
+    this.workspaceService.send('update', task);
   };
 
   do(task: NewTaskDto): Promise<any> {

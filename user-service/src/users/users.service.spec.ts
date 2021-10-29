@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import { GetValidatedUserDto } from './dto/get-user.dto';
+import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import {
   ResponseDto,
@@ -144,8 +144,8 @@ describe('UsersService', () => {
     });
   });
 
-  describe('When getting validated one', () => {
-    const params: GetValidatedUserDto = {
+  describe('When getting validated one with validation', () => {
+    const params: GetUserDto = {
       ...mockCreateUserDto,
     };
 
@@ -218,7 +218,7 @@ describe('UsersService', () => {
   });
 
   describe('When deleting one', () => {
-    it('should delete existing user from database', async () => {
+    it('should softly delete existing user from database', async () => {
       await expect(service.remove(1)).resolves.toEqual<ResponseDto>({
         status: HttpStatus.OK,
         data: null,
@@ -226,6 +226,18 @@ describe('UsersService', () => {
 
       expect(repository.delete).toBeCalledTimes(1);
       expect(repository.delete).toBeCalledWith(1);
+    });
+  });
+
+  describe('When restoring one', () => {
+    it('should restore softly deleted user in database', async () => {
+      await expect(service.restore(1)).resolves.toEqual<ResponseDto>({
+        status: HttpStatus.OK,
+        data: null,
+      });
+
+      expect(repository.restore).toBeCalledTimes(1);
+      expect(repository.restore).toBeCalledWith(1);
     });
   });
 });

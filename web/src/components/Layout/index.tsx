@@ -25,7 +25,7 @@ const Layout: FC<IProps> = ({ children, variant = 'lg', slide = true }) => {
       {/* header */}
       <Flex py={4} justifyContent="space-between" m="auto">
         <NextLink href="/">
-          <Heading color={color} cursor="pointer" fontSize="x-large">Tasker</Heading>
+          <Heading color={color} cursor="pointer" fontSize="x-large">TaskQ</Heading>
         </NextLink>
         <Box>
           {session && (

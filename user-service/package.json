@@ -1,5 +1,5 @@
 {
-  "name": "tasker-worker-service",
+  "name": "taskq-worker-service",
   "private": true,
   "version": "0.0.1",
   "description": "",

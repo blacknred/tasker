@@ -1,4 +1,4 @@
-# Tasker Web client
+# TaskQ Web client
 
 ## Stack
 
