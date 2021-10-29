@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
       validationSchema: Joi.object({
         DB_URL: Joi.string().required(),
         QUEUE_URL: Joi.string().required(),
-        REDIS_URL: Joi.string().required(),
+        CACHE_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
       }),
     }),

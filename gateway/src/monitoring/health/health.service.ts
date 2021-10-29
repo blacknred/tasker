@@ -44,7 +44,7 @@ export class HealthService {
         {
           transport: Transport.REDIS,
           options: {
-            url: this.configService.get('REDIS_URL'),
+            url: this.configService.get('CACHE_URL'),
           },
         },
         this.prometheusService,
