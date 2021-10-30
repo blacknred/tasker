@@ -32,6 +32,9 @@ export class Task implements ITask {
   id: ObjectID;
 
   @Column()
+  workspaceId: ObjectID;
+
+  @Column()
   name: string;
 
   @Column({ nullable: true })

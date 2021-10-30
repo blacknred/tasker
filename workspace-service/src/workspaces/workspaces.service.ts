@@ -1,6 +1,11 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { ObjectID, Repository } from 'typeorm';
+import {
+  ObjectID,
+  Repository,
+  MongoRepository,
+  AggregationCursor,
+} from 'typeorm';
 import {
   TASK_REPOSITORY,
   WORKER_SERVICE,
@@ -13,6 +18,7 @@ import { UpdateTaskDto } from './dto/update-workspace.dto';
 import { Task } from '../tasks/entities/task.entity';
 import { Workspace } from './entities/workspace.entity';
 import { IRole } from './interfaces/role.interface';
+import { Agent } from './entities/agent.entity';
 
 @Injectable()
 export class WorkspacesService {
@@ -20,16 +26,29 @@ export class WorkspacesService {
 
   constructor(
     @Inject(WORKSPACE_REPOSITORY)
-    private workspaceRepository: Repository<Workspace>,
+    private workspaceRepository: MongoRepository<Workspace>,
   ) {}
 
   private hasColumn(key: string) {
     return this.workspaceRepository.metadata.hasColumnWithPropertyPath(key);
   }
 
-  getAgentRoles(agentId: ObjectID): IRole[] {
-    return [];
+  async findAgent(id: ObjectID, userId: number): Promise<Agent> {
+    return this.workspaceRepository
+      .aggregate<Agent>([
+        { $unwind: '$agents' },
+        { $match: { _id: id, 'agents.userId': userId } },
+        // { $project: { _id: 0, "products.productID": 1 } }
+        // $group: {
+        //   _id: {
+        //     country: '$address.country',
+        //   },
+        // },
+      ])
+      .toArray()[0];
   }
+
+  //
 
   async create(createWorkspaceDto: CreateWorkspaceDto) {
     try {

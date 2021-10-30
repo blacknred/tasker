@@ -3,10 +3,10 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { AuthedGuard } from './authed.guard';
+import { AuthGuard } from './auth.guard';
 
 @Injectable()
-export class AdminGuard extends AuthedGuard {
+export class AdminGuard extends AuthGuard {
   constructor() {
     super();
   }

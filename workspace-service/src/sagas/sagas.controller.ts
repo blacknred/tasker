@@ -1,5 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { ResponseDto } from '../__shared__/dto/response.dto';
+import { CreateSagaDto } from './dto/create-saga.dto';
+import { GetSagaDto } from './dto/get-saga.dto';
+import { GetSagasDto } from './dto/get-sagas.dto';
+import { SagaResponseDto, SagasResponseDto } from './dto/response.dto';
+import { UpdateSagaDto } from './dto/update-saga.dto';
 import { SagasService } from './sagas.service';
 
 @Controller('sagas')

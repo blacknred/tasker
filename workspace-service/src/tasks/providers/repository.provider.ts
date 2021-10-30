@@ -3,7 +3,7 @@ import { Connection } from 'typeorm';
 import { TASK_REPOSITORY } from '../consts';
 import { Task } from '../entities/task.entity';
 
-export const taskRepositoryProvider = {
+export const repositoryProvider = {
   useFactory: (connection: Connection) => connection.getRepository(Task),
   provide: TASK_REPOSITORY,
   inject: [DB_CONNECTION],

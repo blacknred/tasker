@@ -25,7 +25,7 @@ import { Auth } from 'src/__shared__/decorators/auth.decorator';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { AdminGuard } from 'src/__shared__/guards/admin.guard';
-import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
+import { AuthGuard } from 'src/__shared__/guards/auth.guard';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -70,7 +70,7 @@ export class UsersController {
   }
 
   @Patch()
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Update authorized user' })
   @ApiOkResponse({ type: UserResponseDto })
@@ -82,7 +82,7 @@ export class UsersController {
   }
 
   @Patch('restore')
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Restore user' })
   @ApiOkResponse({ type: UserResponseDto })
@@ -96,7 +96,7 @@ export class UsersController {
   }
 
   @Delete()
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Delete authorized user' })
   @ApiOkResponse({ type: EmptyResponseDto })

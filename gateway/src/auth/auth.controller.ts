@@ -21,7 +21,7 @@ import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter'
 import { AdminGuard } from 'src/__shared__/guards/admin.guard';
 import { Auth } from '../__shared__/decorators/auth.decorator';
 import { EmptyResponseDto } from '../__shared__/dto/response.dto';
-import { AuthedGuard } from '../__shared__/guards/authed.guard';
+import { AuthGuard } from '../__shared__/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { AuthsResponseDto } from './dto/auths-response.dto';
@@ -55,7 +55,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Get session' })
   @ApiOkResponse({ type: AuthResponseDto })
@@ -64,7 +64,7 @@ export class AuthController {
   }
 
   @Delete()
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Logout' })
   @ApiOkResponse({ type: EmptyResponseDto })
@@ -74,7 +74,7 @@ export class AuthController {
   }
 
   @Patch('createPush')
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Create push subscription' })
   @ApiOkResponse({ type: AuthResponseDto })
@@ -86,7 +86,7 @@ export class AuthController {
   }
 
   @Patch('deletePush')
-  @UseGuards(AuthedGuard)
+  @UseGuards(AuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Delete push subscription' })
   @ApiOkResponse({ type: EmptyResponseDto })

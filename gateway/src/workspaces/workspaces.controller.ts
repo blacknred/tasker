@@ -21,7 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
-import { AuthedGuard } from 'src/__shared__/guards/authed.guard';
+import { AuthGuard } from 'src/__shared__/guards/auth.guard';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
@@ -38,7 +38,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 @Controller('workspaces')
 @UseFilters(AllExceptionFilter)
 @UseInterceptors(ProxyInterceptor)
-@UseGuards(AuthedGuard)
+@UseGuards(AuthGuard)
 export class WorkspacesController {
   constructor(
     @Inject(WORKSPACE_SERVICE)

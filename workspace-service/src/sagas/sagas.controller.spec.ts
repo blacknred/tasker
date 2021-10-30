@@ -1,15 +1,15 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ObjectID } from 'typeorm';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTaskDto } from './dto/get-task.dto';
-import { GetTasksDto } from './dto/get-tasks.dto';
+import { CreateTaskDto } from './dto/create-saga.dto';
+import { GetTaskDto } from './dto/get-saga.dto';
+import { GetTasksDto } from './dto/get-sagas.dto';
 import {
   ResponseDto,
   TaskResponseDto,
   TasksResponseDto,
 } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto } from './dto/update-saga.dto';
 import { Task } from './entities/task.entity';
 import { TaskPriority, TaskType } from './interfaces/task.interface';
 import { TasksController } from './sagas.controller';

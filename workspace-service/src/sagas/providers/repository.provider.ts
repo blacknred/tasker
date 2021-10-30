@@ -3,7 +3,7 @@ import { Connection } from 'typeorm';
 import { SAGA_REPOSITORY } from '../consts';
 import { Saga } from '../entities/saga.entity';
 
-export const sagaRepositoryProvider = {
+export const repositoryProvider = {
   useFactory: (connection: Connection) => connection.getRepository(Saga),
   provide: SAGA_REPOSITORY,
   inject: [DB_CONNECTION],

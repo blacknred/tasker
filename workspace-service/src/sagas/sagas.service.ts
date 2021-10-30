@@ -1,6 +1,8 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
+import { ObjectID, Repository } from 'typeorm';
 import { SAGA_REPOSITORY } from './consts';
+import { CreateSagaDto } from './dto/create-saga.dto';
 import { Saga } from './entities/saga.entity';
 
 @Injectable()
@@ -11,28 +13,27 @@ export class SagasService {
     @Inject(SAGA_REPOSITORY) private sagaRepository: Repository<Saga>,
   ) {}
 
-  // private hasColumn(key: string) {
-  //   return this.sagaRepository.metadata.hasColumnWithPropertyPath(key);
-  // }
+  private hasColumn(key: string) {
+    return this.sagaRepository.metadata.hasColumnWithPropertyPath(key);
+  }
 
-  // async create(createTaskDto: CreateTaskDto) {
-  //   try {
-  //     const task = this.sagaRepository.create(createTaskDto);
-  //     const data = await this.sagaRepository.save(task);
-  //     data.id = data.id.toString() as unknown as ObjectID;
+  async create(createSagaDto: CreateSagaDto) {
+    try {
+      const saga = this.sagaRepository.create(createSagaDto);
+      saga.creator = new Agen;
+      const data = await this.sagaRepository.save(saga);
+      data.id = data.id.toString() as unknown as ObjectID;
 
-  //     this.workerService.emit('new-task', data);
-
-  //     return {
-  //       status: HttpStatus.CREATED,
-  //       data,
-  //     };
-  //   } catch (e) {
-  //     throw new RpcException({
-  //       status: HttpStatus.PRECONDITION_FAILED,
-  //     });
-  //   }
-  // }
+      return {
+        status: HttpStatus.CREATED,
+        data,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
 
   // async findAll({ limit, offset, ...rest }: GetTasksDto) {
   //   const [tasks, total] = await this.sagaRepository.findAndCount({
