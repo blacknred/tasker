@@ -1,19 +1,19 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ObjectID } from 'typeorm';
-import { CreateTaskDto } from './dto/create-workspace.dto';
-import { GetTaskDto } from './dto/get-workspace.dto';
-import { GetTasksDto } from './dto/get-workspaces.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { GetTaskDto } from './dto/get-task.dto';
+import { GetTasksDto } from './dto/get-tasks.dto';
 import {
   ResponseDto,
   TaskResponseDto,
   TasksResponseDto,
 } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-workspace.dto';
-import { Task } from '../tasks/entities/task.entity';
-import { TaskPriority, TaskType } from '../tasks/interfaces/task.interface';
-import { TasksController } from './workspaces.controller';
-import { TasksService } from './workspaces.service';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task } from './entities/task.entity';
+import { TaskPriority, TaskType } from './interfaces/task.interface';
+import { TasksController } from './sagas.controller';
+import { TasksService } from './sagas.service';
 
 const mockCreateTaskDto = {
   name: 'test task',

@@ -45,7 +45,7 @@ export class UsersController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new user entity' })
+  @ApiOperation({ summary: 'Create new user' })
   @ApiCreatedResponse({ type: UserResponseDto })
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.send('create', createUserDto).toPromise();
@@ -72,7 +72,7 @@ export class UsersController {
   @Patch()
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Update authorized user entity' })
+  @ApiOperation({ summary: 'Update authorized user' })
   @ApiOkResponse({ type: UserResponseDto })
   async update(
     @Auth('user') { id },
@@ -84,7 +84,7 @@ export class UsersController {
   @Patch('restore')
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Update authorized user entity' })
+  @ApiOperation({ summary: 'Restore user' })
   @ApiOkResponse({ type: UserResponseDto })
   async restore(
     @Auth('user') { id },
@@ -98,7 +98,7 @@ export class UsersController {
   @Delete()
   @UseGuards(AuthedGuard)
   @ApiCookieAuth()
-  @ApiOperation({ summary: 'Delete authorized user entity' })
+  @ApiOperation({ summary: 'Delete authorized user' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {
     req.session.destroy();

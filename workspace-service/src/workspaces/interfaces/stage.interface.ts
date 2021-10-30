@@ -1,7 +1,10 @@
-import { ObjectID } from 'typeorm';
+export enum BASE_STAGE {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+}
 
 export interface IStage {
-  id: ObjectID;
   name: string;
   description?: string;
 }

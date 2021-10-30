@@ -45,61 +45,103 @@ export class WorkspacesController {
     protected readonly workspaceRepository: ClientProxy,
   ) {}
 
+  // POST
+
   @Post()
-  @ApiOperation({ summary: 'Create new task entity' })
-  @ApiCreatedResponse({ type: TaskResponseDto })
+  @ApiOperation({ summary: 'Create new workspace' })
+  @ApiCreatedResponse({ type: WorkspaceResponseDto })
   async create(
+    @Auth('user') { id: userId },
+    @Body() createWorkspaceDto: CreateWorkspaceDto,
+  ): Promise<WorkspaceResponseDto> {
+    return this.workspaceRepository
+      .send('create', { ...createWorkspaceDto, userId })
+      .toPromise();
+  }
+
+  @Post(':id/agents')
+  @ApiOperation({ summary: 'Create new workspace agent' })
+  @ApiCreatedResponse({ type: AgentResponseDto })
+  async createAgent(
+    @Auth('user') { id: userId },
+    @Body() createAgentDto: CreateAgentDto,
+  ): Promise<AgentResponseDto> {
+    return this.workspaceRepository
+      .send('createAgent', { ...createAgentDto, userId })
+      .toPromise();
+  }
+
+  @Post(':id/sagas')
+  @ApiOperation({ summary: 'Create new workspace saga' })
+  @ApiCreatedResponse({ type: SagaResponseDto })
+  async createSaga(
+    @Auth('user') { id: userId },
+    @Body() createSagaDto: CreateSagaDto,
+  ): Promise<SagaResponseDto> {
+    return this.workspaceRepository
+      .send('createSaga', { ...createSagaDto, userId })
+      .toPromise();
+  }
+
+  @Post(':id/tasks')
+  @ApiOperation({ summary: 'Create new workspace task' })
+  @ApiCreatedResponse({ type: TaskResponseDto })
+  async createTask(
     @Auth('user') { id: userId },
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.workspaceRepository
-      .send('create', { ...createTaskDto, userId })
+      .send('createTask', { ...createTaskDto, userId })
       .toPromise();
   }
 
+  // GET
+
   @Get()
-  @ApiOperation({ summary: 'List tasks' })
-  @ApiOkResponse({ type: TasksResponseDto })
+  @ApiOperation({ summary: 'List workspaces' })
+  @ApiOkResponse({ type: WorkspacesResponseDto })
   async getAll(
-    @Auth('user') { id: userId, roles },
-    @Query() getTasksDto: GetTasksDto,
-  ): Promise<TasksResponseDto> {
-    const payload = { ...getTasksDto, userId };
-    if (roles.includes(UserRole.ADMIN)) delete payload.userId;
-    return this.workspaceRepository.send('getAll', payload).toPromise();
+    @Auth('user') { id: userId },
+    @Query() getWorkspacesDto: GetWorkspacesDto,
+  ): Promise<WorkspacesResponseDto> {
+    return this.workspaceRepository
+      .send('getAll', { ...getWorkspacesDto, userId })
+      .toPromise();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get task by id' })
-  @ApiOkResponse({ type: TaskResponseDto })
+  @ApiOperation({ summary: 'Get workspace by id' })
+  @ApiOkResponse({ type: WorkspaceResponseDto })
   async getOne(
-    @Auth('user') { id: userId, roles },
-    @Param() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    const payload = { id, userId };
-    if (roles.includes(UserRole.ADMIN)) delete payload.userId;
-    return this.workspaceRepository.send('getOne', payload).toPromise();
+    @Auth('user') { id: userId },
+    @Param() { id }: GetWorkspaceDto,
+  ): Promise<WorkspaceResponseDto> {
+    return this.workspaceRepository.send('getOne', { id, userId }).toPromise();
   }
 
+  // PATCH
+
   @Patch(':id')
-  @ApiOperation({ summary: 'Update authorized user task entity' })
-  @ApiOkResponse({ type: TaskResponseDto })
+  @ApiOperation({ summary: 'Update workspace' })
+  @ApiOkResponse({ type: WorkspaceResponseDto })
   async update(
     @Auth('user') { id: userId },
-    @Param() { id }: GetTaskDto,
-    @Body() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
+    @Param() { id }: GetWorkspaceDto,
+    @Body() updateWorkspaceDto: UpdateWorkspaceDto,
+  ): Promise<WorkspaceResponseDto> {
     return this.workspaceRepository
-      .send('patch', { ...updateTaskDto, id, userId })
+      .send('patch', { ...updateWorkspaceDto, id, userId })
       .toPromise();
   }
 
+  // DELETE
+
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete authorized user task entity' })
+  @ApiOperation({ summary: 'Delete workspace' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(
     @Auth('user') { id: userId },
-    @Param() { id }: GetTaskDto,
+    @Param() { id }: GetWorkspaceDto,
   ): Promise<EmptyResponseDto> {
     return this.workspaceRepository.send('delete', { id, userId }).toPromise();
   }

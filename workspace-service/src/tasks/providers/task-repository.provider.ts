@@ -1,5 +1,6 @@
+import { DB_CONNECTION } from 'src/__shared__/consts';
 import { Connection } from 'typeorm';
-import { DB_CONNECTION, TASK_REPOSITORY } from '../consts';
+import { TASK_REPOSITORY } from '../consts';
 import { Task } from '../entities/task.entity';
 
 export const taskRepositoryProvider = {

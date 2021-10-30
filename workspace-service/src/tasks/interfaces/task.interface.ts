@@ -1,25 +1,34 @@
 import { ObjectID } from 'typeorm';
+import { IAgent } from '../../workspaces/interfaces/agent.interface';
+import { IStage } from '../../workspaces/interfaces/stage.interface';
 
 export enum TaskType {
-  LONG = 'LONG',
   SHORT = 'SHORT',
   MEDIUM = 'MEDIUM',
+  LONG = 'LONG',
 }
 
 export enum TaskPriority {
-  CRITICAL = 'CRITICAL',
-  MAJOR = 'MAJOR',
-  MODERATE = 'MODERATE',
   LOW = 'LOW',
+  MODERATE = 'MODERATE',
+  MAJOR = 'MAJOR',
+  CRITICAL = 'CRITICAL',
+}
+
+export interface IStageUpdate {
+  stage: IStage;
+  agent: IAgent;
 }
 
 export interface ITask {
   id: ObjectID;
   name: string;
-  description: string;
-  userId: number;
+  description?: string;
   type: TaskType;
   priority: TaskPriority;
+  creator: IAgent;
+  history: IStageUpdate[];
   createdAt: Date;
-  finishedAt?: Date;
+  updatedAt: Date;
+  expiresAt?: Date;
 }

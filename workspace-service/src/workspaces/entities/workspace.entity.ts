@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,14 +8,13 @@ import {
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { IWorkspace } from '../interfaces/workspace.interface';
 import { Agent } from './agent.entity';
 import { BASE_ROLE, Role } from './role.entity';
-import { Saga } from './saga.entity';
-import { BASE_STAGES, Stage } from './stage.entity';
-import { Task } from './task.entity';
+import { BASE_STAGE, Stage } from './stage.entity';
 
 @Entity()
-export class Workspace {
+export class Workspace implements IWorkspace {
   @ObjectIdColumn()
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
@@ -43,32 +43,28 @@ export class Workspace {
   @Column(() => Agent)
   agents: Agent[];
 
-  //
+  // @Column(() => Saga)
+  // sagas: Saga[];
 
-  @Column(() => Saga)
-  sagas: Saga[];
+  // @Column(() => Task)
+  // tasks: Task[];
 
-  @Column(() => Task)
-  tasks: Task[];
+  static _roles = Object.values(BASE_ROLE).map((name) => new Role({ name }));
+
+  static _stages = Object.values(BASE_STAGE).map((name) => new Stage({ name }));
+
+  @BeforeInsert()
+  populateDefaults() {
+    for (const role of Workspace._roles) {
+      if (!this.roles.includes(role)) this.roles.unshift(role);
+    }
+
+    for (const stage of Workspace._stages) {
+      if (!this.stages.includes(stage)) this.roles.unshift(stage);
+    }
+  }
 
   constructor(workspace?: Partial<Workspace>) {
-    const roles = Object.values(BASE_ROLE).map((name) => new Role({ name }));
-    const stages = Object.values(BASE_STAGES).map(
-      (name) => new Stage({ name }),
-    );
-
-    if (workspace.roles) {
-      roles.unshift(...workspace.roles);
-    } else {
-      workspace.roles = roles;
-    }
-
-    if (workspace.sagas) {
-      stages.unshift(...workspace.stages);
-    } else {
-      workspace.sagas = this.sagas;
-    }
-
     Object.assign(this, workspace);
   }
 }

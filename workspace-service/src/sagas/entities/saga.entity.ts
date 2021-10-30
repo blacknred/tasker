@@ -6,7 +6,7 @@ import {
   ObjectID,
   ObjectIdColumn,
 } from 'typeorm';
-import { Agent } from './agent.entity';
+import { Agent } from '../../workspaces/entities/agent.entity';
 
 @Entity()
 export class Saga {

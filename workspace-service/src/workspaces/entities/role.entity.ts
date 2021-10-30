@@ -1,17 +1,8 @@
-import { Transform } from 'class-transformer';
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
-
-export enum BASE_ROLE {
-  ADMIN = 'ADMIN',
-  EXECUTOR = 'EXECUTOR',
-}
+import { Column, Entity } from 'typeorm';
+import { IRole } from '../interfaces/role.interface';
 
 @Entity()
-export class Role {
-  // @ObjectIdColumn()
-  // @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  // id: ObjectID;
-
+export class Role implements IRole {
   @Column({ length: 100 })
   name: string;
 

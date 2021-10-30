@@ -1,37 +1,41 @@
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
-  Index,
   ObjectID,
   ObjectIdColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { ITask, TaskPriority, TaskType } from '../interfaces/task.interface';
+import { Agent } from '../../workspaces/entities/agent.entity';
+import { Stage } from '../../workspaces/entities/stage.entity';
+import {
+  IStageUpdate,
+  ITask,
+  TaskPriority,
+  TaskType,
+} from '../interfaces/task.interface';
 
+export class StageUpdate implements IStageUpdate {
+  @Column(() => Stage)
+  stage: Stage;
 
+  @Column(() => Agent)
+  agent: Agent;
+}
 
-@Column({
-  type: 'enum',
-  enum: UserRole,
-  array: true,
-  default: [UserRole.USER],
-})
-roles: [UserRole];
 @Entity()
 export class Task implements ITask {
   @ObjectIdColumn()
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
 
-  @Column({ type: 'text', length: 100 })
+  @Column()
   name: string;
 
-  @Column({ type: 'text' })
-  description: string;
-
-  @Column({ type: 'int', length: 100 })
-  userId: number;
+  @Column({ nullable: true })
+  description?: string;
 
   @Column({
     type: 'enum',
@@ -47,12 +51,24 @@ export class Task implements ITask {
   })
   priority: TaskPriority;
 
+  @Column(() => Agent)
+  creator: Agent;
+
+  @Column(() => StageUpdate)
+  history: StageUpdate[];
+
+  @Column()
+  expiresAt: Date;
+
   @CreateDateColumn()
-  @Index('task_createdAt_index')
   createdAt: Date;
 
-  @Column({ type: 'date', nullable: true })
-  finishedAt?: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   constructor(task?: Partial<Task>) {
     Object.assign(this, task);

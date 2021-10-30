@@ -10,8 +10,9 @@ import { CreateTaskDto, CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetTasksDto } from './dto/get-workspaces.dto';
 import { ResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-workspace.dto';
-import { Task } from './entities/task.entity';
+import { Task } from '../tasks/entities/task.entity';
 import { Workspace } from './entities/workspace.entity';
+import { IRole } from './interfaces/role.interface';
 
 @Injectable()
 export class WorkspacesService {
@@ -20,11 +21,14 @@ export class WorkspacesService {
   constructor(
     @Inject(WORKSPACE_REPOSITORY)
     private workspaceRepository: Repository<Workspace>,
-    @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
   ) {}
 
   private hasColumn(key: string) {
     return this.workspaceRepository.metadata.hasColumnWithPropertyPath(key);
+  }
+
+  getAgentRoles(agentId: ObjectID): IRole[] {
+    return [];
   }
 
   async create(createWorkspaceDto: CreateWorkspaceDto) {

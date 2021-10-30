@@ -1,19 +1,21 @@
 import {
+  CanActivate,
   ExecutionContext,
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../../auth/consts';
-import { AuthedGuard } from './authed.guard';
+import { WorkspacesService } from 'src/workspaces/workspaces.service';
+import { ROLES_KEY } from '../consts';
 
 @Injectable()
-export class RoleGuard extends AuthedGuard {
-  constructor(private readonly reflector: Reflector) {
-    super();
-  }
+export class RoleGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly workspacesService: WorkspacesService,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const roles = this.reflector.getAllAndOverride(ROLES_KEY, [
         context.getHandler(),
@@ -22,12 +24,13 @@ export class RoleGuard extends AuthedGuard {
 
       if (!roles) return true;
 
-      const req = context.switchToHttp().getRequest();
+      const { userId } = context.switchToRpc().getData();
 
-      return (
-        super.canActivate(context) &&
-        req.user.roles.some((role) => roles.includes(role))
-      );
+      if (!userId) return true;
+
+      const agentRoles = await this.workspacesService.getAgentRoles(userId);
+
+      return agentRoles.some((role) => roles.includes(role.name));
     } catch (_) {
       throw new ForbiddenException('Access restricted');
     }

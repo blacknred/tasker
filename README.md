@@ -1,6 +1,6 @@
 # TaskQ
 
-Microservice boilerplate for task manager app
+Microservice boilerplate for task management app
 
 ## Architecture
 

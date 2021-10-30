@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import dbProviders from './providers/database.providers';
-import { workerProvider } from './providers/worker.provider';
+import { workspaceRepositoryProvider } from './providers/workspace-repository.provider';
 import { WorkspacesController } from './workspaces.controller';
 import { WorkspacesService } from './workspaces.service';
 
 @Module({
   imports: [ConfigModule],
   controllers: [WorkspacesController],
-  providers: [WorkspacesService, workerProvider, ...dbProviders],
+  providers: [WorkspacesService, workspaceRepositoryProvider],
 })
 export class WorkspacesModule {}

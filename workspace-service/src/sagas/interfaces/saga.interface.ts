@@ -1,5 +1,5 @@
 import { ObjectID } from 'typeorm';
-import { IAgent } from './agent.interface';
+import { IAgent } from '../../workspaces/interfaces/agent.interface';
 
 export interface ISaga {
   id: ObjectID;

@@ -1,7 +1,8 @@
-import { ObjectID } from 'typeorm';
-
+export enum BASE_ROLE {
+  ADMIN = 'ADMIN',
+  WORKER = 'WORKER',
+}
 export interface IRole {
-  id: ObjectID;
   name: string;
   description?: string;
 }

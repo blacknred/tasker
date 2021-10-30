@@ -1,18 +1,8 @@
-import { Transform } from 'class-transformer';
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
-
-export enum BASE_STAGES {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
-}
+import { Column, Entity } from 'typeorm';
+import { IStage } from '../interfaces/stage.interface';
 
 @Entity()
-export class Stage {
-  // @ObjectIdColumn()
-  // @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  // id: ObjectID;
-
+export class Stage implements IStage {
   @Column({ length: 100 })
   name: string;
 

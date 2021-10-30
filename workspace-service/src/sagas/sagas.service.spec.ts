@@ -3,16 +3,16 @@ import { ClientProxy } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ObjectID, Repository } from 'typeorm';
 import { WORKER_SERVICE, TASK_REPOSITORY } from './consts';
-import { GetTasksDto } from './dto/get-workspaces.dto';
+import { GetTasksDto } from './dto/get-tasks.dto';
 import {
   ResponseDto,
   TaskResponseDto,
   TasksResponseDto,
 } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-workspace.dto';
-import { Task } from '../tasks/entities/task.entity';
-import { TaskPriority, TaskType } from '../tasks/interfaces/task.interface';
-import { TasksService } from './workspaces.service';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { Task } from './entities/task.entity';
+import { TaskPriority, TaskType } from './interfaces/task.interface';
+import { TasksService } from './sagas.service';
 
 const mockCreateTaskDto = {
   name: 'test task',
