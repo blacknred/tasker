@@ -1,4 +1,4 @@
-export enum BASE_ROLE {
+export enum BaseRole {
   ADMIN = 'ADMIN',
   WORKER = 'WORKER',
 }

@@ -11,6 +11,9 @@ export class Agent {
   @Column()
   userId: number;
 
+  @Column()
+  userName: string;
+
   @Column(() => Role)
   role: Role;
 

@@ -1,4 +1,4 @@
-export enum BASE_STAGE {
+export enum BaseStage {
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE',

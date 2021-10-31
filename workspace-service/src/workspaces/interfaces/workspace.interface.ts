@@ -13,6 +13,4 @@ export interface IWorkspace {
   roles: IRole[];
   stages: IStage[];
   agents: IAgent[];
-  // sagas: [];
-  // tasks: [];
 }

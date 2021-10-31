@@ -8,10 +8,12 @@ import {
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { BaseRole } from '../interfaces/role.interface';
+import { BaseStage } from '../interfaces/stage.interface';
 import { IWorkspace } from '../interfaces/workspace.interface';
 import { Agent } from './agent.entity';
-import { BASE_ROLE, Role } from './role.entity';
-import { BASE_STAGE, Stage } from './stage.entity';
+import { Role } from './role.entity';
+import { Stage } from './stage.entity';
 
 @Entity()
 export class Workspace implements IWorkspace {
@@ -19,7 +21,7 @@ export class Workspace implements IWorkspace {
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
 
-  @Column({ length: 100 })
+  @Column({ length: 200 })
   name: string;
 
   @Column({ nullable: true })
@@ -43,24 +45,22 @@ export class Workspace implements IWorkspace {
   @Column(() => Agent)
   agents: Agent[];
 
-  // @Column(() => Saga)
-  // sagas: Saga[];
+  static _roles = Object.values(BaseRole).map((name) => new Role({ name }));
 
-  // @Column(() => Task)
-  // tasks: Task[];
-
-  static _roles = Object.values(BASE_ROLE).map((name) => new Role({ name }));
-
-  static _stages = Object.values(BASE_STAGE).map((name) => new Stage({ name }));
+  static _stages = Object.values(BaseStage).map((name) => new Stage({ name }));
 
   @BeforeInsert()
   populateDefaults() {
     for (const role of Workspace._roles) {
-      if (!this.roles.includes(role)) this.roles.unshift(role);
+      if (!this.roles.some((s) => s.name === role.name)) {
+        this.roles.unshift(role);
+      }
     }
 
     for (const stage of Workspace._stages) {
-      if (!this.stages.includes(stage)) this.roles.unshift(stage);
+      if (!this.stages.some((s) => s.name === stage.name)) {
+        this.roles.unshift(stage);
+      }
     }
   }
 

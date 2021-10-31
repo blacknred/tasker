@@ -17,7 +17,7 @@ export class Saga {
   @Column()
   workspaceId: ObjectID;
 
-  @Column()
+  @Column({ length: 200 })
   name: string;
 
   @Column({ nullable: true })

@@ -1,7 +1,7 @@
 import { IntersectionType, PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsIn, IsOptional, Min } from 'class-validator';
-import { CreateTaskDto } from '../create-task.dto';
+import { CreateTaskDto } from './create-task.dto';
 
 export class SortingDto {
   @IsOptional()

@@ -1,10 +1,11 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { AgentGuard } from 'src/__shared__/guards/agent.guard';
+import { ResponseDto } from '../__shared__/dto/response.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspaceDto } from './dto/get-workspace.dto';
 import { GetWorkspacesDto } from './dto/get-workspaces.dto';
 import {
-  ResponseDto,
   WorkspaceResponseDto,
   WorkspacesResponseDto,
 } from './dto/response.dto';
@@ -37,6 +38,8 @@ export class WorkspacesController {
   }
 
   @MessagePattern('patch')
+  @UseGuards(AgentGuard)
+  // CreatorGuard
   update(
     @Payload() { id, ...rest }: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
@@ -44,6 +47,8 @@ export class WorkspacesController {
   }
 
   @MessagePattern('delete')
+  @UseGuards(AgentGuard)
+  // CreatorGuard
   remove(@Payload() { id, userId }: GetWorkspaceDto): Promise<ResponseDto> {
     return this.workspacesService.remove(id, userId);
   }

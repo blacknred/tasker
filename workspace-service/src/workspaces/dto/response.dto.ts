@@ -1,9 +1,9 @@
 import {
   PaginatedResponseDto,
   ResponseDto,
-} from 'src/__shared__/dto/response.dto';
-import { ISaga } from '../interfaces/saga.interface';
+} from '../../__shared__/dto/response.dto';
+import { IWorkspace } from '../interfaces/workspace.interface';
 
-export class SagaResponseDto extends ResponseDto<ISaga> {}
+export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {}
 
-export class SagasResponseDto extends PaginatedResponseDto<ISaga> {}
+export class WorkspacesResponseDto extends PaginatedResponseDto<IWorkspace> {}

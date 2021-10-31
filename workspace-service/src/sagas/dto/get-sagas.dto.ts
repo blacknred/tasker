@@ -11,7 +11,7 @@ class SagaSortingDto extends SortingDto {
   @IsIn(['name', 'description', 'creator', 'createdAt', 'expiresAt'], {
     message: 'Must be a one of fields of the Saga entity',
   })
-  'sort.field'?: keyof ISaga;
+  'sort.field'?: keyof Omit<ISaga, 'id'>;
 }
 
 export class GetSagasDto extends IntersectionType(

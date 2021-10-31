@@ -1,9 +1,10 @@
 import {
   ArgumentMetadata,
+  HttpStatus,
   Injectable,
   PipeTransform,
-  UnprocessableEntityException,
 } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 
@@ -17,7 +18,8 @@ export class ValidationPipe implements PipeTransform<any> {
     if (errors.length) {
       this.errs = [];
       this.formateErrors(errors);
-      throw new UnprocessableEntityException({
+      throw new RpcException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
         errors: this.errs,
       });
     }

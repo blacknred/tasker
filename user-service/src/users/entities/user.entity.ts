@@ -17,7 +17,7 @@ export class User implements IUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ length: 200 })
   name: string;
 
   @Column({ unique: true })

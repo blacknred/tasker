@@ -8,8 +8,4 @@ export class Auth implements IAuth {
     isAdmin: null;
   };
   pushSubscriptions: IPushSubscription[];
-
-  // constructor(user?: Partial<User>) {
-  //   Object.assign(this, user);
-  // }
 }

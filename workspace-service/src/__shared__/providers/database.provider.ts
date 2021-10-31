@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Saga } from 'src/sagas/entities/saga.entity';
-import { Task } from 'src/tasks/entities/task.entity';
 import { createConnection } from 'typeorm';
+import { Saga } from '../../sagas/entities/saga.entity';
+import { Task } from '../../tasks/entities/task.entity';
 import { Workspace } from '../../workspaces/entities/workspace.entity';
 import { DB_CONNECTION } from '../consts';
 
