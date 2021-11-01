@@ -8,26 +8,21 @@ import {
   ObjectIdColumn,
 } from 'typeorm';
 import { Agent } from '../../workspaces/entities/agent.entity';
-import {
-  ITask,
-  ITaskUpdate,
-  TaskPriority,
-  TaskType,
-} from '../interfaces/task.interface';
+import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
-export class TaskUpdate implements ITaskUpdate {
-  @Column()
-  label: string;
+export class TaskUpdate {
+  @Column({ nullable: true })
+  label?: string;
 
   @Column(() => Agent)
-  agent: Agent;
+  agent?: Agent;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
 }
 
 @Entity()
-export class Task implements ITask {
+export class Task {
   @ObjectIdColumn()
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
@@ -67,8 +62,8 @@ export class Task implements ITask {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
-  expiresAt: Date;
+  @Column({ nullable: true })
+  expiresAt?: Date;
 
   @Exclude()
   @DeleteDateColumn()

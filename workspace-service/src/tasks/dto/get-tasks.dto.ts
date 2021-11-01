@@ -1,41 +1,39 @@
-import { IntersectionType, PartialType } from '@nestjs/mapped-types';
+import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
-import { IsIn, IsOptional, Min } from 'class-validator';
+import { IsDateString, IsIn, IsMongoId, IsOptional } from 'class-validator';
+import { ObjectID } from 'typeorm';
+import {
+  AccessDto,
+  PaginationDto,
+  SortingDto,
+} from '../../__shared__/dto/request.dto';
 import { CreateTaskDto } from './create-task.dto';
 
-export class SortingDto {
+class TaskSortingDto extends SortingDto {
   @IsOptional()
   @Type(() => String)
-  @IsIn(['name', 'description', 'type', 'userId', 'priority', 'createdAt'], {
+  @IsIn(['name', 'type', 'priority', 'creator', 'createdAt', 'expiresAt'], {
     message: 'Must be a one of fields of the Task entity',
   })
   'sort.field'?:
     | 'name'
-    | 'description'
     | 'type'
-    | 'userId'
     | 'priority'
-    | 'createdAt';
-
-  @IsOptional()
-  @Type(() => String)
-  @IsIn(['ASC', 'DESC'], { message: 'Must be an ASC or DESC' })
-  'sort.order'?: 'ASC' | 'DESC';
-}
-
-export class PaginationDto {
-  @Type(() => Number)
-  @Min(1)
-  limit: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @Min(0)
-  offset?: number;
+    | 'creator'
+    | 'createdAt'
+    | 'expiresAt';
 }
 
 export class GetTasksDto extends IntersectionType(
-  PartialType(CreateTaskDto),
+  PartialType(OmitType(CreateTaskDto, ['description'])),
+  AccessDto,
   PaginationDto,
-  SortingDto,
-) {}
+  TaskSortingDto,
+) {
+  @IsMongoId({ message: 'Invalid identificator' })
+  creatorId: ObjectID;
+
+  @IsOptional()
+  @IsDateString({}, { message: 'Must be a date string' })
+  createdAt?: string;
+}

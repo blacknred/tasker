@@ -15,9 +15,9 @@ export enum TaskPriority {
 }
 
 export interface ITaskUpdate {
-  label: string;
-  agent: IAgent;
-  createdAt: Date;
+  label?: string;
+  agent?: IAgent;
+  createdAt: string;
 }
 
 export interface ITask {
@@ -28,6 +28,8 @@ export interface ITask {
   priority: TaskPriority;
   creator: IAgent;
   history: ITaskUpdate[];
-  createdAt: Date;
-  expiresAt?: Date;
+  workspaceId: ObjectID;
+  sagaIds: ObjectID[];
+  createdAt: string;
+  expiresAt?: string;
 }

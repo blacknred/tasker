@@ -27,6 +27,8 @@ export interface ITask {
   priority: TaskPriority;
   creator: IAgent;
   history: ITaskUpdate[];
+  workspaceId: string;
+  sagaIds: string[];
   createdAt: string;
   expiresAt?: string;
 }

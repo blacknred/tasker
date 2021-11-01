@@ -10,6 +10,8 @@ export const taskMock: ITask = {
   type: TaskType.SHORT,
   priority: TaskPriority.LOW,
   creator: agentMock,
+  workspaceId: '5r185c3vfb991ee66b486ccb',
+  sagaIds: ['5r185c3vfb991ee66b486ccb'],
   history: [
     {
       agent: agentMock,

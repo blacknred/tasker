@@ -1,15 +1,23 @@
-import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
-import { IsAgentDto } from 'src/__shared__/dto/request.dto';
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { AccessDto } from 'src/__shared__/dto/request.dto';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
-export class CreateTaskDto extends IsAgentDto {
+export class CreateTaskDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
   @MinLength(5, { message: 'Must include atleast 5 chars' })
   @MaxLength(500, { message: 'Must include no more than 500 chars' })
   name: string;
 
+  @IsOptional()
   @IsString({ message: 'Must be a string' })
-  description: string;
+  description?: string;
 
   @IsEnum(TaskType, {
     message: `Must be one of ${Object.values(TaskType)}`,
@@ -20,4 +28,8 @@ export class CreateTaskDto extends IsAgentDto {
     message: `Must be one of ${Object.values(TaskPriority)}`,
   })
   priority: TaskPriority;
+
+  @IsOptional()
+  @IsDateString({}, { message: 'Must be a date string' })
+  expiresAt?: string;
 }

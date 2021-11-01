@@ -1,8 +1,8 @@
 import { Column, Entity } from 'typeorm';
-import { IRole, Privilege } from '../interfaces/role.interface';
+import { BaseRole, Privilege } from '../interfaces/role.interface';
 
 @Entity()
-export class Role implements IRole {
+export class Role {
   @Column({ length: 100 })
   name: string;
 
@@ -18,12 +18,12 @@ export class Role implements IRole {
 }
 
 export const Admin = new Role({
-  name: 'Admin',
+  name: BaseRole.ADMIN,
   description: 'Workspace administrator',
   privileges: Object.values(Privilege),
 });
 
 export const Worker = new Role({
-  name: 'Worker',
+  name: BaseRole.WORKER,
   description: 'Workspace worker',
 });

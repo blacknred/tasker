@@ -36,7 +36,6 @@ export class AccessDto {
   @IsMongoId({ message: 'Invalid identificator' })
   workspaceId: ObjectID;
 
-  @IsOptional()
   @IsNumber({}, { message: 'Must be an integer' })
-  userId?: number;
+  userId: number;
 }

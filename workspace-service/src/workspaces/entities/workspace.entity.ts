@@ -7,18 +7,12 @@ import {
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IWorkspace } from '../interfaces/workspace.interface';
+import { BaseLabel } from '../interfaces/workspace.interface';
 import { Agent } from './agent.entity';
 import { Admin, Role, Worker } from './role.entity';
 
-export enum BaseStage {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
-}
-
 @Entity()
-export class Workspace implements IWorkspace {
+export class Workspace {
   @ObjectIdColumn()
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
@@ -48,7 +42,7 @@ export class Workspace implements IWorkspace {
   updatedAt: Date;
 
   constructor(workspace?: Partial<Workspace>) {
-    this.labels.unshift(...Object.values(BaseStage));
+    this.labels.unshift(...Object.values(BaseLabel));
     this.roles.unshift(Admin, Worker);
 
     Object.assign(this, workspace);

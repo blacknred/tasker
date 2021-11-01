@@ -26,14 +26,6 @@ export class WorkspaceRoleDto {
   privileges?: Privilege[];
 }
 
-export class WorkspaceCreator {
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
-
-  @IsString({ message: 'Must be an string' })
-  userName: string;
-}
-
 export class CreateWorkspaceDto {
   @IsString({ message: 'Must be a string' })
   @MinLength(5, { message: 'Must include atleast 5 chars' })
@@ -55,7 +47,9 @@ export class CreateWorkspaceDto {
 
   //
 
-  @ValidateNested({ each: true })
-  @Type(() => WorkspaceCreator)
-  creator: WorkspaceCreator;
+  @IsNumber({}, { message: 'Must be an integer' })
+  userId: number;
+
+  @IsString({ message: 'Must be an string' })
+  userName: string;
 }
