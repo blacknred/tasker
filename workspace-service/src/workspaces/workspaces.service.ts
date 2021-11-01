@@ -5,6 +5,7 @@ import {
   Repository,
   MongoRepository,
   AggregationCursor,
+  Connection,
 } from 'typeorm';
 import {
   TASK_REPOSITORY,
@@ -19,6 +20,8 @@ import { Task } from '../tasks/entities/task.entity';
 import { Workspace } from './entities/workspace.entity';
 import { IRole } from './interfaces/role.interface';
 import { Agent } from './entities/agent.entity';
+import { Admin } from './entities/role.entity';
+import { Saga } from 'src/sagas/entities/saga.entity';
 
 @Injectable()
 export class WorkspacesService {
@@ -27,6 +30,7 @@ export class WorkspacesService {
   constructor(
     @Inject(WORKSPACE_REPOSITORY)
     private workspaceRepository: MongoRepository<Workspace>,
+    private connection: Connection,
   ) {}
 
   private hasColumn(key: string) {
@@ -38,6 +42,13 @@ export class WorkspacesService {
       .aggregate<Agent>([
         { $unwind: '$agents' },
         { $match: { _id: id, 'agents.userId': userId } },
+        //   { $unwind: '$roles' },
+        //   { $lookup: {
+        //     from: "sivaUserInfo",
+        //     localField: "userId",
+        //     foreignField: "userId",
+        //     as: "userInfo"
+        // }
         // { $project: { _id: 0, "products.productID": 1 } }
         // $group: {
         //   _id: {
@@ -50,9 +61,13 @@ export class WorkspacesService {
 
   //
 
-  async create(createWorkspaceDto: CreateWorkspaceDto) {
+  async create({ creator, ...rest }: CreateWorkspaceDto) {
     try {
-      const workspace = this.workspaceRepository.create(createWorkspaceDto);
+      const workspace = this.workspaceRepository.create(rest);
+
+      workspace.agents.push(new Agent({ ...creator, role: Admin }));
+      workspace.creatorId = creator.userId;
+
       const data = await this.workspaceRepository.save(workspace);
       data.id = data.id.toString() as unknown as ObjectID;
 
@@ -133,17 +148,24 @@ export class WorkspacesService {
 
   async remove(id: ObjectID, userId: number) {
     try {
-      const res = await this.findOne(id, userId);
-      if (!res.data) return res as ResponseDto;
+      // const res = await this.findOne(id, userId);
+      // if (!res.data) return res as ResponseDto;
+      // if (res.data.creatorId !== userId) {
+      //   return {
+      //     status: HttpStatus.FORBIDDEN,
+      //     data: null,
+      //   };
+      // }
 
-      const deleted = await this.workspaceRepository.delete(id);
+      await this.connection.transaction(async (manager) => {
+        const workspaceRepo = manager.getMongoRepository(Workspace);
+        const sagaRepo = manager.getMongoRepository(Saga);
+        const taskRepo = manager.getMongoRepository(Task);
 
-      if (!deleted.affected) {
-        return {
-          status: HttpStatus.CONFLICT,
-          data: null,
-        };
-      }
+        await taskRepo.delete({ workspaceId: id });
+        await sagaRepo.delete({ workspaceId: id });
+        await workspaceRepo.delete(id);
+      });
 
       return {
         status: HttpStatus.OK,

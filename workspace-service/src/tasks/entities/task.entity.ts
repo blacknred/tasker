@@ -31,9 +31,6 @@ export class Task implements ITask {
   @Transform(({ value }) => value.toString(), { toPlainOnly: true })
   id: ObjectID;
 
-  @Column()
-  workspaceId: ObjectID;
-
   @Column({ length: 500 })
   name: string;
 
@@ -56,6 +53,12 @@ export class Task implements ITask {
 
   @Column(() => Agent)
   creator: Agent;
+
+  @Column()
+  workspaceId: ObjectID;
+
+  @Column({ array: true })
+  sagaIds: ObjectID[];
 
   @Column(() => StageUpdate)
   history: StageUpdate[];

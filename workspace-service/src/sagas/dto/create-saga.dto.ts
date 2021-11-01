@@ -1,14 +1,13 @@
-import { Optional } from '@nestjs/common';
 import {
   IsDateString,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { AccessDto } from '../../__shared__/dto/request.dto';
 
-export class CreateSagaDto {
+export class CreateSagaDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
   @MinLength(5, { message: 'Must include atleast 5 chars' })
   @MaxLength(200, { message: 'Must include no more than 200 chars' })
@@ -21,8 +20,4 @@ export class CreateSagaDto {
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   expiresAt?: string;
-
-  @Optional()
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
 }

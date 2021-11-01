@@ -10,22 +10,19 @@ import {
   Query,
   Req,
   UseFilters,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
-  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
+import { WithAuth } from 'src/__shared__/decorators/with-auth.decorator';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
-import { AdminGuard } from 'src/__shared__/guards/admin.guard';
-import { AuthGuard } from 'src/__shared__/guards/auth.guard';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -52,8 +49,7 @@ export class UsersController {
   }
 
   @Get()
-  @UseGuards(AdminGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'List all users' })
   @ApiOkResponse({ type: UsersResponseDto })
   async getAll(@Query() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
@@ -61,8 +57,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(AdminGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({ type: UserResponseDto })
   async getOne(@Param() getUserDto: GetUserDto): Promise<UserResponseDto> {
@@ -70,8 +65,7 @@ export class UsersController {
   }
 
   @Patch()
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Update authorized user' })
   @ApiOkResponse({ type: UserResponseDto })
   async update(
@@ -82,8 +76,7 @@ export class UsersController {
   }
 
   @Patch('restore')
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Restore user' })
   @ApiOkResponse({ type: UserResponseDto })
   async restore(
@@ -96,8 +89,7 @@ export class UsersController {
   }
 
   @Delete()
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Delete authorized user' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {

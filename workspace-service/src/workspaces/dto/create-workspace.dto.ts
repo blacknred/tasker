@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -7,6 +8,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
+import { Privilege } from '../interfaces/role.interface';
 
 export class WorkspaceRoleDto {
   @MinLength(5, { message: 'Must include atleast 5 chars' })
@@ -15,15 +17,21 @@ export class WorkspaceRoleDto {
   @IsOptional()
   @IsString({ message: 'Must be a string' })
   description?: string;
-}
-
-export class WorkspaceStageDto {
-  @MinLength(5, { message: 'Must include atleast 5 chars' })
-  name: string;
 
   @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  description?: string;
+  @IsEnum(Privilege, {
+    message: 'Must be one of the Privilege enum',
+    each: true,
+  })
+  privileges?: Privilege[];
+}
+
+export class WorkspaceCreator {
+  @IsNumber({}, { message: 'Must be an integer' })
+  userId: number;
+
+  @IsString({ message: 'Must be an string' })
+  userName: string;
 }
 
 export class CreateWorkspaceDto {
@@ -37,15 +45,17 @@ export class CreateWorkspaceDto {
   description?: string;
 
   @IsOptional()
+  @IsString({ message: 'Must be a string', each: true })
+  stages?: string[];
+
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => WorkspaceRoleDto)
   roles?: WorkspaceRoleDto[];
 
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => WorkspaceStageDto)
-  stages?: WorkspaceStageDto[];
+  //
 
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
+  @ValidateNested({ each: true })
+  @Type(() => WorkspaceCreator)
+  creator: WorkspaceCreator;
 }

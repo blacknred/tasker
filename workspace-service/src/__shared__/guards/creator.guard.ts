@@ -1,14 +1,11 @@
-import {
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { RpcException } from '@nestjs/microservices';
 import { ROLES_KEY } from '../consts';
-import { AuthGuard } from './auth.guard';
+import { AccessGuard } from './access.guard';
 
 @Injectable()
-export class RoleGuard extends AuthGuard {
+export class CreatorGuard extends AccessGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }
@@ -22,14 +19,16 @@ export class RoleGuard extends AuthGuard {
 
       if (!roles) return true;
 
-      const req = context.switchToHttp().getRequest();
+      const { agent } = context.switchToRpc().getContext();
 
       return (
         super.canActivate(context) &&
-        req.user.roles.some((role) => roles.includes(role))
+        agent.roles.some((role) => roles.includes(role))
       );
     } catch (_) {
-      throw new ForbiddenException('Access restricted');
+      throw new RpcException({
+        status: HttpStatus.FORBIDDEN,
+      });
     }
   }
 }

@@ -1,7 +1,8 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { BaseRole } from 'src/workspaces/interfaces/role.interface';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
+import { Agent } from 'src/__shared__/decorators/agent.decorator';
+import { AccessGuard } from 'src/__shared__/guards/access.guard';
 import { RoleGuard } from 'src/__shared__/guards/role.guard';
 import { Roles } from '../__shared__/decorators/roles.decorator';
 import { ResponseDto } from '../__shared__/dto/response.dto';
@@ -16,23 +17,31 @@ import { SagasService } from './sagas.service';
 export class SagasController {
   constructor(private readonly sagasService: SagasService) {}
 
-  @Roles(BaseRole.ADMIN)
-  @UseGuards(RoleGuard)
+  // Access, !CREATE_SAGA
   @MessagePattern('create')
-  create(@Payload() createSagaDto: CreateSagaDto): Promise<SagaResponseDto> {
-    return this.sagasService.create(createSagaDto);
+  create(
+    @Agent() agent,
+    @Payload() createSagaDto: CreateSagaDto,
+  ): Promise<SagaResponseDto> {
+    return this.sagasService.create(createSagaDto, agent);
   }
 
-  @UseGuards(AgentGuard)
+  // Access, ?READ_ANY_SAGA | All Created
   @MessagePattern('getAll')
-  getAll(@Payload() getSagasDto: GetSagasDto): Promise<SagasResponseDto> {
-    return this.sagasService.findAll(getSagasDto);
+  getAll(
+    @Agent() agent,
+    @Payload() getSagasDto: GetSagasDto,
+  ): Promise<SagasResponseDto> {
+    return this.sagasService.findAll(getSagasDto, agent);
   }
 
-  @UseGuards(AgentGuard)
+  // Access, ?READ_ANY_SAGA | Creator
   @MessagePattern('getOne')
-  getOne(@Payload() { id, userId }: GetSagaDto): Promise<SagaResponseDto> {
-    return this.sagasService.findOne(id, userId);
+  getOne(
+    @Agent() agent,
+    @Payload() { id }: GetSagaDto,
+  ): Promise<SagaResponseDto> {
+    return this.sagasService.findOne(id, agent);
   }
 
   @UseGuards(AgentGuard)

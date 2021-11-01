@@ -1,6 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
+import { AgentGuard } from 'src/__shared__/guards/access.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspaceDto } from './dto/get-workspace.dto';
@@ -23,33 +23,34 @@ export class WorkspacesController {
     return this.workspacesService.create(createWorkspaceDto);
   }
 
+  // Access
   @MessagePattern('getAll')
-  getAll(
+  async getAll(
     @Payload() getWorkspacesDto: GetWorkspacesDto,
   ): Promise<WorkspacesResponseDto> {
     return this.workspacesService.findAll(getWorkspacesDto);
   }
 
+  // Access
   @MessagePattern('getOne')
-  getOne(
+  async getOne(
     @Payload() { id, userId }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
     return this.workspacesService.findOne(id, userId);
   }
 
+  // Access, EDIT_WORKSPACE
   @MessagePattern('patch')
-  @UseGuards(AgentGuard)
-  // CreatorGuard
-  update(
+  async update(
     @Payload() { id, ...rest }: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
     return this.workspacesService.update(id, rest);
   }
 
   @MessagePattern('delete')
-  @UseGuards(AgentGuard)
-  // CreatorGuard
-  remove(@Payload() { id, userId }: GetWorkspaceDto): Promise<ResponseDto> {
+  async remove(
+    @Payload() { id, userId }: GetWorkspaceDto,
+  ): Promise<ResponseDto> {
     return this.workspacesService.remove(id, userId);
   }
 }

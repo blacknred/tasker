@@ -1,5 +1,6 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { Agent } from 'src/workspaces/entities/agent.entity';
 import { ObjectID, Repository } from 'typeorm';
 import { SAGA_REPOSITORY } from './consts';
 import { CreateSagaDto } from './dto/create-saga.dto';
@@ -57,28 +58,28 @@ export class SagasService {
   //   };
   // }
 
-  // async findOne(id: ObjectID, userId: number) {
-  //   const task = await this.sagaRepository.findOne(id);
+  async findOne(id: ObjectID, agent: Agent) {
+    const saga = await this.sagaRepository.findOne(id);
 
-  //   if (!task) {
-  //     return {
-  //       status: HttpStatus.NOT_FOUND,
-  //       data: null,
-  //     };
-  //   }
+    if (!saga) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+      };
+    }
 
-  //   if (userId != null && task.userId !== userId) {
-  //     return {
-  //       status: HttpStatus.FORBIDDEN,
-  //       data: null,
-  //     };
-  //   }
+    if (saga.workspaceId !== agent. && task.userId !== userId) {
+      return {
+        status: HttpStatus.FORBIDDEN,
+        data: null,
+      };
+    }
 
-  //   return {
-  //     status: HttpStatus.OK,
-  //     data: task,
-  //   };
-  // }
+    return {
+      status: HttpStatus.OK,
+      data: task,
+    };
+  }
 
   // async update(id: ObjectID, updateTaskDto: UpdateTaskDto) {
   //   try {

@@ -2,10 +2,10 @@ import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RpcException } from '@nestjs/microservices';
 import { ROLES_KEY } from '../consts';
-import { AgentGuard } from './agent.guard';
+import { AccessGuard } from './access.guard';
 
 @Injectable()
-export class RoleGuard extends AgentGuard {
+export class RoleGuard extends AccessGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }
@@ -32,3 +32,5 @@ export class RoleGuard extends AgentGuard {
     }
   }
 }
+// @Roles(BaseRole.ADMIN)
+// @UseGuards(RoleGuard)

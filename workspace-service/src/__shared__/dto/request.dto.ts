@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsIn,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { ObjectID } from 'typeorm';
 
 export class SortingDto {
   @IsOptional()
@@ -22,4 +30,13 @@ export class PaginationDto {
   @Type(() => Number)
   @Min(0)
   offset?: number;
+}
+
+export class AccessDto {
+  @IsMongoId({ message: 'Invalid identificator' })
+  workspaceId: ObjectID;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Must be an integer' })
+  userId?: number;
 }

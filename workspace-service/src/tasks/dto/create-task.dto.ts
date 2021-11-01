@@ -1,13 +1,8 @@
-import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
+import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsAgentDto } from 'src/__shared__/dto/request.dto';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
-export class CreateTaskDto {
+export class CreateTaskDto extends IsAgentDto {
   @IsString({ message: 'Must be a string' })
   @MinLength(5, { message: 'Must include atleast 5 chars' })
   @MaxLength(500, { message: 'Must include no more than 500 chars' })
@@ -20,9 +15,6 @@ export class CreateTaskDto {
     message: `Must be one of ${Object.values(TaskType)}`,
   })
   type: TaskType;
-
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
 
   @IsEnum(TaskPriority, {
     message: `Must be one of ${Object.values(TaskPriority)}`,

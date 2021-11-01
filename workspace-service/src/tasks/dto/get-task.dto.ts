@@ -1,11 +1,8 @@
-import { Optional } from '@nestjs/common';
-import { IsMongoId, IsNumber } from 'class-validator';
+import { IsMongoId } from 'class-validator';
+import { IsAgentDto } from 'src/__shared__/dto/request.dto';
 import { ObjectID } from 'typeorm';
 
-export class GetTaskDto {
+export class GetTaskDto extends IsAgentDto {
   @IsMongoId({ message: 'Invalid identificator' })
   id: ObjectID;
-  @Optional()
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId?: number;
 }

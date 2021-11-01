@@ -1,12 +1,8 @@
-import { Optional } from '@nestjs/common';
-import { IsMongoId, IsNumber } from 'class-validator';
+import { IsMongoId } from 'class-validator';
+import { AccessDto } from 'src/__shared__/dto/request.dto';
 import { ObjectID } from 'typeorm';
 
-export class GetSagaDto {
+export class GetSagaDto extends AccessDto {
   @IsMongoId({ message: 'Invalid identificator' })
   id: ObjectID;
-
-  @Optional()
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
 }

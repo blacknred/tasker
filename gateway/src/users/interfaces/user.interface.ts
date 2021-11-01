@@ -2,7 +2,7 @@ export interface IUser {
   id: number;
   name: string;
   email: string;
-  iaAdmin: boolean;
+  isAdmin: boolean;
   createdAt: number;
   updatedAt: number;
 }

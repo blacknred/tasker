@@ -1,7 +1,6 @@
 import { ObjectID } from 'typeorm';
 import { IAgent } from './agent.interface';
 import { IRole } from './role.interface';
-import { IStage } from './stage.interface';
 
 export interface IWorkspace {
   id: ObjectID;
@@ -10,7 +9,7 @@ export interface IWorkspace {
   creatorId: number;
   createdAt: Date;
   updatedAt: Date;
+  stages: string[];
   roles: IRole[];
-  stages: IStage[];
   agents: IAgent[];
 }

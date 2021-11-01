@@ -11,17 +11,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { WithAuth } from 'src/__shared__/decorators/with-auth.decorator';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
-import { AdminGuard } from 'src/__shared__/guards/admin.guard';
 import { Auth } from '../__shared__/decorators/auth.decorator';
 import { EmptyResponseDto } from '../__shared__/dto/response.dto';
-import { AuthGuard } from '../__shared__/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { AuthsResponseDto } from './dto/auths-response.dto';
@@ -46,8 +44,7 @@ export class AuthController {
   }
 
   @Get()
-  @UseGuards(AdminGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Get all sessions' })
   @ApiOkResponse({ type: AuthsResponseDto })
   async getAll(@Query() getUsersDto: GetAuthsDto): Promise<AuthsResponseDto> {
@@ -55,8 +52,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Get session' })
   @ApiOkResponse({ type: AuthResponseDto })
   getOne(@Auth('user') data): AuthResponseDto {
@@ -64,8 +60,7 @@ export class AuthController {
   }
 
   @Delete()
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Logout' })
   @ApiOkResponse({ type: EmptyResponseDto })
   delete(@Req() req): EmptyResponseDto {
@@ -74,8 +69,7 @@ export class AuthController {
   }
 
   @Patch('createPush')
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Create push subscription' })
   @ApiOkResponse({ type: AuthResponseDto })
   createPush(
@@ -86,8 +80,7 @@ export class AuthController {
   }
 
   @Patch('deletePush')
-  @UseGuards(AuthGuard)
-  @ApiCookieAuth()
+  @WithAuth()
   @ApiOperation({ summary: 'Delete push subscription' })
   @ApiOkResponse({ type: EmptyResponseDto })
   deletePush(

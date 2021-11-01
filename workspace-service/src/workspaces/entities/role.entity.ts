@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { IRole } from '../interfaces/role.interface';
+import { IRole, Privilege } from '../interfaces/role.interface';
 
 @Entity()
 export class Role implements IRole {
@@ -9,7 +9,21 @@ export class Role implements IRole {
   @Column({ nullable: true })
   description?: string;
 
+  @Column({ type: 'enum', enum: Privilege, array: true })
+  privileges: Privilege[];
+
   constructor(role?: Partial<Role>) {
     Object.assign(this, role);
   }
 }
+
+export const Admin = new Role({
+  name: 'Admin',
+  description: 'Workspace administrator',
+  privileges: Object.values(Privilege),
+});
+
+export const Worker = new Role({
+  name: 'Worker',
+  description: 'Workspace worker',
+});
