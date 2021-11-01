@@ -32,24 +32,24 @@ export class Workspace implements IWorkspace {
   @Column()
   creatorId: number;
 
+  @Column({ array: true })
+  labels: string[];
+
+  @Column(() => Role)
+  roles: Role[];
+
+  @Column(() => Agent)
+  agents: Agent[];
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column(() => Role)
-  roles: Role[];
-
-  @Column({ array: true })
-  stages: string[];
-
-  @Column(() => Agent)
-  agents: Agent[];
-
   constructor(workspace?: Partial<Workspace>) {
+    this.labels.unshift(...Object.values(BaseStage));
     this.roles.unshift(Admin, Worker);
-    this.stages.unshift(...Object.values(BaseStage));
 
     Object.assign(this, workspace);
   }

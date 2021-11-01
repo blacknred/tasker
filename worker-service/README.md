@@ -1,4 +1,4 @@
-# TaskQ Worker microservice
+# TaskQ Worker mock microservice
 
 ## Stack
 

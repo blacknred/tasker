@@ -1,13 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IUser } from '../interfaces/user.interface';
 
-export class CreateUserDto implements Pick<IUser, 'name' | 'email'> {
-  @ApiProperty({ example: 'testname' })
+export class CreateUserDto {
+  @ApiProperty({ example: 'testname', nullable: false })
   name: string;
 
-  @ApiProperty({ uniqueItems: true, example: 'test@email.com' })
+  @ApiProperty({
+    uniqueItems: true,
+    example: 'test@email.com',
+    nullable: false,
+  })
   email: string;
 
-  @ApiProperty({ minLength: 6, example: 'testpassword' })
+  @ApiProperty({ minLength: 6, example: 'testpassword', nullable: false })
   password: string;
 }

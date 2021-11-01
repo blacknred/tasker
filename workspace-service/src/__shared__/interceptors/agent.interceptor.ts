@@ -6,8 +6,8 @@ import {
   Scope,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { WorkspacesController } from 'src/workspaces/workspaces.controller';
 import { WorkspacesService } from 'src/workspaces/workspaces.service';
+import { ObjectID } from 'typeorm';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AgentInterceptor implements NestInterceptor {
@@ -17,15 +17,12 @@ export class AgentInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<unknown>> {
-    const target = context.getClass();
-    const data = context.switchToRpc().getData();
-    const { name } = WorkspacesController;
+    const { workspaceId, id, userId } = context.switchToRpc().getData();
+    const wid = (workspaceId | id) as unknown as ObjectID;
 
-    const prop = target.name === name ? 'id' : 'workspaceId';
-
-    if (data[prop] && data.userId) {
+    if (wid && userId) {
       context.switchToRpc().getContext().agent =
-        await this.workspacesService.findAgent(data[prop], data.userId);
+        await this.workspacesService.findAgent(wid, userId);
     }
 
     return next.handle();

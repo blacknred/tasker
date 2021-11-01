@@ -31,7 +31,7 @@ export class UsersController {
     return this.usersService.findOneValidated(rest);
   }
 
-  @MessagePattern('patch')
+  @MessagePattern('update')
   update(@Payload() updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
     return this.usersService.update(updateUserDto.id, updateUserDto);
   }

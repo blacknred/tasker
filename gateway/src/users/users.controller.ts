@@ -13,13 +13,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/__shared__/decorators/auth.decorator';
+import {
+  WithCreatedApi,
+  WithOkApi,
+} from 'src/__shared__/decorators/with-api.decorator';
 import { WithAuth } from 'src/__shared__/decorators/with-auth.decorator';
 import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
@@ -42,43 +41,40 @@ export class UsersController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create new user' })
-  @ApiCreatedResponse({ type: UserResponseDto })
+  @WithCreatedApi(UserResponseDto, 'Create new user')
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.send('create', createUserDto).toPromise();
   }
 
   @Get()
   @WithAuth()
-  @ApiOperation({ summary: 'List all users' })
-  @ApiOkResponse({ type: UsersResponseDto })
+  @WithOkApi(UsersResponseDto, 'List all users')
   async getAll(@Query() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
     return this.userService.send('getAll', getUsersDto).toPromise();
   }
 
   @Get(':id')
-  @WithAuth()
-  @ApiOperation({ summary: 'Get user by id' })
-  @ApiOkResponse({ type: UserResponseDto })
+  @WithAuth(true)
+  @WithOkApi(UserResponseDto, 'Get user by id')
   async getOne(@Param() getUserDto: GetUserDto): Promise<UserResponseDto> {
     return this.userService.send('getOne', getUserDto).toPromise();
   }
 
   @Patch()
   @WithAuth()
-  @ApiOperation({ summary: 'Update authorized user' })
-  @ApiOkResponse({ type: UserResponseDto })
+  @WithOkApi(UserResponseDto, 'Update authorized user')
   async update(
     @Auth('user') { id },
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.send('patch', { id, ...updateUserDto }).toPromise();
+    return this.userService
+      .send('update', { id, ...updateUserDto })
+      .toPromise();
   }
 
   @Patch('restore')
   @WithAuth()
-  @ApiOperation({ summary: 'Restore user' })
-  @ApiOkResponse({ type: UserResponseDto })
+  @WithOkApi(UserResponseDto, 'Restore user')
   async restore(
     @Auth('user') { id },
     @Body() updateUserDto: UpdateUserDto,
@@ -90,8 +86,7 @@ export class UsersController {
 
   @Delete()
   @WithAuth()
-  @ApiOperation({ summary: 'Delete authorized user' })
-  @ApiOkResponse({ type: EmptyResponseDto })
+  @WithOkApi(EmptyResponseDto, 'Delete authorized user')
   async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {
     req.session.destroy();
     return this.userService.send('delete', { id }).toPromise();

@@ -6,23 +6,24 @@ import {
   Entity,
   ObjectID,
   ObjectIdColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { Agent } from '../../workspaces/entities/agent.entity';
-import { Stage } from '../../workspaces/entities/stage.entity';
 import {
-  IStageUpdate,
   ITask,
+  ITaskUpdate,
   TaskPriority,
   TaskType,
 } from '../interfaces/task.interface';
 
-export class StageUpdate implements IStageUpdate {
-  @Column(() => Stage)
-  stage: Stage;
+export class TaskUpdate implements ITaskUpdate {
+  @Column()
+  label: string;
 
   @Column(() => Agent)
   agent: Agent;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
 
 @Entity()
@@ -60,17 +61,14 @@ export class Task implements ITask {
   @Column({ array: true })
   sagaIds: ObjectID[];
 
-  @Column(() => StageUpdate)
-  history: StageUpdate[];
-
-  @Column()
-  expiresAt: Date;
+  @Column(() => TaskUpdate)
+  history: TaskUpdate[];
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column()
+  expiresAt: Date;
 
   @Exclude()
   @DeleteDateColumn()

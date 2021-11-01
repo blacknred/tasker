@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ObjectID,
+  ObjectIdColumn,
+} from 'typeorm';
 import { Role } from './role.entity';
 
 @Entity()
@@ -16,6 +22,9 @@ export class Agent {
 
   @Column(() => Role)
   role: Role;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   constructor(agent?: Partial<Agent>) {
     Object.assign(this, agent);

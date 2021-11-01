@@ -3,6 +3,6 @@ export interface IUser {
   name: string;
   email: string;
   isAdmin: boolean;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: string;
+  updatedAt: string;
 }

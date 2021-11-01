@@ -12,7 +12,7 @@ import {
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { WorkspacesService } from './workspaces.service';
 
-@Controller('workspace')
+@Controller()
 export class WorkspacesController {
   constructor(private readonly workspacesService: WorkspacesService) {}
 
@@ -40,7 +40,7 @@ export class WorkspacesController {
   }
 
   // Access, EDIT_WORKSPACE
-  @MessagePattern('patch')
+  @MessagePattern('update')
   async update(
     @Payload() { id, ...rest }: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {

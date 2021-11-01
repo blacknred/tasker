@@ -1,10 +1,9 @@
-import { ObjectID } from 'typeorm';
 import { IRole } from './role.interface';
 
 export interface IAgent {
-  id: ObjectID;
+  id: string;
   userId: number;
   userName: string;
   role: IRole;
-  createdAt: Date;
+  createdAt: string;
 }

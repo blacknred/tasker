@@ -46,7 +46,7 @@ export class CreateWorkspaceDto {
 
   @IsOptional()
   @IsString({ message: 'Must be a string', each: true })
-  stages?: string[];
+  labels?: string[];
 
   @IsOptional()
   @ValidateNested({ each: true })

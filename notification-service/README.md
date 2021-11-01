@@ -2,7 +2,7 @@
 
 ## Stack
 
-TS, Nodejs, NestJs, TCP
+TS, Nodejs, NestJs, AMQP
 
 ## Running the app
 

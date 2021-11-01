@@ -45,7 +45,7 @@ export class SagasController {
   }
 
   @UseGuards(AgentGuard)
-  @MessagePattern('patch')
+  @MessagePattern('update')
   update(@Payload() updateSagaDto: UpdateSagaDto): Promise<SagaResponseDto> {
     return this.sagasService.update(updateSagaDto.id, updateSagaDto);
   }

@@ -10,12 +10,11 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+  WithCreatedApi,
+  WithOkApi,
+} from 'src/__shared__/decorators/with-api.decorator';
 import { WithAuth } from 'src/__shared__/decorators/with-auth.decorator';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { Auth } from '../__shared__/decorators/auth.decorator';
@@ -37,32 +36,28 @@ export class AuthController {
 
   @Post()
   @UseGuards(LocalAuthGuard)
-  @ApiOperation({ summary: 'Login' })
-  @ApiCreatedResponse({ type: EmptyResponseDto })
+  @WithCreatedApi(AuthResponseDto, 'Login')
   create(@Auth() auth): AuthResponseDto {
     return this.authService.create(auth);
   }
 
   @Get()
   @WithAuth()
-  @ApiOperation({ summary: 'Get all sessions' })
-  @ApiOkResponse({ type: AuthsResponseDto })
+  @WithOkApi(AuthsResponseDto, 'Get all sessions')
   async getAll(@Query() getUsersDto: GetAuthsDto): Promise<AuthsResponseDto> {
     return this.authService.findAll(getUsersDto);
   }
 
   @Get('me')
   @WithAuth()
-  @ApiOperation({ summary: 'Get session' })
-  @ApiOkResponse({ type: AuthResponseDto })
+  @WithOkApi(AuthResponseDto, 'Get session')
   getOne(@Auth('user') data): AuthResponseDto {
     return { data };
   }
 
   @Delete()
   @WithAuth()
-  @ApiOperation({ summary: 'Logout' })
-  @ApiOkResponse({ type: EmptyResponseDto })
+  @WithOkApi(EmptyResponseDto, 'Logout')
   delete(@Req() req): EmptyResponseDto {
     req.logout(); // req.session.destroy();
     return { data: null };
@@ -70,8 +65,7 @@ export class AuthController {
 
   @Patch('createPush')
   @WithAuth()
-  @ApiOperation({ summary: 'Create push subscription' })
-  @ApiOkResponse({ type: AuthResponseDto })
+  @WithOkApi(PushSubscriptionResponseDto, 'Create push subscription')
   createPush(
     @Auth('pushSubscriptions') subscriptions,
     @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
@@ -81,8 +75,7 @@ export class AuthController {
 
   @Patch('deletePush')
   @WithAuth()
-  @ApiOperation({ summary: 'Delete push subscription' })
-  @ApiOkResponse({ type: EmptyResponseDto })
+  @WithOkApi(EmptyResponseDto, 'Delete push subscription')
   deletePush(
     @Auth('pushSubscriptions') subscriptions,
     @Body(ValidationPipe) subscriptionDto: PushSubscriptionDto,
