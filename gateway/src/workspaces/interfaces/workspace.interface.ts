@@ -8,7 +8,8 @@ export interface IWorkspace {
   creatorId: number;
   labels: string[];
   roles: IRole[];
-  agents: IAgent[];
   createdAt: string;
   updatedAt: string;
+  //
+  me?: IAgent;
 }

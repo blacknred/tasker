@@ -23,6 +23,12 @@ import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { WORKSPACE_SERVICE } from './consts';
+import { AgentResponseDto } from './dto/agents/agent-response.dto';
+import { AgentsResponseDto } from './dto/agents/agents-response.dto';
+import { CreateAgentDto } from './dto/agents/create-agent.dto';
+import { GetAgentDto } from './dto/agents/get-agent.dto';
+import { GetAgentsDto } from './dto/agents/get-agents.dto';
+import { UpdateAgentDto } from './dto/agents/update-agent.dto';
 import { CreateSagaDto } from './dto/sagas/create-saga.dto';
 import { GetSagaDto } from './dto/sagas/get-saga.dto';
 import { GetSagasDto } from './dto/sagas/get-sagas.dto';
@@ -66,27 +72,39 @@ export class WorkspacesController {
       .toPromise();
   }
 
+  @Post(':id/agents')
+  @WithCreatedApi(AgentResponseDto, 'Create new agent')
+  async createAgent(
+    @Auth('user') { id: uid },
+    @Param() { id: wid }: GetWorkspaceDto,
+    @Body() createAgentDto: CreateAgentDto,
+  ): Promise<AgentResponseDto> {
+    return this.workspaceRepository
+      .send('agents/create', { ...createAgentDto, wid, uid })
+      .toPromise();
+  }
+
   @Post(':id/sagas')
   @WithCreatedApi(SagaResponseDto, 'Create new saga')
   async createSaga(
-    @Param('id') workspaceId,
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
+    @Param() { id: wid }: GetWorkspaceDto,
     @Body() createSagaDto: CreateSagaDto,
   ): Promise<SagaResponseDto> {
     return this.workspaceRepository
-      .send('sagas/create', { ...createSagaDto, workspaceId, userId })
+      .send('sagas/create', { ...createSagaDto, wid, uid })
       .toPromise();
   }
 
   @Post(':id/tasks')
   @WithCreatedApi(TaskResponseDto, 'Create new task')
   async createTask(
-    @Param('id') workspaceId,
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
+    @Param() { id: wid }: GetWorkspaceDto,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.workspaceRepository
-      .send('tasks/create', { ...createTaskDto, workspaceId, userId })
+      .send('tasks/create', { ...createTaskDto, wid, uid })
       .toPromise();
   }
 
@@ -95,66 +113,89 @@ export class WorkspacesController {
   @Get()
   @WithOkApi(WorkspacesResponseDto, 'List workspaces')
   async getAll(
-    @Auth('user') { id: userId, isAdmin },
+    @Auth('user') { id: uid, isAdmin },
     @Query() getWorkspacesDto: GetWorkspacesDto,
   ): Promise<WorkspacesResponseDto> {
     return this.workspaceRepository
-      .send('getAll', { ...getWorkspacesDto, userId: isAdmin ? null : userId })
+      .send('getAll', { ...getWorkspacesDto, uid: isAdmin ? null : uid })
       .toPromise();
   }
 
   @Get(':id')
   @WithOkApi(WorkspaceResponseDto, 'Get workspace by id')
   async getOne(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
     @Param() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceRepository.send('getOne', { id, userId }).toPromise();
+    return this.workspaceRepository.send('getOne', { id, uid }).toPromise();
+  }
+
+  @Get(':id/agents')
+  @WithOkApi(AgentsResponseDto, 'List agents')
+  async getAllAgents(
+    @Auth('user') { id: uid },
+    @Query() getAgentsDto: GetAgentsDto,
+    @Param() { id: wid }: GetWorkspaceDto,
+  ): Promise<AgentsResponseDto> {
+    return this.workspaceRepository
+      .send('agents/getAll', { ...getAgentsDto, wid, uid })
+      .toPromise();
+  }
+
+  @Get(':id/agents/:agentId')
+  @WithOkApi(AgentResponseDto, 'Get agent by id')
+  async getOneAgent(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, agentId: id }: GetAgentDto,
+  ): Promise<AgentResponseDto> {
+    return this.workspaceRepository
+      .send('agents/getOne', { id, wid, uid })
+      .toPromise();
   }
 
   @Get(':id/sagas')
   @WithOkApi(SagasResponseDto, 'List sagas')
   async getAllSagas(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
     @Query() getSagasDto: GetSagasDto,
-    @Param() { id: workspaceId }: GetWorkspaceDto,
+    @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<SagasResponseDto> {
     return this.workspaceRepository
-      .send('sagas/getAll', { ...getSagasDto, workspaceId, userId })
+      .send('sagas/getAll', { ...getSagasDto, wid, uid })
       .toPromise();
   }
 
   @Get(':id/sagas/:sagaId')
   @WithOkApi(SagaResponseDto, 'Get saga by id')
   async getOneSaga(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, sagaId: id }: GetSagaDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, sagaId: id }: GetSagaDto,
   ): Promise<SagaResponseDto> {
     return this.workspaceRepository
-      .send('sagas/getOne', { id, workspaceId, userId })
+      .send('sagas/getOne', { id, wid, uid })
       .toPromise();
   }
 
   @Get(':id/tasks')
   @WithOkApi(TasksResponseDto, 'List tasks')
   async getAllTasks(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
     @Query() getTasksDto: GetTasksDto,
-    @Param() { id: workspaceId }: GetWorkspaceDto,
+    @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<TasksResponseDto> {
     return this.workspaceRepository
-      .send('tasks/getAll', { ...getTasksDto, workspaceId, userId })
+      .send('tasks/getAll', { ...getTasksDto, wid, uid })
       .toPromise();
   }
 
   @Get(':id/tasks/:taskId')
   @WithOkApi(TaskResponseDto, 'Get task by id')
   async getOneTask(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, taskId: id }: GetTaskDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, taskId: id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
     return this.workspaceRepository
-      .send('tasks/getOne', { id, workspaceId, userId })
+      .send('tasks/getOne', { id, wid, uid })
       .toPromise();
   }
 
@@ -163,36 +204,48 @@ export class WorkspacesController {
   @Patch(':id')
   @WithOkApi(WorkspaceResponseDto, 'Update workspace')
   async update(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
     @Param() { id }: GetWorkspaceDto,
     @Body() updateWorkspaceDto: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
     return this.workspaceRepository
-      .send('update', { ...updateWorkspaceDto, id, userId })
+      .send('update', { ...updateWorkspaceDto, id, uid })
+      .toPromise();
+  }
+
+  @Patch(':id/agents/:agentId')
+  @WithOkApi(AgentResponseDto, 'Update agent')
+  async updateAgent(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, agentId: id }: GetAgentDto,
+    @Body() updateAgentDto: UpdateAgentDto,
+  ): Promise<SagaResponseDto> {
+    return this.workspaceRepository
+      .send('sagas/update', { ...updateAgentDto, id, wid, uid })
       .toPromise();
   }
 
   @Patch(':id/sagas/:sagaId')
   @WithOkApi(SagaResponseDto, 'Update saga')
   async updateSaga(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, sagaId: id }: GetSagaDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, sagaId: id }: GetSagaDto,
     @Body() updateSagaDto: UpdateSagaDto,
   ): Promise<SagaResponseDto> {
     return this.workspaceRepository
-      .send('sagas/update', { ...updateSagaDto, id, workspaceId, userId })
+      .send('sagas/update', { ...updateSagaDto, id, wid, uid })
       .toPromise();
   }
 
   @Patch(':id/tasks/:taskId')
   @WithOkApi(TaskResponseDto, 'Update task')
   async updateTask(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, taskId: id }: GetTaskDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, taskId: id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
     return this.workspaceRepository
-      .send('tasks/update', { ...updateTaskDto, id, workspaceId, userId })
+      .send('tasks/update', { ...updateTaskDto, id, wid, uid })
       .toPromise();
   }
 
@@ -201,31 +254,42 @@ export class WorkspacesController {
   @Delete(':id')
   @WithOkApi(EmptyResponseDto, 'Delete workspace')
   async remove(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: uid },
     @Param() { id }: GetWorkspaceDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository.send('delete', { id, userId }).toPromise();
+    return this.workspaceRepository.send('delete', { id, uid }).toPromise();
+  }
+
+  @Delete(':id/agents/:agentId')
+  @WithOkApi(EmptyResponseDto, 'Delete agent')
+  async deleteAgent(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, agentId: id }: GetAgentDto,
+  ): Promise<EmptyResponseDto> {
+    return this.workspaceRepository
+      .send('agents/delete', { id, wid, uid })
+      .toPromise();
   }
 
   @Delete(':id/sagas/:sagaId')
   @WithOkApi(EmptyResponseDto, 'Delete saga')
   async deleteSaga(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, sagaId: id }: GetSagaDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, sagaId: id }: GetSagaDto,
   ): Promise<EmptyResponseDto> {
     return this.workspaceRepository
-      .send('sagas/delete', { id, workspaceId, userId })
+      .send('sagas/delete', { id, wid, uid })
       .toPromise();
   }
 
   @Delete(':id/tasks/:taskId')
   @WithOkApi(EmptyResponseDto, 'Delete task')
   async deleteTask(
-    @Auth('user') { id: userId },
-    @Param() { id: workspaceId, taskId: id }: GetTaskDto,
+    @Auth('user') { id: uid },
+    @Param() { id: wid, taskId: id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
     return this.workspaceRepository
-      .send('tasks/delete', { id, workspaceId, userId })
+      .send('tasks/delete', { id, wid, uid })
       .toPromise();
   }
 }

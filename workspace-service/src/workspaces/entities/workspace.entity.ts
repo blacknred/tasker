@@ -41,7 +41,9 @@ export class Workspace {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  static readonly searchable = ['name', 'creatorId', 'createdAt'];
+  static isSearchable(column: string) {
+    return ['name', 'creatorId', 'createdAt'].includes(column);
+  }
 
   constructor(workspace?: Partial<Workspace>) {
     this.labels.unshift(...Object.values(BaseLabel));

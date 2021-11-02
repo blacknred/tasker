@@ -5,9 +5,6 @@ export class WorkspaceRoleDto {
   @ApiProperty({ example: 'test role', nullable: false })
   name: string;
 
-  @ApiProperty({ example: 'test description' })
-  description?: string;
-
   @ApiProperty({
     enum: Privilege,
     example: Privilege.READ_ANY_TASK,

@@ -1,3 +1,4 @@
+import { object } from '@hapi/joi';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +18,13 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
+
+  private mapper<T>(obj: T, isPartial?: boolean): Partial<T> {
+    return Object.keys(obj).reduce((o, k) => {
+      if (!isPartial || !User.isSecured(k)) o[k] = obj[k];
+      return o;
+    }, {});
+  }
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -54,7 +62,7 @@ export class UsersService {
   async findAll({ limit, offset, partial, ...rest }: GetUsersDto) {
     const [items, total] = await this.userRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(User.searchable.includes(key) && rest[key])) return acc;
+        if (!(User.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
       }, {}),
@@ -68,14 +76,7 @@ export class UsersService {
       status: HttpStatus.OK,
       data: {
         hasMore: items.length === limit + 1,
-        items: items.slice(0, limit).map((item) =>
-          partial
-            ? {
-                id: item.id,
-                name: item.name,
-              }
-            : item,
-        ),
+        items: items.slice(0, limit).map((i) => this.mapper(i, partial)),
         total,
       },
     };
@@ -93,7 +94,7 @@ export class UsersService {
 
     return {
       status: HttpStatus.OK,
-      data: partial ? { id: user.id, name: user.name } : user,
+      data: this.mapper(user, partial),
     };
   }
 

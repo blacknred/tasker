@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ISaga } from 'src/workspaces/interfaces/saga.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { agentMock } from '../workspaces/workspace-response.dto';
+import { agentMock } from '../agents/agent-response.dto';
 
 export const sagaMock: ISaga = {
   id: '5r185c3vfb991ee66b486ccb',

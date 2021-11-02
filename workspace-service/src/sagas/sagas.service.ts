@@ -49,7 +49,7 @@ export class SagasService {
   async findAll({ limit, offset, ...rest }: GetSagasDto) {
     const [tasks, total] = await this.sagaRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Saga.searchable.includes(key) && rest[key])) return acc;
+        if (!(Saga.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
       }, {}),
@@ -142,7 +142,7 @@ export class SagasService {
         const sagaRepo = manager.getMongoRepository(Saga);
         const taskRepo = manager.getMongoRepository(Task);
 
-        await taskRepo.deleteMany({ sagaIds: [id] });
+        await taskRepo.updateMany({ sagaIds: [id] });
         await sagaRepo.delete(id);
       });
 

@@ -32,7 +32,9 @@ export class Saga {
   @Column({ nullable: true })
   expiresAt?: Date;
 
-  static readonly searchable = ['name', 'creatorId', 'createdAt', 'expiresAt'];
+  static isSearchable(column: string) {
+    return ['name', 'creatorId', 'createdAt', 'expiresAt'].includes(column);
+  }
 
   constructor(saga?: Partial<Saga>) {
     Object.assign(this, saga);

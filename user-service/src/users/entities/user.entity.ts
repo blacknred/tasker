@@ -20,7 +20,7 @@ export class User implements IUser {
   @Column({ length: 200 })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, update: false })
   email: string;
 
   @Exclude()
@@ -38,6 +38,7 @@ export class User implements IUser {
   @Index('user_createdAt_index')
   createdAt = new Date();
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt = new Date();
 
@@ -50,7 +51,13 @@ export class User implements IUser {
     this.password = await bcrypt.hash(this.password, 8);
   }
 
-  static readonly searchable = ['name', 'email', 'createdAt'];
+  static isSearchable(column: string) {
+    return ['name', 'email', 'createdAt'].includes(column);
+  }
+
+  static isSecured(column: string) {
+    return ['email', 'createdAt'].includes(column);
+  }
 
   constructor(user?: Partial<User>) {
     Object.assign(this, user);

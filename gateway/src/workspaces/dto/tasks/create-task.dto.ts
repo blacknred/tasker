@@ -26,4 +26,10 @@ export class CreateTaskDto {
 
   @ApiProperty({ example: '123234123424' })
   expiresAt?: string;
+
+  @ApiProperty({ example: '5r185c3vfb991ee66b486ccb', nullable: false })
+  workspaceId: string;
+
+  @ApiProperty({ example: '5r185c3vfb991ee66b486ccb' })
+  sagaId?: string;
 }

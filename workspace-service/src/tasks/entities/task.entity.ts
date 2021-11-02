@@ -10,7 +10,7 @@ import {
 import { Agent } from '../../workspaces/entities/agent.entity';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
-export class TaskUpdate {
+export class TaskHistoryUpdate {
   @Column({ nullable: true })
   label?: string;
 
@@ -56,8 +56,8 @@ export class Task {
   @Column({ array: true })
   sagaIds: ObjectID[];
 
-  @Column(() => TaskUpdate)
-  history: TaskUpdate[];
+  @Column(() => TaskHistoryUpdate)
+  history: TaskHistoryUpdate[];
 
   @CreateDateColumn()
   createdAt: Date;

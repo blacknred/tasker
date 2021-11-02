@@ -13,7 +13,7 @@ export enum TaskPriority {
   CRITICAL = 'CRITICAL',
 }
 
-export interface ITaskUpdate {
+export interface ITaskHistoryUpdate {
   label?: string;
   agent?: IAgent;
   createdAt: string;
@@ -26,7 +26,7 @@ export interface ITask {
   type: TaskType;
   priority: TaskPriority;
   creator: IAgent;
-  history: ITaskUpdate[];
+  history: ITaskHistoryUpdate[];
   workspaceId: string;
   sagaIds: string[];
   createdAt: string;

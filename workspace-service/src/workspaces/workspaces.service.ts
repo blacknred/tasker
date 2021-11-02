@@ -75,7 +75,7 @@ export class WorkspacesService {
 
     const [items, total] = await this.workspaceRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Workspace.searchable.includes(key) && rest[key])) return acc;
+        if (!(Workspace.isSearchable(key) && rest[key])) return acc;
         acc[key] = { $eq: rest[key] };
         return acc;
       }, where),
@@ -88,7 +88,10 @@ export class WorkspacesService {
       status: HttpStatus.OK,
       data: {
         hasMore: items.length === +limit + 1,
-        items: items.slice(0, limit),
+        items: items.slice(0, limit).map((item) => ({
+          me: this.findAgent(item.id, userId),
+          ...item,
+        })),
         total,
       },
     };

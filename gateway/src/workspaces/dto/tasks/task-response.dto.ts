@@ -1,7 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { ITask, TaskPriority, TaskType } from '../../interfaces/task.interface';
-import { agentMock } from '../workspaces/workspace-response.dto';
+import {
+  ITask,
+  ITaskHistoryUpdate,
+  TaskPriority,
+  TaskType,
+} from '../../interfaces/task.interface';
+import { agentMock } from '../agents/agent-response.dto';
+export const historyUpdateMock: ITaskHistoryUpdate = {
+  agent: agentMock,
+  createdAt: new Date().toDateString(),
+  label: 'TODO',
+};
 
 export const taskMock: ITask = {
   id: '5r185c3vfb991ee66b486ccb',
@@ -12,13 +22,7 @@ export const taskMock: ITask = {
   creator: agentMock,
   workspaceId: '5r185c3vfb991ee66b486ccb',
   sagaIds: ['5r185c3vfb991ee66b486ccb'],
-  history: [
-    {
-      agent: agentMock,
-      createdAt: new Date().toDateString(),
-      label: 'TODO',
-    },
-  ],
+  history: [historyUpdateMock],
   createdAt: new Date().toDateString(),
 };
 
