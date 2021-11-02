@@ -1,5 +1,11 @@
 import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
-import { IsOptional, Min, IsIn, IsDateString } from 'class-validator';
+import {
+  IsOptional,
+  Min,
+  IsIn,
+  IsDateString,
+  IsBoolean,
+} from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 import { Type } from 'class-transformer';
 
@@ -36,4 +42,8 @@ export class GetUsersDto extends IntersectionType(
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   createdAt?: string;
+
+  @IsOptional()
+  @IsBoolean({ message: 'Must be a boolean' })
+  partial?: boolean;
 }

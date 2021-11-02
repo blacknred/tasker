@@ -1,6 +1,7 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AgentGuard } from 'src/__shared__/guards/access.guard';
+import { Agent } from 'src/__shared__/decorators/agent.decorator';
+import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspaceDto } from './dto/get-workspace.dto';
@@ -23,7 +24,6 @@ export class WorkspacesController {
     return this.workspacesService.create(createWorkspaceDto);
   }
 
-  // Access
   @MessagePattern('getAll')
   async getAll(
     @Payload() getWorkspacesDto: GetWorkspacesDto,
@@ -31,20 +31,22 @@ export class WorkspacesController {
     return this.workspacesService.findAll(getWorkspacesDto);
   }
 
-  // Access
+  @UseGuards(AgentGuard)
   @MessagePattern('getOne')
   async getOne(
-    @Payload() { id, userId }: GetWorkspaceDto,
+    @Agent() agent,
+    @Payload() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspacesService.findOne(id, userId);
+    return this.workspacesService.findOne(id, agent);
   }
 
-  // Access, EDIT_WORKSPACE
+  @UseGuards(AgentGuard)
   @MessagePattern('update')
   async update(
-    @Payload() { id, ...rest }: UpdateWorkspaceDto,
+    @Agent('role') role,
+    @Payload() updateWorkspaceDto: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspacesService.update(id, rest);
+    return this.workspacesService.update(updateWorkspaceDto, role);
   }
 
   @MessagePattern('delete')

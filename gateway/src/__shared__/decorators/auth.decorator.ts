@@ -1,9 +1,10 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { IAuth } from 'src/auth/interfaces/auth.interface';
 
 export const Auth = createParamDecorator(
-  (data: string, ctx: ExecutionContext) => {
+  (prop: keyof IAuth, ctx: ExecutionContext) => {
     const { user } = ctx.switchToHttp().getRequest();
 
-    return data ? user?.[data] : user;
+    return prop ? user?.[prop] : user;
   },
 );

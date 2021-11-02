@@ -7,6 +7,6 @@ export interface ISaga {
   description?: string;
   creator: IAgent;
   workspaceId: ObjectID;
-  createdAt: string;
-  expiresAt?: string;
+  createdAt: Date;
+  expiresAt?: Date;
 }

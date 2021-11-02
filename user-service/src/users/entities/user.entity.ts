@@ -50,6 +50,8 @@ export class User implements IUser {
     this.password = await bcrypt.hash(this.password, 8);
   }
 
+  static readonly searchable = ['name', 'email', 'createdAt'];
+
   constructor(user?: Partial<User>) {
     Object.assign(this, user);
   }

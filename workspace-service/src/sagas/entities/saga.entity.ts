@@ -32,6 +32,8 @@ export class Saga {
   @Column({ nullable: true })
   expiresAt?: Date;
 
+  static readonly searchable = ['name', 'creatorId', 'createdAt', 'expiresAt'];
+
   constructor(saga?: Partial<Saga>) {
     Object.assign(this, saga);
   }

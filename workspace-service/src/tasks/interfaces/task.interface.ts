@@ -30,6 +30,6 @@ export interface ITask {
   history: ITaskUpdate[];
   workspaceId: ObjectID;
   sagaIds: ObjectID[];
-  createdAt: string;
-  expiresAt?: string;
+  createdAt: Date;
+  expiresAt?: Date;
 }

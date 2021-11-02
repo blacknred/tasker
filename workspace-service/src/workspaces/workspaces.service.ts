@@ -1,27 +1,19 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import {
-  ObjectID,
-  Repository,
-  MongoRepository,
-  AggregationCursor,
-  Connection,
-} from 'typeorm';
-import {
-  TASK_REPOSITORY,
-  WORKER_SERVICE,
-  WORKSPACE_REPOSITORY,
-} from './consts';
-import { CreateTaskDto, CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { GetTasksDto } from './dto/get-workspaces.dto';
-import { ResponseDto } from './dto/response.dto';
-import { UpdateTaskDto } from './dto/update-workspace.dto';
+import { RpcException } from '@nestjs/microservices';
+import { Saga } from 'src/sagas/entities/saga.entity';
+import { ResponseDto } from 'src/__shared__/dto/response.dto';
+import { Connection, MongoRepository, ObjectID } from 'typeorm';
 import { Task } from '../tasks/entities/task.entity';
-import { Workspace } from './entities/workspace.entity';
-import { IRole } from './interfaces/role.interface';
+import { WORKSPACE_REPOSITORY } from './consts';
+import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { GetWorkspacesDto } from './dto/get-workspaces.dto';
+import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Agent } from './entities/agent.entity';
 import { Admin } from './entities/role.entity';
-import { Saga } from 'src/sagas/entities/saga.entity';
+import { Workspace } from './entities/workspace.entity';
+import { IAgent } from './interfaces/agent.interface';
+import { IRole, Privilege } from './interfaces/role.interface';
+import { IWorkspace } from './interfaces/workspace.interface';
 
 @Injectable()
 export class WorkspacesService {
@@ -32,10 +24,6 @@ export class WorkspacesService {
     private workspaceRepository: MongoRepository<Workspace>,
     private connection: Connection,
   ) {}
-
-  private hasColumn(key: string) {
-    return this.workspaceRepository.metadata.hasColumnWithPropertyPath(key);
-  }
 
   async findAgent(id: ObjectID, userId: number): Promise<Agent> {
     return this.workspaceRepository
@@ -61,12 +49,12 @@ export class WorkspacesService {
 
   //
 
-  async create({ creator, ...rest }: CreateWorkspaceDto) {
+  async create({ userId, userName, ...rest }: CreateWorkspaceDto) {
     try {
       const workspace = this.workspaceRepository.create(rest);
-
-      workspace.agents.push(new Agent({ ...creator, role: Admin }));
-      workspace.creatorId = creator.userId;
+      const agent = new Agent({ userId, userName, role: Admin });
+      workspace.agents.push(agent);
+      workspace.creatorId = userId;
 
       const data = await this.workspaceRepository.save(workspace);
       data.id = data.id.toString() as unknown as ObjectID;
@@ -82,13 +70,15 @@ export class WorkspacesService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetTasksDto) {
-    const [tasks, total] = await this.workspaceRepository.findAndCount({
+  async findAll({ limit, offset, userId, ...rest }: GetWorkspacesDto) {
+    const where = userId ? { 'agents.userId': { $eq: userId } } : {};
+
+    const [items, total] = await this.workspaceRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(this.hasColumn(key) && rest[key])) return acc;
-        acc[key] = rest[key];
+        if (!(Workspace.searchable.includes(key) && rest[key])) return acc;
+        acc[key] = { $eq: rest[key] };
         return acc;
-      }, {}),
+      }, where),
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       skip: +offset,
       take: +limit + 1,
@@ -97,44 +87,44 @@ export class WorkspacesService {
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: tasks.length === +limit + 1,
-        items: tasks.slice(0, limit),
+        hasMore: items.length === +limit + 1,
+        items: items.slice(0, limit),
         total,
       },
     };
   }
 
-  async findOne(id: ObjectID, userId: number) {
-    const task = await this.workspaceRepository.findOne(id);
+  async findOne(id: ObjectID, me?: IAgent) {
+    const workspace = await this.workspaceRepository.findOne(id);
 
-    if (!task) {
+    if (!workspace) {
       return {
         status: HttpStatus.NOT_FOUND,
         data: null,
       };
     }
 
-    if (userId != null && task.userId !== userId) {
-      return {
-        status: HttpStatus.FORBIDDEN,
-        data: null,
-      };
-    }
-
     return {
       status: HttpStatus.OK,
-      data: task,
+      data: me ? { ...workspace, me } : workspace,
     };
   }
 
-  async update(id: ObjectID, updateTaskDto: UpdateTaskDto) {
+  async update({ id, ...rest }: UpdateWorkspaceDto, role: IRole) {
     try {
-      const res = await this.findOne(id, updateTaskDto.userId);
+      const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
-      const updatedTask = Object.assign(res.data, updateTaskDto) as Task;
-      await this.workspaceRepository.update(id, updateTaskDto);
-      // this.workerService.emit('new-task', data);
+      if (!role.privileges.includes(Privilege.EDIT_WORKSPACE)) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
+
+      const updatedTask = Object.assign(res.data, rest) as IWorkspace;
+      await this.workspaceRepository.update(id, rest);
+
       return {
         status: HttpStatus.OK,
         data: updatedTask,
@@ -148,22 +138,23 @@ export class WorkspacesService {
 
   async remove(id: ObjectID, userId: number) {
     try {
-      // const res = await this.findOne(id, userId);
-      // if (!res.data) return res as ResponseDto;
-      // if (res.data.creatorId !== userId) {
-      //   return {
-      //     status: HttpStatus.FORBIDDEN,
-      //     data: null,
-      //   };
-      // }
+      const res = await this.findOne(id);
+      if (!res.data) return res as ResponseDto;
+
+      if (res.data.creatorId !== userId) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
 
       await this.connection.transaction(async (manager) => {
         const workspaceRepo = manager.getMongoRepository(Workspace);
         const sagaRepo = manager.getMongoRepository(Saga);
         const taskRepo = manager.getMongoRepository(Task);
 
-        await taskRepo.delete({ workspaceId: id });
-        await sagaRepo.delete({ workspaceId: id });
+        await taskRepo.deleteMany({ workspaceId: id });
+        await sagaRepo.deleteMany({ workspaceId: id });
         await workspaceRepo.delete(id);
       });
 

@@ -26,14 +26,16 @@ export class UsersController {
   }
 
   @MessagePattern('getOne')
-  getOne(@Payload() { id, ...rest }: GetUserDto): Promise<UserResponseDto> {
-    if (id) return this.usersService.findOne(id);
+  getOne(
+    @Payload() { id, partial, ...rest }: GetUserDto,
+  ): Promise<UserResponseDto> {
+    if (id) return this.usersService.findOne(id, partial);
     return this.usersService.findOneValidated(rest);
   }
 
   @MessagePattern('update')
   update(@Payload() updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-    return this.usersService.update(updateUserDto.id, updateUserDto);
+    return this.usersService.update(updateUserDto);
   }
 
   @MessagePattern('delete')

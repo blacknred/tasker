@@ -6,5 +6,5 @@ export interface IAgent {
   userId: number;
   userName: string;
   role: IRole;
-  createdAt: string;
+  createdAt: Date;
 }

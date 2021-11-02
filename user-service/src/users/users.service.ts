@@ -18,10 +18,6 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  private hasColumn(key: string) {
-    return this.userRepository.metadata.hasColumnWithPropertyPath(key);
-  }
-
   async create(createUserDto: CreateUserDto) {
     try {
       const emailInUse = await this.userRepository.findOne({
@@ -55,10 +51,10 @@ export class UsersService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetUsersDto) {
-    const [users, total] = await this.userRepository.findAndCount({
+  async findAll({ limit, offset, partial, ...rest }: GetUsersDto) {
+    const [items, total] = await this.userRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(this.hasColumn(key) && rest[key])) return acc;
+        if (!(User.searchable.includes(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
       }, {}),
@@ -71,14 +67,21 @@ export class UsersService {
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: users.length === limit + 1,
-        items: users.slice(0, limit),
+        hasMore: items.length === limit + 1,
+        items: items.slice(0, limit).map((item) =>
+          partial
+            ? {
+                id: item.id,
+                name: item.name,
+              }
+            : item,
+        ),
         total,
       },
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, partial?: boolean) {
     const user = await this.userRepository.findOne(id, { withDeleted: false });
 
     if (!user) {
@@ -90,7 +93,7 @@ export class UsersService {
 
     return {
       status: HttpStatus.OK,
-      data: user,
+      data: partial ? { id: user.id, name: user.name } : user,
     };
   }
 
@@ -136,13 +139,13 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update({ id, ...rest }: UpdateUserDto) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res;
 
-      const updatedUser = Object.assign(res.data, updateUserDto) as User;
-      await this.userRepository.update(id, updateUserDto);
+      const updatedUser = Object.assign(res.data, rest) as User;
+      await this.userRepository.update(id, rest);
 
       return {
         status: HttpStatus.OK,

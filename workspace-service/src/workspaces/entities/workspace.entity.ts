@@ -41,6 +41,8 @@ export class Workspace {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  static readonly searchable = ['name', 'creatorId', 'createdAt'];
+
   constructor(workspace?: Partial<Workspace>) {
     this.labels.unshift(...Object.values(BaseLabel));
     this.roles.unshift(Admin, Worker);

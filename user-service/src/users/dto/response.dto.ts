@@ -18,6 +18,6 @@ export class ResponseDto<T = null> {
   data?: T;
 }
 
-export class UserResponseDto extends ResponseDto<IUser> {}
+export class UserResponseDto extends ResponseDto<Partial<IUser>> {}
 
-export class UsersResponseDto extends ResponseDto<Paginated<IUser>> {}
+export class UsersResponseDto extends ResponseDto<Paginated<Partial<IUser>>> {}

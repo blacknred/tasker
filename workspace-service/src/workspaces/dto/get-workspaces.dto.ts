@@ -1,12 +1,11 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
 import { IsDateString, IsIn, IsNumber, IsOptional } from 'class-validator';
 import { PaginationDto, SortingDto } from '../../__shared__/dto/request.dto';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
 class WorkspaceSortingDto extends SortingDto {
   @IsOptional()
-  @Type(() => String)
+  // @Type(() => String)
   @IsIn(['name', 'creatorId', 'createdAt'], {
     message: 'Must be a one of fields of the Workspace entity',
   })
@@ -14,8 +13,7 @@ class WorkspaceSortingDto extends SortingDto {
 }
 
 export class GetWorkspacesDto extends IntersectionType(
-  PartialType(PickType(CreateWorkspaceDto, ['name'])),
-  PickType(CreateWorkspaceDto, ['userId']),
+  PartialType(PickType(CreateWorkspaceDto, ['name', 'userId'])),
   PaginationDto,
   WorkspaceSortingDto,
 ) {

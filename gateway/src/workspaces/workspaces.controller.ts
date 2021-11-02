@@ -95,11 +95,11 @@ export class WorkspacesController {
   @Get()
   @WithOkApi(WorkspacesResponseDto, 'List workspaces')
   async getAll(
-    @Auth('user') { id: userId },
+    @Auth('user') { id: userId, isAdmin },
     @Query() getWorkspacesDto: GetWorkspacesDto,
   ): Promise<WorkspacesResponseDto> {
     return this.workspaceRepository
-      .send('getAll', { ...getWorkspacesDto, userId })
+      .send('getAll', { ...getWorkspacesDto, userId: isAdmin ? null : userId })
       .toPromise();
   }
 

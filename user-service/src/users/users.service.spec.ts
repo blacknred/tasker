@@ -202,15 +202,13 @@ describe('UsersService', () => {
   describe('When updating one', () => {
     it('should update existing user in database', async () => {
       const params: UpdateUserDto = { id: 1, name: 'supertestname' };
-      await expect(service.update(1, params)).resolves.toEqual<UserResponseDto>(
-        {
-          status: HttpStatus.OK,
-          data: {
-            ...mockUser,
-            name: 'supertestname',
-          },
+      await expect(service.update(params)).resolves.toEqual<UserResponseDto>({
+        status: HttpStatus.OK,
+        data: {
+          ...mockUser,
+          name: 'supertestname',
         },
-      );
+      });
 
       expect(repository.update).toHaveBeenCalled();
       expect(repository.update).toBeCalledWith(1, params);

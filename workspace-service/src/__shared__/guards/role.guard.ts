@@ -2,7 +2,7 @@ import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RpcException } from '@nestjs/microservices';
 import { ROLES_KEY } from '../consts';
-import { AccessGuard } from './access.guard';
+import { AccessGuard } from './agent.guard';
 
 @Injectable()
 export class RoleGuard extends AccessGuard {
@@ -23,7 +23,7 @@ export class RoleGuard extends AccessGuard {
 
       return (
         super.canActivate(context) &&
-        agent.roles.some((role) => roles.includes(role))
+        agent.role.some((role) => roles.includes(role))
       );
     } catch (_) {
       throw new RpcException({

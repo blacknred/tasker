@@ -16,6 +16,7 @@ export interface IWorkspace {
   labels: string[];
   roles: IRole[];
   agents: IAgent[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+  me?: IAgent;
 }

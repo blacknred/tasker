@@ -49,8 +49,13 @@ export class UsersController {
   @Get()
   @WithAuth()
   @WithOkApi(UsersResponseDto, 'List all users')
-  async getAll(@Query() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
-    return this.userService.send('getAll', getUsersDto).toPromise();
+  async getAll(
+    @Auth('user') { isAdmin },
+    @Query() getUsersDto: GetUsersDto,
+  ): Promise<UsersResponseDto> {
+    return this.userService
+      .send('getAll', { ...getUsersDto, partial: !isAdmin })
+      .toPromise();
   }
 
   @Get(':id')
