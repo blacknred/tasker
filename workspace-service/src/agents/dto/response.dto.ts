@@ -2,8 +2,8 @@ import {
   PaginatedResponseDto,
   ResponseDto,
 } from '../../__shared__/dto/response.dto';
-import { IWorkspace } from '../interfaces/workspace.interface';
+import { IAgent } from '../interfaces/agent.interface';
 
-export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {}
+export class AgentResponseDto extends ResponseDto<IAgent> {}
 
-export class WorkspacesResponseDto extends PaginatedResponseDto<IWorkspace> {}
+export class AgentsResponseDto extends PaginatedResponseDto<IAgent> {}

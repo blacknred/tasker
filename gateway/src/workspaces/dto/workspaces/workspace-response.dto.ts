@@ -19,7 +19,7 @@ export const workspaceMock: IWorkspace = {
   roles: [roleMock],
   createdAt: new Date().toDateString(),
   updatedAt: new Date().toDateString(),
-  me: agentMock,
+  agent: agentMock,
 };
 
 export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {

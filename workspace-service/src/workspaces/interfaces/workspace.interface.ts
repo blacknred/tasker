@@ -1,5 +1,5 @@
+import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ObjectID } from 'typeorm';
-import { IAgent } from './agent.interface';
 import { IRole } from './role.interface';
 
 export enum BaseLabel {
@@ -15,8 +15,8 @@ export interface IWorkspace {
   creatorId: number;
   labels: string[];
   roles: IRole[];
-  agents: IAgent[];
   createdAt: Date;
   updatedAt: Date;
-  me?: IAgent;
+  //
+  agent?: IAgent;
 }

@@ -12,11 +12,8 @@ import { Privilege } from '../interfaces/role.interface';
 
 export class WorkspaceRoleDto {
   @MinLength(5, { message: 'Must include atleast 5 chars' })
+  @MaxLength(100, { message: 'Must include no more than 100 chars' })
   name: string;
-
-  @IsOptional()
-  @IsString({ message: 'Must be a string' })
-  description?: string;
 
   @IsOptional()
   @IsEnum(Privilege, {
@@ -44,8 +41,6 @@ export class CreateWorkspaceDto {
   @ValidateNested({ each: true })
   @Type(() => WorkspaceRoleDto)
   roles?: WorkspaceRoleDto[];
-
-  //
 
   @IsNumber({}, { message: 'Must be an integer' })
   userId: number;

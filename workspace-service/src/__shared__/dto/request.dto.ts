@@ -34,8 +34,8 @@ export class PaginationDto {
 
 export class AccessDto {
   @IsMongoId({ message: 'Invalid identificator' })
-  workspaceId: ObjectID;
+  wid: ObjectID;
 
   @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
+  uid: number;
 }

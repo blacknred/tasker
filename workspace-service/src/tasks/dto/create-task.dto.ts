@@ -1,12 +1,14 @@
 import {
   IsDateString,
   IsEnum,
+  IsMongoId,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
+import { ObjectID } from 'typeorm';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
 export class CreateTaskDto extends AccessDto {
@@ -32,4 +34,8 @@ export class CreateTaskDto extends AccessDto {
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   expiresAt?: string;
+
+  @IsOptional()
+  @IsMongoId({ message: 'Invalid identificator' })
+  sagaId?: ObjectID;
 }

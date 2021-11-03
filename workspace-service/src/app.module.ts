@@ -1,11 +1,10 @@
 import * as Joi from '@hapi/joi';
-import { Module, Scope } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AgentsModule } from './agents/agents.module';
 import { SagasModule } from './sagas/sagas.module';
 import { TasksModule } from './tasks/tasks.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
-import { AgentInterceptor } from './__shared__/interceptors/agent.interceptor';
 import { databaseProvider } from './__shared__/providers/database.provider';
 
 @Module({
@@ -17,6 +16,7 @@ import { databaseProvider } from './__shared__/providers/database.provider';
       }),
     }),
     WorkspacesModule,
+    AgentsModule,
     SagasModule,
     TasksModule,
   ],

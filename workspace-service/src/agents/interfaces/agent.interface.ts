@@ -1,10 +1,11 @@
+import { IRole } from 'src/workspaces/interfaces/role.interface';
 import { ObjectID } from 'typeorm';
-import { IRole } from './role.interface';
 
 export interface IAgent {
   id: ObjectID;
+  workspaceId: ObjectID;
   userId: number;
   userName: string;
-  role: IRole;
   createdAt: Date;
+  role?: IRole;
 }

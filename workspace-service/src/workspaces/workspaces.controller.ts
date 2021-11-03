@@ -43,16 +43,14 @@ export class WorkspacesController {
   @UseGuards(AgentGuard)
   @MessagePattern('update')
   async update(
-    @Agent('role') role,
+    @Agent() agent,
     @Payload() updateWorkspaceDto: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspacesService.update(updateWorkspaceDto, role);
+    return this.workspacesService.update(updateWorkspaceDto, agent);
   }
 
   @MessagePattern('delete')
-  async remove(
-    @Payload() { id, userId }: GetWorkspaceDto,
-  ): Promise<ResponseDto> {
-    return this.workspacesService.remove(id, userId);
+  async remove(@Payload() { id, uid }: GetWorkspaceDto): Promise<ResponseDto> {
+    return this.workspacesService.remove(id, uid);
   }
 }

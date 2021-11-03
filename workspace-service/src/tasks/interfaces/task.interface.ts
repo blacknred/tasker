@@ -26,10 +26,10 @@ export interface ITask {
   description?: string;
   type: TaskType;
   priority: TaskPriority;
-  creator: IAgent;
   history: ITaskHistoryUpdate[];
   workspaceId: ObjectID;
   sagaIds: ObjectID[];
   createdAt: Date;
   expiresAt?: Date;
+  creator: IAgent;
 }

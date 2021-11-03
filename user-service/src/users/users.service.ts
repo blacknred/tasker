@@ -1,4 +1,3 @@
-import { object } from '@hapi/joi';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,7 +18,7 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  private mapper<T>(obj: T, isPartial?: boolean): Partial<T> {
+  private fieldMapper<T>(obj: T, isPartial?: boolean): Partial<T> {
     return Object.keys(obj).reduce((o, k) => {
       if (!isPartial || !User.isSecured(k)) o[k] = obj[k];
       return o;
@@ -28,11 +27,11 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const emailInUse = await this.userRepository.findOne({
+      const inUse = await this.userRepository.findOne({
         email: createUserDto.email,
       });
 
-      if (emailInUse) {
+      if (inUse) {
         return {
           status: HttpStatus.CONFLICT,
           errors: [
@@ -76,7 +75,7 @@ export class UsersService {
       status: HttpStatus.OK,
       data: {
         hasMore: items.length === limit + 1,
-        items: items.slice(0, limit).map((i) => this.mapper(i, partial)),
+        items: items.slice(0, limit).map((i) => this.fieldMapper(i, partial)),
         total,
       },
     };
@@ -94,7 +93,7 @@ export class UsersService {
 
     return {
       status: HttpStatus.OK,
-      data: this.mapper(user, partial),
+      data: this.fieldMapper(user, partial),
     };
   }
 
@@ -145,12 +144,11 @@ export class UsersService {
       const res = await this.findOne(id);
       if (!res.data) return res;
 
-      const updatedUser = Object.assign(res.data, rest) as User;
       await this.userRepository.update(id, rest);
 
       return {
         status: HttpStatus.OK,
-        data: updatedUser,
+        data: { ...res.data, ...rest },
       };
     } catch (e) {
       throw new RpcException({

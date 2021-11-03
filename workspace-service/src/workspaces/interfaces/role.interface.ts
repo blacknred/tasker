@@ -1,3 +1,5 @@
+import { ObjectID } from 'typeorm';
+
 export enum Privilege {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
   CREATE_AGENT = 'CREATE_AGENT',
@@ -20,7 +22,7 @@ export enum BaseRole {
 }
 
 export interface IRole {
+  id: ObjectID;
   name: string;
-  description?: string;
-  privileges: Privilege[];
+  privileges?: Privilege[];
 }

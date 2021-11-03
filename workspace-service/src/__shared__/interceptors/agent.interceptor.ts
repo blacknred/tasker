@@ -17,12 +17,12 @@ export class AgentInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<unknown>> {
-    const { workspaceId, id, userId } = context.switchToRpc().getData();
-    const wid = (workspaceId | id) as unknown as ObjectID;
+    const { wid, id, uid } = context.switchToRpc().getData();
+    const workspaceId = (wid | id) as unknown as ObjectID;
 
-    if (wid && userId) {
+    if (workspaceId && uid) {
       context.switchToRpc().getContext().agent =
-        await this.workspacesService.findAgent(wid, userId);
+        await this.workspacesService.findAgent(workspaceId, uid);
     }
 
     return next.handle();

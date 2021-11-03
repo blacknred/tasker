@@ -1,7 +1,7 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { Task } from 'src/tasks/entities/task.entity';
-import { IAgent } from 'src/workspaces/interfaces/agent.interface';
 import { Privilege } from 'src/workspaces/interfaces/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { Connection, ObjectID, Repository } from 'typeorm';
@@ -10,7 +10,6 @@ import { CreateSagaDto } from './dto/create-saga.dto';
 import { GetSagasDto } from './dto/get-sagas.dto';
 import { UpdateSagaDto } from './dto/update-saga.dto';
 import { Saga } from './entities/saga.entity';
-import { ISaga } from './interfaces/saga.interface';
 
 @Injectable()
 export class SagasService {
@@ -29,6 +28,7 @@ export class SagasService {
           data: null,
         };
       }
+      createSagaDto['']
 
       const saga = this.sagaRepository.create(createSagaDto);
       saga.creator = agent;
@@ -46,13 +46,19 @@ export class SagasService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetSagasDto) {
+  async findAll({ limit, offset, ...rest }: GetSagasDto, agent: IAgent) {
+    const where = { workspaceId: agent.workspaceId };
+
+    if (!agent.role.privileges.includes(Privilege.READ_ANY_SAGA)) {
+      where['creator.id'] = agent.id;
+    }
+
     const [tasks, total] = await this.sagaRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
         if (!(Saga.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
-      }, {}),
+      }, where),
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       skip: +offset,
       take: +limit + 1,
@@ -79,7 +85,7 @@ export class SagasService {
     }
 
     if (
-      saga.creator !== agent &&
+      saga.creator.id !== agent.id &&
       !agent.role.privileges.includes(Privilege.READ_ANY_SAGA)
     ) {
       return {
@@ -100,7 +106,7 @@ export class SagasService {
       if (!res.data) return res as ResponseDto;
 
       if (
-        res.data.creator !== agent &&
+        res.data.creator.id !== agent.id &&
         !agent.role.privileges.includes(Privilege.EDIT_ANY_SAGA)
       ) {
         return {
@@ -109,7 +115,7 @@ export class SagasService {
         };
       }
 
-      const updatedSaga = Object.assign(res.data, rest) as ISaga;
+      const updatedSaga = Object.assign(res.data, rest);
       await this.sagaRepository.update(id, updatedSaga);
 
       return {
@@ -129,7 +135,7 @@ export class SagasService {
       if (!res.data) return res as ResponseDto;
 
       if (
-        res.data.creator !== agent &&
+        res.data.creator.id !== agent.id &&
         !agent.role.privileges.includes(Privilege.DELETE_ANY_SAGA)
       ) {
         return {
@@ -142,8 +148,11 @@ export class SagasService {
         const sagaRepo = manager.getMongoRepository(Saga);
         const taskRepo = manager.getMongoRepository(Task);
 
-        await taskRepo.updateMany({ sagaIds: [id] });
         await sagaRepo.delete(id);
+        await taskRepo.updateMany(
+          { sagaIds: id },
+          { $unset: { 'sagaIds.$': 1 } },
+        );
       });
 
       return {

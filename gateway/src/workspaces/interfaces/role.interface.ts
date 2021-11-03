@@ -17,5 +17,5 @@ export enum Privilege {
 export interface IRole {
   id: string;
   name: string;
-  privileges: Privilege[];
+  privileges?: Privilege[];
 }

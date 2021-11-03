@@ -11,5 +11,5 @@ export interface IWorkspace {
   createdAt: string;
   updatedAt: string;
   //
-  me?: IAgent;
+  agent?: IAgent;
 }

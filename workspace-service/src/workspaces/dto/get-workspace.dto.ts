@@ -5,8 +5,6 @@ export class GetWorkspaceDto {
   @IsMongoId({ message: 'Invalid identificator' })
   id: ObjectID;
 
-  //
-
   @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
+  uid: number;
 }

@@ -8,7 +8,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BaseLabel } from '../interfaces/workspace.interface';
-import { Agent } from './agent.entity';
 import { Admin, Role, Worker } from './role.entity';
 
 @Entity()
@@ -31,9 +30,6 @@ export class Workspace {
 
   @Column(() => Role)
   roles: Role[];
-
-  @Column(() => Agent)
-  agents: Agent[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,13 +1,15 @@
 import { Exclude, Transform } from 'class-transformer';
+import { Agent } from 'src/agents/entities/agent.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ObjectID,
   ObjectIdColumn,
+  OneToOne,
 } from 'typeorm';
-import { Agent } from '../../workspaces/entities/agent.entity';
 import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
 export class TaskHistoryUpdate {
@@ -47,9 +49,6 @@ export class Task {
   })
   priority: TaskPriority;
 
-  @Column(() => Agent)
-  creator: Agent;
-
   @Column()
   workspaceId: ObjectID;
 
@@ -68,6 +67,10 @@ export class Task {
   @Exclude()
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToOne(() => Agent, { eager: true })
+  @JoinColumn()
+  creator: Agent;
 
   constructor(task?: Partial<Task>) {
     Object.assign(this, task);

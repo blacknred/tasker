@@ -7,6 +7,7 @@ import {
   TaskType,
 } from '../../interfaces/task.interface';
 import { agentMock } from '../agents/agent-response.dto';
+
 export const historyUpdateMock: ITaskHistoryUpdate = {
   agent: agentMock,
   createdAt: new Date().toDateString(),
