@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { BaseLabel, BaseStage } from 'src/tasks/interfaces/task.interface';
 import {
   Column,
   CreateDateColumn,
@@ -7,8 +8,6 @@ import {
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { BaseLabel } from '../interfaces/workspace.interface';
-import { Admin, Role, Worker } from './role.entity';
 
 @Entity()
 export class Workspace {
@@ -22,14 +21,17 @@ export class Workspace {
   @Column({ nullable: true })
   description?: string;
 
-  @Column()
-  creatorId: number;
+  @Column({ array: true })
+  taskStages: string[];
 
   @Column({ array: true })
-  labels: string[];
+  taskLabels: string[];
 
-  @Column(() => Role)
-  roles: Role[];
+  @Column()
+  doneStage: string;
+
+  @Column()
+  creatorId: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -42,8 +44,8 @@ export class Workspace {
   }
 
   constructor(workspace?: Partial<Workspace>) {
-    this.labels.unshift(...Object.values(BaseLabel));
-    this.roles.unshift(Admin, Worker);
+    this.taskStages.unshift(...Object.values(BaseStage));
+    this.taskLabels.unshift(...Object.values(BaseLabel));
 
     Object.assign(this, workspace);
   }

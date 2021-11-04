@@ -25,4 +25,5 @@ export interface IRole {
   id: ObjectID;
   name: string;
   privileges?: Privilege[];
+  workspaceId: ObjectID;
 }

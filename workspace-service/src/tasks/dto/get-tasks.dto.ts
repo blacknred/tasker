@@ -9,26 +9,40 @@ import {
 } from '../../__shared__/dto/request.dto';
 import { CreateTaskDto } from './create-task.dto';
 
-class TaskSortingDto extends SortingDto {
+class TasksSortingDto extends SortingDto {
   @IsOptional()
   @Type(() => String)
-  @IsIn(['name', 'type', 'priority', 'creator', 'createdAt', 'expiresAt'], {
-    message: 'Must be a one of fields of the Task entity',
-  })
+  @IsIn(
+    [
+      'name',
+      'stage',
+      'label',
+      'createdAt',
+      'expiresAt',
+      'creatorId',
+      'assigneeId',
+      'sagaId',
+    ],
+    {
+      message: 'Must be a one of fields of the Task entity',
+    },
+  )
   'sort.field'?:
     | 'name'
-    | 'type'
-    | 'priority'
-    | 'creator'
+    | 'stage'
+    | 'label'
     | 'createdAt'
-    | 'expiresAt';
+    | 'expiresAt'
+    | 'creatorId'
+    | 'assigneeId'
+    | 'sagaId';
 }
 
 export class GetTasksDto extends IntersectionType(
   PartialType(OmitType(CreateTaskDto, ['description'])),
   AccessDto,
   PaginationDto,
-  TaskSortingDto,
+  TasksSortingDto,
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
   creatorId: ObjectID;
@@ -36,4 +50,7 @@ export class GetTasksDto extends IntersectionType(
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   createdAt?: string;
+
+  @IsMongoId({ message: 'Invalid identificator' })
+  sagaId: ObjectID;
 }

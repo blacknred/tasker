@@ -5,31 +5,31 @@ import { Agent } from 'src/__shared__/decorators/agent.decorator';
 import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
-import { AgentsService } from './agents.service';
-import { CreateAgentDto } from './dto/create-agent.dto';
-import { GetAgentDto } from './dto/get-agent.dto';
-import { GetAgentsDto } from './dto/get-agents.dto';
+import { RolesService } from './roles.service';
+import { CreateAgentDto } from './dto/create-role.dto';
+import { GetAgentDto } from './dto/get-role.dto';
+import { GetAgentsDto } from './dto/get-roles.dto';
 import { AgentResponseDto, AgentsResponseDto } from './dto/response.dto';
-import { UpdateAgentDto } from './dto/update-agent.dto';
+import { UpdateAgentDto } from './dto/update-role.dto';
 
 @Controller()
 @UseGuards(AgentGuard)
-export class AgentsController {
-  constructor(private readonly agentsService: AgentsService) {}
+export class RolesController {
+  constructor(private readonly rolesService: RolesService) {}
 
   @WithPrivilege(Privilege.CREATE_AGENT)
   @MessagePattern('create')
   async create(
     @Payload() createAgentDto: CreateAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.agentsService.create(createAgentDto);
+    return this.rolesService.create(createAgentDto);
   }
 
   @MessagePattern('getAll')
   async getAll(
     @Payload() getAgentsDto: GetAgentsDto,
   ): Promise<AgentsResponseDto> {
-    return this.agentsService.findAll(getAgentsDto);
+    return this.rolesService.findAll(getAgentsDto);
   }
 
   @MessagePattern('getOne')
@@ -37,7 +37,7 @@ export class AgentsController {
     @Agent() agent,
     @Payload() { id }: GetAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.agentsService.findOne(id, agent);
+    return this.rolesService.findOne(id, agent);
   }
 
   @MessagePattern('update')
@@ -45,7 +45,7 @@ export class AgentsController {
     @Agent() agent,
     @Payload() updateAgentDto: UpdateAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.agentsService.update(updateAgentDto, agent);
+    return this.rolesService.update(updateAgentDto, agent);
   }
 
   @MessagePattern('delete')
@@ -53,6 +53,6 @@ export class AgentsController {
     @Agent() agent,
     @Payload() { id }: GetAgentDto,
   ): Promise<ResponseDto> {
-    return this.agentsService.remove(id, agent);
+    return this.rolesService.remove(id, agent);
   }
 }

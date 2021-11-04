@@ -2,7 +2,7 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { Task } from 'src/tasks/entities/task.entity';
-import { Privilege } from 'src/workspaces/interfaces/role.interface';
+import { Privilege } from 'src/roles/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { Connection, ObjectID, Repository } from 'typeorm';
 import { SAGA_REPOSITORY } from './consts';

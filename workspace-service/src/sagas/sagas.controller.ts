@@ -1,6 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/workspaces/interfaces/role.interface';
+import { Privilege } from 'src/roles/role.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
 import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';

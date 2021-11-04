@@ -10,9 +10,9 @@ import { WORKSPACE_REPOSITORY } from './consts';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspacesDto } from './dto/get-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { Admin, Role } from './entities/role.entity';
+import { Admin, Role } from '../roles/entities/role.entity';
 import { Workspace } from './entities/workspace.entity';
-import { Privilege } from './interfaces/role.interface';
+import { Privilege } from '../roles/role.interface';
 
 @Injectable()
 export class WorkspacesService {

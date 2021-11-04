@@ -4,25 +4,25 @@ import { Privilege } from 'src/roles/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { MongoRepository, ObjectID } from 'typeorm';
 import { AGENT_REPOSITORY } from './consts';
-import { CreateAgentDto } from './dto/create-agent.dto';
-import { GetAgentsDto } from './dto/get-agents.dto';
-import { UpdateAgentDto } from './dto/update-agent.dto';
+import { CreateAgentDto } from './dto/create-role.dto';
+import { GetAgentsDto } from './dto/get-roles.dto';
+import { UpdateAgentDto } from './dto/update-role.dto';
 import { Agent } from './entities/agent.entity';
-import { IAgent } from './interfaces/agent.interface';
+import { IAgent } from './interfaces/role.interface';
 
 @Injectable()
-export class AgentsService {
-  private readonly logger = new Logger(AgentsService.name);
+export class RolesService {
+  private readonly logger = new Logger(RolesService.name);
 
   constructor(
     @Inject(AGENT_REPOSITORY)
-    private agentRepository: MongoRepository<Agent>,
+    private roleRepository: MongoRepository<Agent>,
   ) {}
 
   async create(createAgentDto: CreateAgentDto) {
     try {
-      const item = this.agentRepository.create(createAgentDto);
-      const data = await this.agentRepository.save(item);
+      const item = this.roleRepository.create(createAgentDto);
+      const data = await this.roleRepository.save(item);
       data.id = data.id.toString() as unknown as ObjectID;
 
       return {
@@ -43,7 +43,7 @@ export class AgentsService {
       where['creator.id'] = agent.id;
     }
 
-    const [items, total] = await this.agentRepository.findAndCount({
+    const [items, total] = await this.roleRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
         if (!(Agent.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
@@ -65,7 +65,7 @@ export class AgentsService {
   }
 
   async findOne(id: ObjectID, agent: IAgent) {
-    const item = await this.agentRepository.findOne(id);
+    const item = await this.roleRepository.findOne(id);
 
     if (!item) {
       return {
@@ -91,7 +91,7 @@ export class AgentsService {
   }
 
   async findOneExtended(wid: ObjectID, uid: number): Promise<Agent> {
-    return this.agentRepository.findOne({ workspaceId: wid, userId: uid });
+    return this.roleRepository.findOne({ workspaceId: wid, userId: uid });
     // .aggregate<Agent>([
     //   { $unwind: '$agents' },
     //   { $match: { _id: id, 'agents.userId': userId } },
@@ -128,7 +128,7 @@ export class AgentsService {
       }
 
       const updatedAgent = Object.assign(res.data, rest);
-      await this.agentRepository.update(id, updatedAgent);
+      await this.roleRepository.update(id, updatedAgent);
 
       return {
         status: HttpStatus.OK,
@@ -156,7 +156,7 @@ export class AgentsService {
         };
       }
 
-      const deleted = await this.agentRepository.delete(id);
+      const deleted = await this.roleRepository.delete(id);
 
       if (!deleted.affected) {
         return {

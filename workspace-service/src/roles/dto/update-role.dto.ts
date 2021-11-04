@@ -2,10 +2,10 @@ import { IntersectionType, PartialType } from '@nestjs/mapped-types';
 import { IsMongoId } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
 import { ObjectID } from 'typeorm';
-import { CreateTaskDto } from './create-task.dto';
+import { CreateRoleDto } from './create-role.dto';
 
-export class UpdateTaskDto extends IntersectionType(
-  PartialType(CreateTaskDto),
+export class UpdateRoleDto extends IntersectionType(
+  PartialType(CreateRoleDto),
   AccessDto,
 ) {
   @IsMongoId({ message: 'Invalid identificator' })

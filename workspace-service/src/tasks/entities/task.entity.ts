@@ -1,26 +1,39 @@
 import { Exclude, Transform } from 'class-transformer';
 import { Agent } from 'src/agents/entities/agent.entity';
+import { Saga } from 'src/sagas/entities/saga.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ObjectID,
   ObjectIdColumn,
   OneToOne,
 } from 'typeorm';
-import { TaskPriority, TaskType } from '../interfaces/task.interface';
+import { BaseStage } from '../interfaces/task.interface';
 
-export class TaskHistoryUpdate {
-  @Column({ nullable: true })
-  label?: string;
+export class TaskUpdateState {
+  @Column()
+  field: string;
+
+  @Column()
+  prev: string;
+
+  @Column()
+  next: string;
+}
+
+export class TaskUpdate {
+  @Column(() => TaskUpdateState)
+  state: TaskUpdateState;
 
   @Column(() => Agent)
-  agent?: Agent;
+  agent: Agent;
 
   @CreateDateColumn()
-  createdAt?: Date;
+  createdAt: Date;
 }
 
 @Entity()
@@ -35,28 +48,14 @@ export class Task {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({
-    type: 'enum',
-    enum: TaskType,
-    default: TaskType.SHORT,
-  })
-  type: TaskType;
+  @Column({ default: BaseStage.TODO })
+  stage: string;
 
-  @Column({
-    type: 'enum',
-    enum: TaskPriority,
-    default: TaskPriority.LOW,
-  })
-  priority: TaskPriority;
+  @Column({ nullable: true })
+  label?: string;
 
   @Column()
   workspaceId: ObjectID;
-
-  @Column({ array: true })
-  sagaIds: ObjectID[];
-
-  @Column(() => TaskHistoryUpdate)
-  history: TaskHistoryUpdate[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -68,9 +67,35 @@ export class Task {
   @DeleteDateColumn()
   deletedAt: Date;
 
+  @Column(() => TaskUpdate)
+  updates: TaskUpdate[];
+
+  //
+
   @OneToOne(() => Agent, { eager: true })
   @JoinColumn()
   creator: Agent;
+
+  @OneToOne(() => Agent, { eager: true, nullable: true })
+  @JoinColumn()
+  assignee?: Agent;
+
+  @ManyToMany(() => Saga, { eager: true })
+  @JoinColumn()
+  sagas: Saga[];
+
+  static isSearchable(column: string) {
+    return [
+      'name',
+      'stage',
+      'label',
+      'createdAt',
+      'expiresAt',
+      'creatorId',
+      'assigneeId',
+      'sagaId',
+    ].includes(column);
+  }
 
   constructor(task?: Partial<Task>) {
     Object.assign(this, task);

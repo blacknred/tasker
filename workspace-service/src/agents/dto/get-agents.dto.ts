@@ -7,19 +7,19 @@ import {
 } from '../../__shared__/dto/request.dto';
 import { CreateAgentDto } from './create-agent.dto';
 
-class WorkspaceSortingDto extends SortingDto {
+class AgentsSortingDto extends SortingDto {
   @IsOptional()
-  @IsIn(['createdAt'], {
+  @IsIn(['userId', 'userName', 'roleId', 'createdAt'], {
     message: 'Must be a one of fields of the Agent entity',
   })
-  'sort.field'?: 'createdAt';
+  'sort.field'?: 'userId' | 'userName' | 'roleId' | 'createdAt';
 }
 
 export class GetAgentsDto extends IntersectionType(
   PartialType(CreateAgentDto),
   AccessDto,
   PaginationDto,
-  WorkspaceSortingDto,
+  AgentsSortingDto,
 ) {
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })

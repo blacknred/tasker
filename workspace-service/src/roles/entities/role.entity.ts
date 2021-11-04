@@ -15,6 +15,13 @@ export class Role {
   @Column({ type: 'enum', enum: Privilege, array: true })
   privileges: Privilege[];
 
+  @Column()
+  workspaceId: ObjectID;
+
+  static isSearchable(column: string) {
+    return ['name'].includes(column);
+  }
+
   constructor(role?: Partial<Role>) {
     Object.assign(this, role);
   }

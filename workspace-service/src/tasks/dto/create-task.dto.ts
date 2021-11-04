@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
 import { ObjectID } from 'typeorm';
-import { TaskPriority, TaskType } from '../interfaces/task.interface';
 
 export class CreateTaskDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
@@ -21,21 +20,22 @@ export class CreateTaskDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
   description?: string;
 
-  @IsEnum(TaskType, {
-    message: `Must be one of ${Object.values(TaskType)}`,
-  })
-  type: TaskType;
-
-  @IsEnum(TaskPriority, {
-    message: `Must be one of ${Object.values(TaskPriority)}`,
-  })
-  priority: TaskPriority;
-
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   expiresAt?: string;
 
+  @IsString({ message: 'Must be a string' })
+  stage: string;
+
+  @IsOptional()
+  @IsString({ message: 'Must be a string' })
+  label?: string;
+
   @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
-  sagaId?: ObjectID;
+  assigneeId?: string;
+
+  @IsOptional()
+  @IsMongoId({ message: 'Invalid identificator', each: true })
+  sagaIds?: ObjectID[];
 }

@@ -1,4 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import {
+  BaseLabel,
+  BaseStage,
+} from 'src/workspaces/interfaces/workspace.interface';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
 export class UpdateWorkspaceDto extends PartialType(CreateWorkspaceDto) {
@@ -8,14 +12,14 @@ export class UpdateWorkspaceDto extends PartialType(CreateWorkspaceDto) {
   @ApiProperty({
     type: 'string',
     isArray: true,
-    example: ['TODO', 'IN_PROGRESS', 'DONE'],
+    example: Object.values(BaseStage),
   })
   taskStages?: string[];
 
   @ApiProperty({
     type: 'string',
     isArray: true,
-    example: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+    example: Object.values(BaseLabel),
   })
   taskLabels?: string[];
 

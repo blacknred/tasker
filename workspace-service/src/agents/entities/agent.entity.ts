@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { Role } from 'src/workspaces/entities/role.entity';
+import { Role } from 'src/roles/entities/role.entity';
 import {
   Column,
   CreateDateColumn,
@@ -24,26 +24,20 @@ export class Agent {
   userName: string;
 
   @Column()
+  avatar: string;
+
+  @Column()
   workspaceId: ObjectID;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @OneToOne(() => Role, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToOne(() => Role, { cascade: true, eager: true })
   @JoinTable()
   role: Role;
 
   static isSearchable(column: string) {
-    return [
-      'userId',
-      'userName',
-      'roleId',
-      'workspaceId',
-      'createdAt',
-    ].includes(column);
+    return ['userId', 'userName', 'roleId', 'createdAt'].includes(column);
   }
 
   constructor(agent?: Partial<Agent>) {

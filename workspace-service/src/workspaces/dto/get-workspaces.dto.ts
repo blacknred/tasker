@@ -3,7 +3,7 @@ import { IsDateString, IsIn, IsNumber, IsOptional } from 'class-validator';
 import { PaginationDto, SortingDto } from '../../__shared__/dto/request.dto';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
-class WorkspaceSortingDto extends SortingDto {
+class WorkspacesSortingDto extends SortingDto {
   @IsOptional()
   @IsIn(['name', 'creatorId', 'createdAt'], {
     message: 'Must be a one of fields of the Workspace entity',
@@ -14,7 +14,7 @@ class WorkspaceSortingDto extends SortingDto {
 export class GetWorkspacesDto extends IntersectionType(
   PartialType(PickType(CreateWorkspaceDto, ['name'])),
   PaginationDto,
-  WorkspaceSortingDto,
+  WorkspacesSortingDto,
 ) {
   @IsOptional()
   @IsNumber({}, { message: 'Must be an integer' })

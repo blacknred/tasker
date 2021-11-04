@@ -9,7 +9,7 @@ import {
 } from '../../__shared__/dto/request.dto';
 import { CreateSagaDto } from './create-saga.dto';
 
-class SagaSortingDto extends SortingDto {
+class SagasSortingDto extends SortingDto {
   @IsOptional()
   @Type(() => String)
   @IsIn(['name', 'creator', 'createdAt', 'expiresAt'], {
@@ -22,7 +22,7 @@ export class GetSagasDto extends IntersectionType(
   PartialType(OmitType(CreateSagaDto, ['description'])),
   AccessDto,
   PaginationDto,
-  SagaSortingDto,
+  SagasSortingDto,
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
   creatorId: ObjectID;

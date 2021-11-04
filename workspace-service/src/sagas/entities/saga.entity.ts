@@ -1,6 +1,5 @@
 import { Transform } from 'class-transformer';
 import { Agent } from 'src/agents/entities/agent.entity';
-import { IAgent } from 'src/agents/interfaces/agent.interface';
 import {
   Column,
   CreateDateColumn,
@@ -34,7 +33,7 @@ export class Saga {
 
   @OneToOne(() => Agent, { cascade: true, eager: true })
   @JoinColumn()
-  creator: IAgent;
+  creator: Agent;
 
   static isSearchable(column: string) {
     return ['name', 'creatorId', 'createdAt', 'expiresAt'].includes(column);

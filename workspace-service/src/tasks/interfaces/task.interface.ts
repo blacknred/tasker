@@ -1,22 +1,31 @@
+import { IAgent } from 'src/agents/interfaces/agent.interface';
+import { ISaga } from 'src/sagas/interfaces/saga.interface';
 import { ObjectID } from 'typeorm';
-import { IAgent } from '../../workspaces/interfaces/agent.interface';
 
-export enum TaskType {
-  SHORT = 'SHORT',
-  MEDIUM = 'MEDIUM',
-  LONG = 'LONG',
+export enum BaseStage {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
 }
 
-export enum TaskPriority {
-  LOW = 'LOW',
-  MODERATE = 'MODERATE',
-  MAJOR = 'MAJOR',
+export enum BaseLabel {
+  MINOR = 'MINOR',
+  ROUTINE = 'ROUTINE',
   CRITICAL = 'CRITICAL',
 }
 
-export interface ITaskHistoryUpdate {
-  label?: string;
-  agent?: IAgent;
+interface ITaskUpdateState<T> {
+  field: keyof Omit<
+    ITask,
+    'updates' | 'id' | 'creator' | 'createdAt' | 'workspaceId'
+  >;
+  prev: T;
+  next: T;
+}
+
+export interface ITaskUpdate<T = unknown> {
+  state: ITaskUpdateState<T>;
+  agent: IAgent;
   createdAt: string;
 }
 
@@ -24,12 +33,13 @@ export interface ITask {
   id: ObjectID;
   name: string;
   description?: string;
-  type: TaskType;
-  priority: TaskPriority;
-  history: ITaskHistoryUpdate[];
-  workspaceId: ObjectID;
-  sagaIds: ObjectID[];
+  stage: string;
+  label?: string;
+  assignee?: IAgent;
+  creator: IAgent;
+  sagas: Partial<ISaga>[];
+  updates: ITaskUpdate[];
   createdAt: Date;
   expiresAt?: Date;
-  creator: IAgent;
+  workspaceId: ObjectID;
 }
