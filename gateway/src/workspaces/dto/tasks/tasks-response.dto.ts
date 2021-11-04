@@ -10,7 +10,7 @@ const taskPaginationMock = {
 };
 
 export class TasksResponseDto extends PaginatedResponseDto<ITask> {
-  @ApiProperty({ example: taskPaginationMock, nullable: true })
+  @ApiProperty({ example: taskPaginationMock, nullable: false })
   data: {
     hasMore: boolean;
     total: number;

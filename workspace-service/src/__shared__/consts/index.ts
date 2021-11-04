@@ -1,2 +1,2 @@
 export const DB_CONNECTION = 'DB_CONNECTION';
-export const ROLES_KEY = 'ROLES_KEY';
+export const PRIVILEGE_KEY = 'PRIVILEGE_KEY';

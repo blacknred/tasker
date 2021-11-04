@@ -1,5 +1,8 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Privilege } from 'src/workspaces/interfaces/role.interface';
+import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
+import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTaskDto } from './dto/get-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
@@ -12,9 +15,11 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
+@UseGuards(AgentGuard)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  @WithPrivilege(Privilege.CREATE_TASK)
   @MessagePattern('create')
   create(@Payload() createTaskDto: CreateTaskDto): Promise<TaskResponseDto> {
     return this.tasksService.create(createTaskDto);

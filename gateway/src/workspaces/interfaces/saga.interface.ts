@@ -4,8 +4,8 @@ export interface ISaga {
   id: string;
   name: string;
   description?: string;
-  workspaceId: string;
   createdAt: string;
   expiresAt?: string;
   creator: IAgent;
+  workspaceId: string;
 }

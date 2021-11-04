@@ -14,6 +14,6 @@ export const sagaMock: ISaga = {
 };
 
 export class SagaResponseDto extends ResponseDto<ISaga> {
-  @ApiProperty({ example: sagaMock, nullable: true })
+  @ApiProperty({ example: sagaMock })
   data?: ISaga;
 }

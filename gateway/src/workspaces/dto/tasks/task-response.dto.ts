@@ -1,33 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import {
-  ITask,
-  ITaskHistoryUpdate,
-  TaskPriority,
-  TaskType,
-} from '../../interfaces/task.interface';
+import { ITask, ITaskUpdate } from '../../interfaces/task.interface';
 import { agentMock } from '../agents/agent-response.dto';
+import { sagaMock } from '../sagas/saga-response.dto';
 
-export const historyUpdateMock: ITaskHistoryUpdate = {
+export const taskUpdateMock: ITaskUpdate = {
   agent: agentMock,
   createdAt: new Date().toDateString(),
-  label: 'TODO',
+  state: {
+    field: 'name',
+    next: 'nexttaskname',
+    prev: 'taskname',
+  },
 };
 
 export const taskMock: ITask = {
   id: '5r185c3vfb991ee66b486ccb',
-  name: 'first task',
-  description: 'test task description',
-  type: TaskType.SHORT,
-  priority: TaskPriority.LOW,
+  name: 'testtask',
+  description: 'test description',
+  stage: 'TODO',
+  label: 'LOW',
+  assignee: agentMock,
   creator: agentMock,
-  workspaceId: '5r185c3vfb991ee66b486ccb',
-  sagaIds: ['5r185c3vfb991ee66b486ccb'],
-  history: [historyUpdateMock],
+  sagas: [sagaMock],
+  updates: [taskUpdateMock],
   createdAt: new Date().toDateString(),
+  workspaceId: '5r185c3vfb991ee66b486ccb',
 };
 
 export class TaskResponseDto extends ResponseDto<ITask> {
-  @ApiProperty({ example: taskMock, nullable: true })
+  @ApiProperty({ example: taskMock })
   data?: ITask;
 }

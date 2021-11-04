@@ -1,21 +1,18 @@
 import { IAgent } from './agent.interface';
+import { ISaga } from './saga.interface';
 
-export enum TaskType {
-  SHORT = 'SHORT',
-  MEDIUM = 'MEDIUM',
-  LONG = 'LONG',
+interface ITaskUpdateState<T> {
+  field: keyof Omit<
+    ITask,
+    'updates' | 'id' | 'creator' | 'created' | 'workspaceId'
+  >;
+  prev: T;
+  next: T;
 }
 
-export enum TaskPriority {
-  LOW = 'LOW',
-  MODERATE = 'MODERATE',
-  MAJOR = 'MAJOR',
-  CRITICAL = 'CRITICAL',
-}
-
-export interface ITaskHistoryUpdate {
-  label?: string;
-  agent?: IAgent;
+export interface ITaskUpdate<T = unknown> {
+  state: ITaskUpdateState<T>;
+  agent: IAgent;
   createdAt: string;
 }
 
@@ -23,12 +20,13 @@ export interface ITask {
   id: string;
   name: string;
   description?: string;
-  type: TaskType;
-  priority: TaskPriority;
-  history: ITaskHistoryUpdate[];
-  workspaceId: string;
-  sagaIds: string[];
+  stage: string;
+  label: string;
+  assignee: IAgent;
+  creator: IAgent;
+  sagas: Partial<ISaga[]>;
+  updates: ITaskUpdate[];
   createdAt: string;
   expiresAt?: string;
-  creator: IAgent;
+  workspaceId: string;
 }

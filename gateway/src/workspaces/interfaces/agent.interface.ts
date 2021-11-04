@@ -2,9 +2,10 @@ import { IRole } from './role.interface';
 
 export interface IAgent {
   id: string;
-  workspaceId: string;
   userId: number;
   userName: string;
+  avatar?: string;
   createdAt: string;
-  role: IRole;
+  role: Partial<IRole>;
+  workspaceId: string; //?
 }

@@ -19,15 +19,8 @@ export class AgentsService {
     private agentRepository: MongoRepository<Agent>,
   ) {}
 
-  async create(createAgentDto: CreateAgentDto, agent: IAgent) {
+  async create(createAgentDto: CreateAgentDto) {
     try {
-      if (!agent.role.privileges.includes(Privilege.CREATE_AGENT)) {
-        return {
-          status: HttpStatus.FORBIDDEN,
-          data: null,
-        };
-      }
-
       const item = this.agentRepository.create(createAgentDto);
       const data = await this.agentRepository.save(item);
       data.id = data.id.toString() as unknown as ObjectID;

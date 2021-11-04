@@ -4,7 +4,7 @@ import { IUser } from '../interfaces/user.interface';
 
 export const userMock: IUser = {
   id: 1,
-  name: 'testname',
+  name: 'testuser',
   email: 'test@email.com',
   isAdmin: false,
   createdAt: new Date().toDateString(),
@@ -12,6 +12,6 @@ export const userMock: IUser = {
 };
 
 export class UserResponseDto extends ResponseDto<IUser> {
-  @ApiProperty({ example: userMock, nullable: true })
+  @ApiProperty({ example: userMock })
   data?: IUser;
 }

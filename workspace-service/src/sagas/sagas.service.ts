@@ -22,14 +22,6 @@ export class SagasService {
 
   async create(createSagaDto: CreateSagaDto, agent: IAgent) {
     try {
-      if (!agent.role.privileges.includes(Privilege.CREATE_SAGA)) {
-        return {
-          status: HttpStatus.FORBIDDEN,
-          data: null,
-        };
-      }
-      createSagaDto['']
-
       const saga = this.sagaRepository.create(createSagaDto);
       saga.creator = agent;
       const data = await this.sagaRepository.save(saga);

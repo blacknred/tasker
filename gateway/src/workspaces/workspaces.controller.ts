@@ -29,6 +29,12 @@ import { CreateAgentDto } from './dto/agents/create-agent.dto';
 import { GetAgentDto } from './dto/agents/get-agent.dto';
 import { GetAgentsDto } from './dto/agents/get-agents.dto';
 import { UpdateAgentDto } from './dto/agents/update-agent.dto';
+import { CreateRoleDto } from './dto/roles/create-role.dto';
+import { GetRoleDto } from './dto/roles/get-role.dto';
+import { GetRolesDto } from './dto/roles/get-roles.dto';
+import { RoleResponseDto } from './dto/roles/role-response.dto';
+import { RolesResponseDto } from './dto/roles/roles-response.dto';
+import { UpdateRoleDto } from './dto/roles/update-role.dto';
 import { CreateSagaDto } from './dto/sagas/create-saga.dto';
 import { GetSagaDto } from './dto/sagas/get-saga.dto';
 import { GetSagasDto } from './dto/sagas/get-sagas.dto';
@@ -69,6 +75,18 @@ export class WorkspacesController {
   ): Promise<WorkspaceResponseDto> {
     return this.workspaceRepository
       .send('create', { ...createWorkspaceDto, userId, userName })
+      .toPromise();
+  }
+
+  @Post(':id/roles')
+  @WithCreatedApi(RoleResponseDto, 'Create new role')
+  async createRole(
+    @Auth('user') { id: uid },
+    @Param() { id: wid }: GetWorkspaceDto,
+    @Body() createRoleDto: CreateRoleDto,
+  ): Promise<RoleResponseDto> {
+    return this.workspaceRepository
+      .send('roles/create', { ...createRoleDto, wid, uid })
       .toPromise();
   }
 
@@ -128,6 +146,29 @@ export class WorkspacesController {
     @Param() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
     return this.workspaceRepository.send('getOne', { id, uid }).toPromise();
+  }
+
+  @Get(':id/roles')
+  @WithOkApi(RolesResponseDto, 'List roles')
+  async getAllRoles(
+    @Auth('user') { id: uid },
+    @Query() getRolesDto: GetRolesDto,
+    @Param() { id: wid }: GetWorkspaceDto,
+  ): Promise<RolesResponseDto> {
+    return this.workspaceRepository
+      .send('roles/getAll', { ...getRolesDto, wid, uid })
+      .toPromise();
+  }
+
+  @Get(':id/roles/:roleId')
+  @WithOkApi(RoleResponseDto, 'Get role by id')
+  async getOneRole(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, roleId: id }: GetRoleDto,
+  ): Promise<RoleResponseDto> {
+    return this.workspaceRepository
+      .send('roles/getOne', { id, wid, uid })
+      .toPromise();
   }
 
   @Get(':id/agents')
@@ -213,6 +254,18 @@ export class WorkspacesController {
       .toPromise();
   }
 
+  @Patch(':id/roles/:roleId')
+  @WithOkApi(RoleResponseDto, 'Update role')
+  async updateRole(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, roleId: id }: GetRoleDto,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ): Promise<RoleResponseDto> {
+    return this.workspaceRepository
+      .send('roles/update', { ...updateRoleDto, id, wid, uid })
+      .toPromise();
+  }
+
   @Patch(':id/agents/:agentId')
   @WithOkApi(AgentResponseDto, 'Update agent')
   async updateAgent(
@@ -258,6 +311,17 @@ export class WorkspacesController {
     @Param() { id }: GetWorkspaceDto,
   ): Promise<EmptyResponseDto> {
     return this.workspaceRepository.send('delete', { id, uid }).toPromise();
+  }
+
+  @Delete(':id/roles/:roleId')
+  @WithOkApi(EmptyResponseDto, 'Delete role')
+  async deleteRole(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, roleId: id }: GetRoleDto,
+  ): Promise<EmptyResponseDto> {
+    return this.workspaceRepository
+      .send('roles/delete', { id, wid, uid })
+      .toPromise();
   }
 
   @Delete(':id/agents/:agentId')

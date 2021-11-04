@@ -1,6 +1,8 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Privilege } from 'src/workspaces/interfaces/role.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
+import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
 import { AgentsService } from './agents.service';
@@ -15,12 +17,12 @@ import { UpdateAgentDto } from './dto/update-agent.dto';
 export class AgentsController {
   constructor(private readonly agentsService: AgentsService) {}
 
+  @WithPrivilege(Privilege.CREATE_AGENT)
   @MessagePattern('create')
   async create(
-    @Agent() agent,
     @Payload() createAgentDto: CreateAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.agentsService.create(createAgentDto, agent);
+    return this.agentsService.create(createAgentDto);
   }
 
   @MessagePattern('getAll')

@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IAgent } from 'src/workspaces/interfaces/agent.interface';
+import { IAgent } from 'src/agents/interfaces/agent.interface';
 
 export const Agent = createParamDecorator(
   (data: keyof IAgent, ctx: ExecutionContext) => {

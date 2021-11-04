@@ -1,6 +1,8 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Privilege } from 'src/workspaces/interfaces/role.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
+import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
 import { CreateSagaDto } from './dto/create-saga.dto';
@@ -15,6 +17,7 @@ import { SagasService } from './sagas.service';
 export class SagasController {
   constructor(private readonly sagasService: SagasService) {}
 
+  @WithPrivilege(Privilege.CREATE_SAGA)
   @MessagePattern('create')
   create(
     @Agent() agent,
