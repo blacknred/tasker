@@ -1,17 +1,14 @@
 import { IAgent } from './agent.interface';
 import { ISaga } from './saga.interface';
 
-interface ITaskUpdateState<T> {
-  field: keyof Omit<
-    ITask,
-    'updates' | 'id' | 'creator' | 'createdAt' | 'workspaceId'
-  >;
-  prev: T;
-  next: T;
+export interface IUpdateRecord {
+  field: string;
+  prev: unknown;
+  next: unknown;
 }
 
-export interface ITaskUpdate<T = unknown> {
-  state: ITaskUpdateState<T>;
+export interface ITaskUpdate {
+  records: IUpdateRecord[];
   agent: IAgent;
   createdAt: string;
 }

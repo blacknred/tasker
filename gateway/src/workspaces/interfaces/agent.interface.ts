@@ -6,6 +6,6 @@ export interface IAgent {
   userName: string;
   avatar?: string;
   createdAt: string;
-  role: Partial<IRole>;
+  role?: Partial<IRole>;
   workspaceId: string; //?
 }

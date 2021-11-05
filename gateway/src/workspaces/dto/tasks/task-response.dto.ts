@@ -11,11 +11,13 @@ import { sagaMock } from '../sagas/saga-response.dto';
 export const taskUpdateMock: ITaskUpdate = {
   agent: agentMock,
   createdAt: new Date().toDateString(),
-  state: {
-    field: 'name',
-    next: 'nexttaskname',
-    prev: 'taskname',
-  },
+  records: [
+    {
+      field: 'name',
+      next: 'nexttaskname',
+      prev: 'taskname',
+    },
+  ],
 };
 
 export const taskMock: ITask = {

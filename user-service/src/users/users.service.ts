@@ -81,8 +81,8 @@ export class UsersService {
     };
   }
 
-  async findOne(id: number, partial?: boolean) {
-    const user = await this.userRepository.findOne(id, { withDeleted: false });
+  async findOne(id: number, partial?: boolean, withDeleted?: boolean) {
+    const user = await this.userRepository.findOne(id, { withDeleted });
 
     if (!user) {
       return {
@@ -184,7 +184,7 @@ export class UsersService {
 
   async restore(id: number) {
     try {
-      const res = await this.findOne(id);
+      const res = await this.findOne(id, false, true);
       if (!res.data) return res as ResponseDto;
 
       const restored = await this.userRepository.restore(id);

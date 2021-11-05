@@ -302,6 +302,17 @@ export class WorkspacesController {
       .toPromise();
   }
 
+  @Patch(':id/tasks/:taskId/restore')
+  @WithOkApi(TaskResponseDto, 'Restore task')
+  async restoreTask(
+    @Auth('user') { id: uid },
+    @Param() { id: wid, taskId: id }: GetTaskDto,
+  ): Promise<TaskResponseDto> {
+    return this.workspaceRepository
+      .send('tasks/restore', { id, wid, uid })
+      .toPromise();
+  }
+
   // DELETE
 
   @Delete(':id')
