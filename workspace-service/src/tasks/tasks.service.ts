@@ -27,10 +27,6 @@ export class TasksService {
     private readonly sagasService: SagasService,
   ) {}
 
-  private hasColumn(key: string) {
-    return this.taskRepository.metadata.hasColumnWithPropertyPath(key);
-  }
-
   async create({ sagaIds, ...rest }: CreateTaskDto, agent: IAgent) {
     try {
       const { workspaceId, id: creatorId } = agent;
@@ -46,7 +42,7 @@ export class TasksService {
 
       // worker mock
       if (data.assignee?.role.name === BaseRole.WORKER) {
-        this.workerService.emit('new-task', data);
+        this.workerService.emit('new-task', task);
       }
 
       return {
@@ -69,7 +65,7 @@ export class TasksService {
 
     const [tasks, total] = await this.taskRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(this.hasColumn(key) && rest[key])) return acc;
+        if (!(Task.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
       }, where),
@@ -130,7 +126,7 @@ export class TasksService {
         };
       }
 
-      // increment updates
+      // increment update records
       const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
         const prev = res.data[field];
         const next = rest[field];

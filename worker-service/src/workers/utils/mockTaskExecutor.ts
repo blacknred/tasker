@@ -1,19 +1,20 @@
-import { NewTaskDto } from '../dto/new-task.dto';
+import { BaseLabel, NewTaskDto } from '../dto/new-task.dto';
 
 export function mockTaskExecutor(task: NewTaskDto): any {
   let duration = 0;
 
-  switch (task.type) {
-    case 'LONG':
+  switch (task.label) {
+    case BaseLabel.ROUTINE:
       duration = 70;
       break;
-    case 'MEDIUM':
+    case BaseLabel.MINOR:
       duration = 50;
       break;
-    case 'SHORT':
+    case BaseLabel.CRITICAL:
       duration = 30;
       break;
     default:
+      duration = 30;
   }
 
   function fibonacci(n) {

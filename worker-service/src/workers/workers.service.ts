@@ -3,14 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Worker } from 'worker_threads';
 import { WORKSPACE_SERVICE } from './consts';
-import { NewTaskDto } from './dto/new-task.dto';
+import { BaseStage, NewTaskDto } from './dto/new-task.dto';
 import { mockTaskExecutor } from './utils/mockTaskExecutor';
 
 @Injectable()
 export class WorkersService {
   private readonly logger = new Logger(WorkersService.name);
-  private workers: Map<number, Worker>;
   private resolvers = new Map<string, (data: any) => void>();
+  private workers: Map<number, Worker>;
   private idle: number[];
 
   constructor(
@@ -50,8 +50,8 @@ export class WorkersService {
   }
 
   notify = (task: NewTaskDto) => {
-    task.finishedAt = Date.now();
-    this.workspaceService.send('update', task);
+    task.stage = BaseStage.DONE;
+    this.workspaceService.send('tasks/update', task);
   };
 
   do(task: NewTaskDto): Promise<any> {

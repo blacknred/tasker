@@ -1,22 +1,29 @@
-export enum TaskType {
-  LONG = 'LONG',
-  SHORT = 'SHORT',
-  MEDIUM = 'MEDIUM',
+export enum BaseLabel {
+  MINOR = 'MINOR',
+  ROUTINE = 'ROUTINE',
+  CRITICAL = 'CRITICAL',
 }
 
-export enum TaskPriority {
-  CRITICAL = 'CRITICAL',
-  MAJOR = 'MAJOR',
-  MODERATE = 'MODERATE',
-  LOW = 'LOW',
+export enum BaseStage {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
 }
 
 export class NewTaskDto {
   id: string;
   name: string;
-  description: string;
-  userId: number;
-  type: TaskType;
-  priority: TaskPriority;
-  finishedAt?: number;
+  description?: string;
+  stage: string;
+  label?: string;
+  assignee?: Record<string, unknown>;
+  creator: Record<string, unknown>;
+  sagas: Record<string, unknown>[];
+  updates: Record<string, unknown>[];
+  createdAt: string;
+  expiresAt?: string;
+  workspaceId: string;
+  //
+  wid: string;
+  uid: number;
 }
