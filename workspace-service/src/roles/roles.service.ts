@@ -1,28 +1,27 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { Privilege } from 'src/roles/role.interface';
+import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { MongoRepository, ObjectID } from 'typeorm';
-import { AGENT_REPOSITORY } from './consts';
-import { CreateAgentDto } from './dto/create-role.dto';
-import { GetAgentsDto } from './dto/get-roles.dto';
-import { UpdateAgentDto } from './dto/update-role.dto';
-import { Agent } from './entities/agent.entity';
-import { IAgent } from './interfaces/role.interface';
+import { ROLE_REPOSITORY } from './consts';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { GetRolesDto } from './dto/get-roles.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { Role } from './entities/role.entity';
 
 @Injectable()
 export class RolesService {
   private readonly logger = new Logger(RolesService.name);
 
   constructor(
-    @Inject(AGENT_REPOSITORY)
-    private roleRepository: MongoRepository<Agent>,
+    @Inject(ROLE_REPOSITORY)
+    private roleRepository: MongoRepository<Role>,
   ) {}
 
-  async create(createAgentDto: CreateAgentDto) {
+  async create({ wid: workspaceId, ...rest }: CreateRoleDto) {
     try {
-      const item = this.roleRepository.create(createAgentDto);
-      const data = await this.roleRepository.save(item);
+      const role = this.roleRepository.create({ ...rest, workspaceId });
+      const data = await this.roleRepository.save(role);
       data.id = data.id.toString() as unknown as ObjectID;
 
       return {
@@ -36,16 +35,12 @@ export class RolesService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetAgentsDto, agent: IAgent) {
-    const where = { workspaceId: agent.workspaceId };
-
-    if (!agent.role.privileges.includes(Privilege.READ_ANY_AGENT)) {
-      where['creator.id'] = agent.id;
-    }
+  async findAll({ limit, offset, wid, ...rest }: GetRolesDto) {
+    const where = { workspaceId: wid };
 
     const [items, total] = await this.roleRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Agent.isSearchable(key) && rest[key])) return acc;
+        if (!(Role.isSearchable(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
       }, where),
@@ -64,22 +59,12 @@ export class RolesService {
     };
   }
 
-  async findOne(id: ObjectID, agent: IAgent) {
+  async findOne(id: ObjectID) {
     const item = await this.roleRepository.findOne(id);
 
     if (!item) {
       return {
         status: HttpStatus.NOT_FOUND,
-        data: null,
-      };
-    }
-
-    if (
-      item.id !== agent.id &&
-      !agent.role.privileges.includes(Privilege.READ_ANY_AGENT)
-    ) {
-      return {
-        status: HttpStatus.FORBIDDEN,
         data: null,
       };
     }
@@ -90,49 +75,24 @@ export class RolesService {
     };
   }
 
-  async findOneExtended(wid: ObjectID, uid: number): Promise<Agent> {
-    return this.roleRepository.findOne({ workspaceId: wid, userId: uid });
-    // .aggregate<Agent>([
-    //   { $unwind: '$agents' },
-    //   { $match: { _id: id, 'agents.userId': userId } },
-    //   //   { $unwind: '$roles' },
-    //   //   { $lookup: {
-    //   //     from: "sivaUserInfo",
-    //   //     localField: "userId",
-    //   //     foreignField: "userId",
-    //   //     as: "userInfo"
-    //   // }
-    //   // { $project: { _id: 0, "products.productID": 1 } }
-    //   // $group: {
-    //   //   _id: {
-    //   //     country: '$address.country',
-    //   //   },
-    //   // },
-    // ])
-    // .toArray()[0];
-  }
-
-  async update({ id, ...rest }: UpdateAgentDto, agent: IAgent) {
+  async update({ id, ...rest }: UpdateRoleDto, agent: IAgent) {
     try {
-      const res = await this.findOne(id, agent);
+      const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
-      if (
-        res.data.id !== agent.id &&
-        !agent.role.privileges.includes(Privilege.EDIT_ANY_AGENT)
-      ) {
+      // should no edit own role
+      if (res.data.id === agent.id) {
         return {
           status: HttpStatus.FORBIDDEN,
           data: null,
         };
       }
 
-      const updatedAgent = Object.assign(res.data, rest);
-      await this.roleRepository.update(id, updatedAgent);
+      await this.roleRepository.update(id, rest);
 
       return {
         status: HttpStatus.OK,
-        data: updatedAgent,
+        data: { ...res.data, ...rest },
       };
     } catch (e) {
       throw new RpcException({
@@ -143,13 +103,11 @@ export class RolesService {
 
   async remove(id: ObjectID, agent: IAgent) {
     try {
-      const res = await this.findOne(id, agent);
+      const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
-      if (
-        res.data.id !== agent.id &&
-        !agent.role.privileges.includes(Privilege.DELETE_ANY_AGENT)
-      ) {
+      // should no delete own role
+      if (res.data.id === agent.id) {
         return {
           status: HttpStatus.FORBIDDEN,
           data: null,

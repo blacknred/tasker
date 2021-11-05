@@ -1,6 +1,5 @@
 import {
   IsDateString,
-  IsEnum,
   IsMongoId,
   IsOptional,
   IsString,
@@ -22,7 +21,7 @@ export class CreateTaskDto extends AccessDto {
 
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
-  expiresAt?: string;
+  expiresAt?: Date;
 
   @IsString({ message: 'Must be a string' })
   stage: string;

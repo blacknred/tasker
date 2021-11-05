@@ -1,6 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/roles/role.interface';
+import { Privilege } from 'src/roles/interfaces/role.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
 import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
@@ -19,7 +19,7 @@ export class SagasController {
 
   @WithPrivilege(Privilege.CREATE_SAGA)
   @MessagePattern('create')
-  create(
+  async create(
     @Agent() agent,
     @Payload() createSagaDto: CreateSagaDto,
   ): Promise<SagaResponseDto> {
@@ -27,7 +27,7 @@ export class SagasController {
   }
 
   @MessagePattern('getAll')
-  getAll(
+  async getAll(
     @Agent() agent,
     @Payload() getSagasDto: GetSagasDto,
   ): Promise<SagasResponseDto> {
@@ -35,7 +35,7 @@ export class SagasController {
   }
 
   @MessagePattern('getOne')
-  getOne(
+  async getOne(
     @Agent() agent,
     @Payload() { id }: GetSagaDto,
   ): Promise<SagaResponseDto> {
@@ -43,7 +43,7 @@ export class SagasController {
   }
 
   @MessagePattern('update')
-  update(
+  async update(
     @Agent() agent,
     @Payload() updateSagaDto: UpdateSagaDto,
   ): Promise<SagaResponseDto> {
@@ -51,7 +51,10 @@ export class SagasController {
   }
 
   @MessagePattern('delete')
-  remove(@Agent() agent, @Payload() { id }: GetSagaDto): Promise<ResponseDto> {
+  async remove(
+    @Agent() agent,
+    @Payload() { id }: GetSagaDto,
+  ): Promise<ResponseDto> {
     return this.sagasService.remove(id, agent);
   }
 }

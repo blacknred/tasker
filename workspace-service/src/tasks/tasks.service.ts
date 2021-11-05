@@ -1,33 +1,53 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { IAgent } from 'src/agents/interfaces/agent.interface';
+import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
+import { SagasService } from 'src/sagas/sagas.service';
+import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { ObjectID, Repository } from 'typeorm';
-import { TASK_REPOSITORY, WORKER_SERVICE } from './consts';
+import {
+  NOTIFICATION_SERVICE,
+  TASK_REPOSITORY,
+  WORKER_SERVICE,
+} from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
-import { ResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './entities/task.entity';
+import { Task, TaskUpdate, UpdateRecord } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
 
   constructor(
+    @Inject(NOTIFICATION_SERVICE)
+    private readonly notificationService: ClientProxy,
     @Inject(TASK_REPOSITORY) private taskRepository: Repository<Task>,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
+    private readonly sagasService: SagasService,
   ) {}
 
   private hasColumn(key: string) {
     return this.taskRepository.metadata.hasColumnWithPropertyPath(key);
   }
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create({ sagaIds, ...rest }: CreateTaskDto, agent: IAgent) {
     try {
-      const task = this.taskRepository.create(createTaskDto);
+      const { workspaceId, id: creatorId } = agent;
+      const params = { ...rest, workspaceId, creatorId };
+      const task = this.taskRepository.create(params);
+
+      if (sagaIds.length) {
+        task.sagas = await this.sagasService.findAllByIds(sagaIds);
+      }
+
       const data = await this.taskRepository.save(task);
       data.id = data.id.toString() as unknown as ObjectID;
 
-      this.workerService.emit('new-task', data);
+      // worker mock
+      if (data.assignee?.role.name === BaseRole.WORKER) {
+        this.workerService.emit('new-task', data);
+      }
 
       return {
         status: HttpStatus.CREATED,
@@ -40,16 +60,23 @@ export class TasksService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetTasksDto) {
+  async findAll({ limit, offset, ...rest }: GetTasksDto, agent: IAgent) {
+    const where = { workspaceId: agent.workspaceId };
+
+    if (!agent.role?.privileges.includes(Privilege.READ_ANY_TASK)) {
+      where['creator.id'] = agent.id;
+    }
+
     const [tasks, total] = await this.taskRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
         if (!(this.hasColumn(key) && rest[key])) return acc;
         acc[key] = rest[key];
         return acc;
-      }, {}),
+      }, where),
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       skip: +offset,
       take: +limit + 1,
+      withDeleted: false,
     });
 
     return {
@@ -62,8 +89,8 @@ export class TasksService {
     };
   }
 
-  async findOne(id: ObjectID, userId: number) {
-    const task = await this.taskRepository.findOne(id);
+  async findOne(id: ObjectID, agent: IAgent, withDeleted?: boolean) {
+    const task = await this.taskRepository.findOne(id, { withDeleted });
 
     if (!task) {
       return {
@@ -72,7 +99,10 @@ export class TasksService {
       };
     }
 
-    if (userId != null && task.userId !== userId) {
+    if (
+      task.creator.id !== agent.id &&
+      !agent.role?.privileges.includes(Privilege.READ_ANY_TASK)
+    ) {
       return {
         status: HttpStatus.FORBIDDEN,
         data: null,
@@ -85,17 +115,46 @@ export class TasksService {
     };
   }
 
-  async update(id: ObjectID, updateTaskDto: UpdateTaskDto) {
+  async update({ id, sagaIds, ...rest }: UpdateTaskDto, agent: IAgent) {
     try {
-      const res = await this.findOne(id, updateTaskDto.userId);
+      const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
-      const updatedTask = Object.assign(res.data, updateTaskDto) as Task;
-      await this.taskRepository.update(id, updateTaskDto);
+      if (
+        res.data.creator.id !== agent.id &&
+        !agent.role?.privileges.includes(Privilege.EDIT_ANY_TASK)
+      ) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
+
+      // increment updates
+      const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
+        const prev = res.data[field];
+        const next = rest[field];
+        if (!prev || next === prev) return all;
+        return all.concat(new UpdateRecord({ prev, next, field }));
+      }, []);
+
+      res.data.updates.push(new TaskUpdate({ agent, records }));
+
+      if (sagaIds.length) {
+        res.data.sagas = await this.sagasService.findAllByIds(sagaIds);
+      }
+
+      Object.assign(res.data, rest);
+      await this.taskRepository.update(id, res.data);
+
+      // worker mock
+      if (records.some((record) => record.next === BaseRole.WORKER)) {
+        this.workerService.emit('new-task', res.data);
+      }
 
       return {
         status: HttpStatus.OK,
-        data: updatedTask,
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({
@@ -104,12 +163,22 @@ export class TasksService {
     }
   }
 
-  async remove(id: ObjectID, userId: number) {
+  async remove(id: ObjectID, agent: IAgent) {
     try {
-      const res = await this.findOne(id, userId);
+      const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
-      const deleted = await this.taskRepository.delete(id);
+      if (
+        res.data.creator.id !== agent.id &&
+        !agent.role?.privileges.includes(Privilege.DELETE_ANY_TASK)
+      ) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
+
+      const deleted = await this.taskRepository.softDelete(id);
 
       if (!deleted.affected) {
         return {
@@ -121,6 +190,38 @@ export class TasksService {
       return {
         status: HttpStatus.OK,
         data: null,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
+
+  async restore(id: ObjectID, agent: IAgent) {
+    try {
+      const res = await this.findOne(id, agent, true);
+      if (!res.data) return res as ResponseDto;
+
+      if (res.data.creator.id !== agent.id) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
+
+      const restored = await this.taskRepository.restore(id);
+
+      if (!restored.affected) {
+        return {
+          status: HttpStatus.CONFLICT,
+          data: null,
+        };
+      }
+
+      return {
+        status: HttpStatus.OK,
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

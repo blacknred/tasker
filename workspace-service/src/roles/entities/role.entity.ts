@@ -1,6 +1,6 @@
 import { Exclude, Transform } from 'class-transformer';
 import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
-import { BaseRole, Privilege } from '../interfaces/role.interface';
+import { Privilege } from '../interfaces/role.interface';
 
 @Entity()
 export class Role {
@@ -26,12 +26,3 @@ export class Role {
     Object.assign(this, role);
   }
 }
-
-export const Admin = new Role({
-  name: BaseRole.ADMIN,
-  privileges: Object.values(Privilege),
-});
-
-export const Worker = new Role({
-  name: BaseRole.WORKER,
-});

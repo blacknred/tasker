@@ -14,5 +14,5 @@ export class CreateAgentDto extends AccessDto {
   avatar?: string;
 
   @IsMongoId({ message: 'Invalid identificator' })
-  roleId: ObjectID;
+  roleId?: ObjectID;
 }

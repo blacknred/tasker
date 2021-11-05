@@ -2,17 +2,17 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
+import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
 import { Saga } from 'src/sagas/entities/saga.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { Connection, MongoRepository, ObjectID } from 'typeorm';
+import { Role } from '../roles/entities/role.entity';
 import { Task } from '../tasks/entities/task.entity';
 import { WORKSPACE_REPOSITORY } from './consts';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspacesDto } from './dto/get-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { Admin, Role } from '../roles/entities/role.entity';
 import { Workspace } from './entities/workspace.entity';
-import { Privilege } from '../roles/role.interface';
 
 @Injectable()
 export class WorkspacesService {
@@ -24,23 +24,59 @@ export class WorkspacesService {
     private connection: Connection,
   ) {}
 
-  async create({ userId, userName, ...rest }: CreateWorkspaceDto) {
+  async create({ userId, userName, avatar, ...rest }: CreateWorkspaceDto) {
     try {
-      let workspace = await this.workspaceRepository.create(rest);
-      workspace.creatorId = userId;
-      const agent = new Agent({ userId, userName, role: Admin });
+      let data;
 
       await this.connection.transaction(async (manager) => {
-        workspace = await manager.save(workspace);
-        await manager.save(agent);
+        // workspace
+        data = await manager.save(
+          new Workspace({
+            creatorId: userId,
+            ...rest,
+          }),
+        );
+
+        data.id = data.id?.toString() as unknown as ObjectID;
+
+        // base workspace roles
+        const admin = await manager.save(
+          new Role({
+            privileges: Object.values(Privilege),
+            name: BaseRole.ADMIN,
+            workspaceId: data.id,
+          }),
+        );
+
+        const worker = await manager.save(
+          new Role({
+            name: BaseRole.WORKER,
+            workspaceId: data.id,
+          }),
+        );
+
+        // initial workspace agents
+        await manager.save(
+          new Agent({
+            role: admin,
+            userName,
+            avatar,
+            userId,
+          }),
+        );
+
+        await manager.save(
+          new Agent({
+            role: worker,
+            userName: 'test worker',
+            userId: 111111111,
+          }),
+        );
       });
 
       return {
         status: HttpStatus.CREATED,
-        data: {
-          ...workspace,
-          id: workspace.id?.toString() as unknown as ObjectID,
-        },
+        data,
       };
     } catch (e) {
       throw new RpcException({
@@ -67,10 +103,7 @@ export class WorkspacesService {
       status: HttpStatus.OK,
       data: {
         hasMore: items.length === +limit + 1,
-        items: items.slice(0, limit).map((item) => ({
-          me: this.findAgent(item.id, userId),
-          ...item,
-        })),
+        items: items.slice(0, limit),
         total,
       },
     };
@@ -100,7 +133,7 @@ export class WorkspacesService {
       // creator | EDIT_WORKSPACE
       if (
         res.data.creatorId !== agent.userId &&
-        !agent.role.privileges.includes(Privilege.EDIT_WORKSPACE)
+        !agent.role?.privileges.includes(Privilege.EDIT_WORKSPACE)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,
@@ -108,8 +141,6 @@ export class WorkspacesService {
         };
       }
 
-      rest.roles = rest.roles.map((role) => new Role(role));
-      rest.roles[0].
       await this.workspaceRepository.update(id, rest);
 
       return {
@@ -137,15 +168,11 @@ export class WorkspacesService {
       }
 
       await this.connection.transaction(async (manager) => {
-        const workspaceRepo = manager.getMongoRepository(Workspace);
-        const agentRepo = manager.getMongoRepository(Agent);
-        const sagaRepo = manager.getMongoRepository(Saga);
-        const taskRepo = manager.getMongoRepository(Task);
-
-        await agentRepo.deleteMany({ workspaceId: id });
-        await sagaRepo.deleteMany({ workspaceId: id });
-        await taskRepo.deleteMany({ workspaceId: id });
-        await workspaceRepo.delete(id);
+        await manager.delete(Task, { workspace: id });
+        await manager.delete(Saga, { workspace: id });
+        await manager.delete(Agent, { workspace: id });
+        await manager.delete(Role, { workspace: id });
+        await manager.delete(Workspace, { id });
       });
 
       return {

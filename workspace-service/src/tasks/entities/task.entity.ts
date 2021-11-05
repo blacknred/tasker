@@ -14,26 +14,34 @@ import {
 } from 'typeorm';
 import { BaseStage } from '../interfaces/task.interface';
 
-export class TaskUpdateState {
+export class UpdateRecord {
   @Column()
   field: string;
 
   @Column()
-  prev: string;
+  prev: unknown;
 
   @Column()
-  next: string;
+  next: unknown;
+
+  constructor(record?: Partial<UpdateRecord>) {
+    Object.assign(this, record);
+  }
 }
 
 export class TaskUpdate {
-  @Column(() => TaskUpdateState)
-  state: TaskUpdateState;
+  @Column(() => UpdateRecord)
+  records: UpdateRecord[];
 
   @Column(() => Agent)
   agent: Agent;
 
   @CreateDateColumn()
   createdAt: Date;
+
+  constructor(update?: Partial<TaskUpdate>) {
+    Object.assign(this, update);
+  }
 }
 
 @Entity()

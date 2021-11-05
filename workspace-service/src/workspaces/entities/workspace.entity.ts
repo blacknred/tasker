@@ -46,6 +46,7 @@ export class Workspace {
   constructor(workspace?: Partial<Workspace>) {
     this.taskStages.unshift(...Object.values(BaseStage));
     this.taskLabels.unshift(...Object.values(BaseLabel));
+    this.doneStage = BaseStage.DONE;
 
     Object.assign(this, workspace);
   }

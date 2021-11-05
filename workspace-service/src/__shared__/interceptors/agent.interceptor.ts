@@ -6,23 +6,25 @@ import {
   Scope,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { WorkspacesService } from 'src/workspaces/workspaces.service';
+import { AgentsService } from 'src/agents/agents.service';
 import { ObjectID } from 'typeorm';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AgentInterceptor implements NestInterceptor {
-  constructor(private readonly workspacesService: WorkspacesService) {}
+  constructor(private readonly agentsService: AgentsService) {}
 
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<unknown>> {
-    const { wid, id, uid } = context.switchToRpc().getData();
-    const workspaceId = (wid | id) as unknown as ObjectID;
+    const { uid, ...rest } = context.switchToRpc().getData();
+    const wid = (rest.wid | rest.id) as unknown as ObjectID;
 
-    if (workspaceId && uid) {
-      context.switchToRpc().getContext().agent =
-        await this.workspacesService.findAgent(workspaceId, uid);
+    if (wid && uid) {
+      const params = { wid, uid, limit: 1, userId: uid };
+      const { data } = await this.agentsService.findAll(params);
+
+      context.switchToRpc().getContext().agent = data.items[0];
     }
 
     return next.handle();

@@ -23,4 +23,8 @@ export class CreateWorkspaceDto {
 
   @IsString({ message: 'Must be an string' })
   userName: string;
+
+  @IsOptional()
+  @IsString({ message: 'Must be an string' })
+  avatar?: string;
 }

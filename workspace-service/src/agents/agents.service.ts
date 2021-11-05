@@ -1,6 +1,6 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { Privilege } from 'src/roles/role.interface';
+import { Privilege } from 'src/roles/interfaces/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { MongoRepository, ObjectID } from 'typeorm';
 import { AGENT_REPOSITORY } from './consts';
@@ -19,10 +19,10 @@ export class AgentsService {
     private agentRepository: MongoRepository<Agent>,
   ) {}
 
-  async create(createAgentDto: CreateAgentDto) {
+  async create({ wid: workspaceId, ...rest }: CreateAgentDto) {
     try {
-      const item = this.agentRepository.create(createAgentDto);
-      const data = await this.agentRepository.save(item);
+      const agent = this.agentRepository.create({ ...rest, workspaceId });
+      const data = await this.agentRepository.save(agent);
       data.id = data.id.toString() as unknown as ObjectID;
 
       return {
@@ -36,12 +36,8 @@ export class AgentsService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetAgentsDto, agent: IAgent) {
-    const where = { workspaceId: agent.workspaceId };
-
-    if (!agent.role.privileges.includes(Privilege.READ_ANY_AGENT)) {
-      where['creator.id'] = agent.id;
-    }
+  async findAll({ limit, offset, wid, ...rest }: GetAgentsDto) {
+    const where = { workspaceId: wid };
 
     const [items, total] = await this.agentRepository.findAndCount({
       where: Object.keys(rest).reduce((acc, key) => {
@@ -64,22 +60,12 @@ export class AgentsService {
     };
   }
 
-  async findOne(id: ObjectID, agent: IAgent) {
+  async findOne(id: ObjectID) {
     const item = await this.agentRepository.findOne(id);
 
     if (!item) {
       return {
         status: HttpStatus.NOT_FOUND,
-        data: null,
-      };
-    }
-
-    if (
-      item.id !== agent.id &&
-      !agent.role.privileges.includes(Privilege.READ_ANY_AGENT)
-    ) {
-      return {
-        status: HttpStatus.FORBIDDEN,
         data: null,
       };
     }
@@ -90,36 +76,14 @@ export class AgentsService {
     };
   }
 
-  async findOneExtended(wid: ObjectID, uid: number): Promise<Agent> {
-    return this.agentRepository.findOne({ workspaceId: wid, userId: uid });
-    // .aggregate<Agent>([
-    //   { $unwind: '$agents' },
-    //   { $match: { _id: id, 'agents.userId': userId } },
-    //   //   { $unwind: '$roles' },
-    //   //   { $lookup: {
-    //   //     from: "sivaUserInfo",
-    //   //     localField: "userId",
-    //   //     foreignField: "userId",
-    //   //     as: "userInfo"
-    //   // }
-    //   // { $project: { _id: 0, "products.productID": 1 } }
-    //   // $group: {
-    //   //   _id: {
-    //   //     country: '$address.country',
-    //   //   },
-    //   // },
-    // ])
-    // .toArray()[0];
-  }
-
   async update({ id, ...rest }: UpdateAgentDto, agent: IAgent) {
     try {
-      const res = await this.findOne(id, agent);
+      const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
       if (
         res.data.id !== agent.id &&
-        !agent.role.privileges.includes(Privilege.EDIT_ANY_AGENT)
+        !agent.role?.privileges.includes(Privilege.MANAGE_AGENT)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,
@@ -127,12 +91,11 @@ export class AgentsService {
         };
       }
 
-      const updatedAgent = Object.assign(res.data, rest);
-      await this.agentRepository.update(id, updatedAgent);
+      await this.agentRepository.update(id, rest);
 
       return {
         status: HttpStatus.OK,
-        data: updatedAgent,
+        data: { ...res.data, ...rest },
       };
     } catch (e) {
       throw new RpcException({
@@ -143,12 +106,12 @@ export class AgentsService {
 
   async remove(id: ObjectID, agent: IAgent) {
     try {
-      const res = await this.findOne(id, agent);
+      const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
       if (
         res.data.id !== agent.id &&
-        !agent.role.privileges.includes(Privilege.DELETE_ANY_AGENT)
+        !agent.role?.privileges.includes(Privilege.MANAGE_AGENT)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,

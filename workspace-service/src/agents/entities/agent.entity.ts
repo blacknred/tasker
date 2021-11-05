@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinTable,
-  ManyToOne,
   ObjectID,
   ObjectIdColumn,
   OneToOne,
@@ -24,7 +23,7 @@ export class Agent {
   userName: string;
 
   @Column()
-  avatar: string;
+  avatar?: string;
 
   @Column()
   workspaceId: ObjectID;
@@ -34,7 +33,7 @@ export class Agent {
 
   @OneToOne(() => Role, { cascade: true, eager: true })
   @JoinTable()
-  role: Role;
+  role?: Partial<Role>;
 
   static isSearchable(column: string) {
     return ['userId', 'userName', 'roleId', 'createdAt'].includes(column);

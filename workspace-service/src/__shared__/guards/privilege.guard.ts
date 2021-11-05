@@ -25,7 +25,7 @@ export class PrivilegeGuard extends AgentGuard {
       return (
         super.canActivate(context) &&
         privileges.every((privilege) =>
-          agent.role.privileges.includes(privilege),
+          agent.role?.privileges.includes(privilege),
         )
       );
     } catch (_) {
