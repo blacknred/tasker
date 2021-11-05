@@ -32,10 +32,10 @@ export class HealthService {
         this.prometheusService,
       ),
       new MicroserviceIndicator(
-        'TaskMicroservice',
+        'WorkspaceMicroservice',
         {
           transport: Transport.TCP,
-          options: { host: 'task-service' },
+          options: { host: 'workspace-service' },
         },
         this.prometheusService,
       ),

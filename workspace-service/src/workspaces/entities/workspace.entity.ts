@@ -21,13 +21,13 @@ export class Workspace {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ array: true })
+  @Column({ array: true, default: Object.values(BaseStage) })
   taskStages: string[];
 
-  @Column({ array: true })
+  @Column({ array: true, default: Object.values(BaseLabel) })
   taskLabels: string[];
 
-  @Column()
+  @Column({ default: BaseStage.DONE })
   doneStage: string;
 
   @Column()
@@ -44,10 +44,6 @@ export class Workspace {
   }
 
   constructor(workspace?: Partial<Workspace>) {
-    this.taskStages.unshift(...Object.values(BaseStage));
-    this.taskLabels.unshift(...Object.values(BaseLabel));
-    this.doneStage = BaseStage.DONE;
-
     Object.assign(this, workspace);
   }
 }

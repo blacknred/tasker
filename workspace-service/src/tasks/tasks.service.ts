@@ -1,15 +1,12 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
-import { SagasService } from 'src/sagas/sagas.service';
+import { Saga } from 'src/sagas/entities/saga.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { ObjectID, Repository } from 'typeorm';
-import {
-  NOTIFICATION_SERVICE,
-  TASK_REPOSITORY,
-  WORKER_SERVICE,
-} from './consts';
+import { NOTIFICATION_SERVICE, WORKER_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -22,9 +19,9 @@ export class TasksService {
   constructor(
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: ClientProxy,
-    @Inject(TASK_REPOSITORY) private taskRepository: Repository<Task>,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
-    private readonly sagasService: SagasService,
+    @InjectRepository(Task) private taskRepository: Repository<Task>,
+    @InjectRepository(Task) private sagaRepository: Repository<Saga>,
   ) {}
 
   async create({ sagaIds, ...rest }: CreateTaskDto, agent: IAgent) {
@@ -34,7 +31,7 @@ export class TasksService {
       const task = this.taskRepository.create(params);
 
       if (sagaIds.length) {
-        task.sagas = await this.sagasService.findAllByIds(sagaIds);
+        task.sagas = await this.sagaRepository.findByIds(sagaIds);
       }
 
       const data = await this.taskRepository.save(task);
@@ -137,7 +134,7 @@ export class TasksService {
       res.data.updates.push(new TaskUpdate({ agent, records }));
 
       if (sagaIds.length) {
-        res.data.sagas = await this.sagasService.findAllByIds(sagaIds);
+        res.data.sagas = await this.sagaRepository.findByIds(sagaIds);
       }
 
       Object.assign(res.data, rest);

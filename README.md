@@ -10,7 +10,6 @@ Microservice boilerplate for task management app
 | Queue                  | rabbitmq             | RabbitMQ              | 5672  |
 | User DB                | user-db              | Postgres              | 5432  |
 | Workspace DB           | workspace-db         | MongoDB               | 27017 |
-<!-- | Auth CRUD service      | auth-service         | TS, NestJS, TCP       | 8081  | -->
 | User CRUD service      | user-service         | TS, NestJS, TCP       | 8082  |
 | Workspace CRUD service | workspace-service    | TS, NestJS, TCP       | 8083  |
 | Worker service         | worker-service       | TS, NestJS, AMQP      | 8084  |
@@ -19,6 +18,7 @@ Microservice boilerplate for task management app
 | Web client             | web                  | TS, NextJS, ChakraUI  | 3000  |
 | Prometheus webUI       | prometheus           | Prometheus            | 3001  |
 | Grafana UI             | grafana              | Grafana               | 3002  |
+<!-- | Auth CRUD service      | auth-service         | TS, NestJS, TCP       | 8081  | -->
 
 ## Run the project
 

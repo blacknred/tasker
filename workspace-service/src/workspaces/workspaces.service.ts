@@ -1,14 +1,14 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
 import { Saga } from 'src/sagas/entities/saga.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { Connection, MongoRepository, ObjectID } from 'typeorm';
+import { Connection, ObjectID, Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { Task } from '../tasks/entities/task.entity';
-import { WORKSPACE_REPOSITORY } from './consts';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspacesDto } from './dto/get-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
@@ -19,9 +19,9 @@ export class WorkspacesService {
   private readonly logger = new Logger(WorkspacesService.name);
 
   constructor(
-    @Inject(WORKSPACE_REPOSITORY)
-    private workspaceRepository: MongoRepository<Workspace>,
     private connection: Connection,
+    @InjectRepository(Workspace)
+    private workspaceRepository: Repository<Workspace>,
   ) {}
 
   async create({ userId, userName, avatar, ...rest }: CreateWorkspaceDto) {

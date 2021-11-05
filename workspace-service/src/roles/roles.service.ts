@@ -1,9 +1,9 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { MongoRepository, ObjectID } from 'typeorm';
-import { ROLE_REPOSITORY } from './consts';
+import { ObjectID, Repository } from 'typeorm';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { GetRolesDto } from './dto/get-roles.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -14,8 +14,8 @@ export class RolesService {
   private readonly logger = new Logger(RolesService.name);
 
   constructor(
-    @Inject(ROLE_REPOSITORY)
-    private roleRepository: MongoRepository<Role>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
 
   async create({ wid: workspaceId, ...rest }: CreateRoleDto) {

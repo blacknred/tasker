@@ -6,4 +6,4 @@ import { WorkspacesController } from './workspaces.controller';
   controllers: [WorkspacesController],
   providers: [workspaceProvider],
 })
-export class TasksModule {}
+export class WorkspacesModule {}

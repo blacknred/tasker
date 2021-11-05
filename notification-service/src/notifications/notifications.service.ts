@@ -74,25 +74,27 @@ export class NotificationsService {
       switch (type) {
         case NotificationType.PUSH:
           if (userId) {
-            const { pushSubscriptions } = await this.cacheService.get(
+            const { pushSubscriptions } = await this.cacheService.getAsync(
               `sess:${userId}`,
             );
             allTargets.push(...pushSubscriptions);
           } else {
-            const sessions = await this.cacheService.get(`sess`);
+            const sessions = await this.cacheService.getAsync(`sess`);
             allTargets.push(...sessions.map((sess) => sess.pushSubscriptions));
           }
           break;
         case NotificationType.EMAIL:
           if (userId) {
-            const { email } = await this.cacheService.get(`sess:${userId}`);
+            const { email } = await this.cacheService.getAsync(
+              `sess:${userId}`,
+            );
             allTargets.push({
               to: email,
               subject: 'notification',
               text: JSON.stringify(payload),
             });
           } else {
-            const sessions = await this.cacheService.get(`sess`);
+            const sessions = await this.cacheService.getAsync(`sess`);
             allTargets.push(
               sessions.map((sess) => ({
                 to: sess.email,

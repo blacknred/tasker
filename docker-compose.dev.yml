@@ -6,7 +6,6 @@ services:
     build: ./rabbitmq
     env_file: ./.env.dev
     restart: always
-    networks:  backend
     volumes:
       - "./rabbitmq/data:/var/lib/rabbitmq"
     environment:
@@ -15,6 +14,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - backend
     healthcheck:
       test: exit 0
 
@@ -23,13 +24,14 @@ services:
     build: ./redis
     env_file: ./.env.dev
     restart: always
-    networks: backend
     volumes:
       - "./redis/data:/data"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     ports:
       - "6379:6379"
+    networks:
+      - backend
     healthcheck:
       test: exit 0
 
@@ -38,7 +40,6 @@ services:
     build: ./user-db
     env_file: ./.env.dev
     restart: always
-    networks: backend
     volumes:
       - "./user-db/data:/var/lib/postgresql/data"
     environment:
@@ -47,6 +48,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-users_test}
     ports:
       - "5432:5432"
+    networks:
+      - backend
     healthcheck:
       test: exit 0
 
@@ -55,7 +58,6 @@ services:
     build: ./workspace-db
     env_file: ./.env.dev
     restart: always
-    networks: backend
     volumes:
       - "./workspace-db/data:/data/db"
     environment:
@@ -65,6 +67,8 @@ services:
       - MONGO_DB=${MONGO_DB:-workspaces_test}
     ports:
       - "27017:27017"
+    networks:
+      - backend
     healthcheck:
       test: exit 0
 
@@ -100,7 +104,6 @@ services:
     command: yarn start:dev
     env_file: ./.env.dev
     restart: on-failure
-    networks: backend
     build:
       context: ./user-service
       target: development
@@ -114,6 +117,8 @@ services:
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     ports:
       - "8082:3000"
+    networks:
+      - backend
     depends_on:
       - user-db
       - rabbitmq
@@ -127,7 +132,6 @@ services:
     command: yarn start:dev
     env_file: ./.env.dev
     restart: on-failure
-    networks: backend
     build:
       context: ./workspace-service
       target: development
@@ -137,10 +141,12 @@ services:
       - "/usr/src/app/dist"
     environment:
       - NODE_ENV=development
-      - DB_URL=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@workspaces-db:27017/${MONGO_DB:-workspaces_test}
+      - DB_URL=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@workspace-db:27017/${MONGO_DB:-workspaces_test}
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     ports:
       - "8083:3000"
+    networks:
+      - backend
     depends_on:
       - workspace-db
       - rabbitmq
@@ -154,7 +160,6 @@ services:
     command: yarn start:dev
     env_file: ./.env.dev
     restart: on-failure
-    networks: backend
     build:
       context: ./worker-service
       target: development
@@ -168,6 +173,8 @@ services:
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     ports:
       - "8084:3000"
+    networks:
+      - backend      
     depends_on:
       - rabbitmq
       - workspace-service
@@ -181,7 +188,6 @@ services:
     command: yarn start:dev
     env_file: ./.env.dev
     restart: on-failure
-    networks: backend
     build:
       context: ./notification-service
       target: development
@@ -195,6 +201,8 @@ services:
       - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     ports:
       - "8085:3000"
+    networks:
+      - backend      
     depends_on:
       - redis
       - rabbitmq
@@ -227,13 +235,13 @@ services:
       - frontend
     depends_on:
       - user-service
-      - workspaces-service
-      - auth-service
+      - workspace-service
+      # - auth-service
       - redis
     links:
       - user-service
-      - workspaces-service
-      - auth-service
+      - workspace-service
+      # - auth-service
       - redis
 
   web:
@@ -241,7 +249,6 @@ services:
     hostname: web
     env_file: ./.env.dev
     restart: unless-stopped
-    networks: frontend
     build:
       context: ./web
       target: development
@@ -253,6 +260,8 @@ services:
       - API_HOST=${API_GATEWAY_HOST:-http://localhost:8080}
     ports:
       - "3000:3000"
+    networks:
+      - frontend      
 
   prometheus:
     container_name: prometheus
@@ -260,12 +269,13 @@ services:
     build: ./prometheus
     env_file: ./.env.dev
     restart: unless-stopped
-    networks: frontend
     volumes:
       - "./prometheus/data:/prometheus"
       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
     ports:
       - "3001:9090"
+    networks:
+      - frontend  
 
   grafana:
     container_name: grafana
@@ -273,12 +283,13 @@ services:
     build: ./grafana
     env_file: ./.env.dev
     restart: unless-stopped
-    networks: frontend
     volumes:
       - "./grafana/data:/var/lib/grafana"
       - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
     ports:
       - "3002:3000"
+    networks:
+      - frontend
     links:
       - prometheus
 

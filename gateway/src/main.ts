@@ -22,7 +22,8 @@ async function bootstrap() {
     .addCookieAuth()
     .addTag('Auth')
     .addTag('Users')
-    .addTag('Tasks')
+    .addTag('Workspaces')
+    .addTag('Metrics')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);

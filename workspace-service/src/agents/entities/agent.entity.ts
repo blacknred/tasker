@@ -25,7 +25,7 @@ export class Agent {
   @Column()
   avatar?: string;
 
-  @Column()
+  @ObjectIdColumn()
   workspaceId: ObjectID;
 
   @CreateDateColumn()

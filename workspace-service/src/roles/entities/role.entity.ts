@@ -15,7 +15,7 @@ export class Role {
   @Column({ type: 'enum', enum: Privilege, array: true })
   privileges: Privilege[];
 
-  @Column()
+  @ObjectIdColumn()
   workspaceId: ObjectID;
 
   static isSearchable(column: string) {

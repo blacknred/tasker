@@ -22,7 +22,7 @@ export class Saga {
   @Column({ nullable: true })
   description?: string;
 
-  @Column()
+  @ObjectIdColumn()
   workspaceId: ObjectID;
 
   @CreateDateColumn()

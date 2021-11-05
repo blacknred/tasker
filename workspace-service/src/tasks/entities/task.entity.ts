@@ -62,7 +62,7 @@ export class Task {
   @Column({ nullable: true })
   label?: string;
 
-  @Column()
+  @ObjectIdColumn()
   workspaceId: ObjectID;
 
   @CreateDateColumn()

@@ -26,7 +26,6 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         CACHE_URL: Joi.string().required(),
-        QUEUE_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         NODE_ENV: Joi.string().required(),

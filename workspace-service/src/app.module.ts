@@ -1,6 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AgentsModule } from './agents/agents.module';
 import { RolesModule } from './roles/roles.module';
 import { SagasModule } from './sagas/sagas.module';
@@ -16,6 +17,7 @@ import { databaseProvider } from './__shared__/providers/database.provider';
         QUEUE_URL: Joi.string().required(),
       }),
     }),
+    TypeOrmModule.forRootAsync(databaseProvider),
     WorkspacesModule,
     RolesModule,
     AgentsModule,
@@ -23,7 +25,6 @@ import { databaseProvider } from './__shared__/providers/database.provider';
     TasksModule,
   ],
   providers: [
-    databaseProvider,
     // {
     //   provide: APP_INTERCEPTOR,
     //   scope: Scope.REQUEST,

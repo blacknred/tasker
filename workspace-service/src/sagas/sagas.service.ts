@@ -1,10 +1,10 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { InjectRepository } from '@nestjs/typeorm';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { Privilege } from 'src/roles/interfaces/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { ObjectID, Repository } from 'typeorm';
-import { SAGA_REPOSITORY } from './consts';
 import { CreateSagaDto } from './dto/create-saga.dto';
 import { GetSagasDto } from './dto/get-sagas.dto';
 import { UpdateSagaDto } from './dto/update-saga.dto';
@@ -15,7 +15,7 @@ export class SagasService {
   private readonly logger = new Logger(SagasService.name);
 
   constructor(
-    @Inject(SAGA_REPOSITORY) private sagaRepository: Repository<Saga>,
+    @InjectRepository(Saga) private sagaRepository: Repository<Saga>,
   ) {}
 
   async create(createSagaDto: CreateSagaDto, agent: IAgent) {
@@ -63,10 +63,6 @@ export class SagasService {
         total,
       },
     };
-  }
-
-  async findAllByIds(ids: ObjectID[]) {
-    return this.sagaRepository.findByIds(ids);
   }
 
   async findOne(id: ObjectID, agent: IAgent) {
