@@ -1,16 +1,18 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { InjectRepository } from '@nestjs/typeorm';
+import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
 import { Saga } from 'src/sagas/entities/saga.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { ObjectID, Repository } from 'typeorm';
 import { NOTIFICATION_SERVICE, WORKER_SERVICE } from './consts';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskUpdate, UpdateRecord } from './entities/task.entity';
+import { ITask } from './interfaces/task.interface';
 
 @Injectable()
 export class TasksService {
@@ -20,26 +22,19 @@ export class TasksService {
     @Inject(NOTIFICATION_SERVICE)
     private readonly notificationService: ClientProxy,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
-    @InjectRepository(Task) private taskRepository: Repository<Task>,
-    @InjectRepository(Task) private sagaRepository: Repository<Saga>,
+    @InjectRepository(Task) private taskRepository: EntityRepository<Task>,
   ) {}
 
-  async create({ sagaIds, ...rest }: CreateTaskDto, agent: IAgent) {
+  async create(createTaskDto: CreateTaskDto, agent: IAgent) {
     try {
-      const { workspaceId, id: creatorId } = agent;
-      const params = { ...rest, workspaceId, creatorId };
-      const task = this.taskRepository.create(params);
-
-      if (sagaIds.length) {
-        task.sagas = await this.sagaRepository.findByIds(sagaIds);
-      }
-
-      const data = await this.taskRepository.save(task);
-      data.id = data.id.toString() as unknown as ObjectID;
+      const data = new Task(createTaskDto);
+      data.workspaceId = agent.workspaceId;
+      data.creator = agent as Agent;
+      await this.taskRepository.persistAndFlush(data);
 
       // worker mock
       if (data.assignee?.role.name === BaseRole.WORKER) {
-        this.workerService.emit('new-task', task);
+        this.workerService.emit('new-task', data);
       }
 
       return {
@@ -54,46 +49,53 @@ export class TasksService {
   }
 
   async findAll({ limit, offset, ...rest }: GetTasksDto, agent: IAgent) {
-    const where = { workspaceId: agent.workspaceId };
+    const _where = { workspaceId: agent.workspaceId };
 
+    // creator | READ_ANY_TASK
     if (!agent.role?.privileges.includes(Privilege.READ_ANY_TASK)) {
-      where['creator.id'] = agent.id;
+      _where['creator.id'] = agent.id;
     }
 
-    const [tasks, total] = await this.taskRepository.findAndCount({
-      where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Task.isSearchable(key) && rest[key])) return acc;
-        acc[key] = rest[key];
-        return acc;
-      }, where),
-      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-      skip: +offset,
-      take: +limit + 1,
-      withDeleted: false,
+    const where = Object.keys(rest).reduce((acc, key) => {
+      if (!(Task.isSearchable(key) && rest[key])) return acc;
+      acc[key] = rest[key];
+      return acc;
+    }, _where);
+
+    const [items, total] = await this.taskRepository.findAndCount(where, {
+      orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      populate: ['creator', 'assignee', 'sagas'],
+      limit: +limit + 1,
+      offset: +offset,
     });
 
     return {
       status: HttpStatus.OK,
       data: {
-        hasMore: tasks.length === +limit + 1,
-        items: tasks.slice(0, limit),
+        hasMore: items.length === +limit + 1,
+        items: items.slice(0, limit),
         total,
       },
     };
   }
 
-  async findOne(id: ObjectID, agent: IAgent, withDeleted?: boolean) {
-    const task = await this.taskRepository.findOne(id, { withDeleted });
+  async findOne(id: string, agent: IAgent) {
+    const data = await this.taskRepository.findOne(id, [
+      'creator',
+      'assignee',
+      'sagas',
+    ]);
 
-    if (!task) {
+    if (!data) {
       return {
         status: HttpStatus.NOT_FOUND,
         data: null,
       };
     }
 
+    // creator | READ_ANY_TASK
     if (
-      task.creator.id !== agent.id &&
+      data.creator.id !== agent.id &&
       !agent.role?.privileges.includes(Privilege.READ_ANY_TASK)
     ) {
       return {
@@ -104,15 +106,16 @@ export class TasksService {
 
     return {
       status: HttpStatus.OK,
-      data: task,
+      data,
     };
   }
 
-  async update({ id, sagaIds, ...rest }: UpdateTaskDto, agent: IAgent) {
+  async update({ id, ...rest }: UpdateTaskDto, agent: IAgent) {
     try {
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
+      // creator | EDIT_ANY_TASK
       if (
         res.data.creator.id !== agent.id &&
         !agent.role?.privileges.includes(Privilege.EDIT_ANY_TASK)
@@ -124,26 +127,22 @@ export class TasksService {
       }
 
       // increment update records
-      const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
-        const prev = res.data[field];
-        const next = rest[field];
-        if (!prev || next === prev) return all;
-        return all.concat(new UpdateRecord({ prev, next, field }));
-      }, []);
+      // const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
+      //   const prev = res.data[field];
+      //   const next = rest[field];
+      //   if (!prev || next === prev) return all;
+      //   return all.concat(new UpdateRecord({ prev, next, field }));
+      // }, []);
 
-      res.data.updates.push(new TaskUpdate({ agent, records }));
+      // res.data.updates.push(new TaskUpdate({ agent, records }));
 
-      if (sagaIds.length) {
-        res.data.sagas = await this.sagaRepository.findByIds(sagaIds);
-      }
+      // Object.assign(res.data, rest);
+      // await this.taskRepository.update(id, res.data);
 
-      Object.assign(res.data, rest);
-      await this.taskRepository.update(id, res.data);
-
-      // worker mock
-      if (records.some((record) => record.next === BaseRole.WORKER)) {
-        this.workerService.emit('new-task', res.data);
-      }
+      // // worker mock
+      // if (records.some((record) => record.next === BaseRole.WORKER)) {
+      //   this.workerService.emit('new-task', res.data);
+      // }
 
       return {
         status: HttpStatus.OK,
@@ -156,11 +155,12 @@ export class TasksService {
     }
   }
 
-  async remove(id: ObjectID, agent: IAgent) {
+  async remove(id: string, agent: IAgent) {
     try {
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
+      // creator | DELETE_ANY_TASK
       if (
         res.data.creator.id !== agent.id &&
         !agent.role?.privileges.includes(Privilege.DELETE_ANY_TASK)
@@ -171,50 +171,11 @@ export class TasksService {
         };
       }
 
-      const deleted = await this.taskRepository.softDelete(id);
-
-      if (!deleted.affected) {
-        return {
-          status: HttpStatus.CONFLICT,
-          data: null,
-        };
-      }
+      await this.taskRepository.nativeDelete(id);
 
       return {
         status: HttpStatus.OK,
         data: null,
-      };
-    } catch (e) {
-      throw new RpcException({
-        status: HttpStatus.PRECONDITION_FAILED,
-      });
-    }
-  }
-
-  async restore(id: ObjectID, agent: IAgent) {
-    try {
-      const res = await this.findOne(id, agent, true);
-      if (!res.data) return res as ResponseDto;
-
-      if (res.data.creator.id !== agent.id) {
-        return {
-          status: HttpStatus.FORBIDDEN,
-          data: null,
-        };
-      }
-
-      const restored = await this.taskRepository.restore(id);
-
-      if (!restored.affected) {
-        return {
-          status: HttpStatus.CONFLICT,
-          data: null,
-        };
-      }
-
-      return {
-        status: HttpStatus.OK,
-        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

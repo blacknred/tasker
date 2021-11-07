@@ -1,5 +1,3 @@
-import { ObjectID } from 'typeorm';
-
 export enum Privilege {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
   MANAGE_ROLE = 'MANAGE_ROLE',
@@ -20,8 +18,8 @@ export enum BaseRole {
 }
 
 export interface IRole {
-  id: ObjectID;
+  id: string;
   name: string;
-  privileges?: Privilege[];
-  workspaceId: ObjectID;
+  privileges: Privilege[];
+  workspaceId: string;
 }

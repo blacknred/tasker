@@ -12,13 +12,13 @@ import { SagaResponseDto, SagasResponseDto } from './dto/response.dto';
 import { UpdateSagaDto } from './dto/update-saga.dto';
 import { SagasService } from './sagas.service';
 
-@Controller('sagas')
+@Controller()
 @UseGuards(AgentGuard)
 export class SagasController {
   constructor(private readonly sagasService: SagasService) {}
 
   @WithPrivilege(Privilege.CREATE_SAGA)
-  @MessagePattern('create')
+  @MessagePattern('sagas/create')
   async create(
     @Agent() agent,
     @Payload() createSagaDto: CreateSagaDto,
@@ -26,7 +26,7 @@ export class SagasController {
     return this.sagasService.create(createSagaDto, agent);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('sagas/getAll')
   async getAll(
     @Agent() agent,
     @Payload() getSagasDto: GetSagasDto,
@@ -34,7 +34,7 @@ export class SagasController {
     return this.sagasService.findAll(getSagasDto, agent);
   }
 
-  @MessagePattern('getOne')
+  @MessagePattern('sagas/getOne')
   async getOne(
     @Agent() agent,
     @Payload() { id }: GetSagaDto,
@@ -42,7 +42,7 @@ export class SagasController {
     return this.sagasService.findOne(id, agent);
   }
 
-  @MessagePattern('update')
+  @MessagePattern('sagas/update')
   async update(
     @Agent() agent,
     @Payload() updateSagaDto: UpdateSagaDto,
@@ -50,7 +50,7 @@ export class SagasController {
     return this.sagasService.update(updateSagaDto, agent);
   }
 
-  @MessagePattern('delete')
+  @MessagePattern('sagas/delete')
   async remove(
     @Agent() agent,
     @Payload() { id }: GetSagaDto,

@@ -18,26 +18,26 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @WithPrivilege(Privilege.MANAGE_ROLE)
-  @MessagePattern('create')
+  @MessagePattern('roles/create')
   async create(
     @Payload() createRoleDto: CreateRoleDto,
   ): Promise<RoleResponseDto> {
     return this.rolesService.create(createRoleDto);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('roles/getAll')
   async getAll(@Payload() getRolesDto: GetRolesDto): Promise<RolesResponseDto> {
     return this.rolesService.findAll(getRolesDto);
   }
 
   @WithPrivilege(Privilege.MANAGE_ROLE)
-  @MessagePattern('getOne')
+  @MessagePattern('roles/getOne')
   async getOne(@Payload() { id }: GetRoleDto): Promise<RoleResponseDto> {
     return this.rolesService.findOne(id);
   }
 
   @WithPrivilege(Privilege.MANAGE_ROLE)
-  @MessagePattern('update')
+  @MessagePattern('roles/update')
   async update(
     @Agent() agent,
     @Payload() updateRoleDto: UpdateRoleDto,
@@ -46,7 +46,7 @@ export class RolesController {
   }
 
   @WithPrivilege(Privilege.MANAGE_ROLE)
-  @MessagePattern('delete')
+  @MessagePattern('roles/delete')
   async remove(
     @Agent() agent,
     @Payload() { id }: GetRoleDto,

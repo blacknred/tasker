@@ -1,7 +1,6 @@
 import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 import { IsDateString, IsIn, IsMongoId, IsOptional } from 'class-validator';
-import { ObjectID } from 'typeorm';
 import {
   AccessDto,
   PaginationDto,
@@ -25,7 +24,7 @@ export class GetSagasDto extends IntersectionType(
   SagasSortingDto,
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
-  creatorId: ObjectID;
+  creatorId: string;
 
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })

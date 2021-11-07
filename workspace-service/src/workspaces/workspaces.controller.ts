@@ -37,6 +37,8 @@ export class WorkspacesController {
     @Agent() agent,
     @Payload() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
+    console.log('weqwew');
+
     return this.workspacesService.findOne(id, agent);
   }
 

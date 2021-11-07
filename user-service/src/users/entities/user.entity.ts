@@ -30,7 +30,6 @@ export class User implements IUser {
   @Column({ default: false })
   isAdmin: boolean;
 
-  @Exclude()
   @Column({ default: false })
   isConfirmed: boolean;
 
@@ -38,7 +37,6 @@ export class User implements IUser {
   @Index('user_createdAt_index')
   createdAt = new Date();
 
-  @Exclude()
   @UpdateDateColumn()
   updatedAt = new Date();
 
@@ -55,8 +53,8 @@ export class User implements IUser {
     return ['name', 'email', 'createdAt'].includes(column);
   }
 
-  static isSecured(column: string) {
-    return ['email', 'createdAt'].includes(column);
+  static isNotSecured(column: string) {
+    return ['id', 'name'].includes(column);
   }
 
   constructor(user?: Partial<User>) {

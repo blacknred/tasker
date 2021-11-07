@@ -14,12 +14,12 @@ import * as helmet from 'helmet';
 import * as passport from 'passport';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
-import { CACHE_SERVICE, SESSION_LIVESPAN } from './auth/consts';
+import { CACHE_SERVICE, SESSION_TTL } from './auth/consts';
 import { cacheProvider } from './auth/providers/cache.provider';
 import { RedisAdapter } from './auth/utils/redis.adapter';
 import { MonitoringModule } from './monitoring/monitoring.module';
-import { TasksModule } from './workspaces/workspaces.module';
 import { UsersModule } from './users/users.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
@@ -36,10 +36,10 @@ import { UsersModule } from './users/users.module';
       rootPath: join(__dirname, '..', 'documentation'),
       serveRoot: '/docs',
     }),
+    WorkspacesModule,
     MonitoringModule,
     AuthModule,
     UsersModule,
-    TasksModule,
   ],
   providers: [Logger, cacheProvider],
 })
@@ -67,7 +67,7 @@ export class AppModule implements NestModule {
           cookie: {
             sameSite: 'lax',
             httpOnly: true,
-            maxAge: SESSION_LIVESPAN,
+            maxAge: SESSION_TTL,
             signed: isProd,
             secure: isProd,
           },

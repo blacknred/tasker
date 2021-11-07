@@ -18,26 +18,26 @@ export class AgentsController {
   constructor(private readonly agentsService: AgentsService) {}
 
   @WithPrivilege(Privilege.MANAGE_AGENT)
-  @MessagePattern('create')
+  @MessagePattern('agents/create')
   async create(
     @Payload() createAgentDto: CreateAgentDto,
   ): Promise<AgentResponseDto> {
     return this.agentsService.create(createAgentDto);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('agents/getAll')
   async getAll(
     @Payload() getAgentsDto: GetAgentsDto,
   ): Promise<AgentsResponseDto> {
     return this.agentsService.findAll(getAgentsDto);
   }
 
-  @MessagePattern('getOne')
+  @MessagePattern('agents/getOne')
   async getOne(@Payload() { id }: GetAgentDto): Promise<AgentResponseDto> {
     return this.agentsService.findOne(id);
   }
 
-  @MessagePattern('update')
+  @MessagePattern('agents/update')
   async update(
     @Agent() agent,
     @Payload() updateAgentDto: UpdateAgentDto,
@@ -45,7 +45,7 @@ export class AgentsController {
     return this.agentsService.update(updateAgentDto, agent);
   }
 
-  @MessagePattern('delete')
+  @MessagePattern('agents/delete')
   async remove(
     @Agent() agent,
     @Payload() { id }: GetAgentDto,

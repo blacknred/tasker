@@ -1,39 +1,45 @@
-import { Transform } from 'class-transformer';
 import { Agent } from 'src/agents/entities/agent.entity';
 import {
-  Column,
-  CreateDateColumn,
   Entity,
-  JoinColumn,
-  ObjectID,
-  ObjectIdColumn,
   OneToOne,
-} from 'typeorm';
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { ObjectId } from 'mongodb';
+import { Exclude, Expose } from 'class-transformer';
 
 @Entity()
 export class Saga {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  @Exclude()
+  @PrimaryKey()
+  _id: ObjectId;
 
-  @Column({ length: 200 })
-  name: string;
+  @Expose()
+  @SerializedPrimaryKey()
+  id!: string;
 
-  @Column({ nullable: true })
+  @Property({ length: 200 })
+  name!: string;
+
+  @Property({ nullable: true })
   description?: string;
 
-  @ObjectIdColumn()
-  workspaceId: ObjectID;
+  @Property()
+  createdAt = new Date();
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @Column({ nullable: true })
+  @Property({ nullable: true })
   expiresAt?: Date;
 
-  @OneToOne(() => Agent, { cascade: true, eager: true })
-  @JoinColumn()
-  creator: Agent;
+  //
+
+  @Property()
+  workspaceId!: string;
+
+  @OneToOne(() => Agent, null, { fieldName: 'creatorId' })
+  creator!: Agent;
+
+  //
 
   static isSearchable(column: string) {
     return ['name', 'creatorId', 'createdAt', 'expiresAt'].includes(column);

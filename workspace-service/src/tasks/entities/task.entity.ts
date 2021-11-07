@@ -1,27 +1,26 @@
-import { Exclude, Transform } from 'class-transformer';
+import {
+  Entity,
+  ManyToMany,
+  OneToOne,
+  PrimaryKey,
+  Property,
+  Collection,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { Exclude, Expose } from 'class-transformer';
+import { ObjectId } from 'mongodb';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { Saga } from 'src/sagas/entities/saga.entity';
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ObjectID,
-  ObjectIdColumn,
-  OneToOne,
-} from 'typeorm';
 import { BaseStage } from '../interfaces/task.interface';
 
 export class UpdateRecord {
-  @Column()
+  @Property()
   field: string;
 
-  @Column()
+  @Property()
   prev: unknown;
 
-  @Column()
+  @Property()
   next: unknown;
 
   constructor(record?: Partial<UpdateRecord>) {
@@ -30,14 +29,14 @@ export class UpdateRecord {
 }
 
 export class TaskUpdate {
-  @Column(() => UpdateRecord)
-  records: UpdateRecord[];
+  @Property({ type: UpdateRecord })
+  records!: UpdateRecord[];
 
-  @Column(() => Agent)
-  agent: Agent;
+  @Property({ type: Agent })
+  agent!: Agent;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Property()
+  createdAt = new Date();
 
   constructor(update?: Partial<TaskUpdate>) {
     Object.assign(this, update);
@@ -46,51 +45,50 @@ export class TaskUpdate {
 
 @Entity()
 export class Task {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  @Exclude()
+  @PrimaryKey()
+  _id: ObjectId;
 
-  @Column({ length: 500 })
-  name: string;
+  @Expose()
+  @SerializedPrimaryKey()
+  id!: string;
 
-  @Column({ nullable: true })
+  @Property({ length: 500 })
+  name!: string;
+
+  @Property({ nullable: true })
   description?: string;
 
-  @Column({ default: BaseStage.TODO })
-  stage: string;
+  @Property({ nullable: true })
+  stage?: string;
 
-  @Column({ nullable: true })
+  @Property({ nullable: true })
   label?: string;
 
-  @ObjectIdColumn()
-  workspaceId: ObjectID;
+  @Property()
+  createdAt = new Date();
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @Column({ nullable: true })
+  @Property({ nullable: true })
   expiresAt?: Date;
 
-  @Exclude()
-  @DeleteDateColumn()
-  deletedAt: Date;
-
-  @Column(() => TaskUpdate)
+  @Property({ type: TaskUpdate })
   updates: TaskUpdate[];
 
   //
 
-  @OneToOne(() => Agent, { eager: true })
-  @JoinColumn()
-  creator: Agent;
+  @Property()
+  workspaceId!: string;
 
-  @OneToOne(() => Agent, { eager: true, nullable: true })
-  @JoinColumn()
+  @OneToOne(() => Agent, null, { fieldName: 'creatorId' })
+  creator!: Agent;
+
+  @OneToOne(() => Agent, null, { fieldName: 'assigneeId', nullable: true })
   assignee?: Agent;
 
-  @ManyToMany(() => Saga, { eager: true })
-  @JoinColumn()
-  sagas: Saga[];
+  @ManyToMany(() => Saga, null, { fieldName: 'sagaIds' })
+  sagas = new Collection<Saga>(this);
+
+  //
 
   static isSearchable(column: string) {
     return [

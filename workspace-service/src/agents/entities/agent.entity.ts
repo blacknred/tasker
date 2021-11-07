@@ -1,39 +1,45 @@
-import { Transform } from 'class-transformer';
-import { Role } from 'src/roles/entities/role.entity';
 import {
-  Column,
-  CreateDateColumn,
   Entity,
-  JoinTable,
-  ObjectID,
-  ObjectIdColumn,
   OneToOne,
-} from 'typeorm';
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { Exclude, Expose } from 'class-transformer';
+import { ObjectId } from 'mongodb';
+import { Role } from 'src/roles/entities/role.entity';
 
 @Entity()
 export class Agent {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  @Exclude()
+  @PrimaryKey()
+  _id: ObjectId;
 
-  @Column()
-  userId: number;
+  @Expose()
+  @SerializedPrimaryKey()
+  id!: string;
 
-  @Column()
-  userName: string;
+  @Property()
+  userId!: number;
 
-  @Column()
+  @Property()
+  userName!: string;
+
+  @Property({ nullable: true })
   avatar?: string;
 
-  @ObjectIdColumn()
-  workspaceId: ObjectID;
+  @Property()
+  createdAt = new Date();
 
-  @CreateDateColumn()
-  createdAt: Date;
+  //
 
-  @OneToOne(() => Role, { cascade: true, eager: true })
-  @JoinTable()
+  @Property()
+  workspaceId!: string;
+
+  @OneToOne(() => Role, null, { fieldName: 'roleId' })
   role?: Partial<Role>;
+
+  //
 
   static isSearchable(column: string) {
     return ['userId', 'userName', 'roleId', 'createdAt'].includes(column);

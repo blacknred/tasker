@@ -12,13 +12,13 @@ import { TaskResponseDto, TasksResponseDto } from './dto/response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
 
-@Controller('tasks')
+@Controller()
 @UseGuards(AgentGuard)
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @WithPrivilege(Privilege.CREATE_TASK)
-  @MessagePattern('create')
+  @MessagePattern('tasks/create')
   async create(
     @Agent() agent,
     @Payload() createTaskDto: CreateTaskDto,
@@ -26,7 +26,7 @@ export class TasksController {
     return this.tasksService.create(createTaskDto, agent);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('tasks/getAll')
   async getAll(
     @Agent() agent,
     @Payload() getTasksDto: GetTasksDto,
@@ -34,7 +34,7 @@ export class TasksController {
     return this.tasksService.findAll(getTasksDto, agent);
   }
 
-  @MessagePattern('getOne')
+  @MessagePattern('tasks/getOne')
   async getOne(
     @Agent() agent,
     @Payload() { id }: GetTaskDto,
@@ -42,7 +42,7 @@ export class TasksController {
     return this.tasksService.findOne(id, agent);
   }
 
-  @MessagePattern('update')
+  @MessagePattern('tasks/update')
   async update(
     @Agent() agent,
     @Payload() updateTaskDto: UpdateTaskDto,
@@ -50,19 +50,11 @@ export class TasksController {
     return this.tasksService.update(updateTaskDto, agent);
   }
 
-  @MessagePattern('delete')
+  @MessagePattern('tasks/delete')
   async remove(
     @Agent() agent,
     @Payload() { id }: GetTaskDto,
   ): Promise<ResponseDto> {
     return this.tasksService.remove(id, agent);
-  }
-
-  @MessagePattern('restore')
-  async restore(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.restore(id, agent);
   }
 }

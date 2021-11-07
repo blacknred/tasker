@@ -2,9 +2,7 @@ import { ClassSerializerInterceptor } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { WorkspacesService } from './workspaces/workspaces.service';
 import { AllExceptionFilter } from './__shared__/filters/all-exception.filter';
-import { AgentInterceptor } from './__shared__/interceptors/agent.interceptor';
 import { ValidationPipe } from './__shared__/pipes/validation.pipe';
 
 async function bootstrap() {
@@ -15,7 +13,6 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalInterceptors(new AgentInterceptor(app.get(WorkspacesService)));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new AllExceptionFilter());
 

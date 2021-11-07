@@ -1,13 +1,16 @@
-import { Module } from '@nestjs/common';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Role } from 'src/roles/entities/role.entity';
 import { AgentsController } from './agents.controller';
 import { AgentsService } from './agents.service';
 import { Agent } from './entities/agent.entity';
 
+@Global()
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Agent])],
+  imports: [ConfigModule, MikroOrmModule.forFeature([Agent, Role])],
   controllers: [AgentsController],
   providers: [AgentsService],
+  exports: [AgentsService],
 })
 export class AgentsModule {}

@@ -1,12 +1,12 @@
+import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
 import { Saga } from 'src/sagas/entities/saga.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { Connection, ObjectID, Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { Task } from '../tasks/entities/task.entity';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
@@ -19,66 +19,65 @@ export class WorkspacesService {
   private readonly logger = new Logger(WorkspacesService.name);
 
   constructor(
-    private connection: Connection,
     @InjectRepository(Workspace)
-    private workspaceRepository: Repository<Workspace>,
+    private workspaceRepository: EntityRepository<Workspace>,
+    @InjectRepository(Role)
+    private agentRepository: EntityRepository<Agent>,
+    @InjectRepository(Agent)
+    private roleRepository: EntityRepository<Role>,
+    @InjectRepository(Task)
+    private taskRepository: EntityRepository<Task>,
+    @InjectRepository(Saga)
+    private sagaRepository: EntityRepository<Saga>,
   ) {}
 
   async create({ userId, userName, avatar, ...rest }: CreateWorkspaceDto) {
     try {
-      let data;
+      // workspace
+      const data = new Workspace({ creatorId: userId, ...rest });
+      await this.workspaceRepository.persistAndFlush(data);
 
-      await this.connection.transaction(async (manager) => {
-        // workspace
-        data = await manager.save(
-          new Workspace({
-            creatorId: userId,
-            ...rest,
-          }),
-        );
+      // base workspace roles
+      const roles = [
+        new Role({
+          privileges: Object.values(Privilege),
+          name: BaseRole.ADMIN,
+          workspaceId: data.id,
+        }),
+        new Role({
+          name: BaseRole.WORKER,
+          workspaceId: data.id,
+        }),
+      ];
 
-        data.id = data.id?.toString() as unknown as ObjectID;
+      await this.roleRepository.persistAndFlush(roles);
 
-        // base workspace roles
-        const admin = await manager.save(
-          new Role({
-            privileges: Object.values(Privilege),
-            name: BaseRole.ADMIN,
-            workspaceId: data.id,
-          }),
-        );
+      // initial workspace agents
+      const agents = [
+        new Agent({
+          workspaceId: data.id,
+          role: roles[0],
+          userName,
+          avatar,
+          userId,
+        }),
+        new Agent({
+          workspaceId: data.id,
+          userName: 'test worker',
+          userId: 111111111,
+          role: roles[1],
+        }),
+      ];
 
-        const worker = await manager.save(
-          new Role({
-            name: BaseRole.WORKER,
-            workspaceId: data.id,
-          }),
-        );
-
-        // initial workspace agents
-        await manager.save(
-          new Agent({
-            role: admin,
-            userName,
-            avatar,
-            userId,
-          }),
-        );
-
-        await manager.save(
-          new Agent({
-            role: worker,
-            userName: 'test worker',
-            userId: 111111111,
-          }),
-        );
-      });
+      await this.agentRepository.persistAndFlush(agents);
 
       return {
         status: HttpStatus.CREATED,
         data,
       };
     } catch (e) {
+      console.log(e);
+
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
       });
@@ -86,17 +85,17 @@ export class WorkspacesService {
   }
 
   async findAll({ limit, offset, userId, ...rest }: GetWorkspacesDto) {
-    const where = userId ? { 'agents.userId': { $eq: userId } } : {};
+    const _where = userId ? { 'agents.userId': { $eq: userId } } : {};
+    const where = Object.keys(rest).reduce((acc, key) => {
+      if (!(Workspace.isSearchable(key) && rest[key])) return acc;
+      acc[key] = { $eq: rest[key] };
+      return acc;
+    }, _where);
 
-    const [items, total] = await this.workspaceRepository.findAndCount({
-      where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Workspace.isSearchable(key) && rest[key])) return acc;
-        acc[key] = { $eq: rest[key] };
-        return acc;
-      }, where),
-      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-      skip: +offset,
-      take: +limit + 1,
+    const [items, total] = await this.workspaceRepository.findAndCount(where, {
+      orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      limit: +limit + 1,
+      offset: +offset,
     });
 
     return {
@@ -109,10 +108,10 @@ export class WorkspacesService {
     };
   }
 
-  async findOne(id: ObjectID, agent?: IAgent) {
-    const workspace = await this.workspaceRepository.findOne(id);
+  async findOne(id: string, agent?: IAgent) {
+    const data = await this.workspaceRepository.findOne(id);
 
-    if (!workspace) {
+    if (!data) {
       return {
         status: HttpStatus.NOT_FOUND,
         data: null,
@@ -121,7 +120,7 @@ export class WorkspacesService {
 
     return {
       status: HttpStatus.OK,
-      data: { ...workspace, agent },
+      data: { ...data, agent },
     };
   }
 
@@ -141,7 +140,7 @@ export class WorkspacesService {
         };
       }
 
-      await this.workspaceRepository.update(id, rest);
+      await this.workspaceRepository.nativeUpdate(id, rest);
 
       return {
         status: HttpStatus.OK,
@@ -154,7 +153,7 @@ export class WorkspacesService {
     }
   }
 
-  async remove(id: ObjectID, userId: number) {
+  async remove(id: string, userId: number) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
@@ -167,13 +166,11 @@ export class WorkspacesService {
         };
       }
 
-      await this.connection.transaction(async (manager) => {
-        await manager.delete(Task, { workspace: id });
-        await manager.delete(Saga, { workspace: id });
-        await manager.delete(Agent, { workspace: id });
-        await manager.delete(Role, { workspace: id });
-        await manager.delete(Workspace, { id });
-      });
+      await this.workspaceRepository.nativeDelete({ id });
+      await this.taskRepository.nativeDelete({ workspace: id });
+      await this.sagaRepository.nativeDelete({ workspace: id });
+      await this.agentRepository.nativeDelete({ workspace: id });
+      await this.roleRepository.nativeDelete({ workspace: id });
 
       return {
         status: HttpStatus.OK,

@@ -1,43 +1,47 @@
-import { Transform } from 'class-transformer';
-import { BaseLabel, BaseStage } from 'src/tasks/interfaces/task.interface';
 import {
-  Column,
-  CreateDateColumn,
+  ArrayType,
   Entity,
-  ObjectID,
-  ObjectIdColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { Exclude, Expose } from 'class-transformer';
+import { ObjectId } from 'mongodb';
+import { BaseLabel, BaseStage } from 'src/tasks/interfaces/task.interface';
 
 @Entity()
 export class Workspace {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  @Exclude()
+  @PrimaryKey()
+  _id: ObjectId;
 
-  @Column({ length: 200 })
-  name: string;
+  @Expose()
+  @SerializedPrimaryKey()
+  id!: string;
 
-  @Column({ nullable: true })
+  @Property({ length: 200 })
+  name!: string;
+
+  @Property({ nullable: true })
   description?: string;
 
-  @Column({ array: true, default: Object.values(BaseStage) })
-  taskStages: string[];
+  @Property({ type: ArrayType, default: Object.values(BaseStage) })
+  taskStages: string[] = Object.values(BaseStage);
 
-  @Column({ array: true, default: Object.values(BaseLabel) })
-  taskLabels: string[];
+  @Property({ type: ArrayType, default: Object.values(BaseLabel) })
+  taskLabels: string[] = Object.values(BaseLabel);
 
-  @Column({ default: BaseStage.DONE })
-  doneStage: string;
+  @Property({ default: BaseStage.DONE })
+  doneStage = BaseStage.DONE;
 
-  @Column()
-  creatorId: number;
+  @Property()
+  createdAt = new Date();
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Property({ onUpdate: () => new Date() })
+  updatedAt = new Date();
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Property()
+  creatorId!: number;
 
   static isSearchable(column: string) {
     return ['name', 'creatorId', 'createdAt'].includes(column);

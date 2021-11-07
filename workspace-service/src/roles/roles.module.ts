@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Role } from './entities/role.entity';
 import { RolesController } from './roles.controller';
 import { RolesService } from './roles.service';
 
 @Module({
-  imports: [ConfigModule, TypeOrmModule.forFeature([Role])],
+  imports: [ConfigModule, MikroOrmModule.forFeature([Role])],
   controllers: [RolesController],
   providers: [RolesService],
 })

@@ -61,8 +61,8 @@ export class UsersController {
   @Get(':id')
   @WithAuth(true)
   @WithOkApi(UserResponseDto, 'Get user by id')
-  async getOne(@Param() getUserDto: GetUserDto): Promise<UserResponseDto> {
-    return this.userService.send('getOne', getUserDto).toPromise();
+  async getOne(@Param() { id }: GetUserDto): Promise<UserResponseDto> {
+    return this.userService.send('getOne', { id: +id }).toPromise();
   }
 
   @Patch()
@@ -78,7 +78,6 @@ export class UsersController {
   }
 
   @Patch('restore')
-  @WithAuth()
   @WithOkApi(UserResponseDto, 'Restore user')
   async restore(
     @Auth('user') { id },

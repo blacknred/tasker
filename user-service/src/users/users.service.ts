@@ -1,6 +1,7 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcryptjs';
+import { classToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { USER_REPOSITORY } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,16 +20,17 @@ export class UsersService {
   ) {}
 
   private fieldMapper<T>(obj: T, isPartial?: boolean): Partial<T> {
-    return Object.keys(obj).reduce((o, k) => {
-      if (!isPartial || !User.isSecured(k)) o[k] = obj[k];
+    return Object.keys(classToPlain(obj)).reduce((o, k) => {
+      if (!isPartial || User.isNotSecured(k)) o[k] = obj[k];
       return o;
     }, {});
   }
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const inUse = await this.userRepository.findOne({
-        email: createUserDto.email,
+      const param = { email: createUserDto.email };
+      const inUse = await this.userRepository.findOne(param, {
+        withDeleted: true,
       });
 
       if (inUse) {
@@ -68,7 +70,7 @@ export class UsersService {
       order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       skip: offset,
       take: limit + 1,
-      withDeleted: false,
+      withDeleted: !partial,
     });
 
     return {
@@ -82,9 +84,9 @@ export class UsersService {
   }
 
   async findOne(id: number, partial?: boolean, withDeleted?: boolean) {
-    const user = await this.userRepository.findOne(id, { withDeleted });
+    const data = await this.userRepository.findOne(id, { withDeleted });
 
-    if (!user) {
+    if (!data) {
       return {
         status: HttpStatus.NOT_FOUND,
         data: null,
@@ -93,7 +95,7 @@ export class UsersService {
 
     return {
       status: HttpStatus.OK,
-      data: this.fieldMapper(user, partial),
+      data: this.fieldMapper(data, partial),
     };
   }
 

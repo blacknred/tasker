@@ -1,7 +1,6 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
 import { IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
-import { ObjectID } from 'typeorm';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
 export class UpdateWorkspaceDto extends IntersectionType(
@@ -9,7 +8,7 @@ export class UpdateWorkspaceDto extends IntersectionType(
   AccessDto,
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
-  id: ObjectID;
+  id: string;
 
   @IsOptional()
   @IsString({ message: 'Must be a string', each: true })

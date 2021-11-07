@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { InjectRepository } from '@nestjs/typeorm';
+import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { ObjectID, Repository } from 'typeorm';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { GetRolesDto } from './dto/get-roles.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -15,14 +15,13 @@ export class RolesService {
 
   constructor(
     @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
+    private roleRepository: EntityRepository<Role>,
   ) {}
 
   async create({ wid: workspaceId, ...rest }: CreateRoleDto) {
     try {
-      const role = this.roleRepository.create({ ...rest, workspaceId });
-      const data = await this.roleRepository.save(role);
-      data.id = data.id.toString() as unknown as ObjectID;
+      const data = new Role({ ...rest, workspaceId });
+      await this.roleRepository.persist(data);
 
       return {
         status: HttpStatus.CREATED,
@@ -36,17 +35,17 @@ export class RolesService {
   }
 
   async findAll({ limit, offset, wid, ...rest }: GetRolesDto) {
-    const where = { workspaceId: wid };
+    const _where = { workspaceId: wid };
+    const where = Object.keys(rest).reduce((acc, key) => {
+      if (!(Role.isSearchable(key) && rest[key])) return acc;
+      acc[key] = rest[key];
+      return acc;
+    }, _where);
 
-    const [items, total] = await this.roleRepository.findAndCount({
-      where: Object.keys(rest).reduce((acc, key) => {
-        if (!(Role.isSearchable(key) && rest[key])) return acc;
-        acc[key] = rest[key];
-        return acc;
-      }, where),
-      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-      skip: +offset,
-      take: +limit + 1,
+    const [items, total] = await this.roleRepository.findAndCount(where, {
+      orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      limit: +limit + 1,
+      offset: +offset,
     });
 
     return {
@@ -59,10 +58,10 @@ export class RolesService {
     };
   }
 
-  async findOne(id: ObjectID) {
-    const item = await this.roleRepository.findOne(id);
+  async findOne(id: string) {
+    const data = await this.roleRepository.findOne(id);
 
-    if (!item) {
+    if (!data) {
       return {
         status: HttpStatus.NOT_FOUND,
         data: null,
@@ -71,7 +70,7 @@ export class RolesService {
 
     return {
       status: HttpStatus.OK,
-      data: item,
+      data,
     };
   }
 
@@ -88,7 +87,7 @@ export class RolesService {
         };
       }
 
-      await this.roleRepository.update(id, rest);
+      await this.roleRepository.nativeUpdate(id, rest);
 
       return {
         status: HttpStatus.OK,
@@ -101,7 +100,7 @@ export class RolesService {
     }
   }
 
-  async remove(id: ObjectID, agent: IAgent) {
+  async remove(id: string, agent: IAgent) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
@@ -114,14 +113,7 @@ export class RolesService {
         };
       }
 
-      const deleted = await this.roleRepository.delete(id);
-
-      if (!deleted.affected) {
-        return {
-          status: HttpStatus.CONFLICT,
-          data: null,
-        };
-      }
+      await this.roleRepository.nativeDelete(id);
 
       return {
         status: HttpStatus.OK,

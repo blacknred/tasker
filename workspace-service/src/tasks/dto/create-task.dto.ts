@@ -7,7 +7,6 @@ import {
   MinLength,
 } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
-import { ObjectID } from 'typeorm';
 
 export class CreateTaskDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
@@ -36,5 +35,5 @@ export class CreateTaskDto extends AccessDto {
 
   @IsOptional()
   @IsMongoId({ message: 'Invalid identificator', each: true })
-  sagaIds?: ObjectID[];
+  sagaIds?: string[];
 }

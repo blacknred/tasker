@@ -3,6 +3,7 @@ export interface IUser {
   name: string;
   email: string;
   isAdmin: boolean;
+  isConfirmed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

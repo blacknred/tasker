@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AgentsModule } from './agents/agents.module';
 import { RolesModule } from './roles/roles.module';
 import { SagasModule } from './sagas/sagas.module';
@@ -15,21 +15,15 @@ import { databaseProvider } from './__shared__/providers/database.provider';
       validationSchema: Joi.object({
         DB_URL: Joi.string().required(),
         QUEUE_URL: Joi.string().required(),
+        NODE_ENV: Joi.string().required(),
       }),
     }),
-    TypeOrmModule.forRootAsync(databaseProvider),
+    MikroOrmModule.forRootAsync(databaseProvider),
     WorkspacesModule,
     RolesModule,
     AgentsModule,
     SagasModule,
     TasksModule,
-  ],
-  providers: [
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   scope: Scope.REQUEST,
-    //   useClass: AgentInterceptor,
-    // },
   ],
 })
 export class AppModule {}

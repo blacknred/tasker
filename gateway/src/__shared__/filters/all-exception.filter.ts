@@ -28,6 +28,7 @@ export class AllExceptionFilter<T> implements ExceptionFilter<T> {
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const res = exception.getResponse() as any;
+
       if (!res.message) payload = res;
       else payload.message = res.message;
     } else {

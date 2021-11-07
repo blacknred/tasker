@@ -7,7 +7,6 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ObjectID } from 'typeorm';
 
 export class SortingDto {
   @IsOptional()
@@ -34,7 +33,7 @@ export class PaginationDto {
 
 export class AccessDto {
   @IsMongoId({ message: 'Invalid identificator' })
-  wid: ObjectID;
+  wid: string;
 
   @IsNumber({}, { message: 'Must be an integer' })
   uid: number;

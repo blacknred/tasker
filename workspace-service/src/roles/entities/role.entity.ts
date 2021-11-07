@@ -1,22 +1,33 @@
-import { Exclude, Transform } from 'class-transformer';
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import {
+  Entity,
+  Enum,
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { Exclude, Expose } from 'class-transformer';
+import { ObjectId } from 'mongodb';
 import { Privilege } from '../interfaces/role.interface';
 
 @Entity()
 export class Role {
-  @ObjectIdColumn()
-  @Transform(({ value }) => value.toString(), { toPlainOnly: true })
-  id: ObjectID;
+  @Exclude()
+  @PrimaryKey()
+  _id: ObjectId;
 
-  @Column({ length: 100 })
-  name: string;
+  @Expose()
+  @SerializedPrimaryKey()
+  id!: string;
 
-  @Exclude({ toClassOnly: true })
-  @Column({ type: 'enum', enum: Privilege, array: true })
-  privileges: Privilege[];
+  @Property({ length: 100 })
+  name!: string;
 
-  @ObjectIdColumn()
-  workspaceId: ObjectID;
+  @Exclude()
+  @Enum({ items: () => Privilege, array: true })
+  privileges: Privilege[] = [];
+
+  @Property()
+  workspaceId!: string;
 
   static isSearchable(column: string) {
     return ['name'].includes(column);

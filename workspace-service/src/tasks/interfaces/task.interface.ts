@@ -1,6 +1,5 @@
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ISaga } from 'src/sagas/interfaces/saga.interface';
-import { ObjectID } from 'typeorm';
 
 export enum BaseStage {
   TODO = 'TODO',
@@ -27,16 +26,16 @@ export interface ITaskUpdate {
 }
 
 export interface ITask {
-  id: ObjectID;
+  id: string;
   name: string;
   description?: string;
-  stage: string;
+  stage?: string;
   label?: string;
-  assignee?: IAgent;
-  creator: IAgent;
-  sagas: Partial<ISaga>[];
   updates: ITaskUpdate[];
   createdAt: Date;
   expiresAt?: Date;
-  workspaceId: ObjectID;
+  workspaceId: string;
+  creator: IAgent;
+  assignee?: IAgent;
+  sagas: any; // ISaga[];
 }

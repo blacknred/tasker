@@ -1,12 +1,11 @@
 import { IAgent } from 'src/agents/interfaces/agent.interface';
-import { ObjectID } from 'typeorm';
 
 export interface ISaga {
-  id: ObjectID;
+  id: string;
   name: string;
   description?: string;
   createdAt: Date;
   expiresAt?: Date;
+  workspaceId: string;
   creator: IAgent;
-  workspaceId: ObjectID;
 }

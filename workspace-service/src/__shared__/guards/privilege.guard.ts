@@ -1,17 +1,26 @@
-import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RpcException } from '@nestjs/microservices';
+import { AgentsService } from 'src/agents/agents.service';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { PRIVILEGE_KEY } from '../consts';
 import { AgentGuard } from './agent.guard';
 
 @Injectable()
 export class PrivilegeGuard extends AgentGuard {
-  constructor(private readonly reflector: Reflector) {
-    super();
+  constructor(
+    private readonly reflector: Reflector,
+    @Inject(AgentsService) protected readonly agentsService: AgentsService,
+  ) {
+    super(agentsService);
   }
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const privileges = this.reflector.getAllAndOverride(PRIVILEGE_KEY, [
         context.getHandler(),
@@ -19,14 +28,12 @@ export class PrivilegeGuard extends AgentGuard {
       ]);
 
       if (!privileges) return true;
+      await super.canActivate(context);
 
-      const agent = context.switchToRpc().getContext().agent as IAgent;
+      const { role } = context.switchToRpc().getContext().agent as IAgent;
 
-      return (
-        super.canActivate(context) &&
-        privileges.every((privilege) =>
-          agent.role?.privileges.includes(privilege),
-        )
+      return privileges.every((privilege) =>
+        role?.privileges.includes(privilege),
       );
     } catch (_) {
       throw new RpcException({

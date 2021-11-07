@@ -49,6 +49,8 @@ export class HealthService {
         },
         this.prometheusService,
       ),
+      new MemoryIndicator(this.prometheusService),
+      // new DiskIndicator(this.prometheusService),
       // new MicroserviceIndicator(
       //   'queue',
       //   {
@@ -59,8 +61,6 @@ export class HealthService {
       //   },
       //   this.prometheusService,
       // ),
-      new MemoryIndicator(this.prometheusService),
-      // new DiskIndicator(this.prometheusService),
     ];
   }
 

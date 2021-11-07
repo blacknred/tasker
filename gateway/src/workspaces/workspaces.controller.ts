@@ -62,7 +62,7 @@ import { WorkspacesResponseDto } from './dto/workspaces/workspaces-response.dto'
 export class WorkspacesController {
   constructor(
     @Inject(WORKSPACE_SERVICE)
-    protected readonly workspaceRepository: ClientProxy,
+    protected readonly workspaceService: ClientProxy,
   ) {}
 
   // POST
@@ -73,7 +73,7 @@ export class WorkspacesController {
     @Auth('user') { id: userId, name: userName },
     @Body() createWorkspaceDto: CreateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('create', { ...createWorkspaceDto, userId, userName })
       .toPromise();
   }
@@ -85,7 +85,7 @@ export class WorkspacesController {
     @Param() { id: wid }: GetWorkspaceDto,
     @Body() createRoleDto: CreateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('roles/create', { ...createRoleDto, wid, uid })
       .toPromise();
   }
@@ -97,7 +97,7 @@ export class WorkspacesController {
     @Param() { id: wid }: GetWorkspaceDto,
     @Body() createAgentDto: CreateAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('agents/create', { ...createAgentDto, wid, uid })
       .toPromise();
   }
@@ -109,7 +109,7 @@ export class WorkspacesController {
     @Param() { id: wid }: GetWorkspaceDto,
     @Body() createSagaDto: CreateSagaDto,
   ): Promise<SagaResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/create', { ...createSagaDto, wid, uid })
       .toPromise();
   }
@@ -121,7 +121,7 @@ export class WorkspacesController {
     @Param() { id: wid }: GetWorkspaceDto,
     @Body() createTaskDto: CreateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/create', { ...createTaskDto, wid, uid })
       .toPromise();
   }
@@ -134,7 +134,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid, isAdmin },
     @Query() getWorkspacesDto: GetWorkspacesDto,
   ): Promise<WorkspacesResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('getAll', { ...getWorkspacesDto, uid: isAdmin ? null : uid })
       .toPromise();
   }
@@ -145,7 +145,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceRepository.send('getOne', { id, uid }).toPromise();
+    return this.workspaceService.send('getOne', { id, uid }).toPromise();
   }
 
   @Get(':id/roles')
@@ -155,7 +155,7 @@ export class WorkspacesController {
     @Query() getRolesDto: GetRolesDto,
     @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<RolesResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('roles/getAll', { ...getRolesDto, wid, uid })
       .toPromise();
   }
@@ -166,7 +166,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, roleId: id }: GetRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('roles/getOne', { id, wid, uid })
       .toPromise();
   }
@@ -178,7 +178,7 @@ export class WorkspacesController {
     @Query() getAgentsDto: GetAgentsDto,
     @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<AgentsResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('agents/getAll', { ...getAgentsDto, wid, uid })
       .toPromise();
   }
@@ -189,7 +189,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, agentId: id }: GetAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('agents/getOne', { id, wid, uid })
       .toPromise();
   }
@@ -201,7 +201,7 @@ export class WorkspacesController {
     @Query() getSagasDto: GetSagasDto,
     @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<SagasResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/getAll', { ...getSagasDto, wid, uid })
       .toPromise();
   }
@@ -212,7 +212,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, sagaId: id }: GetSagaDto,
   ): Promise<SagaResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/getOne', { id, wid, uid })
       .toPromise();
   }
@@ -224,7 +224,7 @@ export class WorkspacesController {
     @Query() getTasksDto: GetTasksDto,
     @Param() { id: wid }: GetWorkspaceDto,
   ): Promise<TasksResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/getAll', { ...getTasksDto, wid, uid })
       .toPromise();
   }
@@ -235,7 +235,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, taskId: id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/getOne', { id, wid, uid })
       .toPromise();
   }
@@ -249,7 +249,7 @@ export class WorkspacesController {
     @Param() { id }: GetWorkspaceDto,
     @Body() updateWorkspaceDto: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('update', { ...updateWorkspaceDto, id, uid })
       .toPromise();
   }
@@ -261,7 +261,7 @@ export class WorkspacesController {
     @Param() { id: wid, roleId: id }: GetRoleDto,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('roles/update', { ...updateRoleDto, id, wid, uid })
       .toPromise();
   }
@@ -273,7 +273,7 @@ export class WorkspacesController {
     @Param() { id: wid, agentId: id }: GetAgentDto,
     @Body() updateAgentDto: UpdateAgentDto,
   ): Promise<SagaResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/update', { ...updateAgentDto, id, wid, uid })
       .toPromise();
   }
@@ -285,7 +285,7 @@ export class WorkspacesController {
     @Param() { id: wid, sagaId: id }: GetSagaDto,
     @Body() updateSagaDto: UpdateSagaDto,
   ): Promise<SagaResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/update', { ...updateSagaDto, id, wid, uid })
       .toPromise();
   }
@@ -297,7 +297,7 @@ export class WorkspacesController {
     @Param() { id: wid, taskId: id }: GetTaskDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/update', { ...updateTaskDto, id, wid, uid })
       .toPromise();
   }
@@ -308,7 +308,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, taskId: id }: GetTaskDto,
   ): Promise<TaskResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/restore', { id, wid, uid })
       .toPromise();
   }
@@ -321,7 +321,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id }: GetWorkspaceDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository.send('delete', { id, uid }).toPromise();
+    return this.workspaceService.send('delete', { id, uid }).toPromise();
   }
 
   @Delete(':id/roles/:roleId')
@@ -330,7 +330,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, roleId: id }: GetRoleDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('roles/delete', { id, wid, uid })
       .toPromise();
   }
@@ -341,7 +341,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, agentId: id }: GetAgentDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('agents/delete', { id, wid, uid })
       .toPromise();
   }
@@ -352,7 +352,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, sagaId: id }: GetSagaDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('sagas/delete', { id, wid, uid })
       .toPromise();
   }
@@ -363,7 +363,7 @@ export class WorkspacesController {
     @Auth('user') { id: uid },
     @Param() { id: wid, taskId: id }: GetTaskDto,
   ): Promise<EmptyResponseDto> {
-    return this.workspaceRepository
+    return this.workspaceService
       .send('tasks/delete', { id, wid, uid })
       .toPromise();
   }

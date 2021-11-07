@@ -1,8 +1,7 @@
 import { IAgent } from 'src/agents/interfaces/agent.interface';
-import { ObjectID } from 'typeorm';
 
 export interface IWorkspace {
-  id: ObjectID;
+  id: string;
   name: string;
   description?: string;
   taskStages: string[];

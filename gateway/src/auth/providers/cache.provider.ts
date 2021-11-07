@@ -6,5 +6,5 @@ export const cacheProvider = {
   provide: CACHE_SERVICE,
   inject: [ConfigService],
   useFactory: (configService: ConfigService) =>
-    new RedisAdapter({ url: configService.get('CACHE_URL'), db: 0 }),
+    new RedisAdapter({ url: configService.get('CACHE_URL') }),
 };

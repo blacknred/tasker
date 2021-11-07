@@ -28,8 +28,8 @@ import { PushSubscriptionDto } from './dto/push-subscription.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ValidationPipe } from './pipes/validation.pipe';
 
-@Controller('auth')
 @ApiTags('Auth')
+@Controller('auth')
 @UseFilters(AllExceptionFilter)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
