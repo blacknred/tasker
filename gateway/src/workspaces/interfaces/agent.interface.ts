@@ -3,9 +3,8 @@ import { IRole } from './role.interface';
 export interface IAgent {
   id: string;
   userId: number;
-  userName: string;
+  name: string;
   avatar?: string;
-  createdAt: string;
-  role?: Partial<IRole>;
-  workspaceId: string; //?
+  createdAt: Date;
+  role?: IRole;
 }

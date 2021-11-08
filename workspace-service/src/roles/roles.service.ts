@@ -8,6 +8,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { GetRolesDto } from './dto/get-roles.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
+import { Agent } from 'src/agents/entities/agent.entity';
 
 @Injectable()
 export class RolesService {
@@ -18,9 +19,10 @@ export class RolesService {
     private roleRepository: EntityRepository<Role>,
   ) {}
 
-  async create({ wid: workspaceId, ...rest }: CreateRoleDto) {
+  async create(createRoleDto: CreateRoleDto, agent: Agent) {
     try {
-      const data = new Role({ ...rest, workspaceId });
+      const data = new Role(createRoleDto);
+      data.wid = agent.wid;
       await this.roleRepository.persist(data);
 
       return {
@@ -35,12 +37,13 @@ export class RolesService {
   }
 
   async findAll({ limit, offset, wid, ...rest }: GetRolesDto) {
-    const _where = { workspaceId: wid };
+    const _where = { wid };
     const where = Object.keys(rest).reduce((acc, key) => {
       if (!(Role.isSearchable(key) && rest[key])) return acc;
       acc[key] = rest[key];
       return acc;
     }, _where);
+    console.log(89089);
 
     const [items, total] = await this.roleRepository.findAndCount(where, {
       orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
@@ -80,18 +83,19 @@ export class RolesService {
       if (!res.data) return res as ResponseDto;
 
       // should no edit own role
-      if (res.data.id === agent.id) {
+      if (res.data.id === agent.role?.id) {
         return {
           status: HttpStatus.FORBIDDEN,
           data: null,
         };
       }
 
-      await this.roleRepository.nativeUpdate(id, rest);
+      this.roleRepository.assign(res.data, rest);
+      await this.roleRepository.flush();
 
       return {
         status: HttpStatus.OK,
-        data: { ...res.data, ...rest },
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({
@@ -106,7 +110,7 @@ export class RolesService {
       if (!res.data) return res as ResponseDto;
 
       // should no delete own role
-      if (res.data.id === agent.id) {
+      if (res.data.id === agent.role?.id) {
         return {
           status: HttpStatus.FORBIDDEN,
           data: null,

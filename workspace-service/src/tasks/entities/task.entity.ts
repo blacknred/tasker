@@ -1,17 +1,16 @@
 import {
+  Cascade,
+  Collection,
   Entity,
   ManyToMany,
-  OneToOne,
-  PrimaryKey,
+  ManyToOne,
   Property,
-  Collection,
-  SerializedPrimaryKey,
 } from '@mikro-orm/core';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { Saga } from 'src/sagas/entities/saga.entity';
-import { BaseStage } from '../interfaces/task.interface';
+import { BaseEntity } from 'src/__shared__/entities/base.entity';
 
 export class UpdateRecord {
   @Property()
@@ -44,18 +43,7 @@ export class TaskUpdate {
 }
 
 @Entity()
-export class Task {
-  @Exclude()
-  @PrimaryKey()
-  _id: ObjectId;
-
-  @Expose()
-  @SerializedPrimaryKey()
-  id!: string;
-
-  @Property({ length: 500 })
-  name!: string;
-
+export class Task extends BaseEntity {
   @Property({ nullable: true })
   description?: string;
 
@@ -65,30 +53,11 @@ export class Task {
   @Property({ nullable: true })
   label?: string;
 
-  @Property()
-  createdAt = new Date();
-
   @Property({ nullable: true })
   expiresAt?: Date;
 
   @Property({ type: TaskUpdate })
   updates: TaskUpdate[];
-
-  //
-
-  @Property()
-  workspaceId!: string;
-
-  @OneToOne(() => Agent, null, { fieldName: 'creatorId' })
-  creator!: Agent;
-
-  @OneToOne(() => Agent, null, { fieldName: 'assigneeId', nullable: true })
-  assignee?: Agent;
-
-  @ManyToMany(() => Saga, null, { fieldName: 'sagaIds' })
-  sagas = new Collection<Saga>(this);
-
-  //
 
   static isSearchable(column: string) {
     return [
@@ -104,6 +73,25 @@ export class Task {
   }
 
   constructor(task?: Partial<Task>) {
-    Object.assign(this, task);
+    super(task);
   }
+
+  // relations
+
+  @Exclude()
+  @Property({ hidden: true })
+  wid!: ObjectId;
+
+  @ManyToOne(() => Agent, { fieldName: 'creatorId' })
+  creator!: Agent;
+
+  @ManyToOne(() => Agent, { nullable: true, fieldName: 'assigneeId' })
+  assignee?: Agent;
+
+  @ManyToMany(() => Saga, null, {
+    owner: true,
+    fieldName: 'sagaIds',
+    cascade: [Cascade.REMOVE],
+  })
+  sagas: Collection<Saga> = new Collection<Saga>(this);
 }

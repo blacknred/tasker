@@ -21,5 +21,4 @@ export interface IRole {
   id: string;
   name: string;
   privileges: Privilege[];
-  workspaceId: string;
 }

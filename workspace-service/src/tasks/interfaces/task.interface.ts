@@ -1,5 +1,4 @@
 import { IAgent } from 'src/agents/interfaces/agent.interface';
-import { ISaga } from 'src/sagas/interfaces/saga.interface';
 
 export enum BaseStage {
   TODO = 'TODO',
@@ -34,8 +33,7 @@ export interface ITask {
   updates: ITaskUpdate[];
   createdAt: Date;
   expiresAt?: Date;
-  workspaceId: string;
   creator: IAgent;
   assignee?: IAgent;
-  sagas: any; // ISaga[];
+  sagas: any; //ISaga[];
 }

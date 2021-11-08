@@ -1,11 +1,15 @@
-import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
-import { IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
-import { AccessDto } from 'src/__shared__/dto/request.dto';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import {
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsArray,
+} from 'class-validator';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
-export class UpdateWorkspaceDto extends IntersectionType(
-  PartialType(PickType(CreateWorkspaceDto, ['name', 'description'])),
-  AccessDto,
+export class UpdateWorkspaceDto extends PartialType(
+  OmitType(CreateWorkspaceDto, ['userName', 'userImage']),
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
   id: string;
@@ -15,9 +19,11 @@ export class UpdateWorkspaceDto extends IntersectionType(
   taskStages?: string[];
 
   @IsOptional()
+  @IsArray({ each: true })
   @IsString({ message: 'Must be a string', each: true })
   taskLabels?: string[];
 
+  @IsOptional()
   @IsString({ message: 'Must be a string' })
   doneStage?: string;
 

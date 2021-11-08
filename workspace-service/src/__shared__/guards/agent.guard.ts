@@ -22,6 +22,11 @@ export class AgentGuard implements CanActivate {
     if (wid && uid) {
       const params: GetAgentsDto = { wid, uid, limit: 1, userId: uid };
       const { data } = await this.agentsService.findAll(params);
+      console.log(243242323523452345, params, data.items);
+      // if (data.items[0].role) {
+      //   data.items[0].role = { ...data.items[0].role };
+      // }
+
       ctx.switchToRpc().getContext().agent = data.items[0];
     }
   }

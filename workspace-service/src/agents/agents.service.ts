@@ -1,7 +1,7 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Role } from 'src/roles/entities/role.entity';
 import { Privilege } from 'src/roles/interfaces/role.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
@@ -22,10 +22,10 @@ export class AgentsService {
     private roleRepository: EntityRepository<Role>,
   ) {}
 
-  async create({ wid: workspaceId, roleId, ...rest }: CreateAgentDto) {
+  async create({ roleId, ...rest }: CreateAgentDto, agent: Agent) {
     try {
-      const data = new Agent({ ...rest, workspaceId });
-
+      const data = new Agent(rest);
+      data.wid = agent.wid;
       if (roleId) {
         data.role = await this.roleRepository.findOne(roleId);
       }
@@ -44,19 +44,18 @@ export class AgentsService {
   }
 
   async findAll({ limit, offset, wid, ...rest }: GetAgentsDto) {
-    const _where = { workspaceId: wid };
+    const _where = { wid };
     const where = Object.keys(rest).reduce((acc, key) => {
       if (!(Agent.isSearchable(key) && rest[key])) return acc;
       acc[key] = rest[key];
       return acc;
     }, _where);
-    console.log(2222, where);
 
     const [items, total] = await this.agentRepository.findAndCount(where, {
+      populate: ['role'],
       orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       limit: +limit + 1,
       offset: +offset,
-      populate: ['role'],
     });
 
     return {
@@ -70,7 +69,7 @@ export class AgentsService {
   }
 
   async findOne(id: string) {
-    const data = await this.agentRepository.findOne(id, ['role']);
+    const data = await this.agentRepository.findOne(id);
 
     if (!data) {
       return {
@@ -85,7 +84,7 @@ export class AgentsService {
     };
   }
 
-  async update({ id, ...rest }: UpdateAgentDto, agent: IAgent) {
+  async update({ id, roleId, ...rest }: UpdateAgentDto, agent: IAgent) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
@@ -101,11 +100,15 @@ export class AgentsService {
         };
       }
 
-      await this.agentRepository.nativeUpdate(id, rest);
+      this.agentRepository.assign(res.data, rest);
+      if (roleId) {
+        res.data.role = await this.roleRepository.findOne(roleId);
+      }
+      await this.agentRepository.flush();
 
       return {
         status: HttpStatus.OK,
-        data: { ...res.data, ...rest },
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

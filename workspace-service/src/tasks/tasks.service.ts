@@ -1,7 +1,7 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
@@ -12,7 +12,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksDto } from './dto/get-tasks.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task, TaskUpdate, UpdateRecord } from './entities/task.entity';
-import { ITask } from './interfaces/task.interface';
 
 @Injectable()
 export class TasksService {
@@ -23,13 +22,24 @@ export class TasksService {
     private readonly notificationService: ClientProxy,
     @Inject(WORKER_SERVICE) private readonly workerService: ClientProxy,
     @InjectRepository(Task) private taskRepository: EntityRepository<Task>,
+    @InjectRepository(Agent) private agentRepository: EntityRepository<Agent>,
+    @InjectRepository(Saga) private sagaRepository: EntityRepository<Saga>,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto, agent: IAgent) {
+  async create(createTaskDto: CreateTaskDto, agent: Agent) {
+    const { assigneeId, sagaIds, ...rest } = createTaskDto;
     try {
-      const data = new Task(createTaskDto);
-      data.workspaceId = agent.workspaceId;
-      data.creator = agent as Agent;
+      const data = new Task(rest);
+      data.wid = agent.wid;
+      data.creator = agent;
+      if (assigneeId) {
+        data.assignee = await this.agentRepository.findOne(assigneeId);
+      }
+      if (sagaIds) {
+        const sagas = await this.sagaRepository.findAll(sagaIds);
+        data.sagas.add(...sagas);
+      }
+
       await this.taskRepository.persistAndFlush(data);
 
       // worker mock
@@ -48,8 +58,8 @@ export class TasksService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetTasksDto, agent: IAgent) {
-    const _where = { workspaceId: agent.workspaceId };
+  async findAll({ limit, offset, wid, ...rest }: GetTasksDto, agent: IAgent) {
+    const _where = { wid };
 
     // creator | READ_ANY_TASK
     if (!agent.role?.privileges.includes(Privilege.READ_ANY_TASK)) {
@@ -64,7 +74,6 @@ export class TasksService {
 
     const [items, total] = await this.taskRepository.findAndCount(where, {
       orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-      populate: ['creator', 'assignee', 'sagas'],
       limit: +limit + 1,
       offset: +offset,
     });
@@ -80,11 +89,7 @@ export class TasksService {
   }
 
   async findOne(id: string, agent: IAgent) {
-    const data = await this.taskRepository.findOne(id, [
-      'creator',
-      'assignee',
-      'sagas',
-    ]);
+    const data = await this.taskRepository.findOne(id);
 
     if (!data) {
       return {
@@ -110,7 +115,7 @@ export class TasksService {
     };
   }
 
-  async update({ id, ...rest }: UpdateTaskDto, agent: IAgent) {
+  async update({ id, ...rest }: UpdateTaskDto, agent: Agent) {
     try {
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
@@ -127,22 +132,31 @@ export class TasksService {
       }
 
       // increment update records
-      // const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
-      //   const prev = res.data[field];
-      //   const next = rest[field];
-      //   if (!prev || next === prev) return all;
-      //   return all.concat(new UpdateRecord({ prev, next, field }));
-      // }, []);
+      const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
+        const prev = res.data[field];
+        const next = rest[field];
+        if (!prev || next === prev) return all;
+        return all.concat(new UpdateRecord({ prev, next, field }));
+      }, []);
 
-      // res.data.updates.push(new TaskUpdate({ agent, records }));
+      res.data.updates.push(new TaskUpdate({ records, agent }));
 
-      // Object.assign(res.data, rest);
-      // await this.taskRepository.update(id, res.data);
+      this.taskRepository.assign(res.data, rest);
+      if (rest.assigneeId) {
+        res.data.assignee = await this.agentRepository.findOne(rest.assigneeId);
+      }
 
-      // // worker mock
-      // if (records.some((record) => record.next === BaseRole.WORKER)) {
-      //   this.workerService.emit('new-task', res.data);
-      // }
+      if (rest.sagaIds) {
+        const sagas = await this.sagaRepository.findAll(rest.sagaIds);
+        res.data.sagas.add(...sagas);
+      }
+
+      await this.taskRepository.persistAndFlush(res.data);
+
+      // worker mock
+      if (records.some((record) => record.next === BaseRole.WORKER)) {
+        this.workerService.emit('new-task', res.data);
+      }
 
       return {
         status: HttpStatus.OK,

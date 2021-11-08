@@ -5,7 +5,7 @@ export class CreateAgentDto {
   userId: number;
 
   @ApiProperty({ example: 'testagent', nullable: false })
-  userName: string;
+  name: string;
 
   @ApiProperty({ example: 'testavatarurl', nullable: false })
   avatar?: string;

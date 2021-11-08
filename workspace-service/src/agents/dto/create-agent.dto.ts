@@ -6,7 +6,7 @@ export class CreateAgentDto extends AccessDto {
   userId: number;
 
   @IsString({ message: 'Must be a string' })
-  userName: string;
+  name: string;
 
   @IsOptional()
   @IsString({ message: 'Must be a string' })

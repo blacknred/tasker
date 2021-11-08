@@ -1,51 +1,31 @@
-import {
-  Entity,
-  OneToOne,
-  PrimaryKey,
-  Property,
-  SerializedPrimaryKey,
-} from '@mikro-orm/core';
-import { Exclude, Expose } from 'class-transformer';
-import { ObjectId } from 'mongodb';
+import { Entity, ManyToOne, Property } from '@mikro-orm/core';
+import { ObjectId } from '@mikro-orm/mongodb';
+import { Exclude } from 'class-transformer';
 import { Role } from 'src/roles/entities/role.entity';
+import { BaseEntity } from 'src/__shared__/entities/base.entity';
 
 @Entity()
-export class Agent {
-  @Exclude()
-  @PrimaryKey()
-  _id: ObjectId;
-
-  @Expose()
-  @SerializedPrimaryKey()
-  id!: string;
-
+export class Agent extends BaseEntity {
   @Property()
   userId!: number;
 
-  @Property()
-  userName!: string;
-
   @Property({ nullable: true })
-  avatar?: string;
-
-  @Property()
-  createdAt = new Date();
-
-  //
-
-  @Property()
-  workspaceId!: string;
-
-  @OneToOne(() => Role, null, { fieldName: 'roleId' })
-  role?: Partial<Role>;
-
-  //
+  image?: string;
 
   static isSearchable(column: string) {
-    return ['userId', 'userName', 'roleId', 'createdAt'].includes(column);
+    return ['userId', 'name', 'roleId', 'createdAt'].includes(column);
   }
 
   constructor(agent?: Partial<Agent>) {
-    Object.assign(this, agent);
+    super(agent);
   }
+
+  // relations
+
+  @Exclude()
+  @Property({ hidden: true })
+  wid!: ObjectId;
+
+  @ManyToOne(() => Role, { nullable: true })
+  role?: Role;
 }

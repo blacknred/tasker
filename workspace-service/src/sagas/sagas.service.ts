@@ -19,12 +19,11 @@ export class SagasService {
     @InjectRepository(Saga) private sagaRepository: EntityRepository<Saga>,
   ) {}
 
-  async create(createSagaDto: CreateSagaDto, agent: IAgent) {
+  async create(createSagaDto: CreateSagaDto, agent: Agent) {
     try {
       const data = new Saga(createSagaDto);
-      data.workspaceId = agent.workspaceId;
-      data.creator = agent as Agent;
-
+      data.wid = agent.wid;
+      data.creator = agent;
       await this.sagaRepository.persistAndFlush(data);
 
       return {
@@ -38,8 +37,8 @@ export class SagasService {
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetSagasDto, agent: IAgent) {
-    const _where = { workspaceId: agent.workspaceId };
+  async findAll({ limit, offset, wid, ...rest }: GetSagasDto, agent: IAgent) {
+    const _where = { wid };
 
     // creator | READ_ANY_SAGA
     if (!agent.role?.privileges.includes(Privilege.READ_ANY_SAGA)) {
@@ -56,7 +55,6 @@ export class SagasService {
       orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
       limit: +limit + 1,
       offset: +offset,
-      populate: ['creator'],
     });
 
     return {
@@ -70,7 +68,7 @@ export class SagasService {
   }
 
   async findOne(id: string, agent: IAgent) {
-    const data = await this.sagaRepository.findOne(id, ['creator']);
+    const data = await this.sagaRepository.findOne(id);
 
     if (!data) {
       return {
@@ -101,6 +99,7 @@ export class SagasService {
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
+      // creator | EDIT_ANY_SAGA
       if (
         res.data.creator.id !== agent.id &&
         !agent.role?.privileges.includes(Privilege.EDIT_ANY_SAGA)
@@ -111,11 +110,12 @@ export class SagasService {
         };
       }
 
-      await this.sagaRepository.nativeUpdate(id, rest);
+      this.sagaRepository.assign(res.data, rest);
+      await this.sagaRepository.flush();
 
       return {
         status: HttpStatus.OK,
-        data: { ...res.data, ...rest },
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

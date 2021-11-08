@@ -9,10 +9,10 @@ import { CreateAgentDto } from './create-agent.dto';
 
 class AgentsSortingDto extends SortingDto {
   @IsOptional()
-  @IsIn(['userId', 'userName', 'roleId', 'createdAt'], {
+  @IsIn(['userId', 'name', 'roleId', 'createdAt'], {
     message: 'Must be a one of fields of the Agent entity',
   })
-  'sort.field'?: 'userId' | 'userName' | 'roleId' | 'createdAt';
+  'sort.field'?: 'userId' | 'name' | 'roleId' | 'createdAt';
 }
 
 export class GetAgentsDto extends IntersectionType(

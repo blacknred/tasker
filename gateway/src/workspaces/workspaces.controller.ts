@@ -70,11 +70,11 @@ export class WorkspacesController {
   @Post()
   @WithCreatedApi(WorkspaceResponseDto, 'Create new workspace')
   async create(
-    @Auth('user') { id: userId, name: userName },
+    @Auth('user') { id: uid, name: userName },
     @Body() createWorkspaceDto: CreateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
     return this.workspaceService
-      .send('create', { ...createWorkspaceDto, userId, userName })
+      .send('create', { ...createWorkspaceDto, uid, userName })
       .toPromise();
   }
 

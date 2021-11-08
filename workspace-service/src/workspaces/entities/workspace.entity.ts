@@ -1,27 +1,10 @@
-import {
-  ArrayType,
-  Entity,
-  PrimaryKey,
-  Property,
-  SerializedPrimaryKey,
-} from '@mikro-orm/core';
-import { Exclude, Expose } from 'class-transformer';
-import { ObjectId } from 'mongodb';
+import { ArrayType, Entity, Property } from '@mikro-orm/core';
+import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseLabel, BaseStage } from 'src/tasks/interfaces/task.interface';
+import { BaseEntity } from 'src/__shared__/entities/base.entity';
 
 @Entity()
-export class Workspace {
-  @Exclude()
-  @PrimaryKey()
-  _id: ObjectId;
-
-  @Expose()
-  @SerializedPrimaryKey()
-  id!: string;
-
-  @Property({ length: 200 })
-  name!: string;
-
+export class Workspace extends BaseEntity {
   @Property({ nullable: true })
   description?: string;
 
@@ -32,10 +15,7 @@ export class Workspace {
   taskLabels: string[] = Object.values(BaseLabel);
 
   @Property({ default: BaseStage.DONE })
-  doneStage = BaseStage.DONE;
-
-  @Property()
-  createdAt = new Date();
+  doneStage: string = BaseStage.DONE;
 
   @Property({ onUpdate: () => new Date() })
   updatedAt = new Date();
@@ -43,11 +23,13 @@ export class Workspace {
   @Property()
   creatorId!: number;
 
+  agent?: IAgent;
+
   static isSearchable(column: string) {
     return ['name', 'creatorId', 'createdAt'].includes(column);
   }
 
   constructor(workspace?: Partial<Workspace>) {
-    Object.assign(this, workspace);
+    super(workspace);
   }
 }

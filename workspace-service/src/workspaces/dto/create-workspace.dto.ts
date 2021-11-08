@@ -19,12 +19,12 @@ export class CreateWorkspaceDto {
   //
 
   @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
+  uid: number;
 
   @IsString({ message: 'Must be an string' })
   userName: string;
 
   @IsOptional()
   @IsString({ message: 'Must be an string' })
-  avatar?: string;
+  userImage?: string;
 }

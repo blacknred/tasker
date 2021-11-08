@@ -20,9 +20,10 @@ export class AgentsController {
   @WithPrivilege(Privilege.MANAGE_AGENT)
   @MessagePattern('agents/create')
   async create(
+    @Agent() agent,
     @Payload() createAgentDto: CreateAgentDto,
   ): Promise<AgentResponseDto> {
-    return this.agentsService.create(createAgentDto);
+    return this.agentsService.create(createAgentDto, agent);
   }
 
   @MessagePattern('agents/getAll')

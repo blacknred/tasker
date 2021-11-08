@@ -31,49 +31,46 @@ export class WorkspacesService {
     private sagaRepository: EntityRepository<Saga>,
   ) {}
 
-  async create({ userId, userName, avatar, ...rest }: CreateWorkspaceDto) {
+  async create({ uid, userName, userImage, ...rest }: CreateWorkspaceDto) {
     try {
       // workspace
-      const data = new Workspace({ creatorId: userId, ...rest });
-      await this.workspaceRepository.persistAndFlush(data);
+      const workspace = new Workspace({ creatorId: uid, ...rest });
+      await this.workspaceRepository.persistAndFlush(workspace);
 
       // base workspace roles
       const roles = [
         new Role({
           privileges: Object.values(Privilege),
           name: BaseRole.ADMIN,
-          workspaceId: data.id,
+          wid: workspace._id,
         }),
         new Role({
           name: BaseRole.WORKER,
-          workspaceId: data.id,
+          wid: workspace._id,
         }),
       ];
-
       await this.roleRepository.persistAndFlush(roles);
 
       // initial workspace agents
-      const agents = [
+      await this.agentRepository.persistAndFlush([
         new Agent({
-          workspaceId: data.id,
+          wid: workspace._id,
           role: roles[0],
-          userName,
-          avatar,
-          userId,
+          name: userName,
+          image: userImage,
+          userId: uid,
         }),
         new Agent({
-          workspaceId: data.id,
-          userName: 'test worker',
+          wid: workspace._id,
+          name: 'test worker',
           userId: 111111111,
           role: roles[1],
         }),
-      ];
-
-      await this.agentRepository.persistAndFlush(agents);
+      ]);
 
       return {
         status: HttpStatus.CREATED,
-        data,
+        data: workspace,
       };
     } catch (e) {
       console.log(e);
@@ -84,8 +81,8 @@ export class WorkspacesService {
     }
   }
 
-  async findAll({ limit, offset, userId, ...rest }: GetWorkspacesDto) {
-    const _where = userId ? { 'agents.userId': { $eq: userId } } : {};
+  async findAll({ limit, offset, uid, ...rest }: GetWorkspacesDto) {
+    const _where = uid ? { 'agents.userId': { $eq: uid } } : {};
     const where = Object.keys(rest).reduce((acc, key) => {
       if (!(Workspace.isSearchable(key) && rest[key])) return acc;
       acc[key] = { $eq: rest[key] };
@@ -118,9 +115,11 @@ export class WorkspacesService {
       };
     }
 
+    data.agent = agent;
+
     return {
       status: HttpStatus.OK,
-      data: { ...data, agent },
+      data,
     };
   }
 
@@ -140,11 +139,12 @@ export class WorkspacesService {
         };
       }
 
-      await this.workspaceRepository.nativeUpdate(id, rest);
+      this.workspaceRepository.assign(res.data, rest);
+      await this.workspaceRepository.persistAndFlush(res.data);
 
       return {
         status: HttpStatus.OK,
-        data: { ...res.data, ...rest },
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({
@@ -167,10 +167,10 @@ export class WorkspacesService {
       }
 
       await this.workspaceRepository.nativeDelete({ id });
-      await this.taskRepository.nativeDelete({ workspace: id });
-      await this.sagaRepository.nativeDelete({ workspace: id });
-      await this.agentRepository.nativeDelete({ workspace: id });
-      await this.roleRepository.nativeDelete({ workspace: id });
+      await this.taskRepository.nativeDelete({ wid: id });
+      // await this.roleRepository.nativeDelete({ wid: id });
+      // await this.agentRepository.nativeDelete({ wid: id });
+      // await this.sagaRepository.nativeDelete({ wid: id });
 
       return {
         status: HttpStatus.OK,

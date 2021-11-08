@@ -20,9 +20,10 @@ export class RolesController {
   @WithPrivilege(Privilege.MANAGE_ROLE)
   @MessagePattern('roles/create')
   async create(
+    @Agent() agent,
     @Payload() createRoleDto: CreateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.rolesService.create(createRoleDto);
+    return this.rolesService.create(createRoleDto, agent);
   }
 
   @MessagePattern('roles/getAll')
@@ -30,7 +31,6 @@ export class RolesController {
     return this.rolesService.findAll(getRolesDto);
   }
 
-  @WithPrivilege(Privilege.MANAGE_ROLE)
   @MessagePattern('roles/getOne')
   async getOne(@Payload() { id }: GetRoleDto): Promise<RoleResponseDto> {
     return this.rolesService.findOne(id);

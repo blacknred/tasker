@@ -1,6 +1,18 @@
 import { IAgent } from './agent.interface';
 import { ISaga } from './saga.interface';
 
+export enum BaseStage {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+}
+
+export enum BaseLabel {
+  MINOR = 'MINOR',
+  ROUTINE = 'ROUTINE',
+  CRITICAL = 'CRITICAL',
+}
+
 export interface IUpdateRecord {
   field: string;
   prev: unknown;
@@ -17,13 +29,12 @@ export interface ITask {
   id: string;
   name: string;
   description?: string;
-  stage: string;
+  stage?: string;
   label?: string;
-  assignee?: IAgent;
-  creator: IAgent;
-  sagas: Partial<ISaga>[];
   updates: ITaskUpdate[];
-  createdAt: string;
-  expiresAt?: string;
-  workspaceId: string;
+  createdAt: Date;
+  expiresAt?: Date;
+  creator: IAgent;
+  assignee?: IAgent;
+  sagas: ISaga[];
 }
