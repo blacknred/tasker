@@ -12,10 +12,10 @@ export class Paginated<T> {
 }
 
 export class ResponseDto<T = unknown> {
-  @ApiProperty({ example: null, nullable: true })
+  @ApiProperty({ example: null, required: false })
   data?: T;
 
-  @ApiProperty({ example: null, nullable: true })
+  @ApiProperty({ type: Paginated, example: null, required: false })
   errors?: ValidationError[];
 }
 

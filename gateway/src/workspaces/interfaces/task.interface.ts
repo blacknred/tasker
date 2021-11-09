@@ -31,10 +31,10 @@ export interface ITask {
   description?: string;
   stage?: string;
   label?: string;
-  updates: ITaskUpdate[];
   createdAt: string;
   expiresAt?: string;
+  updates: ITaskUpdate[];
   creator: IAgent;
   assignee?: IAgent;
-  sagas: ISaga[];
+  sagas: Pick<ISaga, 'id' | 'name'>[];
 }

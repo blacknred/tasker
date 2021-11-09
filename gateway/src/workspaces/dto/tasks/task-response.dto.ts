@@ -25,9 +25,14 @@ export const taskMock: ITask = {
   label: BaseLabel.ROUTINE,
   assignee: agentMock,
   creator: agentMock,
-  sagas: [sagaMock],
-  updates: [taskUpdateMock],
   createdAt: new Date().toDateString(),
+  sagas: [
+    {
+      id: sagaMock.id,
+      name: sagaMock.name,
+    },
+  ],
+  updates: [taskUpdateMock],
 };
 
 export class TaskResponseDto extends ResponseDto<ITask> {

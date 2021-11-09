@@ -10,7 +10,7 @@ const sagaPaginationMock = {
 };
 
 export class SagasResponseDto extends PaginatedResponseDto<ISaga> {
-  @ApiProperty({ example: sagaPaginationMock, nullable: false })
+  @ApiProperty({ example: sagaPaginationMock })
   data: {
     hasMore: boolean;
     total: number;

@@ -17,7 +17,7 @@ export abstract class BaseEntity {
   @Property()
   createdAt = new Date();
 
-  constructor(partial?: any) {
+  constructor(partial?: unknown) {
     Object.assign(this, partial);
   }
 }

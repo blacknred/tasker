@@ -1,6 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/roles/interfaces/role.interface';
+import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
 import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
@@ -17,7 +17,7 @@ import { UpdateAgentDto } from './dto/update-agent.dto';
 export class AgentsController {
   constructor(private readonly agentsService: AgentsService) {}
 
-  @WithPrivilege(Privilege.MANAGE_AGENT)
+  @WithPrivilege(Privilege.CREATE_AGENT)
   @MessagePattern('agents/create')
   async create(
     @Agent() agent,
@@ -28,14 +28,18 @@ export class AgentsController {
 
   @MessagePattern('agents/getAll')
   async getAll(
+    @Agent() agent,
     @Payload() getAgentsDto: GetAgentsDto,
   ): Promise<AgentsResponseDto> {
-    return this.agentsService.findAll(getAgentsDto);
+    return this.agentsService.findAll(getAgentsDto, agent);
   }
 
   @MessagePattern('agents/getOne')
-  async getOne(@Payload() { id }: GetAgentDto): Promise<AgentResponseDto> {
-    return this.agentsService.findOne(id);
+  async getOne(
+    @Agent() agent,
+    @Payload() { id }: GetAgentDto,
+  ): Promise<AgentResponseDto> {
+    return this.agentsService.findOne(id, agent);
   }
 
   @MessagePattern('agents/update')

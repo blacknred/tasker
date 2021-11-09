@@ -10,7 +10,7 @@ const workspacePaginationMock = {
 };
 
 export class WorkspacesResponseDto extends PaginatedResponseDto<IWorkspace> {
-  @ApiProperty({ example: workspacePaginationMock, nullable: false })
+  @ApiProperty({ example: workspacePaginationMock })
   data: {
     hasMore: boolean;
     total: number;

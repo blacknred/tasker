@@ -10,7 +10,7 @@ const agentPaginationMock = {
 };
 
 export class AgentsResponseDto extends PaginatedResponseDto<IAgent> {
-  @ApiProperty({ example: agentPaginationMock, nullable: false })
+  @ApiProperty({ example: agentPaginationMock })
   data: {
     hasMore: boolean;
     total: number;

@@ -53,4 +53,11 @@ export class WorkspacesController {
   async remove(@Payload() { id, uid }: GetWorkspaceDto): Promise<ResponseDto> {
     return this.workspacesService.remove(id, uid);
   }
+
+  @MessagePattern('restore')
+  async restore(
+    @Payload() { id, uid }: GetWorkspaceDto,
+  ): Promise<WorkspaceResponseDto> {
+    return this.workspacesService.restore(id, uid);
+  }
 }

@@ -4,7 +4,7 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
-import { Privilege } from 'src/roles/interfaces/role.interface';
+import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { CreateSagaDto } from './dto/create-saga.dto';
 import { GetSagasDto } from './dto/get-sagas.dto';
@@ -22,9 +22,10 @@ export class SagasService {
   async create(createSagaDto: CreateSagaDto, agent: Agent) {
     try {
       const data = new Saga(createSagaDto);
-      data.wid = agent.wid;
+      data.wid = agent.workspace._id;
       data.creator = agent;
-      await this.sagaRepository.persistAndFlush(data);
+
+      await this.sagaRepository.flush();
 
       return {
         status: HttpStatus.CREATED,
@@ -41,7 +42,7 @@ export class SagasService {
     const _where = { wid };
 
     // creator | READ_ANY_SAGA
-    if (!agent.role?.privileges.includes(Privilege.READ_ANY_SAGA)) {
+    if (!agent.hasPrivilege(Privilege.READ_ANY_SAGA)) {
       _where['creator.id'] = agent.id;
     }
 
@@ -80,7 +81,7 @@ export class SagasService {
     // creator | READ_ANY_SAGA
     if (
       data.creator.id !== agent.id &&
-      !agent.role?.privileges.includes(Privilege.READ_ANY_SAGA)
+      !agent.hasPrivilege(Privilege.READ_ANY_SAGA)
     ) {
       return {
         status: HttpStatus.FORBIDDEN,
@@ -94,15 +95,18 @@ export class SagasService {
     };
   }
 
-  async update({ id, ...rest }: UpdateSagaDto, agent: IAgent) {
+  async update(updateSagaDto: UpdateSagaDto, agent: IAgent) {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, wid, ...rest } = updateSagaDto;
+
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
 
       // creator | EDIT_ANY_SAGA
       if (
         res.data.creator.id !== agent.id &&
-        !agent.role?.privileges.includes(Privilege.EDIT_ANY_SAGA)
+        !agent.hasPrivilege(Privilege.EDIT_ANY_SAGA)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,
@@ -111,7 +115,7 @@ export class SagasService {
       }
 
       this.sagaRepository.assign(res.data, rest);
-      await this.sagaRepository.persistAndFlush(res.data);
+      await this.sagaRepository.flush();
 
       return {
         status: HttpStatus.OK,
@@ -132,7 +136,7 @@ export class SagasService {
       // creator | DELETE_ANY_SAGA
       if (
         res.data.creator.id !== agent.id &&
-        !agent.role?.privileges.includes(Privilege.DELETE_ANY_SAGA)
+        !agent.hasPrivilege(Privilege.DELETE_ANY_SAGA)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,

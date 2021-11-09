@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAgentDto {
-  @ApiProperty({ example: 1, nullable: false })
+  @ApiProperty({ example: 1 })
   userId: number;
 
-  @ApiProperty({ example: 'testagent', nullable: false })
+  @ApiProperty({ example: 'testagent' })
   name: string;
 
-  @ApiProperty({ example: 'testavatarurl', nullable: false })
+  @ApiProperty({ example: 'testavatarurl', required: false })
   image?: string;
 
-  @ApiProperty({ example: '5r185c3vfb991ee66b486ccb', nullable: false })
-  roleId?: string;
+  @ApiProperty({ example: 'WORKER', required: false })
+  role?: string;
 }

@@ -1,21 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseLabel, BaseStage } from 'src/workspaces/interfaces/task.interface';
-import { IWorkspace } from 'src/workspaces/interfaces/workspace.interface';
+import {
+  IRole,
+  IWorkspace,
+  Privilege,
+} from 'src/workspaces/interfaces/workspace.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { agentMock } from '../agents/agent-response.dto';
+
+export const roleMock: IRole = {
+  name: 'testrole',
+  privileges: [Privilege.EDIT_WORKSPACE],
+};
 
 export const workspaceMock: IWorkspace = {
   id: '5r185c3vfb991ee66b486ccb',
   name: 'testworkspace',
   description: 'test description',
-  taskStages: Object.values(BaseStage),
-  taskLabels: Object.values(BaseLabel),
-  doneStage: BaseStage.TODO,
   createdAt: new Date().toDateString(),
   updatedAt: new Date().toDateString(),
+  stages: Object.values(BaseStage),
+  labels: Object.values(BaseLabel),
+  roles: [roleMock],
   creatorId: 1,
-  //
-  agent: agentMock,
 };
 
 export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {

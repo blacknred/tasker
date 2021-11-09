@@ -21,13 +21,8 @@ export class PrivilegeGuard implements CanActivate {
     ]);
 
     if (!privileges) return true;
-    if (!agent) return false;
 
-    if (
-      !privileges.every((privilege) =>
-        agent.role.privileges.includes(privilege),
-      )
-    ) {
+    if (privileges.some((p) => !agent.hasPrivilege(p))) {
       throw new RpcException({
         status: HttpStatus.FORBIDDEN,
       });

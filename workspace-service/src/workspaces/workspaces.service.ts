@@ -4,15 +4,13 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
-import { BaseRole, Privilege } from 'src/roles/interfaces/role.interface';
-import { Saga } from 'src/sagas/entities/saga.entity';
+import { Task } from 'src/tasks/entities/task.entity';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { Role } from '../roles/entities/role.entity';
-import { Task } from '../tasks/entities/task.entity';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { GetWorkspacesDto } from './dto/get-workspaces.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { Workspace } from './entities/workspace.entity';
+import { BaseRole, Privilege } from './interfaces/workspace.interface';
 
 @Injectable()
 export class WorkspacesService {
@@ -21,44 +19,35 @@ export class WorkspacesService {
   constructor(
     @InjectRepository(Workspace)
     private workspaceRepository: EntityRepository<Workspace>,
-    @InjectRepository(Role)
-    private roleRepository: EntityRepository<Role>,
     @InjectRepository(Agent)
     private agentRepository: EntityRepository<Agent>,
     @InjectRepository(Task)
     private taskRepository: EntityRepository<Task>,
-    @InjectRepository(Saga)
-    private sagaRepository: EntityRepository<Saga>,
   ) {}
 
-  async create({ userId, userName, userImage, ...rest }: CreateWorkspaceDto) {
+  async create(createWorkspaceDto: CreateWorkspaceDto) {
     try {
-      // workspace
+      const { userId, userName, userImage, ...rest } = createWorkspaceDto;
       const workspace = new Workspace({ creatorId: userId, ...rest });
-      await this.workspaceRepository.persistAndFlush(workspace);
 
-      // base workspace roles
-      const admin = new Role({ name: BaseRole.ADMIN, wid: workspace._id });
-      const worker = new Role({ name: BaseRole.WORKER, wid: workspace._id });
-      admin.privileges = Object.values(Privilege);
-      await this.roleRepository.persistAndFlush([admin, worker]);
-
-      // initial workspace agents
-      await this.agentRepository.persistAndFlush([
+      // initial agents
+      await this.agentRepository.persist([
         new Agent({
-          wid: workspace._id,
-          role: admin,
+          workspace,
+          role: BaseRole.ADMIN,
           name: userName,
           image: userImage,
           userId,
         }),
         new Agent({
-          wid: workspace._id,
-          role: worker,
+          workspace,
+          role: BaseRole.WORKER,
           name: 'test worker',
           userId: 111111111,
         }),
       ]);
+
+      await this.agentRepository.flush();
 
       return {
         status: HttpStatus.CREATED,
@@ -74,11 +63,11 @@ export class WorkspacesService {
   }
 
   async findAll({ limit, offset, uid, ...rest }: GetWorkspacesDto) {
-    const _where = {};
+    const _where = { deletedAt: null };
 
     if (uid) {
       const wids = await this.agentRepository.find({ userId: uid });
-      _where['id'] = wids.map((w) => w.wid);
+      _where['id'] = wids.map((w) => w.workspace);
     }
 
     const where = Object.keys(rest).reduce((acc, key) => {
@@ -103,8 +92,9 @@ export class WorkspacesService {
     };
   }
 
-  async findOne(id: string, agent?: IAgent) {
-    const data = await this.workspaceRepository.findOne(id);
+  async findOne(id: string, agent?: IAgent, withDeleted?: boolean) {
+    const params = withDeleted ? id : { id, deletedAt: null };
+    const data = await this.workspaceRepository.findOne(params);
 
     if (!data) {
       return {
@@ -113,6 +103,7 @@ export class WorkspacesService {
       };
     }
 
+    delete agent?.workspace;
     data.agent = agent;
 
     return {
@@ -121,15 +112,16 @@ export class WorkspacesService {
     };
   }
 
-  async update({ id, ...rest }: UpdateWorkspaceDto, agent: IAgent) {
+  async update(updateWorkspaceDto: UpdateWorkspaceDto, agent: IAgent) {
     try {
+      const { id, stages, labels, roles, ...rest } = updateWorkspaceDto;
       const res = await this.findOne(id);
       if (!res.data) return res as ResponseDto;
 
       // creator | EDIT_WORKSPACE
       if (
         res.data.creatorId !== agent.userId &&
-        !agent.role?.privileges.includes(Privilege.EDIT_WORKSPACE)
+        !agent.hasPrivilege(Privilege.EDIT_WORKSPACE)
       ) {
         return {
           status: HttpStatus.FORBIDDEN,
@@ -137,8 +129,65 @@ export class WorkspacesService {
         };
       }
 
+      // stages
+      if (stages) {
+        for (const stage of res.data.stages) {
+          if (!stages.includes(stage)) {
+            const inUse = await this.taskRepository.count({ stage });
+            if (inUse)
+              return {
+                status: HttpStatus.UNPROCESSABLE_ENTITY,
+                errors: [
+                  {
+                    field: 'stages',
+                    message: `Stage ${stage} in use`,
+                  },
+                ],
+              };
+          }
+        }
+      }
+
+      // labels
+      if (labels) {
+        for (const label of res.data.labels) {
+          if (!labels.includes(label)) {
+            const inUse = await this.taskRepository.count({ label });
+            if (inUse)
+              return {
+                status: HttpStatus.UNPROCESSABLE_ENTITY,
+                errors: [
+                  {
+                    field: 'labels',
+                    message: `Label ${label} in use`,
+                  },
+                ],
+              };
+          }
+        }
+      }
+
+      // roles
+      if (roles) {
+        for (const { name: role } of res.data.roles) {
+          if (roles.every((r) => r.name !== role)) {
+            const inUse = await this.agentRepository.count({ role });
+            if (inUse)
+              return {
+                status: HttpStatus.UNPROCESSABLE_ENTITY,
+                errors: [
+                  {
+                    field: 'roles',
+                    message: `Role ${role} in use`,
+                  },
+                ],
+              };
+          }
+        }
+      }
+
       this.workspaceRepository.assign(res.data, rest);
-      await this.workspaceRepository.persistAndFlush(res.data);
+      await this.workspaceRepository.flush();
 
       return {
         status: HttpStatus.OK,
@@ -164,15 +213,39 @@ export class WorkspacesService {
         };
       }
 
-      await this.workspaceRepository.nativeDelete({ id });
-      await this.taskRepository.nativeDelete({ wid: id });
-      // await this.roleRepository.nativeDelete({ wid: id });
-      // await this.agentRepository.nativeDelete({ wid: id });
-      // await this.sagaRepository.nativeDelete({ wid: id });
+      res.data.deletedAt = new Date();
+      await this.workspaceRepository.flush();
 
       return {
         status: HttpStatus.OK,
         data: null,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
+
+  async restore(id: string, userId: number) {
+    try {
+      const res = await this.findOne(id, null, true);
+      if (!res.data) return res as ResponseDto;
+
+      // creator
+      if (res.data.creatorId !== userId) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          data: null,
+        };
+      }
+
+      res.data.deletedAt = null;
+      await this.workspaceRepository.flush();
+
+      return {
+        status: HttpStatus.OK,
+        data: res.data,
       };
     } catch (e) {
       throw new RpcException({

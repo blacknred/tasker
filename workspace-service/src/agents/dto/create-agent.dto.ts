@@ -1,4 +1,4 @@
-import { IsMongoId, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
 
 export class CreateAgentDto extends AccessDto {
@@ -12,6 +12,7 @@ export class CreateAgentDto extends AccessDto {
   @IsString({ message: 'Must be a string' })
   image?: string;
 
-  @IsMongoId({ message: 'Invalid identificator' })
-  roleId?: string;
+  @IsOptional()
+  @IsString({ message: 'Must be a string' })
+  role?: string;
 }

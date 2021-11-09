@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSagaDto {
-  @ApiProperty({ example: 'testsaga', nullable: false })
+  @ApiProperty({ example: 'testsaga' })
   name: string;
 
-  @ApiProperty({ example: 'test description' })
+  @ApiProperty({ example: 'test description', required: false })
   description?: string;
 
-  @ApiProperty({ example: '123234123424' })
+  @ApiProperty({ example: new Date().toDateString(), required: false })
   expiresAt?: string;
 }

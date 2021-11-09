@@ -38,14 +38,14 @@ class TasksSortingDto extends SortingDto {
 }
 
 export class GetTasksDto extends IntersectionType(
-  PartialType(OmitType(CreateTaskDto, ['description'])),
+  PartialType(OmitType(CreateTaskDto, ['description', 'sagaIds'])),
   AccessDto,
   PaginationDto,
   TasksSortingDto,
 ) {
   @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
-  creatorId: string;
+  creatorId?: string;
 
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
@@ -53,5 +53,5 @@ export class GetTasksDto extends IntersectionType(
 
   @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
-  sagaId: string;
+  sagaId?: string;
 }

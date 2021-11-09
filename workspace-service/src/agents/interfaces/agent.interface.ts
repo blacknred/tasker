@@ -1,4 +1,5 @@
-import { IRole } from 'src/roles/interfaces/role.interface';
+import { Workspace } from 'src/workspaces/entities/workspace.entity';
+import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
 
 export interface IAgent {
   id: string;
@@ -6,5 +7,8 @@ export interface IAgent {
   name: string;
   avatar?: string;
   createdAt: Date;
-  role?: IRole;
+  role?: string;
+  //
+  workspace?: Workspace;
+  hasPrivilege(privilege: Privilege): boolean;
 }

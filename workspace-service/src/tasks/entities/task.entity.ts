@@ -102,6 +102,7 @@ export class Task extends BaseEntity {
 
   @ManyToMany(() => Saga, null, {
     fieldName: 'sagaIds',
+    serializer: ({ id, name }) => ({ id, name }),
     // cascade: [Cascade.REMOVE],
     // eager: true,
     hidden: true,
