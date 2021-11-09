@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsDateString,
   IsMongoId,
   IsOptional,
@@ -19,7 +20,7 @@ export class CreateTaskDto extends AccessDto {
   description?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'Must be a date string' })
+  @IsDateString({ strict: true }, { message: 'Must be a date string' })
   expiresAt?: Date;
 
   @IsString({ message: 'Must be a string' })
@@ -34,6 +35,7 @@ export class CreateTaskDto extends AccessDto {
   assigneeId?: string;
 
   @IsOptional()
-  @IsMongoId({ message: 'Invalid identificator', each: true })
+  @IsArray({ message: 'Must be an array' })
+  @IsMongoId({ message: 'Must includes a valid ids', each: true })
   sagaIds?: string[];
 }

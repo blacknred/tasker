@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  BaseLabel,
-  BaseStage,
-} from 'src/workspaces/interfaces/workspace.interface';
+import { BaseLabel, BaseStage } from 'src/workspaces/interfaces/task.interface';
 
 export class CreateTaskDto {
   @ApiProperty({ example: 'testtask', nullable: false })

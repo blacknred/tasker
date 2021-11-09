@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  BaseLabel,
-  BaseStage,
-  IWorkspace,
-} from 'src/workspaces/interfaces/workspace.interface';
+import { BaseLabel, BaseStage } from 'src/workspaces/interfaces/task.interface';
+import { IWorkspace } from 'src/workspaces/interfaces/workspace.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { agentMock } from '../agents/agent-response.dto';
 

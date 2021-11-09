@@ -20,5 +20,5 @@ export enum BaseRole {
 export interface IRole {
   id: string;
   name: string;
-  privileges: Privilege[];
+  privileges: string[];
 }

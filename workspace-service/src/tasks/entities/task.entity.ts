@@ -1,10 +1,10 @@
 import {
-  Cascade,
   Collection,
   Entity,
   ManyToMany,
   ManyToOne,
   Property,
+  ArrayType,
 } from '@mikro-orm/core';
 import { Exclude } from 'class-transformer';
 import { ObjectId } from 'mongodb';
@@ -56,8 +56,8 @@ export class Task extends BaseEntity {
   @Property({ nullable: true })
   expiresAt?: Date;
 
-  @Property({ type: TaskUpdate })
-  updates: TaskUpdate[];
+  @Property({ type: ArrayType, default: [] })
+  updates: TaskUpdate[] = [];
 
   static isSearchable(column: string) {
     return [
@@ -69,6 +69,18 @@ export class Task extends BaseEntity {
       'creatorId',
       'assigneeId',
       'sagaId',
+    ].includes(column);
+  }
+
+  static isChangeble(column: string) {
+    return [
+      'name',
+      'stage',
+      'label',
+      'description',
+      'expiresAt',
+      'assigneeId',
+      'sagaIds',
     ].includes(column);
   }
 
@@ -89,9 +101,10 @@ export class Task extends BaseEntity {
   assignee?: Agent;
 
   @ManyToMany(() => Saga, null, {
-    owner: true,
     fieldName: 'sagaIds',
-    cascade: [Cascade.REMOVE],
+    // cascade: [Cascade.REMOVE],
+    // eager: true,
+    hidden: true,
   })
   sagas: Collection<Saga> = new Collection<Saga>(this);
 }

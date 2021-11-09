@@ -8,7 +8,6 @@ export const sagaMock: ISaga = {
   name: 'testsaga',
   description: 'test description',
   creator: agentMock,
-  workspaceId: '5r185c3vfb991ee66b486ccb',
   createdAt: new Date().toDateString(),
   expiresAt: new Date().toDateString(),
 };

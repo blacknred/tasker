@@ -6,9 +6,8 @@ import { roleMock } from '../roles/role-response.dto';
 export const agentMock: IAgent = {
   id: '5r185c3vfb991ee66b486ccb',
   userId: 1,
-  userName: 'testagent',
-  avatar: 'testavatarurl',
-  workspaceId: '5r185c3vfb991ee66b486ccb',
+  name: 'testagent',
+  image: 'testavatarurl',
   createdAt: new Date().toDateString(),
   role: roleMock,
 };

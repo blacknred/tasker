@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  BaseLabel,
-  BaseStage,
-} from 'src/workspaces/interfaces/workspace.interface';
+import { BaseLabel, BaseStage } from 'src/workspaces/interfaces/task.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { ITask, ITaskUpdate } from '../../interfaces/task.interface';
 import { agentMock } from '../agents/agent-response.dto';
@@ -31,7 +28,6 @@ export const taskMock: ITask = {
   sagas: [sagaMock],
   updates: [taskUpdateMock],
   createdAt: new Date().toDateString(),
-  workspaceId: '5r185c3vfb991ee66b486ccb',
 };
 
 export class TaskResponseDto extends ResponseDto<ITask> {

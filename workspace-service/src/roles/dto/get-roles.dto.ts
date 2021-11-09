@@ -1,4 +1,4 @@
-import { IntersectionType, PartialType, PickType } from '@nestjs/mapped-types';
+import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
 import { IsIn, IsOptional } from 'class-validator';
 import {
   AccessDto,
@@ -16,7 +16,7 @@ class RolesSortingDto extends SortingDto {
 }
 
 export class GetRolesDto extends IntersectionType(
-  PartialType(PickType(CreateRoleDto, ['name'])),
+  PartialType(OmitType(CreateRoleDto, ['privileges'])),
   AccessDto,
   PaginationDto,
   RolesSortingDto,

@@ -29,9 +29,12 @@ export class Saga extends BaseEntity {
   @ManyToOne(() => Agent)
   creator!: Agent;
 
-  // @ManyToMany(() => Task, (task) => task.sagas, {
+  // @ManyToMany({
+  //   entity: () => Task,
   //   hidden: true,
-  //   cascade: [Cascade.REMOVE],
+  //   // fieldName: 'sagaIds',
+  //   // owner: true,
+  //   // cascade: [Cascade.REMOVE],
   // })
   // tasks = new Collection<Task>(this);
 }

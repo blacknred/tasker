@@ -18,6 +18,6 @@ export class CreateSagaDto extends AccessDto {
   description?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'Must be a date string' })
+  @IsDateString({ strict: true }, { message: 'Must be a date string' })
   expiresAt?: Date;
 }

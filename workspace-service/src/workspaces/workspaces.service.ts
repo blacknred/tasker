@@ -22,49 +22,41 @@ export class WorkspacesService {
     @InjectRepository(Workspace)
     private workspaceRepository: EntityRepository<Workspace>,
     @InjectRepository(Role)
-    private agentRepository: EntityRepository<Agent>,
-    @InjectRepository(Agent)
     private roleRepository: EntityRepository<Role>,
+    @InjectRepository(Agent)
+    private agentRepository: EntityRepository<Agent>,
     @InjectRepository(Task)
     private taskRepository: EntityRepository<Task>,
     @InjectRepository(Saga)
     private sagaRepository: EntityRepository<Saga>,
   ) {}
 
-  async create({ uid, userName, userImage, ...rest }: CreateWorkspaceDto) {
+  async create({ userId, userName, userImage, ...rest }: CreateWorkspaceDto) {
     try {
       // workspace
-      const workspace = new Workspace({ creatorId: uid, ...rest });
+      const workspace = new Workspace({ creatorId: userId, ...rest });
       await this.workspaceRepository.persistAndFlush(workspace);
 
       // base workspace roles
-      const roles = [
-        new Role({
-          privileges: Object.values(Privilege),
-          name: BaseRole.ADMIN,
-          wid: workspace._id,
-        }),
-        new Role({
-          name: BaseRole.WORKER,
-          wid: workspace._id,
-        }),
-      ];
-      await this.roleRepository.persistAndFlush(roles);
+      const admin = new Role({ name: BaseRole.ADMIN, wid: workspace._id });
+      const worker = new Role({ name: BaseRole.WORKER, wid: workspace._id });
+      admin.privileges = Object.values(Privilege);
+      await this.roleRepository.persistAndFlush([admin, worker]);
 
       // initial workspace agents
       await this.agentRepository.persistAndFlush([
         new Agent({
           wid: workspace._id,
-          role: roles[0],
+          role: admin,
           name: userName,
           image: userImage,
-          userId: uid,
+          userId,
         }),
         new Agent({
           wid: workspace._id,
+          role: worker,
           name: 'test worker',
           userId: 111111111,
-          role: roles[1],
         }),
       ]);
 
@@ -82,7 +74,13 @@ export class WorkspacesService {
   }
 
   async findAll({ limit, offset, uid, ...rest }: GetWorkspacesDto) {
-    const _where = uid ? { 'agents.userId': { $eq: uid } } : {};
+    const _where = {};
+
+    if (uid) {
+      const wids = await this.agentRepository.find({ userId: uid });
+      _where['id'] = wids.map((w) => w.wid);
+    }
+
     const where = Object.keys(rest).reduce((acc, key) => {
       if (!(Workspace.isSearchable(key) && rest[key])) return acc;
       acc[key] = { $eq: rest[key] };

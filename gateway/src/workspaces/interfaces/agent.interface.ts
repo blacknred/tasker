@@ -4,7 +4,7 @@ export interface IAgent {
   id: string;
   userId: number;
   name: string;
-  avatar?: string;
-  createdAt: Date;
+  image?: string;
+  createdAt: string;
   role?: IRole;
 }

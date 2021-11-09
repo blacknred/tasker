@@ -1,8 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import {
-  BaseLabel,
-  BaseStage,
-} from 'src/workspaces/interfaces/workspace.interface';
+import { BaseLabel, BaseStage } from 'src/workspaces/interfaces/task.interface';
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
 export class UpdateWorkspaceDto extends PartialType(CreateWorkspaceDto) {

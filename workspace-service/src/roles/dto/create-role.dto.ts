@@ -1,4 +1,10 @@
-import { IsEnum, IsOptional, MaxLength, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { AccessDto } from 'src/__shared__/dto/request.dto';
 import { Privilege } from '../interfaces/role.interface';
 
@@ -8,8 +14,9 @@ export class CreateRoleDto extends AccessDto {
   name: string;
 
   @IsOptional()
+  @IsArray({ message: 'Must be an array' })
   @IsEnum(Privilege, {
-    message: 'Must be one of the Privilege enum',
+    message: 'Must includes a Privilege enums',
     each: true,
   })
   privileges?: Privilege[];

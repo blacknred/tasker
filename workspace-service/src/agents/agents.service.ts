@@ -104,7 +104,7 @@ export class AgentsService {
       if (roleId) {
         res.data.role = await this.roleRepository.findOne(roleId);
       }
-      await this.agentRepository.flush();
+      await this.agentRepository.persistAndFlush(res.data);
 
       return {
         status: HttpStatus.OK,

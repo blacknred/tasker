@@ -27,8 +27,9 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, agent: Agent) {
-    const { assigneeId, sagaIds, ...rest } = createTaskDto;
     try {
+      const { assigneeId, sagaIds, ...rest } = createTaskDto;
+
       const data = new Task(rest);
       data.wid = agent.wid;
       data.creator = agent;
@@ -36,7 +37,7 @@ export class TasksService {
         data.assignee = await this.agentRepository.findOne(assigneeId);
       }
       if (sagaIds) {
-        const sagas = await this.sagaRepository.findAll(sagaIds);
+        const sagas = await this.sagaRepository.find({ id: sagaIds });
         data.sagas.add(...sagas);
       }
 
@@ -82,7 +83,10 @@ export class TasksService {
       status: HttpStatus.OK,
       data: {
         hasMore: items.length === +limit + 1,
-        items: items.slice(0, limit),
+        items: items.slice(0, limit).map((i: any) => {
+          i.sagas = i.sagas?.toArray();
+          return i;
+        }),
         total,
       },
     };
@@ -115,7 +119,7 @@ export class TasksService {
     };
   }
 
-  async update({ id, ...rest }: UpdateTaskDto, agent: Agent) {
+  async update({ id, wid, ...rest }: UpdateTaskDto, agent: Agent) {
     try {
       const res = await this.findOne(id, agent);
       if (!res.data) return res as ResponseDto;
@@ -135,34 +139,38 @@ export class TasksService {
       const records: UpdateRecord[] = Object.keys(rest).reduce((all, field) => {
         const prev = res.data[field];
         const next = rest[field];
-        if (!prev || next === prev) return all;
+        if (!Task.isChangeble(field) || next === prev) return all;
         return all.concat(new UpdateRecord({ prev, next, field }));
       }, []);
 
-      res.data.updates.push(new TaskUpdate({ records, agent }));
+      const update = new TaskUpdate({ records, agent });
+      res.data.updates.push(update);
 
       this.taskRepository.assign(res.data, rest);
+
       if (rest.assigneeId) {
         res.data.assignee = await this.agentRepository.findOne(rest.assigneeId);
       }
 
       if (rest.sagaIds) {
-        const sagas = await this.sagaRepository.findAll(rest.sagaIds);
+        const sagas = await this.sagaRepository.find({ id: rest.sagaIds });
         res.data.sagas.add(...sagas);
       }
 
       await this.taskRepository.persistAndFlush(res.data);
 
       // worker mock
-      if (records.some((record) => record.next === BaseRole.WORKER)) {
-        this.workerService.emit('new-task', res.data);
-      }
+      // if (records.some((record) => record.next === BaseRole.WORKER)) {
+      //   this.workerService.emit('new-task', res.data);
+      // }
 
       return {
         status: HttpStatus.OK,
         data: res.data,
       };
     } catch (e) {
+      console.log(e);
+
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
       });

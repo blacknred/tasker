@@ -32,8 +32,8 @@ export interface ITask {
   stage?: string;
   label?: string;
   updates: ITaskUpdate[];
-  createdAt: Date;
-  expiresAt?: Date;
+  createdAt: string;
+  expiresAt?: string;
   creator: IAgent;
   assignee?: IAgent;
   sagas: ISaga[];

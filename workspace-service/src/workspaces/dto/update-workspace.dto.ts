@@ -9,18 +9,19 @@ import {
 import { CreateWorkspaceDto } from './create-workspace.dto';
 
 export class UpdateWorkspaceDto extends PartialType(
-  OmitType(CreateWorkspaceDto, ['userName', 'userImage']),
+  OmitType(CreateWorkspaceDto, ['userId', 'userName', 'userImage']),
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
   id: string;
 
   @IsOptional()
-  @IsString({ message: 'Must be a string', each: true })
+  @IsArray({ message: 'Must be an array' })
+  @IsString({ message: 'Must includes a strings', each: true })
   taskStages?: string[];
 
   @IsOptional()
-  @IsArray({ each: true })
-  @IsString({ message: 'Must be a string', each: true })
+  @IsArray({ message: 'Must be an array' })
+  @IsString({ message: 'Must includes a strings', each: true })
   taskLabels?: string[];
 
   @IsOptional()

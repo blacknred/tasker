@@ -43,6 +43,7 @@ export class GetTasksDto extends IntersectionType(
   PaginationDto,
   TasksSortingDto,
 ) {
+  @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
   creatorId: string;
 
@@ -50,6 +51,7 @@ export class GetTasksDto extends IntersectionType(
   @IsDateString({}, { message: 'Must be a date string' })
   createdAt?: string;
 
+  @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
   sagaId: string;
 }

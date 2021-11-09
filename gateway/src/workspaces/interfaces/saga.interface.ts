@@ -4,7 +4,7 @@ export interface ISaga {
   id: string;
   name: string;
   description?: string;
-  createdAt: Date;
-  expiresAt?: Date;
+  createdAt: string;
+  expiresAt?: string;
   creator: IAgent;
 }

@@ -8,8 +8,8 @@ export interface IWorkspace {
   taskLabels: string[];
   doneStage: string;
   creatorId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   //
   agent?: IAgent;
 }

@@ -23,6 +23,7 @@ export class GetSagasDto extends IntersectionType(
   PaginationDto,
   SagasSortingDto,
 ) {
+  @IsOptional()
   @IsMongoId({ message: 'Invalid identificator' })
   creatorId: string;
 

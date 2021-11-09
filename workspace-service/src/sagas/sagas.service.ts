@@ -111,7 +111,7 @@ export class SagasService {
       }
 
       this.sagaRepository.assign(res.data, rest);
-      await this.sagaRepository.flush();
+      await this.sagaRepository.persistAndFlush(res.data);
 
       return {
         status: HttpStatus.OK,

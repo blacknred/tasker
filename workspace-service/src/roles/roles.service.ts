@@ -1,14 +1,15 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
+import { Agent } from 'src/agents/entities/agent.entity';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { GetRolesDto } from './dto/get-roles.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
-import { Agent } from 'src/agents/entities/agent.entity';
+import { Privilege } from './interfaces/role.interface';
 
 @Injectable()
 export class RolesService {
@@ -19,11 +20,12 @@ export class RolesService {
     private roleRepository: EntityRepository<Role>,
   ) {}
 
-  async create(createRoleDto: CreateRoleDto, agent: Agent) {
+  async create({ privileges, ...rest }: CreateRoleDto, agent: Agent) {
     try {
-      const data = new Role(createRoleDto);
+      const data = new Role(rest);
       data.wid = agent.wid;
-      await this.roleRepository.persist(data);
+      data.privileges = privileges.map((p) => Privilege[p]);
+      await this.roleRepository.persistAndFlush(data);
 
       return {
         status: HttpStatus.CREATED,
@@ -43,7 +45,6 @@ export class RolesService {
       acc[key] = rest[key];
       return acc;
     }, _where);
-    console.log(89089);
 
     const [items, total] = await this.roleRepository.findAndCount(where, {
       orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
@@ -91,7 +92,7 @@ export class RolesService {
       }
 
       this.roleRepository.assign(res.data, rest);
-      await this.roleRepository.flush();
+      await this.roleRepository.persistAndFlush(res.data);
 
       return {
         status: HttpStatus.OK,

@@ -19,7 +19,7 @@ export class CreateWorkspaceDto {
   //
 
   @IsNumber({}, { message: 'Must be an integer' })
-  uid: number;
+  userId: number;
 
   @IsString({ message: 'Must be an string' })
   userName: string;

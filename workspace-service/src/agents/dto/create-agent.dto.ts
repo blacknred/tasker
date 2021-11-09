@@ -10,7 +10,7 @@ export class CreateAgentDto extends AccessDto {
 
   @IsOptional()
   @IsString({ message: 'Must be a string' })
-  avatar?: string;
+  image?: string;
 
   @IsMongoId({ message: 'Invalid identificator' })
   roleId?: string;

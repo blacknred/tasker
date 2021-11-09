@@ -8,7 +8,7 @@ export class CreateAgentDto {
   name: string;
 
   @ApiProperty({ example: 'testavatarurl', nullable: false })
-  avatar?: string;
+  image?: string;
 
   @ApiProperty({ example: '5r185c3vfb991ee66b486ccb', nullable: false })
   roleId?: string;

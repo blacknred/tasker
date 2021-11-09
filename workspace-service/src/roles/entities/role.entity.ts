@@ -7,7 +7,7 @@ import { Privilege } from '../interfaces/role.interface';
 @Entity()
 export class Role extends BaseEntity {
   @Exclude()
-  @Enum({ items: () => Privilege, array: true })
+  @Enum({ items: () => Privilege, array: true, default: [] })
   privileges: Privilege[] = [];
 
   static isSearchable(column: string) {
