@@ -51,7 +51,7 @@ const TaskForm: FC<IProps> = ({ data, onSaved }) => {
             </ModalBody>
 
             <ModalFooter>
-              <Button colorScheme="telegram" mr={3} isLoading={isSubmitting} type="submit">Save</Button>
+              <Button colorScheme="blackAlpha" mr={3} isLoading={isSubmitting} type="submit">Save</Button>
               <Button onClick={onSaved}>Cancel</Button>
             </ModalFooter>
           </Form>

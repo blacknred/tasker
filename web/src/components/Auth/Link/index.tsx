@@ -10,7 +10,7 @@ interface IProps {
 const AuthLink: React.FC<IProps> = ({ children, href }) => {
   const { session } = useAuth();
 
-  return <Link href={session ? href : `/login?next=${href}`}>{children}</Link>;
+  return <Link href={session ? href : `/auth?next=${href}`}>{children}</Link>;
 }
 
 export default AuthLink

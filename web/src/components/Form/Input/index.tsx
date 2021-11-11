@@ -1,6 +1,6 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Textarea, useColorModeValue } from '@chakra-ui/react';
-import React, { InputHTMLAttributes } from 'react'
 import { useField } from 'formik';
+import React, { InputHTMLAttributes } from 'react';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   name: string,
@@ -17,8 +17,8 @@ const InputField: React.FC<Props> = ({ label, size, area, readonly, ...props }) 
   const [field, { error }] = useField(props);
 
   return (
-    <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={field.name} color={color}>{label}</FormLabel>}
+    <FormControl isInvalid={!!error} flexDirection="column">
+      {label && <FormLabel htmlFor={field.name} opacity="0.8" color={color}>{label}</FormLabel>}
       {/* @ts-ignore */}
       {area ? <Textarea isDisabled={readonly} bgColor={bg} color={color} {...field} {...props} id={field.name} />
         : <Input isDisabled={readonly} bgColor={bg} color={color} {...field} {...props} id={field.name} />}

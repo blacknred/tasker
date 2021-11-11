@@ -13,7 +13,7 @@ function withModal<T extends IProps>(Content: FC<IProps>) {
 
     return (
       <>
-        <Button colorScheme="telegram" onClick={onOpen} children={'Modal'} {...btnProps} />
+        <Button colorScheme="red" onClick={onOpen} children={'Modal'} {...btnProps} />
         <Modal
           isCentered
           isOpen={isOpen}

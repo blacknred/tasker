@@ -13,7 +13,7 @@ const TaskList: React.FC<IProps> = ({ page = 1, variant }) => {
   const { items, hasMore, total, error } = useTasks(page);
   console.log(items);
 
-  if (error) return <>An error has occurred. Try reload later.</>;
+  if (error) return <>An error has occurblackAlpha. Try reload later.</>;
   if (!items) return <>Loading...</>;
   if (!items.length) return <>No Tasks found.</>;
 

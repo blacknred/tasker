@@ -3,12 +3,12 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import Input from '../components/Form/Input';
-import Layout from '../components/Layout';
-import Meta from '../components/Meta';
-import mutations from '../mutations';
+import Input from '../../../components/Form/Input';
+import Layout from '../../../components/Layout';
+import Meta from '../../../components/Meta';
+import mutations from '../../../mutations';
 
-function Register() {
+function Restore() {
   const router = useRouter();
   const color = useColorModeValue('gray.500', 'gray.400')
 
@@ -43,14 +43,14 @@ function Register() {
             </Box>
             <Flex justifyContent="space-between" alignItems="end" mt={8}>
               <Button
-                colorScheme="telegram"
+                colorScheme="blackAlpha"
                 isLoading={isSubmitting}
                 type="submit"
               >
                 Register
               </Button>
               <NextLink href="/login">
-                <Button variant="link" color="telegram.300">Already have an account</Button>
+                <Button variant="link" color="blackAlpha.300">Already have an account</Button>
               </NextLink>
             </Flex>
           </Form>
@@ -60,4 +60,4 @@ function Register() {
   );
 }
 
-export default Register
+export default Restore;

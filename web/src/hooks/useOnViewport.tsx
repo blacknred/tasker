@@ -31,7 +31,7 @@ function useOnViewport(
       }
     }, options);
 
-    // Start observing the target node for configured mutations
+    // Start observing the target node for configublackAlpha mutations
     observer.observe(node);
 
     return () => {

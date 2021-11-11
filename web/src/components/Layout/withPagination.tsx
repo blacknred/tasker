@@ -14,14 +14,14 @@ function withPagination<T>(Paginated: ComponentType<T>) {
           <Button
             onClick={() => setPageIndex(pageIndex - 1)}
             hidden={!pageIndex}
-            colorScheme="telegram">
+            colorScheme="blackAlpha">
             Previous
           </Button>
           <Button
             onClick={() => setPageIndex(pageIndex + 1)}
             variant="solid"
             hidden={noMore}
-            colorScheme="telegram">
+            colorScheme="blackAlpha">
             Next
           </Button>
         </Stack>

@@ -1,45 +1,42 @@
-import { PlusSquareIcon } from '@chakra-ui/icons'
-import { Button, Center, Flex, Heading, Square, useColorModeValue } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { ExternalLinkIcon, PlusSquareIcon } from '@chakra-ui/icons'
+import { Button, Heading, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
 import AuthLink from '../components/Auth/Link'
 import Layout from '../components/Layout'
 import Meta from '../components/Meta'
-import useAuth from '../hooks/useAuth'
 
 function Index() {
-  const color = useColorModeValue('gray.300', 'gray.600')
-  const { session } = useAuth();
+  const color = useColorModeValue('gray.400', 'blackAlpha.600')
+  const bg = useColorModeValue("gray.800", "gray.50")
 
   return (
     <Layout>
-      <Meta title="TaskQ" />
-      <Square flexDirection="column" justifyContent="center" py="80px">
-        <Center mb="60px" >
-          <Heading color={color} fontSize="xxx-large">Task management application</Heading>
-        </Center>
+      <Meta title="Taskq - task management" />
+      <Stack spacing="20" alignItems="flex-start" my="20" mx="20">
+        <Stack spacing="3">
+          <HStack spacing="6">
+            <Heading color={bg} bg={color} px="4" borderRadius="lg" fontSize="6xl">Your</Heading>
+            <Heading color={color} fontSize="7xl">task management</Heading>
+          </HStack>
+          <Heading color={color} fontSize="7xl">application</Heading>
+        </Stack>
 
-        {session ? (
-          <NextLink href="/dashboard">
-            <Button variant="link" color={color} size="md">Return to dashboard</Button>
-          </NextLink>
-        ) : (
-          <Flex>
-            <NextLink href="/register">
-              <Button variant="outline" colorScheme="telegram" color="telegram.600" size="md" mr={3}>Join now</Button>
-            </NextLink>
-            <NextLink href="/login">
-              <Button variant="solid" colorScheme="telegram" size="md">Already have account</Button>
-            </NextLink>
-          </Flex>
-        )}
+        <Heading color={color} fontSize="lg">Base task management functionality</Heading>
 
-        <AuthLink href="/workspace">
-          <Button isFullWidth leftIcon={<PlusSquareIcon />} size="lg" variant="outline" colorScheme="telegram" mr={8}>
-            Create a workspace
-          </Button>
-        </AuthLink>
-      </Square>
+        <HStack spacing="6">
+          <AuthLink href="/workspace">
+            <Button leftIcon={<PlusSquareIcon />} size="lg" colorScheme="green">
+              Start now with new workspace
+            </Button>
+          </AuthLink>
+
+          <AuthLink href="/">
+            <Button leftIcon={<ExternalLinkIcon />} size="lg" colorScheme="blackAlpha">
+              Back to work
+            </Button>
+          </AuthLink>
+        </HStack>
+      </Stack>
     </Layout>
   )
 }

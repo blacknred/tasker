@@ -1,7 +1,11 @@
 import { createStandaloneToast } from "@chakra-ui/toast";
-import { dataAttr } from "@chakra-ui/utils";
 import { Fetcher, Key, SWRConfiguration, SWRHook } from "swr";
 import { ValidationError } from "./typings";
+
+export const MESSAGES: Record<string, string> = {
+  'new-password-sent': 'The confirmation link was sent to the email address.',
+  'new-password-done': 'Password was successfully changed.',
+};
 
 const INTERVALS = [
   { label: "year", seconds: 31536000 },
@@ -84,7 +88,7 @@ export function timeSince(date: number | string) {
 }
 
 export function getRandColor(saturation = 50) {
-  const colors = ["pink", "green", "orange", "gray", "facebook", "violet"];
+  const colors = ["blackAlpha", "red", "red", "gray", "facebook", "violet"];
   const index = Math.floor(Math.random() * colors.length);
   return `${colors[index]}.${saturation}`;
 }
