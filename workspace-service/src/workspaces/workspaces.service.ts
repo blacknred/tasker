@@ -27,17 +27,15 @@ export class WorkspacesService {
 
   async create(createWorkspaceDto: CreateWorkspaceDto) {
     try {
-      const { userId, userName, userImage, ...rest } = createWorkspaceDto;
-      const workspace = new Workspace({ creatorId: userId, ...rest });
+      const { creator, ...rest } = createWorkspaceDto;
+      const workspace = new Workspace({ creatorId: creator.userId, ...rest });
 
       // initial agents
       await this.agentRepository.persist([
         new Agent({
           workspace,
           role: BaseRole.ADMIN,
-          name: userName,
-          image: userImage,
-          userId,
+          ...creator,
         }),
         new Agent({
           workspace,

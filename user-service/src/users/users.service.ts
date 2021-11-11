@@ -141,10 +141,12 @@ export class UsersService {
     }
   }
 
-  async update({ id, ...rest }: UpdateUserDto) {
+  async update({ id, email, ...rest }: UpdateUserDto) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res;
+
+      // TODO: confirm email
 
       await this.userRepository.update(id, rest);
 

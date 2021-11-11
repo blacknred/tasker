@@ -2,12 +2,8 @@ import { Button, ButtonProps, Modal, ModalOverlay, useDisclosure } from '@chakra
 import React, { FC } from "react";
 import { ITask } from '../../typings';
 
-interface IProps {
-  btnProps?: ButtonProps,
-  data?: ITask,
-}
 
-function withModal<T extends IProps>(Content: FC<IProps>) {
+function withModal<T extends IWithModalProps>(Content: FC<IWithModalProps>) {
   return function ({ btnProps, ...rest }: T) {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -29,3 +25,7 @@ function withModal<T extends IProps>(Content: FC<IProps>) {
 }
 
 export default withModal;
+export interface IWithModalProps {
+  btnProps?: ButtonProps,
+  data?: ITask,
+}

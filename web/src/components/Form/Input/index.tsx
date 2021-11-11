@@ -2,29 +2,27 @@ import { FormControl, FormErrorMessage, FormLabel, Input, Textarea, useColorMode
 import { useField } from 'formik';
 import React, { InputHTMLAttributes } from 'react';
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
-  name: string,
-  label?: string,
-  area?: boolean,
-  rows?: number,
-  readonly?: boolean
-}
-
-const InputField: React.FC<Props> = ({ label, size, area, readonly, ...props }) => {
-  const color = useColorModeValue('gray.300', 'gray.600')
-  const bg = useColorModeValue('gray.800', 'white')
+const InputField = ({ label, size, area, readonly, ...props }: InputFieldProps): JSX.Element => {
+  const color = useColorModeValue("gray.600", "blackAlpha.400")
   props.placeholder = props.placeholder || props.name;
   const [field, { error }] = useField(props);
 
   return (
     <FormControl isInvalid={!!error} flexDirection="column">
-      {label && <FormLabel htmlFor={field.name} opacity="0.8" color={color}>{label}</FormLabel>}
+      {label && <FormLabel htmlFor={field.name} opacity="0.5" >{label}</FormLabel>}
       {/* @ts-ignore */}
-      {area ? <Textarea isDisabled={readonly} bgColor={bg} color={color} {...field} {...props} id={field.name} />
-        : <Input isDisabled={readonly} bgColor={bg} color={color} {...field} {...props} id={field.name} />}
+      {area ? <Textarea borderColor={color} isDisabled={readonly} {...field} {...props} id={field.name} />
+        : <Input borderColor={color} isDisabled={readonly}  {...field} {...props} id={field.name} />}
       <FormErrorMessage>{error}</FormErrorMessage>
     </FormControl>
   );
 }
 
-export default InputField
+export default InputField;
+export type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+  name: string,
+  label?: string,
+  area?: boolean,
+  rows?: number,
+  readonly?: boolean
+};

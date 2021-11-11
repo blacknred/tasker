@@ -6,32 +6,24 @@ import useAuth from '../../../hooks/useAuth';
 import mutations from '../../../mutations';
 
 function Header() {
-  const color = useColorModeValue('gray.400', 'gray.700')
   const ThemeIcon = useColorModeValue(<SunIcon />, <MoonIcon />)
   const { toggleColorMode } = useColorMode()
   const { session } = useAuth();
 
   return (
     <Flex py={4} justifyContent="space-between" m="auto">
+
       <HStack spacing="6">
         <NextLink href="/">
-          <Heading color={color} fontSize="x-large" cursor="pointer">taskq</Heading>
+          <Heading fontSize="x-large" cursor="pointer">taskq</Heading>
         </NextLink>
       </HStack>
 
       <HStack spacing="6">
-        <IconButton
-          size="sm"
-          fontSize="lg"
-          aria-label="Theme"
-          onClick={toggleColorMode}
-          color={color}
-          colorScheme={color}
-          icon={ThemeIcon}
-        />
+        <IconButton size="sm" fontSize="lg" aria-label="Theme" onClick={toggleColorMode} icon={ThemeIcon} />
         {session && (
           <Menu>
-            <MenuList bgColor="blackAlpha.300" color={color}>
+            <MenuList bgColor="blackAlpha.300" >
               <MenuItem icon={<EditIcon />}>Edit account</MenuItem>
               <MenuDivider />
               <MenuItem icon={<ExternalLinkIcon />} onClick={() => mutations.deleteAuth()}>

@@ -12,14 +12,7 @@ class WorkspacesSortingDto extends SortingDto {
 }
 
 export class GetWorkspacesDto extends IntersectionType(
-  PartialType(
-    OmitType(CreateWorkspaceDto, [
-      'description',
-      'userId',
-      'userName',
-      'userImage',
-    ]),
-  ),
+  PartialType(OmitType(CreateWorkspaceDto, ['description', 'creator'])),
   PaginationDto,
   WorkspacesSortingDto,
 ) {

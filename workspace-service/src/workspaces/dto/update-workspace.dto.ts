@@ -28,7 +28,7 @@ export class RoleDto {
 }
 
 export class UpdateWorkspaceDto extends PartialType(
-  OmitType(CreateWorkspaceDto, ['userId', 'userName', 'userImage']),
+  OmitType(CreateWorkspaceDto, ['creator']),
 ) {
   @IsMongoId({ message: 'Invalid identificator' })
   id: string;

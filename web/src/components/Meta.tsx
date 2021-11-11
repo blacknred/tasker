@@ -1,18 +1,12 @@
 import Head from 'next/head';
 
-interface IProps {
-  title?: any,
-  keywords?: string,
-  description?: string
-}
-
 const defaultProps = {
   title: '',
   keywords: '',
   description: ''
 }
 
-const Meta = ({ title, keywords, description }: IProps & typeof defaultProps) => {
+const Meta = ({ title, keywords, description }: IMetaProps & typeof defaultProps) => {
   return (
     <Head>
       <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -28,3 +22,8 @@ const Meta = ({ title, keywords, description }: IProps & typeof defaultProps) =>
 Meta.defaultProps = defaultProps;
 
 export default Meta;
+export interface IMetaProps {
+  title?: any,
+  keywords?: string,
+  description?: string
+}

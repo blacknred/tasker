@@ -1,8 +1,9 @@
 import { FormikErrors } from "formik";
 import { mutate } from "swr";
+import { HOST } from "./constants";
 import pushService from "./push";
 import { IAuth, IResponse, ITask } from "./typings";
-import { errorMap, fetcher, HOST, showToast } from "./utils";
+import { errorMap, fetcher, showToast } from "./utils";
 
 export function mutation<T = unknown>(
   endpoint: string,
@@ -52,6 +53,7 @@ export default {
   }),
   createPushSubscription: mutation("auth/createPush", "PATCH"),
   deletePushSubscription: mutation("auth/deletePush", "PATCH"),
+  
   createTask: mutation("tasks", "POST", () => mutate(`${HOST}tasks`, null)),
   deleteTask: mutation("tasks", "DELETE", () => mutate(`${HOST}tasks`, null)),
   updateTask: mutation("tasks", "PATCH", () => mutate(`${HOST}tasks`, null)),

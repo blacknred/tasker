@@ -1,4 +1,10 @@
-import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsUrl,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString({ message: 'Must be a string' })
@@ -8,6 +14,9 @@ export class CreateUserDto {
 
   @IsEmail({}, { message: 'Invalid email' })
   email: string;
+
+  @IsUrl({}, { message: 'Invalid image path' })
+  image?: string;
 
   @IsString({ message: 'Must be a string' })
   @MinLength(8, { message: 'Must include atleast 6 chars' })

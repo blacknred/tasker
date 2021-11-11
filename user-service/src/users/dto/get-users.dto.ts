@@ -35,7 +35,7 @@ export class PaginationDto {
 }
 
 export class GetUsersDto extends IntersectionType(
-  PartialType(OmitType(CreateUserDto, ['password'] as const)),
+  PartialType(OmitType(CreateUserDto, ['password', 'image'] as const)),
   PaginationDto,
   SortingDto,
 ) {

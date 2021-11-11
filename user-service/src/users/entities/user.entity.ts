@@ -20,8 +20,11 @@ export class User implements IUser {
   @Column({ length: 200 })
   name: string;
 
-  @Column({ unique: true, update: false })
+  @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  image?: string;
 
   @Exclude()
   @Column({ type: 'text' })
@@ -29,9 +32,6 @@ export class User implements IUser {
 
   @Column({ default: false })
   isAdmin: boolean;
-
-  @Column({ default: false })
-  isConfirmed: boolean;
 
   @CreateDateColumn()
   @Index('user_createdAt_index')
@@ -54,7 +54,7 @@ export class User implements IUser {
   }
 
   static isNotSecured(column: string) {
-    return ['id', 'name'].includes(column);
+    return ['id', 'name', 'image'].includes(column);
   }
 
   constructor(user?: Partial<User>) {

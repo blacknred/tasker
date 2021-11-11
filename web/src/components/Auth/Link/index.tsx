@@ -3,14 +3,13 @@ import Link from 'next/link';
 import React from 'react';
 import useAuth from '../../../hooks/useAuth';
 
-interface IProps {
-  href: string
-}
-
-const AuthLink: React.FC<IProps> = ({ children, href }) => {
+const AuthLink: React.FC<IAuthLinkProps> = ({ children, href }) => {
   const { session } = useAuth();
 
-  return <Link href={session ? href : `/auth?next=${href}`}>{children}</Link>;
+  return <Link href={session ? href : `/account?next=${href}`}>{children}</Link>;
 }
 
 export default AuthLink
+export interface IAuthLinkProps {
+  href: string
+}

@@ -10,7 +10,7 @@ const userPaginationMock = {
 };
 
 export class UsersResponseDto extends PaginatedResponseDto<IUser> {
-  @ApiProperty({ example: userPaginationMock, nullable: false })
+  @ApiProperty({ example: userPaginationMock })
   data: {
     hasMore: boolean;
     total: number;

@@ -1,93 +1,61 @@
 import { ChevronDownIcon, CopyIcon, EditIcon, ExternalLinkIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
-import { Avatar, Box, Button, Flex, Heading, HStack, IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, SlideFade, useColorMode, useColorModeValue } from '@chakra-ui/react';
+import { Avatar, Button, Flex, Heading, HStack, IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Skeleton, useColorMode, useColorModeValue, useWhyDidYouUpdate } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import React, { FC } from 'react';
-import useAuth from '../../hooks/useAuth';
-import mutations from '../../mutations';
-import { Width } from '../../typings';
+import { useRouter } from 'next/router';
+import React from 'react';
+import useWorkspace from '../../../hooks/useWorkspace';
+import api from '../../../mutations';
 
-interface IProps {
-  variant?: 'lg' | 'md' | 'sm',
-  slide?: boolean
-}
-
-const Layout: FC<IProps> = ({ children, variant = 'lg', slide = true }) => {
-  const bg = useColorModeValue("gray.800", "gray.50")
-  const color = useColorModeValue('gray.400', 'gray.700')
+function WorkspaceHeader() {
+  const router = useRouter();
+  const { workspace, loading } = useWorkspace(router.query.wid as string);
   const ThemeIcon = useColorModeValue(<SunIcon />, <MoonIcon />)
   const { toggleColorMode } = useColorMode()
-  let { session } = useAuth();
-  // session = {}
-
-  const workspace = 'J Balvin Group Inc'
+  useWhyDidYouUpdate('workspace', { workspace });
 
   return (
-    <Box bgColor={bg} minH="100vh" px={35} pb={50}>
-      {/* header */}
+    <Skeleton isLoaded={!loading}>
       <Flex py={4} justifyContent="space-between" m="auto">
         <HStack spacing="6">
-          <NextLink href="/">
-            <Heading color={color} fontSize="x-large" cursor="pointer">
-              {session ? <CopyIcon /> : 'taskq'}
-            </Heading>
+          <NextLink href="/workspaces">
+            <CopyIcon fontSize="x-large" cursor="pointer" />
           </NextLink>
-          {session && (
-            <>
-              <Heading color={color} fontSize="x-large" isTruncated maxW="600px">{workspace}</Heading>
-              <Menu>
-                <MenuButton as={Button} size="md" colorScheme="blackAlpha" rightIcon={<ChevronDownIcon />}>
-                  Create
-                </MenuButton>
-                <MenuList>
-                  <MenuItem><NextLink href="workspace/task">Task</NextLink></MenuItem>
-                  <MenuItem><NextLink href="workspace/saga">Saga</NextLink></MenuItem>
-                  <MenuItem><NextLink href="workspace/agent">Agent</NextLink></MenuItem>
-                </MenuList>
-              </Menu>
-            </>
-          )}
+          <>
+            <Heading fontSize="x-large" isTruncated maxW="600px">{workspace?.name}</Heading>
+            <Menu>
+              <MenuButton as={Button} size="md" colorScheme="blackAlpha" rightIcon={<ChevronDownIcon />}>
+                Create
+              </MenuButton>
+              <MenuList>
+                <MenuItem><NextLink href="workspaces/task">Task</NextLink></MenuItem>
+                <MenuItem><NextLink href="workspaces/sagas/new">Saga</NextLink></MenuItem>
+                <MenuItem><NextLink href="workspaces/agents/new">Agent</NextLink></MenuItem>
+              </MenuList>
+            </Menu>
+          </>
         </HStack>
 
         <HStack spacing="6">
-          <IconButton
-            size="sm"
-            fontSize="lg"
-            aria-label="Theme"
-            onClick={toggleColorMode}
-            color={color}
-            colorScheme={color}
-            icon={ThemeIcon}
-          />
-          {session && (
-            <Menu>
-              <MenuList bgColor="blackAlpha.300" color={color}>
-                <MenuItem icon={<EditIcon />}>Edit profile</MenuItem>
-                <MenuItem icon={<EditIcon />}>Edit account</MenuItem>
-                <MenuDivider />
-                <MenuItem icon={<ExternalLinkIcon />} onClick={() => mutations.deleteAuth()}>
-                  Logout</MenuItem>
-              </MenuList>
-              <MenuButton
-                as={Avatar}
-                size="sm"
-                name="Dan Abrahmov"
-                src="https://bit.ly/dan-abramov"
-                cursor="pointer"
-              />
-            </Menu>
-          )}
-
+          <IconButton size="sm" fontSize="lg" aria-label="Theme" onClick={toggleColorMode} icon={ThemeIcon} />
+          <Menu>
+            <MenuList bgColor="blackAlpha.300">
+              <MenuItem icon={<EditIcon />}>Edit profile</MenuItem>
+              <MenuDivider />
+              <MenuItem icon={<ExternalLinkIcon />} onClick={() => api.deleteAuth()}>
+                Logout</MenuItem>
+            </MenuList>
+            <MenuButton
+              as={Avatar}
+              size="sm"
+              name={workspace?.agent?.name}
+              src={workspace?.agent?.image}
+              cursor="pointer"
+            />
+          </Menu>
         </HStack>
       </Flex >
-
-      {/* body */}
-      <SlideFade in offsetY={slide ? "-30px" : 0}>
-        <Box mt={10} mx="auto" w="100%" maxW={Width[variant]}>
-          {children}
-        </Box>
-      </SlideFade>
-    </Box>
+    </Skeleton>
   );
 }
 
-export default Layout
+export default WorkspaceHeader

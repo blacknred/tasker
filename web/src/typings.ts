@@ -1,28 +1,52 @@
-export enum Role {
-  USER = "USER",
-  ADMIN = "ADMIN",
-}
-
 export enum Width {
   lg = "full",
   md = "3xl",
   sm = "sm",
 }
 
-export enum TaskType {
-  LONG = "LONG",
-  SHORT = "SHORT",
-  MEDIUM = "MEDIUM",
+export enum Privilege {
+  EDIT_WORKSPACE = "EDIT_WORKSPACE",
+  CREATE_AGENT = "CREATE_AGENT",
+  READ_ANY_AGENT = "READ_ANY_AGENT",
+  EDIT_ANY_AGENT = "EDIT_ANY_AGENT",
+  DELETE_ANY_AGENT = "DELETE_AGENT",
+  CREATE_SAGA = "CREATE_SAGA",
+  READ_ANY_SAGA = "READ_ANY_SAGA",
+  EDIT_ANY_SAGA = "EDIT_ANY_SAGA",
+  DELETE_ANY_SAGA = "DELETE_ANY_SAGA",
+  CREATE_TASK = "CREATE_TASK",
+  READ_ANY_TASK = "READ_ANY_TASK",
+  EDIT_ANY_TASK = "EDIT_ANY_TASK",
+  DELETE_ANY_TASK = "DELETE_TASK",
 }
 
-export enum TaskPriority {
+export enum BaseStage {
+  TODO = "TODO",
+  IN_PROGRESS = "IN_PROGRESS",
+  DONE = "DONE",
+}
+
+export enum BaseLabel {
+  MINOR = "MINOR",
+  ROUTINE = "ROUTINE",
   CRITICAL = "CRITICAL",
-  MAJOR = "MAJOR",
-  MODERATE = "MODERATE",
-  LOW = "LOW",
 }
 
-// Dto
+/** UI */
+
+export interface ViewOptions<T> {
+  variant?: "list" | "grid";
+  "sort.field"?: keyof T;
+  "sort.order"?: "ASC" | "DESC";
+  limit?: 10 | 50 | 100;
+}
+
+export type ITaskViewOptions = ViewOptions<
+  Omit<ITask, "id" | "description" | "userId">
+>;
+
+/* DTO */
+
 export interface IPaginated<T> {
   hasMore: boolean;
   total: number;
@@ -40,24 +64,23 @@ export interface IResponse<T = unknown> {
   data: T;
 }
 
-// User entity
+/* ENTITIES */
+
 export interface IUser {
   id: number;
   name: string;
   email: string;
-  roles: [Role];
-  createdAt: number;
-  updatedAt: number;
+  image?: string;
+  isAdmin: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
-
-// Auth entity
 
 export type IAuth = Partial<IUser> & {
   vapidPublicKey?: string;
 };
 
 export interface IPushSubscription {
-  userId: number;
   endpoint: string;
   expirationTime?: number;
   keys: {
@@ -66,28 +89,65 @@ export interface IPushSubscription {
   };
 }
 
-// Task entity
+export interface IRole {
+  name: string;
+  privileges: Privilege[];
+}
+
+export interface IWorkspace {
+  id: string;
+  name: string;
+  description?: string;
+  stages: string[];
+  labels: string[];
+  roles: IRole[];
+  creatorId: number;
+  createdAt: string;
+  updatedAt: string;
+  //
+  agent?: IAgent;
+}
+
+export interface IUpdateRecord {
+  field: string;
+  prev: unknown;
+  next: unknown;
+}
+
+export interface ITaskUpdate {
+  records: IUpdateRecord[];
+  agent: IAgent;
+  createdAt: string;
+}
 
 export interface ITask {
   id: string;
   name: string;
-  description: string;
+  description?: string;
+  stage?: string;
+  label?: string;
+  createdAt: string;
+  expiresAt?: string;
+  updates: ITaskUpdate[];
+  creator: IAgent;
+  assignee?: IAgent;
+  sagas: Pick<ISaga, "id" | "name">[];
+}
+
+export interface ISaga {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  expiresAt?: string;
+  creator: IAgent;
+}
+
+export interface IAgent {
+  id: string;
   userId: number;
-  type: TaskType;
-  priority: TaskPriority;
-  createdAt: number;
-  finishedAt?: number;
+  name: string;
+  image?: string;
+  createdAt: string;
+  role?: string;
 }
-
-// Ui
-
-export interface ViewOptions<T> {
-  variant?: "list" | "grid";
-  "sort.field"?: keyof T;
-  "sort.order"?: "ASC" | "DESC";
-  limit?: 10 | 50 | 100;
-}
-
-export type ITaskViewOptions = ViewOptions<
-  Omit<ITask, "id" | "description" | "userId">
->;

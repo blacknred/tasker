@@ -1,10 +1,11 @@
 import {
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { CreateAgentDto } from 'src/agents/dto/create-agent.dto';
 
 export class CreateWorkspaceDto {
   @IsString({ message: 'Must be a string' })
@@ -17,14 +18,6 @@ export class CreateWorkspaceDto {
   description?: string;
 
   //
-
-  @IsNumber({}, { message: 'Must be an integer' })
-  userId: number;
-
-  @IsString({ message: 'Must be an string' })
-  userName: string;
-
-  @IsOptional()
-  @IsString({ message: 'Must be an string' })
-  userImage?: string;
+  @ValidateNested()
+  creator: Omit<CreateAgentDto, 'role' | 'wid' | 'uid'>;
 }

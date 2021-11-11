@@ -1,31 +1,28 @@
-import { Alert, Button, Center, Heading, HStack, Stack, useColorModeValue } from '@chakra-ui/react';
+import { Alert, Box, Button, Center, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import Meta from '../../components/Meta';
-import api from '../../mutations';
-import { MESSAGES } from '../../utils';
+import { SPOILERS } from '../../constants';
+import mutations from '../../mutations';
 
 function Auth() {
   const router = useRouter();
-  const color = useColorModeValue('gray.500', 'gray.500')
-  const notification = MESSAGES[router.asPath.split('#')[1]]
+  const notification = SPOILERS[router.asPath.split('#')[1] as keyof typeof SPOILERS]
 
   return (
     <Layout variant="sm" slide={false}>
-      <Meta title="Login" />
       <Formik
         initialValues={{ email: "", password: "" }}
         onSubmit={(values, actions) => {
-          api.createAuth(values, (err) => {
+          mutations.createAuth(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              const target = router.query.next || '/workspace'
+              const target = router.query.next || '/workspaces'
               router.push(target as string)
             }
           });
@@ -34,25 +31,23 @@ function Auth() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center>
-                <Heading color={color} fontSize="xx-large">Athentication</Heading>
-              </Center>
+              <Center><Heading fontSize="3xl">Athentication</Heading></Center>
 
-              {notification && <Alert status="success">{notification}</Alert>}
+              <Box>{notification && <Alert status="warning">{notification}</Alert>}</Box>
 
               <Stack spacing="4">
                 <Input name="email" label="Email" />
                 <Input name="password" label="Password" type="password" />
               </Stack>
 
-              <Button colorScheme="green" isLoading={isSubmitting} type="submit" isFullWidth>Login</Button>
+              <Button colorScheme="messenger" isLoading={isSubmitting} type="submit" isFullWidth>Login</Button>
 
               <HStack justifyContent="space-between">
-                <NextLink href="/auth/new">
-                  <Button variant="link" color={color}>Create account</Button>
+                <NextLink href="/account/new">
+                  <Button variant="unstyled">Create account</Button>
                 </NextLink>
-                <NextLink href="/auth/restore">
-                  <Button variant="link" color={color}>Restore access</Button>
+                <NextLink href="/account/restore">
+                  <Button variant="unstyled">Restore access</Button>
                 </NextLink>
               </HStack>
             </Stack>

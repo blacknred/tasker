@@ -6,31 +6,35 @@ import Layout from '../components/Layout'
 import Meta from '../components/Meta'
 
 function Index() {
-  const color = useColorModeValue('gray.400', 'blackAlpha.600')
-  const bg = useColorModeValue("gray.800", "gray.50")
+  const color = useColorModeValue("gray.800", "gray.50")
 
   return (
     <Layout>
       <Meta title="Taskq - task management" />
-      <Stack spacing="20" alignItems="flex-start" my="20" mx="20">
-        <Stack spacing="3">
+      <Stack spacing="16" alignItems="flex-start" my="20" mx="20">
+        <Stack spacing="6">
           <HStack spacing="6">
-            <Heading color={bg} bg={color} px="4" borderRadius="lg" fontSize="6xl">Your</Heading>
-            <Heading color={color} fontSize="7xl">task management</Heading>
+            <Heading color={color} bg="Background" px="4" borderRadius="lg" size="3xl">Your</Heading>
+            <Heading size="4xl">task management</Heading>
           </HStack>
-          <Heading color={color} fontSize="7xl">application</Heading>
+          <Heading size="4xl">application</Heading>
         </Stack>
 
-        <Heading color={color} fontSize="lg">Base task management functionality</Heading>
+
+        <Stack spacing="4">
+          <Heading size="md">Simple and clean</Heading>
+          <Heading size="md">Workspaces, agents, sagas and tasks</Heading>
+        </Stack>
+
 
         <HStack spacing="6">
-          <AuthLink href="/workspace">
-            <Button leftIcon={<PlusSquareIcon />} size="lg" colorScheme="green">
+          <AuthLink href="/workspaces/new">
+            <Button leftIcon={<PlusSquareIcon />} size="lg" colorScheme="messenger">
               Start now with new workspace
             </Button>
           </AuthLink>
 
-          <AuthLink href="/">
+          <AuthLink href="/workspaces">
             <Button leftIcon={<ExternalLinkIcon />} size="lg" colorScheme="blackAlpha">
               Back to work
             </Button>
