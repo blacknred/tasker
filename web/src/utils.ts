@@ -13,7 +13,9 @@ export const showToast = createStandaloneToast({
 });
 
 export function localStorageProvider() {
+  console.log(999999);
   if (isServer()) return new Map();
+  console.log(678687687);
 
   const map = new Map(JSON.parse(localStorage.getItem("app-cache") || "[]"));
   window.addEventListener("beforeunload", () => {

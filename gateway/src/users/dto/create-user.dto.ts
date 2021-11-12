@@ -4,9 +4,6 @@ export class CreateUserDto {
   @ApiProperty({ example: 'testuser' })
   name: string;
 
-  @ApiProperty({ uniqueItems: true, example: 'test@email.com' })
-  email: string;
-
   @ApiProperty({
     example: 'https://path-to-profile-image.png',
     required: false,
@@ -15,4 +12,7 @@ export class CreateUserDto {
 
   @ApiProperty({ minLength: 6, example: 'testpassword' })
   password: string;
+
+  @ApiProperty({ example: 'erq324q3r4534r234r' })
+  token: string;
 }

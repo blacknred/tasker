@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         DB_URL: Joi.string().required(),
+        CACHE_URL: Joi.string().required(),
         QUEUE_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
       }),

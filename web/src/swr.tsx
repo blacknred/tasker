@@ -6,7 +6,7 @@ const Swr: FC<{}> = ({ children }) => (
   <>
     <SWRConfig value={{
       fetcher,
-      provider: localStorageProvider,
+      // provider: localStorageProvider,
       isPaused: isServer,
       revalidateOnReconnect: true,
       loadingTimeout: 10000,

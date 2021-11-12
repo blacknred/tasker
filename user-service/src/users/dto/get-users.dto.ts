@@ -5,6 +5,7 @@ import {
   IsIn,
   IsDateString,
   IsBoolean,
+  IsEmail,
 } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 import { Type } from 'class-transformer';
@@ -35,10 +36,14 @@ export class PaginationDto {
 }
 
 export class GetUsersDto extends IntersectionType(
-  PartialType(OmitType(CreateUserDto, ['password', 'image'] as const)),
+  PartialType(OmitType(CreateUserDto, ['password', 'image', 'token'])),
   PaginationDto,
   SortingDto,
 ) {
+  @IsOptional()
+  @IsEmail({}, { message: 'Invalid email' })
+  email?: string;
+
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   createdAt?: string;

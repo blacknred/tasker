@@ -1,6 +1,6 @@
 import useSWR from "swr/immutable";
+import { HOST } from "../constants";
 import { IResponse, IWorkspace } from "../typings";
-import { HOST } from "../utils";
 
 export default function useWorkspace(id: string) {
   const { data, mutate, error } = useSWR<IResponse<IWorkspace>>(

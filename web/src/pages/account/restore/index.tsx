@@ -1,14 +1,14 @@
-import { Alert, Button, Center, Heading, Stack } from '@chakra-ui/react';
+import { Button, Center, Heading, Stack } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import Input from '../../../components/Form/Input';
 import Layout from '../../../components/Layout';
-import { MESSAGES, SPOILERS } from '../../../constants';
+import { MESSAGES } from '../../../constants';
 import mutations from '../../../mutations';
 
-function Restore() {
+function CreateToken() {
   const router = useRouter();
 
   return (
@@ -16,12 +16,13 @@ function Restore() {
       <Formik
         initialValues={{ email: "" }}
         onSubmit={(values, actions) => {
-          mutations.createUser(values, (err) => {
+          const params = { ...values, exist: true };
+          mutations.createUserToken(params, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              router.push(`/account#${MESSAGES['restore-account-confirm']}`)
+              router.push(`/account#${MESSAGES['email-token-sent']}`)
             }
           });
         }}
@@ -29,13 +30,11 @@ function Restore() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="3xl">Restore access</Heading></Center>
-
-              <Alert status="warning">{SPOILERS['restore-account-terms']}</Alert>
+              <Center><Heading fontSize="x-large">Restore access</Heading></Center>
 
               <Input name="email" label="Email" type="email" />
 
-              <Button colorScheme="messenger" isLoading={isSubmitting}
+              <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
                 type="submit" isFullWidth>Confirm email</Button>
 
               <NextLink href="/account">
@@ -49,4 +48,4 @@ function Restore() {
   );
 }
 
-export default Restore;
+export default CreateToken;

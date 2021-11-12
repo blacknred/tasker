@@ -3,19 +3,24 @@ import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcryptjs';
 import { classToPlain } from 'class-transformer';
 import { Repository } from 'typeorm';
-import { USER_REPOSITORY } from './consts';
+import { v4 } from 'uuid';
+import { CACHE_SERVICE, CACHE_TTL, USER_REPOSITORY } from './consts';
+import { CreateTokenDto } from './dto/create-token.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { ResponseDto } from './dto/response.dto';
+import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { RedisAdapter } from './utils/redis.adapter';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
+    @Inject(CACHE_SERVICE) private readonly cacheService: RedisAdapter,
     @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
   ) {}
 
@@ -26,32 +31,77 @@ export class UsersService {
     }, {});
   }
 
-  async create(createUserDto: CreateUserDto) {
+  private async parseToken(token: string) {
+    const found = await this.cacheService.getAsync(token);
+
+    if (!found) {
+      return [
+        {
+          message: 'Invalid or expired token',
+          field: 'token',
+        },
+      ];
+    }
+
+    await this.cacheService.delAsync(token);
+    return [null, found];
+  }
+
+  async create({ token, ...rest }: CreateUserDto) {
     try {
-      const param = { email: createUserDto.email };
-      const inUse = await this.userRepository.findOne(param, {
+      // check token
+      const [errors, email] = await this.parseToken(token);
+      if (errors) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          errors,
+        };
+      }
+
+      const user = this.userRepository.create({ ...rest, email });
+      await this.userRepository.save(user);
+
+      return {
+        status: HttpStatus.CREATED,
+        data: user,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
+
+  async createToken({ email, exist }: CreateTokenDto) {
+    try {
+      const param = { email };
+      const found = await this.userRepository.findOne(param, {
         withDeleted: true,
       });
 
-      if (inUse) {
+      let error;
+      if (found && !exist) error = 'Email already in use';
+      if (!found && exist) error = 'Email not in use';
+      if (error) {
         return {
           status: HttpStatus.CONFLICT,
           errors: [
             {
-              message: 'Email already in use',
+              message: error,
               field: 'email',
             },
           ],
         };
       }
 
-      // const salt = this.configService.get('SECRET');
-      const user = this.userRepository.create(createUserDto);
-      await this.userRepository.save(user);
+      const token = v4();
+      // TODO: check if token with this email allready exists
+      await this.cacheService.setAsync(token, email, 'ex', CACHE_TTL);
+      // TODO: SEND email with url/token
 
       return {
         status: HttpStatus.CREATED,
-        data: user,
+        data: null,
       };
     } catch (e) {
       throw new RpcException({
@@ -101,10 +151,10 @@ export class UsersService {
 
   async findOneValidated({ email, password }: GetUserDto) {
     try {
-      const user = await this.userRepository.findOne(
-        { email },
-        { withDeleted: false },
-      );
+      const param = { email };
+      const user = await this.userRepository.findOne(param, {
+        withDeleted: false,
+      });
 
       if (!user) {
         return {
@@ -141,12 +191,10 @@ export class UsersService {
     }
   }
 
-  async update({ id, email, ...rest }: UpdateUserDto) {
+  async update({ id, ...rest }: UpdateUserDto) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res;
-
-      // TODO: confirm email
 
       await this.userRepository.update(id, rest);
 
@@ -167,7 +215,6 @@ export class UsersService {
       if (!res.data) return res as ResponseDto;
 
       const deleted = await this.userRepository.softDelete(id);
-
       if (!deleted.affected) {
         return {
           status: HttpStatus.CONFLICT,
@@ -186,23 +233,26 @@ export class UsersService {
     }
   }
 
-  async restore(id: number) {
+  async restore({ token, password }: RestoreUserDto) {
     try {
-      const res = await this.findOne(id, false, true);
-      if (!res.data) return res as ResponseDto;
-
-      const restored = await this.userRepository.restore(id);
-
-      if (!restored.affected) {
+      // check token
+      const [errors, email] = await this.parseToken(token);
+      if (errors) {
         return {
-          status: HttpStatus.CONFLICT,
-          data: null,
+          status: HttpStatus.BAD_REQUEST,
+          errors,
         };
       }
 
+      const user = await this.userRepository.findOne({ email });
+      Object.assign(user, { deletedAt: null, password });
+      await user.hashPassword();
+
+      const data = await this.userRepository.save(user);
+
       return {
         status: HttpStatus.OK,
-        data: res.data,
+        data,
       };
     } catch (e) {
       throw new RpcException({

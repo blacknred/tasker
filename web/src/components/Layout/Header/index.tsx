@@ -15,7 +15,7 @@ function Header() {
 
       <HStack spacing="6">
         <NextLink href="/">
-          <Heading fontSize="x-large" cursor="pointer">taskq</Heading>
+          <Heading fontSize="x-large" cursor="pointer">tasq</Heading>
         </NextLink>
       </HStack>
 
@@ -32,8 +32,8 @@ function Header() {
             <MenuButton
               as={Avatar}
               size="sm"
-              name={session.name}
-              src={session.name}
+              name={session.name + ''}
+              src={session.image}
               cursor="pointer"
             />
           </Menu>

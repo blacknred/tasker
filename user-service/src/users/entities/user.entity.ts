@@ -7,6 +7,7 @@ import {
   BeforeInsert,
   Index,
   DeleteDateColumn,
+  BeforeUpdate,
 } from 'typeorm';
 import { IUser } from '../interfaces/user.interface';
 import { Exclude } from 'class-transformer';

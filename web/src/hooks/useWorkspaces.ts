@@ -1,6 +1,6 @@
 import useSWR from "swr";
+import { HOST } from "../constants";
 import { IPaginated, IResponse, IWorkspace } from "../typings";
-import { HOST } from "../utils";
 
 export default function useWorkspaces(page: number) {
   const { data, mutate, error } = useSWR<IResponse<IPaginated<IWorkspace>>>(

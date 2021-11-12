@@ -1,15 +1,9 @@
 export const SPOILERS = {
-  "restore-account-terms":
-    "To restore access to your account, you must enter the associated email address.\n" +
-    "A confirmation link will be sent to the specified address to continue restoring access.",
-  "restore-account-confirm":
-    "The confirmation link was sent to the email address. Use it to proceed restoration.",
-  "restore-account-password":
-    "Now you need to set up new password.",
+  "email-token-sent":
+    "A confirmation link has been sent to the email address. It will be available for 1 hour.",
+  "create-account-done": "A new account has been created.",
   "restore-account-done":
     "The restoration has been completed. Password updated successfully.",
-  "create-account-confirm":
-    "A confirmation link has been sent to the email address. Use it to activate your account.",
 };
 
 export const MESSAGES = Object.keys(SPOILERS).reduce(

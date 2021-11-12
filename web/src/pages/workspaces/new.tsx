@@ -29,9 +29,10 @@ function NewWorkspace() {
             <Stack spacing="9">
               <Center><Heading fontSize="3xl">New Workspace</Heading></Center>
 
-                <Input name="name" label="Name" />
+              <Input name="name" label="Name" />
 
-              <Button colorScheme="messenger" isLoading={isSubmitting} type="submit" isFullWidth>Create</Button>
+              <Button size="lg" colorScheme="messenger" isLoading={isSubmitting} type="submit"
+                isFullWidth>Create</Button>
             </Stack>
           </Form>
         )}

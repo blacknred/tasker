@@ -3,24 +3,26 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import Input from '../../components/Form/Input';
-import Layout from '../../components/Layout';
-import mutations from '../../mutations';
+import { MESSAGES } from '../../../constants';
+import Input from '../../../components/Form/Input';
+import Layout from '../../../components/Layout';
+import mutations from '../../../mutations';
 
-function NewAccount() {
+function CreateAccount() {
   const router = useRouter();
 
   return (
     <Layout variant="sm" slide={false}>
       <Formik
-        initialValues={{ name: "", email: "", password: "" }}
+        initialValues={{ name: "", password: "" }}
         onSubmit={(values, actions) => {
-          mutations.createUser(values, (err) => {
+          const params = { ...values, token: router.query.token }
+          mutations.createUser(params, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              router.push("/account")
+              router.push(`/account#${MESSAGES['create-account-done']}`)
             }
           });
         }}
@@ -28,18 +30,18 @@ function NewAccount() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="3xl">New account</Heading></Center>
+              <Center><Heading fontSize="x-large">New account</Heading></Center>
 
               <Stack spacing="4">
                 <Input name="name" label="Name" />
-                <Input name="email" label="Email" type="email" />
                 <Input name="password" label="Password" type="password" />
               </Stack>
 
-              <Button colorScheme="messenger" isLoading={isSubmitting} type="submit" isFullWidth>Register</Button>
+              <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
+                type="submit" isFullWidth>Save</Button>
 
               <NextLink href="/account">
-                <Button variant="unstyled">Already have an account</Button>
+                <Button variant="unstyled">Back to authentication</Button>
               </NextLink>
             </Stack>
           </Form>
@@ -49,4 +51,4 @@ function NewAccount() {
   );
 }
 
-export default NewAccount;
+export default CreateAccount;

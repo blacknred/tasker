@@ -1,8 +1,14 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { IsBoolean, IsEmail, IsNumber, IsOptional } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
-export class GetUserDto extends PartialType(CreateUserDto) {
+export class GetUserDto extends PartialType(
+  OmitType(CreateUserDto, ['image', 'token']),
+) {
+  @IsOptional()
+  @IsEmail({}, { message: 'Invalid email' })
+  email?: string;
+
   @IsOptional()
   @IsNumber({}, { message: 'Must be a number' })
   id?: number;

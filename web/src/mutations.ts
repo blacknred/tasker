@@ -40,7 +40,13 @@ export function mutation<T = unknown>(
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
+  createUserToken: mutation("users/token", "POST"),
   createUser: mutation("users", "POST", (data) => mutate(`${HOST}auth`, data)),
+  getUsers: mutation("users", "GET"),
+  updateUser: mutation("users", "PATCH"),
+  restoreUser: mutation("users/restore", "PATCH"),
+  deleteUser: mutation("users", "DELETE"),
+
   createAuth: mutation<IAuth>("auth", "POST", (data) => {
     mutate(`${HOST}auth`, data);
     if (data?.vapidPublicKey) {

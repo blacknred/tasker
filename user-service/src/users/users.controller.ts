@@ -1,5 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { CreateTokenDto } from './dto/create-token.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -8,6 +9,7 @@ import {
   UserResponseDto,
   UsersResponseDto,
 } from './dto/response.dto';
+import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -20,6 +22,13 @@ export class UsersController {
     @Payload() createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
+  }
+
+  @MessagePattern('createToken')
+  async createToken(
+    @Payload() createTokenDto: CreateTokenDto,
+  ): Promise<ResponseDto> {
+    return this.usersService.createToken(createTokenDto);
   }
 
   @MessagePattern('getAll')
@@ -48,7 +57,9 @@ export class UsersController {
   }
 
   @MessagePattern('restore')
-  async restore(@Payload() { id }: GetUserDto): Promise<UserResponseDto> {
-    return this.usersService.restore(id);
+  async restore(
+    @Payload() restoreUserDto: RestoreUserDto,
+  ): Promise<UserResponseDto> {
+    return this.usersService.restore(restoreUserDto);
   }
 }

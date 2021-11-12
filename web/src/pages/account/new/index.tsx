@@ -8,27 +8,20 @@ import Layout from '../../../components/Layout';
 import { MESSAGES } from '../../../constants';
 import mutations from '../../../mutations';
 
-function RestoreAccount() {
+function CreateToken() {
   const router = useRouter();
 
   return (
     <Layout variant="sm" slide={false}>
       <Formik
-        initialValues={{ password: "", password2: "" }}
+        initialValues={{ email: "" }}
         onSubmit={(values, actions) => {
-          if (values.password2 !== values.password) {
-            actions.setErrors({ password2: 'Passwords differ' });
-            actions.setSubmitting(false);
-            return;
-          }
-
-          const params = { ...values, token: router.query.token }
-          mutations.restoreUser(params, (err) => {
+          mutations.createUserToken(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              router.push(`/account#${MESSAGES['restore-account-done']}`)
+              router.push(`/account#${MESSAGES['email-token-sent']}`)
             }
           });
         }}
@@ -36,15 +29,12 @@ function RestoreAccount() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="x-large">Set new password</Heading></Center>
+              <Center><Heading fontSize="x-large">New account</Heading></Center>
 
-              <Stack spacing="4">
-                <Input name="password" label="Password" type="password" />
-                <Input name="password2" label="Repeat password" type="password" placeholder="password" />
-              </Stack>
+              <Input name="email" label="Email" type="email" />
 
               <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
-                type="submit" isFullWidth>Save</Button>
+                type="submit" isFullWidth>Confirm email</Button>
 
               <NextLink href="/account">
                 <Button variant="unstyled">Back to authentication</Button>
@@ -57,4 +47,4 @@ function RestoreAccount() {
   );
 }
 
-export default RestoreAccount;
+export default CreateToken;

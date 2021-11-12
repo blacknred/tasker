@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Center, Heading, HStack, Stack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Button, Center, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -31,16 +31,17 @@ function Auth() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="3xl">Athentication</Heading></Center>
+              <Center><Heading fontSize="x-large">Athentication</Heading></Center>
 
-              <Box>{notification && <Alert status="warning">{notification}</Alert>}</Box>
+              {notification && <Alert status="success"><AlertIcon />{notification}</Alert>}
 
               <Stack spacing="4">
                 <Input name="email" label="Email" />
                 <Input name="password" label="Password" type="password" />
               </Stack>
 
-              <Button colorScheme="messenger" isLoading={isSubmitting} type="submit" isFullWidth>Login</Button>
+              <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
+                type="submit" isFullWidth>Login</Button>
 
               <HStack justifyContent="space-between">
                 <NextLink href="/account/new">

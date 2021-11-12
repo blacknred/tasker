@@ -24,9 +24,11 @@ import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
+import { CreateTokenDto } from './dto/create-token.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
+import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersResponseDto } from './dto/users-response.dto';
@@ -44,6 +46,14 @@ export class UsersController {
   @WithCreatedApi(UserResponseDto, 'Create new user')
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.send('create', createUserDto).toPromise();
+  }
+
+  @Post('token')
+  @WithCreatedApi(UserResponseDto, 'Create new email token')
+  async createToken(
+    @Body() createTokenDto: CreateTokenDto,
+  ): Promise<EmptyResponseDto> {
+    return this.userService.send('createToken', createTokenDto).toPromise();
   }
 
   @Get()
@@ -80,12 +90,9 @@ export class UsersController {
   @Patch('restore')
   @WithOkApi(UserResponseDto, 'Restore user')
   async restore(
-    @Auth('user') { id },
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() restoreUserDto: RestoreUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService
-      .send('restore', { id, ...updateUserDto })
-      .toPromise();
+    return this.userService.send('restore', restoreUserDto).toPromise();
   }
 
   @Delete()

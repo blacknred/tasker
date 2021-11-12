@@ -7,10 +7,9 @@ import Swr from '../swr';
 import theme from '../theme';
 
 function MyApp({ Component, pageProps }: AppProps) {
-
-  useEffect(() => {
-    pushService.init("/sw.js");
-  }, [])
+  // useEffect(() => {
+  //   pushService.init("/sw.js");
+  // }, [])
 
   return (
     <Swr>

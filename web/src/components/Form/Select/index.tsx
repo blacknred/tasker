@@ -11,7 +11,7 @@ const SelectField = ({ label, size, options, readonly, ...props }: SelectFieldPr
     <FormControl isInvalid={!!error}>
       {label && <FormLabel htmlFor={field.name} opacity="0.5">{label}</FormLabel>}
       {/* @ts-ignore */}
-      <Select isDisabled={readonly} bgColor={bg} {...field} {...props} id={field.name}>
+      <Select size="lg" isDisabled={readonly} bgColor={bg} {...field} {...props} id={field.name}>
         {options.map(value => <option value={value}>{value}</option>)}
       </Select>
       <FormErrorMessage>{error}</FormErrorMessage>
