@@ -30,7 +30,7 @@ export class Agent extends BaseEntity {
 
   @ManyToOne(() => Workspace, {
     eager: false,
-    hidden: true,
+    // hidden: true,
     fieldName: 'wid',
   })
   workspace: Workspace;

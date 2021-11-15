@@ -14,7 +14,7 @@ export class CreateUserDto {
   name: string;
 
   @IsOptional()
-  @IsUrl({}, { message: 'Invalid image path' })
+  @IsUrl({}, { message: 'Must be an url' })
   image?: string;
 
   @IsString({ message: 'Must be a string' })
@@ -23,5 +23,5 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString({ message: 'Must be a string' })
-  token: string;
+  emailToken: string;
 }

@@ -2,14 +2,19 @@ import {
   ArgumentMetadata,
   HttpStatus,
   Injectable,
-  PipeTransform,
+  ValidationPipe as VP,
+  ValidationPipeOptions,
 } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 
 @Injectable()
-export class ValidationPipe implements PipeTransform<any> {
+export class ValidationPipe extends VP {
+  constructor(options: ValidationPipeOptions) {
+    super(options);
+  }
+
   private errs = [];
   async transform(value: any, metadata: ArgumentMetadata): Promise<unknown> {
     const obj = plainToClass(metadata.metatype, value);

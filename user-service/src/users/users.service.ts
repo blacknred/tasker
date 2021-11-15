@@ -2,25 +2,24 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcryptjs';
 import { classToPlain } from 'class-transformer';
+import { TokensService } from 'src/tokens/tokens.service';
+import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { Repository } from 'typeorm';
-import { v4 } from 'uuid';
-import { CACHE_SERVICE, CACHE_TTL, USER_REPOSITORY } from './consts';
-import { CreateTokenDto } from './dto/create-token.dto';
+import { USER_REPOSITORY } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
-import { ResponseDto } from './dto/response.dto';
 import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { RedisAdapter } from './utils/redis.adapter';
 
+const message = 'Invalid or expired token';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
-    @Inject(CACHE_SERVICE) private readonly cacheService: RedisAdapter,
+    private readonly tokensService: TokensService,
     @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
   ) {}
 
@@ -31,30 +30,14 @@ export class UsersService {
     }, {});
   }
 
-  private async parseToken(token: string) {
-    const found = await this.cacheService.getAsync(token);
-
-    if (!found) {
-      return [
-        {
-          message: 'Invalid or expired token',
-          field: 'token',
-        },
-      ];
-    }
-
-    await this.cacheService.delAsync(token);
-    return [null, found];
-  }
-
-  async create({ token, ...rest }: CreateUserDto) {
+  async create({ emailToken, ...rest }: CreateUserDto) {
     try {
       // check token
-      const [errors, email] = await this.parseToken(token);
-      if (errors) {
+      const email = await this.tokensService.parse(emailToken);
+      if (!email) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          errors,
+          errors: [{ message, field: 'emailToken' }],
         };
       }
 
@@ -64,44 +47,6 @@ export class UsersService {
       return {
         status: HttpStatus.CREATED,
         data: user,
-      };
-    } catch (e) {
-      throw new RpcException({
-        status: HttpStatus.PRECONDITION_FAILED,
-      });
-    }
-  }
-
-  async createToken({ email, exist }: CreateTokenDto) {
-    try {
-      const param = { email };
-      const found = await this.userRepository.findOne(param, {
-        withDeleted: true,
-      });
-
-      let error;
-      if (found && !exist) error = 'Email already in use';
-      if (!found && exist) error = 'Email not in use';
-      if (error) {
-        return {
-          status: HttpStatus.CONFLICT,
-          errors: [
-            {
-              message: error,
-              field: 'email',
-            },
-          ],
-        };
-      }
-
-      const token = v4();
-      // TODO: check if token with this email allready exists
-      await this.cacheService.setAsync(token, email, 'ex', CACHE_TTL);
-      // TODO: SEND email with url/token
-
-      return {
-        status: HttpStatus.CREATED,
-        data: null,
       };
     } catch (e) {
       throw new RpcException({
@@ -191,16 +136,34 @@ export class UsersService {
     }
   }
 
-  async update({ id, ...rest }: UpdateUserDto) {
+  async update({ id, emailToken, password, ...rest }: UpdateUserDto) {
     try {
       const res = await this.findOne(id);
       if (!res.data) return res;
 
-      await this.userRepository.update(id, rest);
+      if (emailToken) {
+        const email = await this.tokensService.parse(emailToken);
+        if (!email) {
+          return {
+            status: HttpStatus.BAD_REQUEST,
+            errors: [{ message, field: 'emailToken' }],
+          };
+        }
+
+        res.data.email = email;
+      }
+
+      if (password) {
+        res.data.password = password;
+        await res.data.hashPassword();
+      }
+
+      Object.assign(res.data, rest);
+      const data = await this.userRepository.save(res.data);
 
       return {
         status: HttpStatus.OK,
-        data: { ...res.data, ...rest },
+        data,
       };
     } catch (e) {
       throw new RpcException({
@@ -233,16 +196,11 @@ export class UsersService {
     }
   }
 
-  async restore({ token, password }: RestoreUserDto) {
+  async restore({ emailToken, password }: RestoreUserDto) {
     try {
       // check token
-      const [errors, email] = await this.parseToken(token);
-      if (errors) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
-          errors,
-        };
-      }
+      const token = await this.tokensService.parse(emailToken);
+      if (!token.data) return token;
 
       const user = await this.userRepository.findOne({ email });
       Object.assign(user, { deletedAt: null, password });

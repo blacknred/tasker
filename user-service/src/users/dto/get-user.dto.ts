@@ -3,7 +3,7 @@ import { IsBoolean, IsEmail, IsNumber, IsOptional } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
 export class GetUserDto extends PartialType(
-  OmitType(CreateUserDto, ['image', 'token']),
+  OmitType(CreateUserDto, ['image', 'emailToken']),
 ) {
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email' })

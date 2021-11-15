@@ -28,6 +28,17 @@ export class WorkspacesService {
   async create(createWorkspaceDto: CreateWorkspaceDto) {
     try {
       const { creator, ...rest } = createWorkspaceDto;
+
+      // unique name
+      const inUse = await this.workspaceRepository.findOne({ name: rest.name });
+      if (inUse) {
+        return {
+          status: HttpStatus.CONFLICT,
+          errors: [{ field: 'name', message: 'Name allready in use' }],
+        };
+      }
+
+      // crate workspace
       const workspace = new Workspace({ creatorId: creator.userId, ...rest });
 
       // initial agents
@@ -66,6 +77,7 @@ export class WorkspacesService {
     if (uid) {
       const wids = await this.agentRepository.find({ userId: uid });
       _where['id'] = wids.map((w) => w.workspace);
+      console.log(uid, wids);
     }
 
     const where = Object.keys(rest).reduce((acc, key) => {

@@ -4,11 +4,11 @@ import useAuth from "../../hooks/useAuth";
 
 function withAuth<T>(Component: ComponentType<T>) {
   return function (props: T) {
-    const { session } = useAuth();
+    const { session, loading } = useAuth();
 
     useEffect(() => {
-      if (!session) router.replace("/");
-    }, [session]);
+      if (!loading && !session) router.replace("/");
+    }, [session, loading]);
 
     return session ? <Component {...props} /> : null;
   };

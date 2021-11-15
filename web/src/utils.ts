@@ -26,6 +26,15 @@ export function localStorageProvider() {
   return map;
 }
 
+export function fileToBase64(
+  file: Blob,
+  cb: (data: string | ArrayBuffer | null) => void
+) {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onloadend = () => cb(reader.result);
+}
+
 export const isServer = () => typeof window === "undefined";
 
 export function delay(ms = 1000): Promise<void> {

@@ -28,7 +28,11 @@ function Workspaces() {
           )}
         </Stack>
 
-        <Button variant="solid" leftIcon={<PlusSquareIcon />} size="lg">Add new workspace</Button>
+        <Link href="/workspaces/new">
+          <Button variant="solid" leftIcon={<PlusSquareIcon />} size="lg">
+            Add new workspace
+          </Button>
+        </Link>
       </Stack>
     </Layout>
   );

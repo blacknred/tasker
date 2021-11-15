@@ -14,5 +14,5 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty({ example: 'erq324q3r4534r234r' })
-  token: string;
+  emailToken: string;
 }

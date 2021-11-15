@@ -4,15 +4,15 @@ import { IAuth, IResponse } from "../typings";
 
 export default function useAuth() {
   const { data, mutate, error } = useSWR<IResponse<IAuth>>(
-    `${HOST}auth`,
+    `${HOST}auth/me`,
     null,
     {
       // refreshInterval: 10 * 60 * 1000,
       shouldRetryOnError: false,
-      // revalidateIfStale: true,
-      // revalidateOnFocus: true,
+      revalidateIfStale: true,
+      revalidateOnFocus: true,
       // errorRetryCount: 0,
-      // revalidateOnMount: false,
+      // revalidateOnMount: true,
       onError: () => null,
       // errorRetryInterval: 10000,
       // fallbackData: {} as any,

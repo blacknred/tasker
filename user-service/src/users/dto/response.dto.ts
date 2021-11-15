@@ -1,23 +1,9 @@
-import { HttpStatus } from '@nestjs/common';
+import {
+  PaginatedResponseDto,
+  ResponseDto,
+} from '../../__shared__/dto/response.dto';
 import { IUser } from '../interfaces/user.interface';
-
-export class ValidationError {
-  field: string;
-  message: string;
-}
-
-export class Paginated<T> {
-  hasMore: boolean;
-  total: number;
-  items: T[];
-}
-
-export class ResponseDto<T = null> {
-  status: HttpStatus;
-  errors?: ValidationError[];
-  data?: T;
-}
 
 export class UserResponseDto extends ResponseDto<Partial<IUser>> {}
 
-export class UsersResponseDto extends ResponseDto<Paginated<Partial<IUser>>> {}
+export class UsersResponseDto extends PaginatedResponseDto<Partial<IUser>> {}

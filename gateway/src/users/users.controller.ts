@@ -24,7 +24,7 @@ import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
-import { CreateTokenDto } from './dto/create-token.dto';
+import { CreateEmailTokenDto } from './dto/create-email-token.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -48,12 +48,14 @@ export class UsersController {
     return this.userService.send('create', createUserDto).toPromise();
   }
 
-  @Post('token')
-  @WithCreatedApi(UserResponseDto, 'Create new email token')
-  async createToken(
-    @Body() createTokenDto: CreateTokenDto,
+  @Post('email-token')
+  @WithCreatedApi(EmptyResponseDto, 'Create new email token')
+  async createEmailToken(
+    @Body() createTokenDto: CreateEmailTokenDto,
   ): Promise<EmptyResponseDto> {
-    return this.userService.send('createToken', createTokenDto).toPromise();
+    return this.userService
+      .send('createEmailToken', createTokenDto)
+      .toPromise();
   }
 
   @Get()

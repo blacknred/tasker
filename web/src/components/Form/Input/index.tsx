@@ -1,18 +1,18 @@
 import { FormControl, FormErrorMessage, FormLabel, Input, Textarea } from '@chakra-ui/react';
-import React, { InputHTMLAttributes } from 'react';
+import React, { InputHTMLAttributes, LegacyRef } from 'react';
 import { useField } from 'formik';
 
-const InputField = ({ label, size, area, readonly, ...props }: InputFieldProps): JSX.Element => {
+const InputField = ({ label, size, area, innerRef, style, ...props }: InputFieldProps): JSX.Element => {
   props.placeholder = props.placeholder || props.name;
   const [field, { error }] = useField(props);
 
   return (
-    <FormControl isInvalid={!!error} flexDirection="column">
+    <FormControl style={style} isInvalid={!!error} flexDirection="column">
       {label && <FormLabel htmlFor={field.name} opacity="0.5" >{label}</FormLabel>}
       {/* @ts-ignore */}
-      {area ? <Textarea bg="blackAlpha.50" size="lg" isDisabled={readonly} {...field} {...props} id={field.name} />
-        : <Input bg="blackAlpha.50" size="lg" isDisabled={readonly} {...field} {...props} id={field.name} />}
-      <FormErrorMessage>{error}</FormErrorMessage>
+      {area ? <Textarea bg="blackAlpha.50" size="lg" {...field} {...props} />
+        : <Input bg="blackAlpha.50" size="lg" {...field} {...props} ref={innerRef} />}
+      <FormErrorMessage justifyContent="inherit">{error}</FormErrorMessage>
     </FormControl>
   );
 }
@@ -23,5 +23,6 @@ export type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label?: string,
   area?: boolean,
   rows?: number,
-  readonly?: boolean
+  isDisabled?: boolean
+  innerRef?: LegacyRef<HTMLInputElement>;
 };

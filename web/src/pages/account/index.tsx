@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Button, Center, Heading, HStack, Stack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, Center, Heading, HStack, Stack } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -8,7 +8,7 @@ import Layout from '../../components/Layout';
 import { SPOILERS } from '../../constants';
 import mutations from '../../mutations';
 
-function Auth() {
+function Authentication() {
   const router = useRouter();
   const notification = SPOILERS[router.asPath.split('#')[1] as keyof typeof SPOILERS]
 
@@ -31,7 +31,7 @@ function Auth() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="x-large">Athentication</Heading></Center>
+              <Center><Heading fontSize="x-large" >Athentication</Heading></Center>
 
               {notification && <Alert status="success"><AlertIcon />{notification}</Alert>}
 
@@ -44,10 +44,10 @@ function Auth() {
                 type="submit" isFullWidth>Login</Button>
 
               <HStack justifyContent="space-between">
-                <NextLink href="/account/new">
+                <NextLink href="/account/confirm?next=new">
                   <Button variant="unstyled">Create account</Button>
                 </NextLink>
-                <NextLink href="/account/restore">
+                <NextLink href="/account/confirm?next=restore">
                   <Button variant="unstyled">Restore access</Button>
                 </NextLink>
               </HStack>
@@ -59,5 +59,5 @@ function Auth() {
   );
 }
 
-export default Auth;
+export default Authentication;
 

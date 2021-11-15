@@ -1,19 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { cacheProvider } from './providers/cache.provider';
+import { TokensService } from 'src/tokens/tokens.service';
 import databaseProviders from './providers/database.provider';
-import { notificationsProvider } from './providers/notifications.provider';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, TokensService],
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    ...databaseProviders,
-    cacheProvider,
-    notificationsProvider,
-  ],
+  providers: [UsersService, ...databaseProviders],
+  exports: [UsersService],
 })
 export class UsersModule {}

@@ -122,12 +122,11 @@ services:
       - backend
     depends_on:
       - user-db
-      - rabbitmq
       - redis
     links:
       - user-db
-      - rabbitmq
       - redis
+      - rabbitmq
 
   workspace-service:
     container_name: workspace-service
@@ -152,10 +151,10 @@ services:
       - backend
     depends_on:
       - workspace-db
-      - rabbitmq
     links:
       - workspace-db
       - rabbitmq
+      - user-service
 
   worker-service:
     container_name: worker-service
@@ -180,7 +179,6 @@ services:
       - backend      
     depends_on:
       - rabbitmq
-      - workspace-service
     links:
       - rabbitmq
       - workspace-service

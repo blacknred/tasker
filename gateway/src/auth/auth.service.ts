@@ -24,6 +24,7 @@ export class AuthService {
   }
 
   async findAll({ limit = 10, offset = 0, ...rest }: GetAuthsDto) {
+    // TODO: list all sessions
     // 1. ZRANGE with sorted sets
     // --scan --pattern 'abc:*'
     const total = await this.cacheService.dbsizeAsync();

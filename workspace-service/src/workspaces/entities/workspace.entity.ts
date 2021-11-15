@@ -20,6 +20,9 @@ export class Role {
 
 @Entity()
 export class Workspace extends BaseEntity {
+  @Property({ length: 500, unique: true })
+  name!: string;
+
   @Property({ nullable: true })
   description?: string;
 

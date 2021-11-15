@@ -3,25 +3,25 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import Input from '../../../components/Form/Input';
-import Layout from '../../../components/Layout';
-import { MESSAGES } from '../../../constants';
-import mutations from '../../../mutations';
+import { MESSAGES } from '../../constants';
+import Input from '../../components/Form/Input';
+import Layout from '../../components/Layout';
+import mutations from '../../mutations';
 
-function CreateToken() {
+function CreateAccount() {
   const router = useRouter();
 
   return (
     <Layout variant="sm" slide={false}>
       <Formik
-        initialValues={{ email: "" }}
+        initialValues={{ name: "", password: "", token: router.query.token }}
         onSubmit={(values, actions) => {
-          mutations.createUserToken(values, (err) => {
+          mutations.createUser(values, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              router.push(`/account#${MESSAGES['email-token-sent']}`)
+              router.push(`/account#${MESSAGES['create-account-done']}`)
             }
           });
         }}
@@ -31,10 +31,14 @@ function CreateToken() {
             <Stack spacing="9">
               <Center><Heading fontSize="x-large">New account</Heading></Center>
 
-              <Input name="email" label="Email" type="email" />
+              <Stack spacing="4">
+                <Input name="token" hidden />
+                <Input name="name" label="Name" />
+                <Input name="password" label="Password" type="password" />
+              </Stack>
 
               <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
-                type="submit" isFullWidth>Confirm email</Button>
+                type="submit" isFullWidth>Save</Button>
 
               <NextLink href="/account">
                 <Button variant="unstyled">Back to authentication</Button>
@@ -47,4 +51,4 @@ function CreateToken() {
   );
 }
 
-export default CreateToken;
+export default CreateAccount;

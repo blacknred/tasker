@@ -12,10 +12,10 @@ export default function useWorkspaces(page: number) {
       // revalidateIfStale: true,
       // revalidateOnFocus: true,
       // errorRetryCount: 0,
-      // revalidateOnMount: false,
+      // revalidateOnMount: true,
       onError: () => null,
       // errorRetryInterval: 10000,
-      // fallbackData: {} as any,
+      // fallbackData: { name: 'kjlkjlk' } as any,
     }
   );
 

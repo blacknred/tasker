@@ -3,26 +3,31 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { MESSAGES } from '../../../constants';
-import Input from '../../../components/Form/Input';
-import Layout from '../../../components/Layout';
-import mutations from '../../../mutations';
+import Input from '../../components/Form/Input';
+import Layout from '../../components/Layout';
+import { MESSAGES } from '../../constants';
+import mutations from '../../mutations';
 
-function CreateAccount() {
+function RestoreAccount() {
   const router = useRouter();
 
   return (
     <Layout variant="sm" slide={false}>
       <Formik
-        initialValues={{ name: "", password: "" }}
-        onSubmit={(values, actions) => {
-          const params = { ...values, token: router.query.token }
-          mutations.createUser(params, (err) => {
+        initialValues={{ password: "", password2: "", token: router.query.token }}
+        onSubmit={({ token, password, password2 }, actions) => {
+          if (password2 !== password) {
+            actions.setErrors({ password2: 'Passwords differ' });
+            actions.setSubmitting(false);
+            return;
+          }
+
+          mutations.restoreUser({ password, token }, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)
             } else {
-              router.push(`/account#${MESSAGES['create-account-done']}`)
+              router.push(`/account#${MESSAGES['restore-account-done']}`)
             }
           });
         }}
@@ -30,11 +35,12 @@ function CreateAccount() {
         {({ isSubmitting }) => (
           <Form>
             <Stack spacing="9">
-              <Center><Heading fontSize="x-large">New account</Heading></Center>
+              <Center><Heading fontSize="x-large">Set new password</Heading></Center>
 
               <Stack spacing="4">
-                <Input name="name" label="Name" />
+                <Input name="token" hidden />
                 <Input name="password" label="Password" type="password" />
+                <Input name="password2" label="Repeat password" type="password" placeholder="password" />
               </Stack>
 
               <Button size="lg" colorScheme="messenger" isLoading={isSubmitting}
@@ -51,4 +57,4 @@ function CreateAccount() {
   );
 }
 
-export default CreateAccount;
+export default RestoreAccount;

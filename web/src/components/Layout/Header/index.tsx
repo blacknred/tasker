@@ -1,4 +1,4 @@
-import { EditIcon, ExternalLinkIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
+import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { Avatar, Flex, Heading, HStack, IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, useColorMode, useColorModeValue } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import React from 'react';
@@ -21,21 +21,16 @@ function Header() {
 
       <HStack spacing="6">
         <IconButton size="sm" fontSize="lg" aria-label="Theme" onClick={toggleColorMode} icon={ThemeIcon} />
+
         {session && (
           <Menu>
-            <MenuList bgColor="blackAlpha.300" >
-              <MenuItem icon={<EditIcon />}>Edit account</MenuItem>
+            <MenuButton><Avatar name={session.name} src={session.image} size="sm" /></MenuButton>
+            <MenuList bgColor="whiteAlpha.100" shadow="md">
+              <MenuItem textAlign="right" justifyContent="end"><NextLink
+                href="/account/edit">Edit profile</NextLink></MenuItem>
               <MenuDivider />
-              <MenuItem icon={<ExternalLinkIcon />} onClick={() => mutations.deleteAuth()}>
-                Logout</MenuItem>
+              <MenuItem justifyContent="end" onClick={() => mutations.deleteAuth()}>Logout</MenuItem>
             </MenuList>
-            <MenuButton
-              as={Avatar}
-              size="sm"
-              name={session.name + ''}
-              src={session.image}
-              cursor="pointer"
-            />
           </Menu>
         )}
       </HStack>

@@ -2,7 +2,7 @@ import { FormikErrors } from "formik";
 import { mutate } from "swr";
 import { HOST } from "./constants";
 import pushService from "./push";
-import { IAuth, IResponse, ITask } from "./typings";
+import { IAuth, IResponse, IWorkspace } from "./typings";
 import { errorMap, fetcher, showToast } from "./utils";
 
 export function mutation<T = unknown>(
@@ -38,15 +38,14 @@ export function mutation<T = unknown>(
   };
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default {
-  createUserToken: mutation("users/token", "POST"),
+const mutations = {
+  // users
+  createEmailToken: mutation("users/email-token", "POST"),
   createUser: mutation("users", "POST", (data) => mutate(`${HOST}auth`, data)),
-  getUsers: mutation("users", "GET"),
   updateUser: mutation("users", "PATCH"),
   restoreUser: mutation("users/restore", "PATCH"),
   deleteUser: mutation("users", "DELETE"),
-
+  // auth
   createAuth: mutation<IAuth>("auth", "POST", (data) => {
     mutate(`${HOST}auth`, data);
     if (data?.vapidPublicKey) {
@@ -55,12 +54,30 @@ export default {
   }),
   deleteAuth: mutation("auth", "DELETE", () => {
     mutate(`${HOST}auth`, null);
-    pushService.unsubscribe();
+    pushService?.unsubscribe();
   }),
   createPushSubscription: mutation("auth/createPush", "PATCH"),
   deletePushSubscription: mutation("auth/deletePush", "PATCH"),
-  
-  createTask: mutation("tasks", "POST", () => mutate(`${HOST}tasks`, null)),
-  deleteTask: mutation("tasks", "DELETE", () => mutate(`${HOST}tasks`, null)),
-  updateTask: mutation("tasks", "PATCH", () => mutate(`${HOST}tasks`, null)),
+  // workspaces
+  createWorkspace: mutation<IWorkspace>("workspaces", "POST"),
+  updateWorkspace: mutation<IWorkspace>("workspaces", "PATCH"),
+  restoreWorkspace: mutation<IWorkspace>("workspaces/restore", "PATCH"),
+  deleteWorkspace: mutation("workspaces", "DELETE"),
+  createAgent: mutation("workspaces/:id/agents", "POST"),
+  updateAgent: mutation("workspaces/:id/agents/:id", "PATCH"),
+  deleteAgent: mutation("workspaces/:id/agents/:id", "DELETE"),
+  createSaga: mutation("workspaces/:id/sagas", "POST"),
+  updateSaga: mutation("workspaces/:id/sagas/:id", "PATCH"),
+  deleteSaga: mutation("workspaces/:id/sagas/:id", "DELETE"),
+  createTask: mutation("workspaces/:id/tasks", "POST", () =>
+    mutate(`${HOST}tasks`, null)
+  ),
+  updateTask: mutation("workspaces/:id/tasks/:id", "PATCH", () =>
+    mutate(`${HOST}tasks`, null)
+  ),
+  deleteTask: mutation("workspaces/:id/tasks/:id", "DELETE", () =>
+    mutate(`${HOST}tasks`, null)
+  ),
 };
+
+export default mutations;

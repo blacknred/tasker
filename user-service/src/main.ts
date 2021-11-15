@@ -1,9 +1,9 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
-import { ValidationPipe } from './users/pipes/validation.pipe';
+import { ValidationPipe } from './__shared__/pipes/validation.pipe';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { AllExceptionFilter } from './users/filters/all-exception.filter';
+import { AllExceptionFilter } from './__shared__/filters/all-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice(AppModule, {
@@ -12,7 +12,7 @@ async function bootstrap() {
     // bufferLogs: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new AllExceptionFilter());
 

@@ -1,44 +1,26 @@
 import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
 import {
-  IsOptional,
-  Min,
-  IsIn,
-  IsDateString,
   IsBoolean,
+  IsDateString,
   IsEmail,
+  IsIn,
+  IsOptional,
 } from 'class-validator';
+import { PaginationDto, SortingDto } from 'src/__shared__/dto/request.dto';
 import { CreateUserDto } from './create-user.dto';
-import { Type } from 'class-transformer';
 
-export class SortingDto {
+class UsersSortingDto extends SortingDto {
   @IsOptional()
-  @Type(() => String)
   @IsIn(['name', 'email', 'createdAt'], {
     message: 'Must be a one of fields of the User entity',
   })
   'sort.field'?: 'name' | 'email' | 'createdAt';
-
-  @IsOptional()
-  @Type(() => String)
-  @IsIn(['ASC', 'DESC'], { message: 'Must be an ASC or DESC' })
-  'sort.order'?: 'ASC' | 'DESC';
-}
-
-export class PaginationDto {
-  @Type(() => Number)
-  @Min(1)
-  limit: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @Min(0)
-  offset?: number;
 }
 
 export class GetUsersDto extends IntersectionType(
-  PartialType(OmitType(CreateUserDto, ['password', 'image', 'token'])),
+  PartialType(OmitType(CreateUserDto, ['password', 'image', 'emailToken'])),
   PaginationDto,
-  SortingDto,
+  UsersSortingDto,
 ) {
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email' })
