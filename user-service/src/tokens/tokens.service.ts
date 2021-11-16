@@ -2,9 +2,12 @@ import { v4 } from 'uuid';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { UsersService } from 'src/users/users.service';
-import { CACHE_SERVICE, NOTIFICATION_SERVICE } from './consts';
+import { CACHE_SERVICE, DAY_TTL, NOTIFICATION_SERVICE } from './consts';
 import { CreateTokenDto } from './dto/create-token.dto';
 import { RedisAdapter } from './utils/redis.adapter';
+import { IToken } from './interfaces/token.interface';
+import { GetTokensDto } from './dto/get-tokens.dto';
+import { ResponseDto } from 'src/__shared__/dto/response.dto';
 
 @Injectable()
 export class TokensService {
@@ -16,44 +19,37 @@ export class TokensService {
     @Inject(NOTIFICATION_SERVICE) private notificationService: ClientProxy,
   ) {}
 
-  async parse(token: string) {
-    const data = await this.cacheService.getAsync(token);
-    if (!data) {
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        errors: [{ message: 'Invalid or expired token', field: 'emailToken' }],
-      };
-    }
-
-    await this.cacheService.delAsync(token);
-    return {
-      status: HttpStatus.OK,
-      data,
-    };
-  }
-
-  async create({ email, exist, link, period, wid }: CreateTokenDto) {
+  async create(createTokenDto: CreateTokenDto) {
     try {
+      const { email, exist, link, dtl = 1, wid, uid } = createTokenDto;
+
       // if email in use
       const res = await this.usersService.findAll({ limit: 1, email });
       const found = res.data.items[0];
 
-      let error;
-      if (found && !exist) error = 'Email already in use'; // User allready exists
-      if (!found && exist) error = 'Email not in use';
-      if (error) {
+      if (found && !exist) {
         return {
           status: HttpStatus.CONFLICT,
-          errors: [{ message: error, field: 'email' }],
+          errors: [{ message: 'Email already in use', field: 'email' }],
         };
       }
 
-      const token = v4();
+      if (!found && exist) {
+        return {
+          status: HttpStatus.CONFLICT,
+          errors: [{ message: 'Email not in use', field: 'email' }],
+        };
+      }
+
+      // create token
       // TODO: check if token with this email allready exists
-      await this.cacheService.setAsync(token, email, 'ex', CACHE_TTL);
+      const token = v4();
+      const payload: IToken = { email, wid, uid, createdAt: new Date() };
+      await this.cacheService.setAsync(token, payload, 'ex', DAY_TTL * dtl);
+
+      // send link to email
       const emailLink = `${link}?token=${token}&email=${email}`;
-      this.logger.log(emailLink);
-      // TODO: SEND link with email
+      this.notificationService.emit('email', { data: emailLink });
 
       return {
         status: HttpStatus.CREATED,
@@ -65,7 +61,47 @@ export class TokensService {
       });
     }
   }
+
+  async findAll(getTokensDto: GetTokensDto) {
+    this.logger.log(getTokensDto);
+    // TODO: ...
+    return {
+      status: HttpStatus.OK,
+      data: null,
+    };
+  }
+
+  async findOne(token: string) {
+    const data: IToken = await this.cacheService.getAsync(token);
+
+    if (!data) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        data: null,
+      };
+    }
+
+    return {
+      status: HttpStatus.OK,
+      data,
+    };
+  }
+
+  async remove(token: string) {
+    try {
+      const res = await this.findOne(token);
+      if (!res.data) return res as ResponseDto;
+
+      await this.cacheService.delAsync(token);
+
+      return {
+        status: HttpStatus.OK,
+        data: null,
+      };
+    } catch (e) {
+      throw new RpcException({
+        status: HttpStatus.PRECONDITION_FAILED,
+      });
+    }
+  }
 }
-
-
-

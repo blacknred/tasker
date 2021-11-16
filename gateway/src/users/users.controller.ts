@@ -24,7 +24,7 @@ import { EmptyResponseDto } from 'src/__shared__/dto/response.dto';
 import { AllExceptionFilter } from 'src/__shared__/filters/all-exception.filter';
 import { ProxyInterceptor } from 'src/__shared__/interceptors/proxy.interceptor';
 import { USER_SERVICE } from './consts';
-import { CreateEmailTokenDto } from './dto/create-email-token.dto';
+import { CreateTokenDto } from './dto/create-token.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -42,20 +42,12 @@ export class UsersController {
     @Inject(USER_SERVICE) protected readonly userService: ClientProxy,
   ) {}
 
+  // Users
+
   @Post()
   @WithCreatedApi(UserResponseDto, 'Create new user')
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.send('create', createUserDto).toPromise();
-  }
-
-  @Post('email-token')
-  @WithCreatedApi(EmptyResponseDto, 'Create new email token')
-  async createEmailToken(
-    @Body() createTokenDto: CreateEmailTokenDto,
-  ): Promise<EmptyResponseDto> {
-    return this.userService
-      .send('createEmailToken', createTokenDto)
-      .toPromise();
+    return this.userService.send('users/create', createUserDto).toPromise();
   }
 
   @Get()
@@ -66,7 +58,7 @@ export class UsersController {
     @Query() getUsersDto: GetUsersDto,
   ): Promise<UsersResponseDto> {
     return this.userService
-      .send('getAll', { ...getUsersDto, partial: !isAdmin })
+      .send('users/getAll', { ...getUsersDto, partial: !isAdmin })
       .toPromise();
   }
 
@@ -74,7 +66,7 @@ export class UsersController {
   @WithAuth(true)
   @WithOkApi(UserResponseDto, 'Get user by id')
   async getOne(@Param() { id }: GetUserDto): Promise<UserResponseDto> {
-    return this.userService.send('getOne', { id: +id }).toPromise();
+    return this.userService.send('users/getOne', { id: +id }).toPromise();
   }
 
   @Patch()
@@ -85,7 +77,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.userService
-      .send('update', { id, ...updateUserDto })
+      .send('users/update', { id, ...updateUserDto })
       .toPromise();
   }
 
@@ -94,7 +86,7 @@ export class UsersController {
   async restore(
     @Body() restoreUserDto: RestoreUserDto,
   ): Promise<UserResponseDto> {
-    return this.userService.send('restore', restoreUserDto).toPromise();
+    return this.userService.send('users/restore', restoreUserDto).toPromise();
   }
 
   @Delete()
@@ -102,6 +94,16 @@ export class UsersController {
   @WithOkApi(EmptyResponseDto, 'Delete authorized user')
   async remove(@Auth('user') { id }, @Req() req): Promise<EmptyResponseDto> {
     req.session.destroy();
-    return this.userService.send('delete', { id }).toPromise();
+    return this.userService.send('users/delete', { id }).toPromise();
+  }
+
+  // Tokens
+
+  @Post('token')
+  @WithCreatedApi(EmptyResponseDto, 'Create new access token')
+  async createToken(
+    @Body() createTokenDto: CreateTokenDto,
+  ): Promise<EmptyResponseDto> {
+    return this.userService.send('tokens/create', createTokenDto).toPromise();
   }
 }

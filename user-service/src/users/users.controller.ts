@@ -13,19 +13,19 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @MessagePattern('create')
+  @MessagePattern('users/create')
   async create(
     @Payload() createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
   }
 
-  @MessagePattern('getAll')
+  @MessagePattern('users/getAll')
   async getAll(@Payload() getUsersDto: GetUsersDto): Promise<UsersResponseDto> {
     return this.usersService.findAll(getUsersDto);
   }
 
-  @MessagePattern('getOne')
+  @MessagePattern('users/getOne')
   async getOne(
     @Payload() { id, partial, ...rest }: GetUserDto,
   ): Promise<UserResponseDto> {
@@ -33,19 +33,19 @@ export class UsersController {
     return this.usersService.findOneValidated(rest);
   }
 
-  @MessagePattern('update')
+  @MessagePattern('users/update')
   async update(
     @Payload() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.update(updateUserDto);
   }
 
-  @MessagePattern('delete')
+  @MessagePattern('users/delete')
   async remove(@Payload() { id }: GetUserDto): Promise<ResponseDto> {
     return this.usersService.remove(id);
   }
 
-  @MessagePattern('restore')
+  @MessagePattern('users/restore')
   async restore(
     @Payload() restoreUserDto: RestoreUserDto,
   ): Promise<UserResponseDto> {

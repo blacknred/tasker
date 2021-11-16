@@ -23,6 +23,20 @@ export class AgentsService {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { role, wid, userId, ...rest } = createAgentDto;
+
+      const exists = await this.agentRepository.findOne({ userId });
+      if (exists) {
+        return {
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: [
+            {
+              field: 'userId',
+              message: `Agent allready exists`,
+            },
+          ],
+        };
+      }
+
       const data = new Agent(rest);
       data.workspace = agent.workspace;
 

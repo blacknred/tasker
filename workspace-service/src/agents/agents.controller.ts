@@ -1,12 +1,14 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Inject, UseGuards } from '@nestjs/common';
+import { ClientProxy, MessagePattern, Payload } from '@nestjs/microservices';
 import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
 import { Agent } from 'src/__shared__/decorators/agent.decorator';
 import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
 import { AgentGuard } from 'src/__shared__/guards/agent.guard';
 import { ResponseDto } from '../__shared__/dto/response.dto';
 import { AgentsService } from './agents.service';
+import { USER_SERVICE } from './consts';
 import { CreateAgentDto } from './dto/create-agent.dto';
+import { CreateInviteDto } from './dto/create-invite.dto';
 import { GetAgentDto } from './dto/get-agent.dto';
 import { GetAgentsDto } from './dto/get-agents.dto';
 import { AgentResponseDto, AgentsResponseDto } from './dto/response.dto';
@@ -15,7 +17,10 @@ import { UpdateAgentDto } from './dto/update-agent.dto';
 @Controller()
 @UseGuards(AgentGuard)
 export class AgentsController {
-  constructor(private readonly agentsService: AgentsService) {}
+  constructor(
+    private readonly agentsService: AgentsService,
+    @Inject(USER_SERVICE) private readonly usersService: ClientProxy,
+  ) {}
 
   @WithPrivilege(Privilege.CREATE_AGENT)
   @MessagePattern('agents/create')
@@ -56,5 +61,15 @@ export class AgentsController {
     @Payload() { id }: GetAgentDto,
   ): Promise<ResponseDto> {
     return this.agentsService.remove(id, agent);
+  }
+
+  //
+
+  @WithPrivilege(Privilege.CREATE_AGENT)
+  @MessagePattern('agents/invite')
+  async invite(
+    @Payload() createInviteDto: CreateInviteDto,
+  ): Promise<ResponseDto> {
+    return this.usersService.send('tokens/create', createInviteDto).toPromise();
   }
 }

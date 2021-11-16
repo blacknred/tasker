@@ -1,11 +1,11 @@
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcryptjs';
+import { Repository } from 'typeorm';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { classToPlain } from 'class-transformer';
 import { TokensService } from 'src/tokens/tokens.service';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { Repository } from 'typeorm';
-import { USER_REPOSITORY } from './consts';
+import { USER_REPOSITORY, WORKSPACE_SERVICE } from './consts';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
@@ -21,6 +21,7 @@ export class UsersService {
   constructor(
     private readonly tokensService: TokensService,
     @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
+    @Inject(WORKSPACE_SERVICE) private workspacesService: ClientProxy,
   ) {}
 
   private fieldMapper<T>(obj: T, isPartial?: boolean): Partial<T> {
@@ -33,16 +34,28 @@ export class UsersService {
   async create({ emailToken, ...rest }: CreateUserDto) {
     try {
       // check token
-      const email = await this.tokensService.parse(emailToken);
-      if (!email) {
+      const { data } = await this.tokensService.findOne(emailToken);
+      if (!data) {
         return {
           status: HttpStatus.BAD_REQUEST,
-          errors: [{ message, field: 'emailToken' }],
+          errors: [
+            { message: 'Invalid or expired token', field: 'emailToken' },
+          ],
         };
       }
 
+      const { email, wid, uid } = data;
+
+      // create user
       const user = this.userRepository.create({ ...rest, email });
       await this.userRepository.save(user);
+
+      // add user to workspace
+      if (wid) {
+        const { name, id, image } = user;
+        const payload = { userId: id, name, image, wid, uid };
+        await this.workspacesService.send('agents/create', payload).toPromise();
+      }
 
       return {
         status: HttpStatus.CREATED,
@@ -142,15 +155,17 @@ export class UsersService {
       if (!res.data) return res;
 
       if (emailToken) {
-        const email = await this.tokensService.parse(emailToken);
-        if (!email) {
+        const { data } = await this.tokensService.findOne(emailToken);
+        if (!data) {
           return {
             status: HttpStatus.BAD_REQUEST,
-            errors: [{ message, field: 'emailToken' }],
+            errors: [
+              { message: 'Invalid or expired token', field: 'emailToken' },
+            ],
           };
         }
 
-        res.data.email = email;
+        res.data.email = data.email;
       }
 
       if (password) {
@@ -199,10 +214,17 @@ export class UsersService {
   async restore({ emailToken, password }: RestoreUserDto) {
     try {
       // check token
-      const token = await this.tokensService.parse(emailToken);
-      if (!token.data) return token;
+      const res = await this.tokensService.findOne(emailToken);
+      if (!res.data) {
+        return {
+          status: HttpStatus.BAD_REQUEST,
+          errors: [
+            { message: 'Invalid or expired token', field: 'emailToken' },
+          ],
+        };
+      }
 
-      const user = await this.userRepository.findOne({ email });
+      const user = await this.userRepository.findOne({ email: res.data.email });
       Object.assign(user, { deletedAt: null, password });
       await user.hashPassword();
 

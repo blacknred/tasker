@@ -127,6 +127,7 @@ services:
       - user-db
       - redis
       - rabbitmq
+      - workspace-service
 
   workspace-service:
     container_name: workspace-service

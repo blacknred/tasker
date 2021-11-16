@@ -40,7 +40,7 @@ export function mutation<T = unknown>(
 
 const mutations = {
   // users
-  createEmailToken: mutation("users/email-token", "POST"),
+  createToken: mutation("users/token", "POST"),
   createUser: mutation("users", "POST", (data) => mutate(`${HOST}auth`, data)),
   updateUser: mutation("users", "PATCH"),
   restoreUser: mutation("users/restore", "PATCH"),
@@ -64,6 +64,7 @@ const mutations = {
   restoreWorkspace: mutation<IWorkspace>("workspaces/restore", "PATCH"),
   deleteWorkspace: mutation("workspaces", "DELETE"),
   createAgent: mutation("workspaces/:id/agents", "POST"),
+  createInvite: mutation("workspaces/:id/agents/invite", "POST"),
   updateAgent: mutation("workspaces/:id/agents/:id", "PATCH"),
   deleteAgent: mutation("workspaces/:id/agents/:id", "DELETE"),
   createSaga: mutation("workspaces/:id/sagas", "POST"),

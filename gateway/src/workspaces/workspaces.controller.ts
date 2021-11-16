@@ -26,6 +26,7 @@ import { WORKSPACE_SERVICE } from './consts';
 import { AgentResponseDto } from './dto/agents/agent-response.dto';
 import { AgentsResponseDto } from './dto/agents/agents-response.dto';
 import { CreateAgentDto } from './dto/agents/create-agent.dto';
+import { CreateInviteDto } from './dto/agents/create-invite.dto';
 import { GetAgentDto } from './dto/agents/get-agent.dto';
 import { GetAgentsDto } from './dto/agents/get-agents.dto';
 import { UpdateAgentDto } from './dto/agents/update-agent.dto';
@@ -136,6 +137,18 @@ export class WorkspacesController {
   ): Promise<AgentResponseDto> {
     return this.workspaceService
       .send('agents/create', { ...createAgentDto, wid, uid })
+      .toPromise();
+  }
+
+  @Post(':id/agents/invite')
+  @WithCreatedApi(AgentResponseDto, 'Create new agent invite')
+  async createAgentInvite(
+    @Auth('user') { id: uid },
+    @Param() { id: wid }: GetWorkspaceDto,
+    @Body() createInviteDto: CreateInviteDto,
+  ): Promise<AgentResponseDto> {
+    return this.workspaceService
+      .send('agents/invite', { ...createInviteDto, wid, uid })
       .toPromise();
   }
 
