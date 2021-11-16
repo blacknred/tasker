@@ -1,6 +1,12 @@
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { classToPlain } from 'class-transformer';
 import { TokensService } from 'src/tokens/tokens.service';
@@ -13,12 +19,12 @@ import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
-const message = 'Invalid or expired token';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
+    @Inject(forwardRef(() => TokensService))
     private readonly tokensService: TokensService,
     @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
     @Inject(WORKSPACE_SERVICE) private workspacesService: ClientProxy,

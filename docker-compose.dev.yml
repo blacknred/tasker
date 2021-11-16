@@ -94,9 +94,6 @@ services:
   #   depends_on:
   #     - redis
   #     - user-service
-  #   links:
-  #     - redis
-  #     - user-service
 
   user-service:
     container_name: user-service
@@ -123,11 +120,6 @@ services:
     depends_on:
       - user-db
       - redis
-    links:
-      - user-db
-      - redis
-      - rabbitmq
-      - workspace-service
 
   workspace-service:
     container_name: workspace-service
@@ -152,10 +144,6 @@ services:
       - backend
     depends_on:
       - workspace-db
-    links:
-      - workspace-db
-      - rabbitmq
-      - user-service
 
   worker-service:
     container_name: worker-service
@@ -177,12 +165,9 @@ services:
     ports:
       - "8084:3000"
     networks:
-      - backend      
+      - backend
     depends_on:
       - rabbitmq
-    links:
-      - rabbitmq
-      - workspace-service
 
   notification-service:
     container_name: notification-service
@@ -204,11 +189,8 @@ services:
     ports:
       - "8085:3000"
     networks:
-      - backend      
+      - backend
     depends_on:
-      - redis
-      - rabbitmq
-    links:
       - redis
       - rabbitmq
 
@@ -240,11 +222,6 @@ services:
       - workspace-service
       # - auth-service
       - redis
-    links:
-      - user-service
-      - workspace-service
-      # - auth-service
-      - redis
 
   web:
     container_name: web
@@ -264,7 +241,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - frontend      
+      - frontend
 
   prometheus:
     container_name: prometheus
@@ -278,7 +255,7 @@ services:
     ports:
       - "3001:9090"
     networks:
-      - frontend  
+      - frontend
 
   grafana:
     container_name: grafana
@@ -293,8 +270,6 @@ services:
       - "3002:3000"
     networks:
       - frontend
-    links:
-      - prometheus
 
 networks:
   backend:

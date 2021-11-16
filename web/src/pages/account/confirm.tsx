@@ -23,7 +23,7 @@ function ConfirmAccount() {
           const nextpath = router.query.next;
           const target = `${window.location.hostname}/${nextpath}`;
           const params = { ...values, target, exist: nextpath !== 'new' };
-          mutations.createEmailToken(params, (err) => {
+          mutations.createToken(params, (err) => {
             if (err) {
               actions.setErrors(err);
               actions.setSubmitting(false)

@@ -1,5 +1,11 @@
 import { v4 } from 'uuid';
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { UsersService } from 'src/users/users.service';
 import { CACHE_SERVICE, DAY_TTL, NOTIFICATION_SERVICE } from './consts';
@@ -14,6 +20,7 @@ export class TokensService {
   private readonly logger = new Logger(TokensService.name);
 
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     @Inject(CACHE_SERVICE) private readonly cacheService: RedisAdapter,
     @Inject(NOTIFICATION_SERVICE) private notificationService: ClientProxy,

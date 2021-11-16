@@ -1,6 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TokensModule } from './tokens/tokens.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { UsersModule } from './users/users.module';
       }),
     }),
     UsersModule,
+    TokensModule,
   ],
 })
 export class AppModule {}
