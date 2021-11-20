@@ -7,6 +7,7 @@ export class Auth implements IAuth {
     name: string;
     email: string;
     image?: string;
+    phone?: string;
     isAdmin: null;
   };
 }

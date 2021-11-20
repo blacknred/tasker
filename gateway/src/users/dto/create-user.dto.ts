@@ -10,6 +10,12 @@ export class CreateUserDto {
   })
   image?: string;
 
+  @ApiProperty({
+    example: '+1 893 287 345',
+    required: false,
+  })
+  phone?: string;
+
   @ApiProperty({ minLength: 6, example: 'testpassword' })
   password: string;
 

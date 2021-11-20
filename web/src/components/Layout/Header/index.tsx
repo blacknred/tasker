@@ -15,7 +15,7 @@ function Header() {
 
       <HStack spacing="6">
         <NextLink href="/">
-          <Heading fontSize="x-large" cursor="pointer">tasq</Heading>
+          <Heading fontSize="x-large" cursor="pointer">taskq</Heading>
         </NextLink>
       </HStack>
 

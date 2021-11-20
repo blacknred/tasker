@@ -1,4 +1,4 @@
-import { CheckCircleIcon, CheckIcon, ExternalLinkIcon, PlusSquareIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, ExternalLinkIcon, PlusSquareIcon } from '@chakra-ui/icons'
 import { Button, Heading, HStack, Stack, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
 import AuthLink from '../components/Auth/Link'
@@ -9,7 +9,7 @@ function Index() {
 
   return (
     <Layout>
-      <Stack spacing="16" alignItems="flex-start" my="20" mx="20">
+      <Stack spacing="20" alignItems="flex-start" my="20" mx="20">
         <Stack spacing="6">
           <HStack spacing="6">
             <Heading color={color} bg="Background" px="4" py="2" borderRadius="lg" size="3xl">Your</Heading>
@@ -18,15 +18,23 @@ function Index() {
           <Heading size="4xl">application</Heading>
         </Stack>
 
-        <Stack spacing="5" opacity="0.7">
-          <Heading as="mark" w="max-content" size="md" bgColor="messenger.100" px="2"> Simple and clean</Heading>
-          <Heading as="mark" w="max-content" size="md" bgColor="messenger.100" px="2"> Microservice architecture</Heading>
-          <Heading as="mark" w="max-content" size="md" bgColor="messenger.100" p="1"> Email based authentication with confirmation and invitation links</Heading>
-          <Heading as="mark" w="max-content" size="md" bgColor="messenger.100" px="1"> Work within workspaces with agents, sagas and tasks</Heading>
-          {/* <HStack><CheckCircleIcon color="Background" fontSize="lg" />
+        <Stack spacing="4" opacity="0.7">
+          {/* <Heading as="mark" w="max-content" size="md" bgColor="blackAlpha.300" p="2"> Simple and clean</Heading>
+          <Heading as="mark" w="max-content" size="md" bgColor="blackAlpha.300" px="2"> Microservice architecture</Heading>
+          <Heading as="mark" w="max-content" size="md" bgColor="blackAlpha.300" px="2"> Email based authentication with confirmation and invitation links</Heading>
+          <Heading as="mark" w="max-content" size="md" bgColor="blackAlpha.300" px="2"> Work within workspaces with agents, sagas and tasks</Heading> */}
+          <HStack><CheckCircleIcon color="Background" fontSize="lg" />
+            <Heading size="md"> Simple and clean</Heading></HStack>
+          <HStack><CheckCircleIcon color="Background" fontSize="lg" />
+            <Heading size="md"> Microservice architecture</Heading></HStack>
+          <HStack><CheckCircleIcon color="Background" fontSize="lg" />
             <Heading size="md"> Email based authentication with confirmation and invitation links</Heading></HStack>
           <HStack><CheckCircleIcon color="Background" fontSize="lg" />
-            <Heading size="md"> Work within workspaces with agents, sagas and tasks</Heading></HStack> */}
+            <Heading size="md"> Role-based access control</Heading></HStack>
+          <HStack><CheckCircleIcon color="Background" fontSize="lg" />
+            <Heading size="md"> Email, push and sms notifications</Heading></HStack>
+          <HStack><CheckCircleIcon color="Background" fontSize="lg" />
+            <Heading size="md"> Work within workspaces with agents, sagas and tasks</Heading></HStack>
         </Stack>
 
         <HStack spacing="6">

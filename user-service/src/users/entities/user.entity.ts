@@ -23,12 +23,15 @@ export class User implements IUser {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
+  @Column()
+  password: string;
+
   @Column({ nullable: true })
   image?: string;
 
-  @Exclude()
-  @Column({ type: 'text' })
-  password: string;
+  @Column({ nullable: true })
+  phone?: string;
 
   @Column({ default: false })
   isAdmin: boolean;

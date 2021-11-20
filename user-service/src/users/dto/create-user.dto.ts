@@ -3,6 +3,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -16,6 +17,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsUrl({}, { message: 'Must be an url' })
   image?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @Matches(/^\+[1-9]\d{1,14}$/)
+  phone?: string;
 
   @IsString({ message: 'Must be a string' })
   @MinLength(8, { message: 'Must include atleast 6 chars' })

@@ -11,7 +11,6 @@ export class WorkersController {
   task(@Payload() newTaskDto: NewTaskDto, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
-    console.log(444, this.workersService.hasIdle, this.workersService.count);
 
     if (this.workersService.hasIdle) {
       this.workersService.do(newTaskDto).then(this.workersService.notify);
