@@ -1,6 +1,6 @@
 import useSWR from "swr/immutable";
-import { HOST } from "../constants";
-import { IAuth, IResponse } from "../typings";
+import { HOST } from "../config";
+import { IAuth, IResponse } from "../types";
 
 export default function useAuth() {
   const { data, mutate, error } = useSWR<IResponse<IAuth>>(

@@ -6,9 +6,9 @@ import React, { useRef } from 'react';
 import withAuth from '../../components/Auth/withAuth';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import { MAX_FILE_SIZE, MB } from '../../constants';
+import { MAX_FILE_SIZE, MB } from '../../config';
 import useAuth from '../../hooks/useAuth';
-import mutations from '../../mutations';
+import mutations from '../../lib/mutations';
 import { fileToBase64 } from '../../utils';
 
 function EditAccount() {

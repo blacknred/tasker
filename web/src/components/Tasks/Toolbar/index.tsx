@@ -1,7 +1,7 @@
 import { PlusSquareIcon } from '@chakra-ui/icons';
 import { Grid, Select, useColorModeValue } from '@chakra-ui/react';
 import React, { Children, cloneElement, FC, isValidElement, ReactNode, useState } from 'react';
-import { ITaskViewOptions } from '../../../typings';
+import { ITaskViewOptions } from '../../../types';
 import { ModalTaskForm } from '../Form';
 
 const TaskToolbar: FC = ({ children }) => {

@@ -5,7 +5,7 @@ import React from 'react';
 import withAuth from '../../components/Auth/withAuth';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import mutations from '../../mutations';
+import mutations from '../../lib/mutations';
 
 function NewWorkspace() {
   const router = useRouter();

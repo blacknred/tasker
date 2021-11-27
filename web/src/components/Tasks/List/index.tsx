@@ -1,6 +1,6 @@
 import { Grid, Table, Tbody, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
 import useTasks from '../../../hooks/useTasks';
-import { ITaskViewOptions } from '../../../typings';
+import { ITaskViewOptions } from '../../../types';
 import withPagination from '../../Layout/withPagination';
 import Item from "./Item";
 

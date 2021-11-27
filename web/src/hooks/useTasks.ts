@@ -1,6 +1,6 @@
 import useSWR from "swr";
-import { HOST } from "../constants";
-import { IPaginated, IResponse, ITask } from "../typings";
+import { HOST } from "../config";
+import { IPaginated, IResponse, ITask } from "../types";
 
 export default function useTasks(page: number) {
   const { data, mutate, error } = useSWR<IResponse<IPaginated<ITask>>>(

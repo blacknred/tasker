@@ -1,5 +1,5 @@
 import api from "./mutations";
-import { showToast, urlB64ToUint8Array } from "./utils";
+import { showToast, urlB64ToUint8Array } from "../utils";
 
 export class PushNotificationService {
   private registration?: ServiceWorkerRegistration;

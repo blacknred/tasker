@@ -1,6 +1,6 @@
 import { Button, ButtonProps, Modal, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import React, { FC } from "react";
-import { ITask } from '../../typings';
+import { ITask } from '../../types';
 
 
 function withModal<T extends IWithModalProps>(Content: FC<IWithModalProps>) {

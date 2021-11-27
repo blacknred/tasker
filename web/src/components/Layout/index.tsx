@@ -1,7 +1,7 @@
 import { Box, SlideFade, useColorModeValue } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React, { FC } from 'react';
-import { Width } from '../../typings';
+import { Width } from '../../types';
 import Meta from '../Meta';
 import Header from './Header';
 import WorkspaceHeader from './Header/Workspace'

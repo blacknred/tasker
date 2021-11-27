@@ -1,7 +1,7 @@
 import { EditIcon } from '@chakra-ui/icons';
 import { Badge, Heading, Stack, Td, Text, Tr, useColorModeValue, VStack } from '@chakra-ui/react';
 import { FC } from 'react';
-import { ITask, ITaskViewOptions } from '../../../../typings';
+import { ITask, ITaskViewOptions } from '../../../../types';
 import { timeSince } from '../../../../utils';
 import { ModalTaskForm } from '../../Form';
 

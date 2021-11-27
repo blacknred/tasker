@@ -5,8 +5,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import { SPOILERS } from '../../constants';
-import mutations from '../../mutations';
+import { SPOILERS } from '../../config';
+import mutations from '../../lib/mutations';
 
 function Authentication() {
   const router = useRouter();

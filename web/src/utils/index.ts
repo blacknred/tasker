@@ -1,7 +1,7 @@
 import { createStandaloneToast } from "@chakra-ui/toast";
 import { Fetcher, Key, SWRConfiguration, SWRHook } from "swr";
-import { INTERVALS } from "./constants";
-import { ValidationError } from "./typings";
+import { INTERVALS } from "../config";
+import { ValidationError } from "../types";
 
 export const showToast = createStandaloneToast({
   defaultOptions: {

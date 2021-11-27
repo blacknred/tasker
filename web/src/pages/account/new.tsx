@@ -3,10 +3,10 @@ import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { MESSAGES } from '../../constants';
+import { MESSAGES } from '../../config';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import mutations from '../../mutations';
+import mutations from '../../lib/mutations';
 
 function CreateAccount() {
   const router = useRouter();

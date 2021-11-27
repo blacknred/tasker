@@ -1,9 +1,9 @@
 import { FormikErrors } from "formik";
 import { mutate } from "swr";
-import { HOST } from "./constants";
+import { HOST } from "../config";
 import pushService from "./push";
-import { IAuth, IResponse, IWorkspace } from "./typings";
-import { errorMap, fetcher, showToast } from "./utils";
+import { IAuth, IResponse, IWorkspace } from "../types";
+import { errorMap, fetcher, showToast } from "../utils";
 
 export function mutation<T = unknown>(
   endpoint: string,

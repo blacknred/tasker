@@ -1,8 +1,8 @@
 import { Button, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, useColorModeValue, VStack } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 import { FC } from "react";
-import api from '../../../mutations';
-import { ITask, TaskPriority, TaskType } from '../../../typings';
+import api from '../../../lib/mutations';
+import { ITask, TaskPriority, TaskType } from '../../../types';
 import InputField from '../../Form/Input';
 import SelectField from '../../Form/Select';
 import withModal from '../../Layout/withModal';

@@ -5,8 +5,8 @@ import React from 'react';
 import withAuth from '../../components/Auth/withAuth';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
-import { MESSAGES } from '../../constants';
-import mutations from '../../mutations';
+import { MESSAGES } from '../../config';
+import mutations from '../../lib/mutations';
 
 function ChangePassword() {
   const router = useRouter();

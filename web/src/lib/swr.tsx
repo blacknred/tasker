@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { SWRConfig } from 'swr';
-import { fetcher, isServer, localStorageProvider, logger, showToast } from './utils';
+import { fetcher, isServer, localStorageProvider, logger, showToast } from '../utils';
 
 const Swr: FC<{}> = ({ children }) => (
   <>

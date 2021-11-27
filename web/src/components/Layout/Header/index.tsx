@@ -3,7 +3,7 @@ import { Avatar, Flex, Heading, HStack, IconButton, Menu, MenuButton, MenuDivide
 import NextLink from 'next/link';
 import React from 'react';
 import useAuth from '../../../hooks/useAuth';
-import mutations from '../../../mutations';
+import mutations from '../../../lib/mutations';
 
 function Header() {
   const ThemeIcon = useColorModeValue(<SunIcon />, <MoonIcon />)

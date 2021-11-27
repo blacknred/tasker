@@ -1,12 +1,12 @@
 import { ChakraProvider, ColorModeProvider } from '@chakra-ui/react';
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';
-import pushService from '../push';
+import pushService from '../lib/push';
 import '../styles/globals.css';
-import Swr from '../swr';
-import theme from '../theme';
+import Swr from '../lib/swr';
+import theme from '../lib/theme';
 
-function MyApp({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   // useEffect(() => {
   //   pushService.init("/sw.js");
   // }, [])
@@ -27,6 +27,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   )
 }
 
-export default MyApp
+export default App
 
 
