@@ -20,7 +20,7 @@ async function bootstrap() {
 
   const options = new DocumentBuilder()
     .setTitle('API Gateway')
-    .setDescription('The TaskQ REST Full API')
+    .setDescription('The Taskapp REST Full API')
     .addCookieAuth('optional-session-id')
     .setVersion('1.0')
     .addCookieAuth()

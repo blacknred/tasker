@@ -13,7 +13,7 @@ const Layout: FC<ILayoutProps> = ({ children, variant = 'lg', slide = true }) =>
 
   return (
     <>
-      <Meta title="Taskq - task management" />
+      <Meta title="Taskapp - task management" />
       <Box bgColor={bg} minH="100vh" px={35} pb={50} color={color}>
         {/* header */}
         {query.wid ? <WorkspaceHeader /> : <Header />}
