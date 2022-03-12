@@ -1,4 +1,4 @@
-# TaskQ Notification microservice
+# Taskapp Notification microservice
 
 ## Stack
 

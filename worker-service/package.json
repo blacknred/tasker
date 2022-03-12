@@ -1,8 +1,9 @@
 {
-  "name": "taskq-worker-service",
+  "name": "taskapp-worker-service",
   "private": true,
   "version": "0.0.1",
   "description": "",
+  "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",

@@ -1,4 +1,4 @@
-# TaskQ Workspace Crud microservice
+# Taskapp Workspace Crud microservice
 
 ## Stack
 
