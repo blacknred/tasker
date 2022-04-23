@@ -1,5 +1,5 @@
 {
-  "name": "taskapp-gateway",
+  "name": "@taskapp/gateway",
   "private": true,
   "version": "0.0.1",
   "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",

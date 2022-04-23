@@ -1,5 +1,5 @@
 {
-  "name": "taskapp-workspace-service",
+  "name": "@taskapp/workspace-service",
   "private": true,
   "version": "0.0.1",
   "description": "",

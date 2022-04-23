@@ -1,5 +1,5 @@
 {
-  "name": "taskapp-worker-service",
+  "name": "@taskapp/user-service",
   "private": true,
   "version": "0.0.1",
   "description": "",
