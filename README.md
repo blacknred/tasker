@@ -4,21 +4,21 @@ Microservice boilerplate for task management app
 
 ## Architecture
 
-| Services               | Container            | Stack                 | Ports |
-| ---------------------- | -------------------- | --------------------- | ----- |
-| Cache                  | redis                | Redis                 | 6379  |
-| Queue                  | rabbitmq             | RabbitMQ              | 5672  |
-| User DB                | user-db              | Postgres              | 5432  |
-| Workspace DB           | workspace-db         | MongoDB               | 27017 |
-| User CRUD service      | user-service         | TS, NestJS, TCP       | 8082  |
-| Workspace CRUD service | workspace-service    | TS, NestJS, TCP       | 8083  |
-| Worker service         | worker-service       | TS, NestJS, AMQP      | 8084  |
-| Notification service   | notification-service | TS, NestJS, AMQP      | 8085  |
-| Gateway, Swagger, Docs | gateway              | TS, NestJS, REST      | 8080  |
-| Web client             | web                  | TS, NextJS, ChakraUI  | 3000  |
-| Prometheus webUI       | prometheus           | Prometheus            | 3001  |
-| Grafana UI             | grafana              | Grafana               | 3002  |
-<!-- | Auth CRUD service      | auth-service         | TS, NestJS, TCP       | 8081  | -->
+| Services               | Container            | Stack                  | Ports |
+| ---------------------- | -------------------- | ---------------------- | ----- |
+| Cache                  | redis                | Redis                  | 6379  |
+| Queue                  | rabbitmq             | RabbitMQ               | 5672  |
+| User DB                | user-db              | Postgres               | 5432  |
+| Workspace DB           | workspace-db         | MongoDB                | 27017 |
+| User CRUD service      | user-service         | TS, NestJS, TCP        | 8082  |
+| Workspace CRUD service | workspace-service    | TS, NestJS, TCP        | 8083  |
+| Worker service         | worker-service       | TS, NestJS, AMQP       | 8084  |
+| Notification service   | notification-service | TS, NestJS, AMQP       | 8085  |
+| API Gateway, Swagger   | gateway              | TS, NestJS, Http, REST | 8080  |
+| Web client             | web                  | TS, NextJS, ChakraUI   | 3000  |
+| Prometheus webUI       | prometheus           | Prometheus             | 3001  |
+| Grafana UI             | grafana              | Grafana                | 3002  |
+<!-- | Auth CRUD service      | auth-service         | TS, NestJS, TCP        | 8081  | -->
 
 ## Run the project
 
