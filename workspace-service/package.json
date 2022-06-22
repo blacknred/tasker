@@ -6,8 +6,7 @@
   "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "nest build",
+    "build": "rimraf dist && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,10 +17,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "db": "typeorm schema:sync"
+    "db": "npx mikro-orm migration:create & npx mikro-orm migration:up"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "@mikro-orm/core": "^4.5.9",
+    "@mikro-orm/mongodb": "^4.5.9",
+    "@mikro-orm/nestjs": "^4.3.1",
     "@nestjs/common": "^8.0.6",
     "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.6",
@@ -34,12 +36,11 @@
     "class-validator": "^0.13.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.3.0",
-    "@mikro-orm/core": "^4.5.9",
-    "@mikro-orm/mongodb": "^4.5.9",
-    "@mikro-orm/nestjs": "^4.3.1"
+    "rxjs": "^7.3.0"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^5.2.1",
+    "@mikro-orm/migrations": "^5.2.1",
     "@nestjs/cli": "^8.1.1",
     "@nestjs/schematics": "^8.0.2",
     "@nestjs/testing": "^8.0.6",
@@ -76,5 +77,11 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./mikro-orm.config.ts"
+    ]
   }
 }

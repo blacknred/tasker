@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Button, Center, Heading, HStack, Stack } from '@chakr
 import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
 import Input from '../../components/Form/Input';
 import Layout from '../../components/Layout';
 import { SPOILERS } from '../../config';

@@ -29,7 +29,7 @@ import { WorkspacesModule } from './workspaces/workspaces.module';
         SECRET: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
-        FRONTEND_HOST: Joi.string().required(),
+        CLIENT_ORIGIN: Joi.string().required(),
       }),
     }),
     ServeStaticModule.forRoot({

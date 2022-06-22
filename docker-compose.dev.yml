@@ -88,7 +88,7 @@ services:
   #     - "/usr/src/app/dist"
   #   environment:
   #     - NODE_ENV=development
-  #     - CACHE_URL[](../../../../../ development)=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
+  #     - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
   #   ports:
   #     - "8081:3000"
   #   depends_on:
@@ -210,7 +210,7 @@ services:
     environment:
       - NODE_ENV=development
       - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
-      - FRONTEND_HOST=${FRONTEND_HOST:-http://localhost:3000}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:3000}
     ports:
       - "8080:3000"
       - "8088:3001"
@@ -237,7 +237,7 @@ services:
       - "/usr/src/app/node_modules"
       - "/usr/src/app/.next"
     environment:
-      - API_HOST=${API_GATEWAY_HOST:-http://localhost:8080}
+      - API_HOST=${API_ORIGIN:-http://localhost:8080}
       - NODE_OPTIONS=--openssl-legacy-provider
     ports:
       - "3000:3000"
