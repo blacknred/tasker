@@ -2,7 +2,7 @@ import { FormikErrors } from "formik";
 import { mutate } from "swr";
 import { HOST } from "../config";
 import pushService from "./push";
-import { IAuth, IResponse, IWorkspace } from "../types";
+import { IAuth, BaseResponse, IWorkspace } from "../types";
 import { errorMap, fetcher, showToast } from "../utils";
 
 export function mutation<T = unknown>(
@@ -15,7 +15,7 @@ export function mutation<T = unknown>(
     cb?: (err?: FormikErrors<typeof payload>, data?: T) => void,
     id?: string
   ) => {
-    return fetcher<IResponse<T>>(HOST + endpoint + (id ? `/${id}` : ""), {
+    return fetcher<BaseResponse<T>>(HOST + endpoint + (id ? `/${id}` : ""), {
       body: JSON.stringify(payload),
       method,
     })

@@ -1,9 +1,9 @@
 import useSWR from "swr";
 import { HOST } from "../config";
-import { IPaginated, IResponse, IWorkspace } from "../types";
+import { IPaginated, BaseResponse, IWorkspace } from "../types";
 
 export default function useWorkspaces(page: number) {
-  const { data, mutate, error } = useSWR<IResponse<IPaginated<IWorkspace>>>(
+  const { data, mutate, error } = useSWR<BaseResponse<IPaginated<IWorkspace>>>(
     `${HOST}workspaces?limit=100`,
     null,
     {

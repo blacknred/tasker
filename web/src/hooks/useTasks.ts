@@ -1,9 +1,9 @@
 import useSWR from "swr";
 import { HOST } from "../config";
-import { IPaginated, IResponse, ITask } from "../types";
+import { IPaginated, BaseResponse, ITask } from "../types";
 
 export default function useTasks(page: number) {
-  const { data, mutate, error } = useSWR<IResponse<IPaginated<ITask>>>(
+  const { data, mutate, error } = useSWR<BaseResponse<IPaginated<ITask>>>(
     `${HOST}tasks?limit=10&offset=${page * 10}`,
     null,
     {
@@ -28,7 +28,7 @@ export default function useTasks(page: number) {
 
 // export default function useTasks(limit = 10) {
 //   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite<
-//     IResponse<IPaginated<ITask>>
+//     BaseResponse<IPaginated<ITask>>
 //   >((pageIdx: number, prevPageData: any) => {
 //     if (prevPageData && !prevPageData.data) return null; // reached the end
 //     if (pageIdx === 0) return `${ENDPOINT}?limit=${limit}`;

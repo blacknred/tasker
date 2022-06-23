@@ -1,9 +1,9 @@
 import useSWR from "swr/immutable";
 import { HOST } from "../config";
-import { IAuth, IResponse } from "../types";
+import { IAuth, BaseResponse } from "../types";
 
 export default function useAuth() {
-  const { data, mutate, error } = useSWR<IResponse<IAuth>>(
+  const { data, mutate, error } = useSWR<BaseResponse<IAuth>>(
     `${HOST}auth/me`,
     null,
     {

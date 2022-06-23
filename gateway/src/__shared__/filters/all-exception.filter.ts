@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TimeoutError } from 'rxjs';
-import { IResponse } from '../interfaces/response.interface';
+import { BaseResponse } from '../types/response.type';
 
 @Catch()
 export class AllExceptionFilter<T> implements ExceptionFilter<T> {
@@ -20,7 +20,7 @@ export class AllExceptionFilter<T> implements ExceptionFilter<T> {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let payload: IResponse<T> = {};
+    let payload: BaseResponse<T> = {};
 
     if (exception instanceof TimeoutError) {
       status = HttpStatus.REQUEST_TIMEOUT;

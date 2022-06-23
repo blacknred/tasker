@@ -3,15 +3,15 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponseMetadata,
+  ApBaseResponseMetadata,
 } from '@nestjs/swagger';
 
-export function WithOkApi(type: ApiResponseMetadata['type'], summary: string) {
+export function WithOkApi(type: ApBaseResponseMetadata['type'], summary: string) {
   return applyDecorators(ApiOperation({ summary }), ApiOkResponse({ type }));
 }
 
 export function WithCreatedApi(
-  type: ApiResponseMetadata['type'],
+  type: ApBaseResponseMetadata['type'],
   summary: string,
 ) {
   return applyDecorators(

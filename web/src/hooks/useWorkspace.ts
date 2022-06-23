@@ -1,9 +1,9 @@
 import useSWR from "swr/immutable";
 import { HOST } from "../config";
-import { IResponse, IWorkspace } from "../types";
+import { BaseResponse, IWorkspace } from "../types";
 
 export default function useWorkspace(id: string) {
-  const { data, mutate, error } = useSWR<IResponse<IWorkspace>>(
+  const { data, mutate, error } = useSWR<BaseResponse<IWorkspace>>(
     `${HOST}workspaces/${id}`,
     null,
     {

@@ -7,6 +7,7 @@ export const databaseProvider: MikroOrmModuleAsyncOptions = {
   useFactory: (configService: ConfigService) => ({
     autoLoadEntities: true,
     flushMode: 'COMMIT',
+    ensureIndexes: true,
     clientUrl: configService.get('DB_URL'),
     debug: configService.get('NODE_ENV') === 'development',
     type: 'mongo',

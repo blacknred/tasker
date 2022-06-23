@@ -1,8 +1,13 @@
-import { PrimaryKey, Property, SerializedPrimaryKey } from '@mikro-orm/core';
+import {
+  Index,
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
 import { Exclude, Expose } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 
-export abstract class BaseEntity {
+export abstract class BaseEntity<T = unknown> {
   @Exclude()
   @PrimaryKey()
   _id: ObjectId;
@@ -14,10 +19,15 @@ export abstract class BaseEntity {
   @Property({ length: 500 })
   name!: string;
 
-  @Property()
+  @Index()
+  @Property({ onCreate: () => new Date() })
   createdAt = new Date();
 
-  constructor(partial?: unknown) {
+  // @Exclude()
+  // @Property({ onUpdate: () => new Date(), hidden: true })
+  // updatedAt = new Date();
+
+  constructor(partial?: T) {
     Object.assign(this, partial);
   }
 }

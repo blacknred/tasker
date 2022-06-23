@@ -58,7 +58,7 @@ export type ValidationError = {
   message: string;
 };
 
-export interface IResponse<T = unknown> {
+export interface BaseResponse<T = unknown> {
   status: number;
   errors: ValidationError[] | null;
   data: T;

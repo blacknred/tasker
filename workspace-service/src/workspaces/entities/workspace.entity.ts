@@ -1,4 +1,4 @@
-import { ArrayType, Entity, Property, Enum } from '@mikro-orm/core';
+import { ArrayType, Entity, Property, Enum, Index } from '@mikro-orm/core';
 import { Exclude } from 'class-transformer';
 import { IAgent } from 'src/agents/interfaces/agent.interface';
 import { BaseLabel, BaseStage } from 'src/tasks/interfaces/task.interface';
@@ -39,8 +39,9 @@ export class Workspace extends BaseEntity {
   updatedAt = new Date();
 
   @Exclude()
-  @Property()
-  deletedAt: Date;
+  @Index()
+  @Property({ nullable: true, hidden: true, type: 'timestamptz' })
+  deletedAt?: Date;
 
   @Property()
   creatorId!: number;
