@@ -21,7 +21,7 @@ export class RoleDto {
   @IsOptional()
   @IsArray({ message: 'Must be an array' })
   @IsEnum(Privilege, {
-    message: 'Must includes a Privilege enums',
+    message: 'Must includes a Privilege enum',
     each: true,
   })
   privileges?: Privilege[];

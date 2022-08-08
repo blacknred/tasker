@@ -9,11 +9,16 @@ import {
 import { Observable } from 'rxjs';
 import { map, timeout } from 'rxjs/operators';
 import { REQUEST_TIMEOUT } from '../consts';
-import { BaseResponse } from '../types/response.type';
+import type { BaseResponse } from '../types/response.type';
 
 @Injectable()
-export class ProxyInterceptor<T> implements NestInterceptor<T, BaseResponse<T>> {
-  intercept(_: ExecutionContext, next: CallHandler): Observable<BaseResponse<T>> {
+export class ProxyInterceptor<T>
+  implements NestInterceptor<T, BaseResponse<T>>
+{
+  intercept(
+    _: ExecutionContext,
+    next: CallHandler,
+  ): Observable<BaseResponse<T>> {
     const startAt = Date.now();
 
     return next.handle().pipe(

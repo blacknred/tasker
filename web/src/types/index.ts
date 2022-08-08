@@ -151,3 +151,39 @@ export interface IAgent {
   createdAt: string;
   role?: string;
 }
+
+
+
+// export type BaseEntity = {
+//   id: number
+//   createdAt: string
+// }
+
+// export type SortingDto<T extends BaseEntity> = {
+//   'sort.field': keyof T
+//   'sort.order': 'ASC' | 'DESC'
+// }
+
+// export type KeysetPaginationDto<T extends BaseEntity> = Partial<
+//   Omit<T, keyof BaseEntity>
+// > &
+//   SortingDto<T> & {
+//     limit: number
+//     cursor: string
+//   }
+// export type BaseResponseDto<T = unknown> = {
+//   message?: string
+//   errors?: ValidationErrorDto[]
+//   data?: T
+// }
+
+// export type PaginatedDataDto<T> = {
+//   hasMore: boolean
+//   total?: number
+//   items: T[]
+// }
+
+// export type ValidationErrorDto = {
+//   field: string
+//   message: string
+// }
