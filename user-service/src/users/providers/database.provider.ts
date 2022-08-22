@@ -10,7 +10,7 @@ export const databaseProvider = {
   useFactory: async (configService: ConfigService) =>
     createConnection({
       entities: [User],
-      url: configService.get('DB_URL'),
+      url: configService.get('POSTGRES_URL'),
       type: 'postgres',
       logging: configService.get('NODE_ENV') === 'development',
       synchronize: configService.get('NODE_ENV') === 'development',

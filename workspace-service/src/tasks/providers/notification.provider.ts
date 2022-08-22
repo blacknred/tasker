@@ -9,7 +9,7 @@ export const notificationProvider = {
     ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: [configService.get('QUEUE_URL')],
+        urls: [configService.get('RABBITMQ_URL')],
         queue: 'notifications',
       },
     }),

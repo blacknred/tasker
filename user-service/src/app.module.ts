@@ -8,9 +8,9 @@ import { UsersModule } from './users/users.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        DB_URL: Joi.string().required(),
-        CACHE_URL: Joi.string().required(),
-        QUEUE_URL: Joi.string().required(),
+        POSTGRES_URL: Joi.string().required(),
+        REDIS_URL: Joi.string().required(),
+        RABBITMQ_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
       }),
     }),

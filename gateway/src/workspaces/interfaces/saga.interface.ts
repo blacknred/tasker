@@ -1,4 +1,4 @@
-import { IAgent } from '../../workspaces/interfaces/agent.interface';
+import { IAgent } from './agent.interface';
 
 export interface ISaga {
   id: string;

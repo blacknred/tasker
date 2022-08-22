@@ -10,7 +10,7 @@ const configService = new ConfigService();
 
 const MikroOrmConfig: Options = {
   entities: [Workspace, Agent, Task, Saga],
-  clientUrl: configService.get('DB_URL'),
+  clientUrl: configService.get('POSTGRES_URL'),
   type: 'mongo',
 };
 

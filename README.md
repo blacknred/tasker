@@ -4,21 +4,23 @@ Microservice boilerplate for task management app
 
 ## Architecture
 
-| Services               | Container            | Stack                  | Ports |
-| ---------------------- | -------------------- | ---------------------- | ----- |
-| Cache                  | redis                | Redis                  | 6379  |
-| Queue                  | rabbitmq             | RabbitMQ               | 5672  |
-| User DB                | user-db              | Postgres               | 5432  |
-| Workspace DB           | workspace-db         | MongoDB                | 27017 |
-| User CRUD service      | user-service         | TS, NestJS, TCP        | 8082  |
-| Workspace CRUD service | workspace-service    | TS, NestJS, TCP        | 8083  |
-| Worker service         | worker-service       | TS, NestJS, AMQP       | 8084  |
-| Notification service   | notification-service | TS, NestJS, AMQP       | 8085  |
-| API Gateway, Swagger   | gateway              | TS, NestJS, Http, REST | 8080  |
-| Web client             | web                  | TS, NextJS, ChakraUI   | 3000  |
-| Prometheus webUI       | prometheus           | Prometheus             | 3001  |
-| Grafana UI             | grafana              | Grafana                | 3002  |
-<!-- | Auth CRUD service      | auth-service         | TS, NestJS, TCP        | 8081  | -->
+| Services             | Container            | Stack                    | Ports  |
+| -------------------- | -------------------- | ------------------------ | ------ |
+| Redis                | redis                | Redis                    | 6379   |
+| Queue                | rabbitmq             | RabbitMQ                 | 5672   |
+| DB                   | postgres             | Postgres                 | 5432   |
+| User CRUD            | user-service         | TS, NestJs, TCP          | 8080   |
+| Auth CRUD            | auth-service         | TS, NestJs, TCP          | 8081   |
+| Workspace CRUD       | workspace-service    | TS, NestJs, TCP          | 8082   |
+| Notification service | notification-service | TS, NestJs, AMQP         | 8083   |
+| Worker service       | worker-service       | TS, NestJs, AMQP         | 8084   |
+| Prometheus webUI     | prometheus           | Prometheus               | 8085   |
+| Dev Web landing      | web                  | TS, NextJS, Tailwind     | 3000   |
+| Dev Web spa          | web-spa              | TS, React, Tailwind      | 3001   |
+| Grafana UI           | grafana              | Grafana                  | 3002   |
+| API Gateway          | gateway              | Nginx, REST, Swagger, FE | 80/443 |
+
+- for a real world scenario you definitely need an easily sharded nosql db instead of ordbms
 
 ## Run the project
 

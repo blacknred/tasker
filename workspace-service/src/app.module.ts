@@ -12,8 +12,8 @@ import { databaseProvider } from './__shared__/providers/database.provider';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        DB_URL: Joi.string().required(),
-        QUEUE_URL: Joi.string().required(),
+        POSTGRES_URL: Joi.string().required(),
+        RABBITMQ_URL: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
       }),
     }),

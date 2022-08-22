@@ -12,7 +12,7 @@ async function bootstrap() {
     // bufferLogs: true,
     transport: Transport.RMQ,
     options: {
-      urls: [<string>configService.get('QUEUE_URL')],
+      urls: [<string>configService.get('RABBITMQ_URL')],
       queue: 'tasks',
       noAck: false,
       queueOptions: {

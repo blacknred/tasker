@@ -9,7 +9,7 @@ export const workerProvider = {
     ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: [configService.get('QUEUE_URL')],
+        urls: [configService.get('RABBITMQ_URL')],
         queue: 'tasks',
         noAck: false,
         queueOptions: {

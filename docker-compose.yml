@@ -1,0 +1,237 @@
+version: "3.7"
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./rabbitmq
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./rabbitmq/data:/var/lib/rabbitmq"
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  redis:
+    container_name: redis
+    build: ./redis
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./redis/data:/data"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  postgres:
+    container_name: postgres
+    build: ./postgres
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./postgres/data:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  user-service:
+    container_name: user-service
+    hostname: user-service
+    env_file: ./.env
+    restart: always
+    build:
+      context: ./user-service
+      target: production
+    volumes:
+      - "./user-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/2
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8080:3000"
+    networks:
+      - backend
+
+  auth-service:
+    container_name: auth-service
+    hostname: auth-service
+    env_file: ./.env
+    restart: always
+    build:
+      context: ./auth-service
+      target: production
+    volumes:
+      - "./auth-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    depends_on:
+      - redis
+      - user-service
+    ports:
+      - "8081:3000"
+    networks:
+      - backend
+
+  workspace-service:
+    container_name: workspace-service
+    hostname: workspace-service
+    env_file: ./.env
+    restart: always
+    build:
+      context: ./workspace-service
+      target: production
+    volumes:
+      - "./workspace-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      - postgres
+    ports:
+      - "8082:3000"
+    networks:
+      - backend
+
+  notification-service:
+    container_name: notification-service
+    hostname: notification-service
+    env_file: ./.env
+    restart: always
+    build:
+      context: ./notification-service
+      target: production
+    volumes:
+      - "./notification-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/1
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      - redis
+      - rabbitmq
+    ports:
+      - "8083:3000"
+    networks:
+      - backend
+
+  worker-service:
+    container_name: worker-service
+    hostname: worker-service
+    env_file: ./.env
+    restart: always
+    build:
+      context: ./worker-service
+      target: production
+    volumes:
+      - "./worker-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - WORKERS_QNT=${WORKERS_QNT:-5}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8084:3000"
+    networks:
+      - backend
+
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    build: ./prometheus
+    env_file: ./.env
+    restart: unless-stopped
+    volumes:
+      - "./prometheus/data:/prometheus"
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+    ports:
+      - "8085:9090"
+    networks:
+      - backend
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    build: ./grafana
+    env_file: ./.env
+    restart: unless-stopped
+    volumes:
+      - "./grafana/data:/var/lib/grafana"
+      - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
+    ports:
+      - "3002:3000"
+    networks:
+      - frontend
+
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    build: ./nginx
+    env_file: ./.env
+    restart: always
+    volumes:
+      - "./nginx/etc/ssl:/etc/nginx/ssl"
+      - "./nginx/etc/service.conf:/etc/nginx/service.conf"
+    environment:
+      - TZ=${TZ}
+      - LETSENCRYPT=true
+      - LE_FQDN=${SSL_DOMAIN}
+      - LE_EMAIL=${SSL_EMAIL}
+    depends_on:
+      - user-service
+      - auth-service
+      - workspace-service
+    ports:
+      - "80:80"
+      - "443:443"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks:
+      - backend
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    external:
+      name: infrastructure

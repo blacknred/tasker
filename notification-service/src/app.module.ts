@@ -7,9 +7,9 @@ import { NotificationsModule } from './notifications/notifications.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        CACHE_URL: Joi.string().required(),
+        REDIS_URL: Joi.string().required(),
         //
-        QUEUE_URL: Joi.string().required(),
+        RABBITMQ_URL: Joi.string().required(),
         SMTP_URL: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         VAPID_PRIVATE_KEY: Joi.string().required(),

@@ -35,65 +35,23 @@ services:
     healthcheck:
       test: exit 0
 
-  user-db:
-    container_name: user-db
-    build: ./user-db
+  postgres:
+    container_name: postgres
+    build: ./postgres
     env_file: ./.env.dev
     restart: always
     volumes:
-      - "./user-db/data:/var/lib/postgresql/data"
+      - "./postgres/data:/var/lib/postgresql/data"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-test}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-users_test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}
     ports:
       - "5432:5432"
     networks:
       - backend
     healthcheck:
       test: exit 0
-
-  workspace-db:
-    container_name: workspace-db
-    build: ./workspace-db
-    env_file: ./.env.dev
-    restart: always
-    volumes:
-      - "./workspace-db/data:/data/db"
-    environment:
-      - AUTH=yes
-      - MONGO_USER=${MONGO_USER:-test}
-      - MONGO_PASSWORD=${MONGO_PASSWORD:-test}
-      - MONGO_DB=${MONGO_DB:-workspaces_test}
-    ports:
-      - "27017:27017"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
-
-  # auth-service:
-  #   container_name: auth-service
-  #   hostname: auth-service
-  #   command: yarn start:dev
-  #   env_file: ./.env.dev
-  #   restart: on-failure
-  #   networks: backend
-  #   build:
-  #     context: ./auth-service
-  #     target: build
-  #   volumes:
-  #     - "./auth-service:/usr/src/app"
-  #     - "/usr/src/app/node_modules"
-  #     - "/usr/src/app/dist"
-  #   environment:
-  #     - NODE_ENV=development
-  #     - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
-  #   ports:
-  #     - "8081:3000"
-  #   depends_on:
-  #     - redis
-  #     - user-service
 
   user-service:
     container_name: user-service
@@ -110,16 +68,40 @@ services:
       - "/usr/src/app/dist"
     environment:
       - NODE_ENV=development
-      - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/2
-      - DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@user-db:5432/${POSTGRES_DB:-users_test}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/2
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
     ports:
-      - "8082:3000"
+      - "8080:3000"
     networks:
       - backend
+
+  auth-service:
+    container_name: auth-service
+    hostname: auth-service
+    command: yarn start:dev
+    env_file: ./.env.dev
+    restart: on-failure
+    build:
+      context: ./auth-service
+      target: build
+    volumes:
+      - "./auth-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
     depends_on:
-      - user-db
       - redis
+      - user-service
+    ports:
+      - "8081:3000"
+    networks:
+      - backend
 
   workspace-service:
     container_name: workspace-service
@@ -136,14 +118,39 @@ services:
       - "/usr/src/app/dist"
     environment:
       - NODE_ENV=development
-      - DB_URL=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@workspace-db:27017/${MONGO_DB:-workspaces_test}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - postgres
+    ports:
+      - "8082:3000"
+    networks:
+      - backend
+
+  notification-service:
+    container_name: notification-service
+    hostname: notification-service
+    command: yarn start:dev
+    env_file: ./.env.dev
+    restart: on-failure
+    build:
+      context: ./notification-service
+      target: build
+    volumes:
+      - "./notification-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/1
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - redis
+      - rabbitmq
     ports:
       - "8083:3000"
     networks:
       - backend
-    depends_on:
-      - workspace-db
 
   worker-service:
     container_name: worker-service
@@ -161,67 +168,27 @@ services:
     environment:
       - NODE_ENV=development
       - WORKERS_QNT=${WORKERS_QNT:-5}
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - rabbitmq
     ports:
       - "8084:3000"
     networks:
       - backend
-    depends_on:
-      - rabbitmq
 
-  notification-service:
-    container_name: notification-service
-    hostname: notification-service
-    command: yarn start:dev
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    build: ./prometheus
     env_file: ./.env.dev
-    restart: on-failure
-    build:
-      context: ./notification-service
-      target: build
+    restart: unless-stopped
     volumes:
-      - "./notification-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
-    environment:
-      - NODE_ENV=development
-      - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/1
-      - QUEUE_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - "./prometheus/data:/prometheus"
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
     ports:
-      - "8085:3000"
+      - "8085:9090"
     networks:
       - backend
-    depends_on:
-      - redis
-      - rabbitmq
-
-  gateway:
-    container_name: gateway
-    hostname: gateway
-    command: [sh, -c, "yarn run docs && yarn start:debug"]
-    env_file: ./.env.dev
-    restart: always
-    build:
-      context: ./gateway
-      target: build
-    volumes:
-      - "./gateway:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
-    environment:
-      - NODE_ENV=development
-      - CACHE_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/0
-      - CLIENT_ORIGIN=${CLIENT_ORIGIN:-http://localhost:3000}
-    ports:
-      - "8080:3000"
-      - "8088:3001"
-    networks:
-      - backend
-      - frontend
-    depends_on:
-      - user-service
-      - workspace-service
-      # - auth-service
-      - redis
 
   web:
     container_name: web
@@ -235,26 +202,31 @@ services:
     volumes:
       - "./web:/usr/src/app"
       - "/usr/src/app/node_modules"
-      - "/usr/src/app/.next"
     environment:
-      - API_HOST=${API_ORIGIN:-http://localhost:8080}
       - NODE_OPTIONS=--openssl-legacy-provider
+      - SKIP_PREFLIGHT_CHECK=true
+      - CHOKIDAR_USEPOLLING=true
+      # - NEXT_PUBLIC_BE_ORIGIN=${BE_ORIGIN:-http://localhost:8080}
     ports:
       - "3000:3000"
     networks:
       - frontend
 
-  prometheus:
-    container_name: prometheus
-    hostname: prometheus
-    build: ./prometheus
+  web-spa:
+    container_name: web-spa
+    hostname: web-spa
+    command: yarn dev
     env_file: ./.env.dev
     restart: unless-stopped
+    build:
+      context: ./web-spa
+      target: build
     volumes:
-      - "./prometheus/data:/prometheus"
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+      - "./web:/usr/src/app"
+      - "/usr/src/app/node_modules"
+    environment: # - BE_ORIGIN=${BE_ORIGIN:-http://localhost:8080}
     ports:
-      - "3001:9090"
+      - "3001:3000"
     networks:
       - frontend
 
@@ -270,6 +242,27 @@ services:
     ports:
       - "3002:3000"
     networks:
+      - frontend
+
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    image: nginx:stable-alpine
+    command: [ nginx-debug, '-g', 'daemon off;' ]
+    env_file: ./.env.dev
+    restart: always
+    volumes:
+      - "./nginx/etc/dev.service.conf:/etc/nginx/conf.d/service.conf:ro"
+    environment:
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    depends_on:
+      - user-service
+      - auth-service
+      - workspace-service
+    ports:
+      - "80:80"
+    networks:
+      - backend
       - frontend
 
 networks:

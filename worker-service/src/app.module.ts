@@ -7,7 +7,7 @@ import { WorkersModule } from './workers/workers.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        QUEUE_URL: Joi.string().required(),
+        RABBITMQ_URL: Joi.string().required(),
       }),
     }),
     WorkersModule,
