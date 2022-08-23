@@ -13,7 +13,7 @@ Microservice boilerplate for task management app
 | Auth CRUD            | auth-service         | TS, NestJs, TCP          | 8081   |
 | Workspace CRUD       | workspace-service    | TS, NestJs, TCP          | 8082   |
 | Notification service | notification-service | TS, NestJs, AMQP         | 8083   |
-| Worker service       | worker-service       | TS, NestJs, AMQP         | 8084   |
+| Workerbot service    | workerbot-service    | TS, NestJs, AMQP         | 8084   |
 | Prometheus webUI     | prometheus           | Prometheus               | 8085   |
 | Dev Web landing      | web                  | TS, NextJS, Tailwind     | 3000   |
 | Dev Web spa          | web-spa              | TS, React, Tailwind      | 3001   |

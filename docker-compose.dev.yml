@@ -152,17 +152,17 @@ services:
     networks:
       - backend
 
-  worker-service:
-    container_name: worker-service
-    hostname: worker-service
+  workerbot-service:
+    container_name: workerbot-service
+    hostname: workerbot-service
     command: yarn start:dev
     env_file: ./.env.dev
     restart: on-failure
     build:
-      context: ./worker-service
+      context: ./workerbot-service
       target: build
     volumes:
-      - "./worker-service:/usr/src/app"
+      - "./workerbot-service:/usr/src/app"
       - "/usr/src/app/node_modules"
       - "/usr/src/app/dist"
     environment:

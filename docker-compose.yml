@@ -148,16 +148,16 @@ services:
     networks:
       - backend
 
-  worker-service:
-    container_name: worker-service
-    hostname: worker-service
+  workerbot-service:
+    container_name: workerbot-service
+    hostname: workerbot-service
     env_file: ./.env
     restart: always
     build:
-      context: ./worker-service
+      context: ./workerbot-service
       target: production
     volumes:
-      - "./worker-service:/usr/src/app"
+      - "./workerbot-service:/usr/src/app"
       - "/usr/src/app/node_modules"
       - "/usr/src/app/dist"
     environment:

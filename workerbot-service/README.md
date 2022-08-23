@@ -1,4 +1,4 @@
-# Taskapp Worker mock microservice
+# Taskapp Workerbot microservice
 
 ## Stack
 
