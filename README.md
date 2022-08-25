@@ -9,12 +9,13 @@ Microservice boilerplate for task management app
 | Redis                | redis                | Redis                    | 6379   |
 | Queue                | rabbitmq             | RabbitMQ                 | 5672   |
 | DB                   | postgres             | Postgres                 | 5432   |
+| Prometheus           | prometheus           | Prometheus               | 9090   |
 | User CRUD            | user-service         | TS, NestJs, TCP          | 8080   |
 | Auth CRUD            | auth-service         | TS, NestJs, TCP          | 8081   |
-| Workspace CRUD       | workspace-service    | TS, NestJs, TCP          | 8082   |
-| Notification service | notification-service | TS, NestJs, AMQP         | 8083   |
-| Workerbot service    | workerbot-service    | TS, NestJs, AMQP         | 8084   |
-| Prometheus webUI     | prometheus           | Prometheus               | 8085   |
+| Workspace CRUD       | workspace-service    | TS, NestJs, TCP, AMQP    | 8082   |
+| Billing CRUD         | billing-service      | TS, NestJs, TCP, AMQP    | 8083   |
+| Notification worker  | notification-service | TS, NestJs, AMQP         | 8084   |
+| Workerbot worker     | workerbot-service    | TS, NestJs, AMQP         | 8085   |
 | Dev Web landing      | web                  | TS, NextJS, Tailwind     | 3000   |
 | Dev Web spa          | web-spa              | TS, React, Tailwind      | 3001   |
 | Grafana UI           | grafana              | Grafana                  | 3002   |

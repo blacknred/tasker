@@ -53,6 +53,24 @@ services:
     healthcheck:
       test: exit 0
 
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    build: ./prometheus
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "./prometheus/data:/prometheus"
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  # services
+
   user-service:
     container_name: user-service
     hostname: user-service
@@ -68,12 +86,11 @@ services:
       - "/usr/src/app/dist"
     environment:
       - NODE_ENV=development
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379/2
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     depends_on:
       - postgres
-      - redis
+      - rabbitmq
     ports:
       - "8080:3000"
     networks:
@@ -122,8 +139,34 @@ services:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     depends_on:
       - postgres
+      - rabbitmq
     ports:
       - "8082:3000"
+    networks:
+      - backend
+
+  billing-service:
+    container_name: billing-service
+    hostname: billing-service
+    command: yarn start:dev
+    env_file: ./.env.dev
+    restart: on-failure
+    build:
+      context: ./billing-service
+      target: build
+    volumes:
+      - "./billing-service:/usr/src/app"
+      - "/usr/src/app/node_modules"
+      - "/usr/src/app/dist"
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    ports:
+      - "8083:3000"
     networks:
       - backend
 
@@ -148,7 +191,7 @@ services:
       - redis
       - rabbitmq
     ports:
-      - "8083:3000"
+      - "8084:3000"
     networks:
       - backend
 
@@ -172,23 +215,11 @@ services:
     depends_on:
       - rabbitmq
     ports:
-      - "8084:3000"
+      - "8085:3000"
     networks:
       - backend
 
-  prometheus:
-    container_name: prometheus
-    hostname: prometheus
-    build: ./prometheus
-    env_file: ./.env.dev
-    restart: unless-stopped
-    volumes:
-      - "./prometheus/data:/prometheus"
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
-    ports:
-      - "8085:9090"
-    networks:
-      - backend
+  # clients
 
   web:
     container_name: web
@@ -243,6 +274,8 @@ services:
       - "3002:3000"
     networks:
       - frontend
+
+  # gateway
 
   gateway:
     container_name: gateway
