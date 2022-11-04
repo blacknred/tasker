@@ -243,24 +243,6 @@ services:
     networks:
       - frontend
 
-  web-spa:
-    container_name: web-spa
-    hostname: web-spa
-    command: yarn dev
-    env_file: ./.env.dev
-    restart: unless-stopped
-    build:
-      context: ./web-spa
-      target: build
-    volumes:
-      - "./web:/usr/src/app"
-      - "/usr/src/app/node_modules"
-    environment: # - BE_ORIGIN=${BE_ORIGIN:-http://localhost:8080}
-    ports:
-      - "3001:3000"
-    networks:
-      - frontend
-
   grafana:
     container_name: grafana
     hostname: grafana
@@ -271,7 +253,7 @@ services:
       - "./grafana/data:/var/lib/grafana"
       - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
     ports:
-      - "3002:3000"
+      - "3001:3000"
     networks:
       - frontend
 

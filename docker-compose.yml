@@ -225,7 +225,7 @@ services:
       - "./grafana/data:/var/lib/grafana"
       - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
     ports:
-      - "3002:3000"
+      - "3001:3000"
     networks:
       - frontend
 

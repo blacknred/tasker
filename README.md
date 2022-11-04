@@ -1,6 +1,10 @@
 # Taskapp
 
-Microservice boilerplate for task management app
+<img src="services/web/static/images/logo.svg" width="75"/>
+
+Microservice monorepo boilerplate for task management app
+
+[![CI](https://github.com/blacknred/full-taskapp/workflows/Build%20and%20release/badge.svg)](https://github.com/blacknred/full-taskapp/actions)
 
 ## Architecture
 
@@ -16,9 +20,8 @@ Microservice boilerplate for task management app
 | Billing CRUD         | billing-service      | TS, NestJs, TCP, AMQP    | 8083   |
 | Notification worker  | notification-service | TS, NestJs, AMQP         | 8084   |
 | Workerbot worker     | workerbot-service    | TS, NestJs, AMQP         | 8085   |
-| Dev Web landing      | web                  | TS, NextJS, Tailwind     | 3000   |
-| Dev Web spa          | web-spa              | TS, React, Tailwind      | 3001   |
-| Grafana UI           | grafana              | Grafana                  | 3002   |
+| Dev Web              | web                  | TS, NextJS               | 3000   |
+| Grafana UI           | grafana              | Grafana                  | 3001   |
 | API Gateway          | gateway              | Nginx, REST, Swagger, FE | 80/443 |
 
 - for a real world scenario you definitely need an easily sharded nosql db instead of ordbms
@@ -42,6 +45,17 @@ Microservice boilerplate for task management app
    make dev-check
    make dev
    ```
+
+### Release
+
+1. Build and push images to the hub
+
+```sh
+$ make release
+# will ask you for a version tag or fallback to branchname-commithash
+QUEST:   Version tag?:[master-87265e6] -> 1.0.0 
+INFO:    Starting build for version 1.0.0
+```
 
 ### Production
 
