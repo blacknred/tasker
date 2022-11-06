@@ -1,12 +1,14 @@
 # Taskapp
 
-<img src="services/web/static/images/logo.svg" width="75"/>
+<img src="services/web/static/images/logo.svg" width="75" alt="Taskapp Logo"/>
 
-Microservice monorepo boilerplate for task management app
+Sample application for managing tasks in workspaces with some agile features: projects, backlogs, epics, sprints, tasks/subtasks, kanban
 
 [![CI](https://github.com/blacknred/full-taskapp/workflows/Build%20and%20release/badge.svg)](https://github.com/blacknred/full-taskapp/actions)
 
 ## Architecture
+
+> monorepo + docker + microservices
 
 | Services             | Container            | Stack                    | Ports  |
 | -------------------- | -------------------- | ------------------------ | ------ |

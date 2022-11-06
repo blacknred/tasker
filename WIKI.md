@@ -1,7 +1,5 @@
 # Task app
 
-> tasks management within the workspaces with some agile features: projects, backlog, epics, sprints, tasks/subtasks, canban
-
 ## Features
 
 `Workspace`
