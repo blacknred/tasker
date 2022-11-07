@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import {MicroserviceModule} from "@taskapp/microservice";
-import * as S from "@taskapp/types";
+import { MicroserviceModule } from '@taskapp/microservice';
+import { Express } from '@taskapp/types';
 
 // import { TokensModule } from './tokens/tokens.module';
 // import { UsersModule } from './users/users.module';

@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { WorkersModule } from './workers/workers.module';
+// import { WorkersModule } from './workers/workers.module';
 
 @Module({
   imports: [
@@ -10,7 +10,7 @@ import { WorkersModule } from './workers/workers.module';
         RABBITMQ_URL: Joi.string().required(),
       }),
     }),
-    WorkersModule,
+    // WorkersModule,
   ],
 })
 export class AppModule {}

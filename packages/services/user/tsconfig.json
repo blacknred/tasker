@@ -4,5 +4,10 @@
     "declaration": false,
     "sourceMap": true,
     "outDir": "./dist"
-  }
+  },
+  "references": [{
+    "path": "../../libs/microservice",
+  }, {
+    "path": "../../libs/types",
+  }]
 }

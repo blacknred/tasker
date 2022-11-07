@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { NotificationsModule } from './notifications/notifications.module';
+// import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         TWILIO_SENDER_PHONE_NUMBER: Joi.string().required(),
       }),
     }),
-    NotificationsModule,
+    // NotificationsModule,
   ],
 })
 export class AppModule {}

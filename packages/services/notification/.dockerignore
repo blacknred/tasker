@@ -1,3 +1,8 @@
+logs
+*.log
+*-debug.log*
+*-error.log*
+
 .git
 .vscode
 node_modules

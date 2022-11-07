@@ -1,5 +1,6 @@
-const config = require('../../../jest.config');
+import config from '../../../jest.config';
 
-module.exports = {
-  ...config
-}
+export default {
+  ...config,
+  displayName: 'user',
+};
