@@ -3,6 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "sourceMap": false,
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

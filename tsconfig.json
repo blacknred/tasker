@@ -1,24 +1,31 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
-    "sourceMap": true,
+    "target": "ESNext",
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strict": true,
-    // "noLib": false,
-    // "lib": ["es6"]
-    // "strictNullChecks": false,
-    // "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    // "moduleResolution": "node",
+    // "strict": true
+    // "paths": {
+    //   "@app/my-lib": [
+    //     "libs/my-lib/src"
+    //   ],
+    //   "@app/my-lib/*": [
+    //     "libs/my-lib/src/*"
+    //   ]
+    // }
   },
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
+

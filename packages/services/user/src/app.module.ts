@@ -1,8 +1,11 @@
 import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TokensModule } from './tokens/tokens.module';
-import { UsersModule } from './users/users.module';
+import {MicroserviceModule} from "@taskapp/microservice";
+import * as S from "@taskapp/types";
+
+// import { TokensModule } from './tokens/tokens.module';
+// import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -14,8 +17,8 @@ import { UsersModule } from './users/users.module';
         SECRET: Joi.string().required(),
       }),
     }),
-    UsersModule,
-    TokensModule,
+    // UsersModule,
+    // TokensModule,
   ],
 })
 export class AppModule {}
