@@ -368,6 +368,7 @@ Jira reports help you stay on track of sprint goals, drill down into issues, man
 
 ## TODO
 
+- analitycs service
 - switch api gateway from nodejs/nest to nginx
 - split web client to Next(landing, auth) ssg and React SPA. No Auth ? Nginx returns app.com : Nginx redirects to ${workspace}.app.com
 - full text search for task.title field with tsvector

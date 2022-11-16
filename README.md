@@ -16,12 +16,12 @@ Sample application for managing tasks in workspaces with some agile features: pr
 | Queue                | rabbitmq             | RabbitMQ                 | 5672   |
 | DB                   | postgres             | Postgres                 | 5432   |
 | Prometheus           | prometheus           | Prometheus               | 9090   |
-| User CRUD            | user-service         | TS, NestJs, TCP          | 8080   |
-| Auth CRUD            | auth-service         | TS, NestJs, TCP          | 8081   |
-| Workspace CRUD       | workspace-service    | TS, NestJs, TCP, AMQP    | 8082   |
-| Billing CRUD         | billing-service      | TS, NestJs, TCP, AMQP    | 8083   |
-| Notification worker  | notification-service | TS, NestJs, AMQP         | 8084   |
-| Workerbot worker     | workerbot-service    | TS, NestJs, AMQP         | 8085   |
+| Auth CRUD            | auth-service         | TS, NestJs, TCP          | 8020   |
+| User CRUD            | user-service         | TS, NestJs, TCP          | 8010   |
+| Workspace CRUD       | workspace-service    | TS, NestJs, TCP, AMQP    | 8030   |
+| Billing CRUD         | billing-service      | TS, NestJs, TCP, AMQP    | 8040   |
+| Notification worker  | notification-service | TS, NestJs, AMQP         | 8050   |
+| Workerbot worker     | workerbot-service    | Go, AMQP                 | 8060   |
 | Dev Web              | web                  | TS, NextJS               | 3000   |
 | Grafana UI           | grafana              | Grafana                  | 3001   |
 | API Gateway          | gateway              | Nginx, REST, Swagger, FE | 80/443 |
