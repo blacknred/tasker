@@ -23,7 +23,7 @@ Sample application for managing tasks in workspaces with some agile features: pr
 | Notification worker  | notification-service | TS, NestJs, AMQP         | 8050   |
 | Workerbot worker     | workerbot-service    | Go, AMQP                 | 8060   |
 | Dev Web              | web                  | TS, NextJS               | 3000   |
-| Grafana UI           | grafana              | Grafana                  | 3001   |
+| Grafana UI           | grafana              | Grafana                  | 4000   |
 | API Gateway          | gateway              | Nginx, REST, Swagger, FE | 80/443 |
 
 - for a real world scenario you definitely need an easily sharded nosql db instead of ordbms
