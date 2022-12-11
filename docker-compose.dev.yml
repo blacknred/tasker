@@ -257,17 +257,20 @@ services:
     networks:
       - frontend
 
-  # gateway
+  # nginx
 
-  gateway:
-    container_name: gateway
-    hostname: gateway
-    image: nginx:stable-alpine
-    command: [ nginx-debug, '-g', 'daemon off;' ]
+  nginx:
+    container_name: nginx
+    hostname: nginx
+    build: ./nginx
+    # image: nginx:stable-alpine
+    # command: [ nginx-debug, '-g', 'daemon off;' ]
     env_file: ./.env.dev
     restart: always
     volumes:
-      - "./nginx/etc/dev.service.conf:/etc/nginx/conf.d/service.conf:ro"
+      - "./nginx/etc/nginx:/etc/nginx:ro"
+      - "./nginx/etc/static/swagger-ui:/usr/share/nginx/html:ro"
+      # sudo cp -R .swagger-ui/dist/* /var/www/swagger-ui/
     environment:
       - NGINX_ENTRYPOINT_QUIET_LOGS=1
     depends_on:
@@ -276,9 +279,23 @@ services:
       - workspace-service
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - backend
       - frontend
+
+  nginx-exporter:
+    container_name: nginx-exporter
+    hostname: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:edge
+    env_file: ./.env.dev
+    restart: always
+    environment:
+      - nginx.scrape-uri=nginx:8080/metrics
+    ports:
+      - "9113:9113"
+    networks:
+      - backend
 
 networks:
   backend:
