@@ -1,8 +1,12 @@
 version: "3.7"
 
 services:
+  
+  # data
+
   rabbitmq:
     container_name: rabbitmq
+    hostname: rabbitmq
     build: ./rabbitmq
     env_file: ./.env.dev
     restart: always
@@ -21,6 +25,7 @@ services:
 
   redis:
     container_name: redis
+    hostname: redis
     build: ./redis
     env_file: ./.env.dev
     restart: always
@@ -37,6 +42,7 @@ services:
 
   postgres:
     container_name: postgres
+    hostname: postgres
     build: ./postgres
     env_file: ./.env.dev
     restart: always
@@ -52,6 +58,8 @@ services:
       - backend
     healthcheck:
       test: exit 0
+
+  # infrastructure
 
   prometheus:
     container_name: prometheus
@@ -69,7 +77,109 @@ services:
     healthcheck:
       test: exit 0
 
-  # services
+  node-exporter:
+    container_name: node-exporter
+    hostname: node-exporter
+    image: prom/node-exporter:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/rootfs:ro"
+    command:
+      - "—-path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    ports:
+      - "9100:9100"
+    networks:
+      - backend
+
+  nginx-exporter:
+    container_name: nginx-exporter
+    hostname: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:edge
+    env_file: ./.env.dev
+    restart: unless-stopped
+    environment:
+      - nginx.scrape-uri=nginx:8080/metrics
+    ports:
+      - "9113:9113"
+    networks:
+      - backend
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    build: ./grafana
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "./grafana/data:/var/lib/grafana"
+      - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
+    ports:
+      - "4000:3000"
+    networks:
+      - backend
+
+  jaeger:
+    container_name: jaeger
+    hostname: jaegertracing
+    image: jaegertracing/all-in-one:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686" # ui
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    networks:
+      - backend
+
+
+# node01:
+#     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
+#     container_name: node01
+#     restart: always
+#     environment:
+#       - node.name=node01
+#       - cluster.name=es-cluster-8
+#       - discovery.type=single-node
+#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#       - xpack.license.self_generated.type=basic
+#       - xpack.security.enabled=false
+#     ulimits:
+#       memlock:
+#         soft: -1
+#         hard: -1
+#     volumes:
+#       - ./es-data01:/usr/share/elasticsearch/data
+#     ports:
+#       - "9200:9200"
+#       - "9300:9300"
+#     networks: [ "microservices" ]
+
+#   kibana:
+#     image: docker.elastic.co/kibana/kibana:8.3.3
+#     restart: always
+#     environment:
+#       ELASTICSEARCH_HOSTS: http://node01:9200
+#     ports:
+#       - "5601:5601"
+#     depends_on:
+#       - node01
+#     networks: [ "microservices" ]
+
+
+  # apps
 
   user-service:
     container_name: user-service
@@ -219,7 +329,34 @@ services:
     networks:
       - backend
 
-  # clients
+  nginx:
+    container_name: nginx
+    hostname: nginx
+    build: ./nginx
+    env_file: ./.env.dev
+    restart: always
+    volumes:
+      - "./nginx/etc/nginx/:/etc/nginx:ro"
+
+      - "./nginx/swagger-ui:/var/www/swagger-ui:ro"
+      - "./packages/services/web/dist:/usr/share/nginx/html"
+
+      - "./nginx.conf:/etc/nginx/nginx.conf"
+      - ./jaeger-config.json:/etc/jaeger-config.json
+    environment:
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+      - NGINX_HOST=${RABBITMQ_PASSWORD:-localhost}
+    depends_on:
+      - user-service
+      - auth-service
+      - workspace-service
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - backend
+      - frontend
 
   web:
     container_name: web
@@ -242,60 +379,6 @@ services:
       - "3000:3000"
     networks:
       - frontend
-
-  grafana:
-    container_name: grafana
-    hostname: grafana
-    build: ./grafana
-    env_file: ./.env.dev
-    restart: unless-stopped
-    volumes:
-      - "./grafana/data:/var/lib/grafana"
-      - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
-    ports:
-      - "4000:3000"
-    networks:
-      - frontend
-
-  # nginx
-
-  nginx:
-    container_name: nginx
-    hostname: nginx
-    build: ./nginx
-    # image: nginx:stable-alpine
-    # command: [ nginx-debug, '-g', 'daemon off;' ]
-    env_file: ./.env.dev
-    restart: always
-    volumes:
-      - "./nginx/etc/nginx:/etc/nginx:ro"
-      - "./nginx/etc/static/swagger-ui:/usr/share/nginx/html:ro"
-      # sudo cp -R .swagger-ui/dist/* /var/www/swagger-ui/
-    environment:
-      - NGINX_ENTRYPOINT_QUIET_LOGS=1
-    depends_on:
-      - user-service
-      - auth-service
-      - workspace-service
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - backend
-      - frontend
-
-  nginx-exporter:
-    container_name: nginx-exporter
-    hostname: nginx-exporter
-    image: nginx/nginx-prometheus-exporter:edge
-    env_file: ./.env.dev
-    restart: always
-    environment:
-      - nginx.scrape-uri=nginx:8080/metrics
-    ports:
-      - "9113:9113"
-    networks:
-      - backend
 
 networks:
   backend:

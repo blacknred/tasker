@@ -23,8 +23,8 @@ Proxy/Gateway(nginx)
 - Misc
   - ballancing
   - security: ddos, helmet, cors, ssl
-  - logging(Elk)
   - metrics(Prometheus)
+  - opentracing
 
 ## Running the app
 

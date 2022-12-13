@@ -1,6 +1,12 @@
-FROM nginx:stable-alpine
+FROM opentracing/nginx-opentracing:edge-alpine
 
-CMD ["nginx-debug", "-g daemon off;"]
+
+
+
+
+# CMD ["nginx-debug", "-g daemon off;"]
+
+
 
 # FROM node:alpine as build
 # RUN apk add --no-cache g++ make py3-pip
