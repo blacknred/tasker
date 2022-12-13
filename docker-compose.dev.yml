@@ -336,7 +336,7 @@ services:
     env_file: ./.env.dev
     restart: always
     volumes:
-      - "./nginx/etc/nginx/:/etc/nginx:ro"
+      - "./nginx/etc/nginx/nginx.conf:/etc/nginx:ro"
 
       - "./nginx/swagger-ui:/var/www/swagger-ui:ro"
       - "./packages/services/web/dist:/usr/share/nginx/html"

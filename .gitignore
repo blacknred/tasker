@@ -39,7 +39,7 @@ coverage
 *_orig
 
 # Storage data
-*/*/*/data/
+*/data/
 packages/*/*/lib
 
 # Extras
