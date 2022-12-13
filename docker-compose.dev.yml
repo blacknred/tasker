@@ -59,91 +59,6 @@ services:
     healthcheck:
       test: exit 0
 
-  # infrastructure
-
-  prometheus:
-    container_name: prometheus
-    hostname: prometheus
-    build: ./prometheus
-    env_file: ./.env.dev
-    restart: unless-stopped
-    volumes:
-      - "./prometheus/data:/prometheus"
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
-    ports:
-      - "9090:9090"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
-
-  node-exporter:
-    container_name: node-exporter
-    hostname: node-exporter
-    image: prom/node-exporter:latest
-    env_file: ./.env.dev
-    restart: unless-stopped
-    volumes:
-      - "/proc:/host/proc:ro"
-      - "/sys:/host/sys:ro"
-      - "/:/rootfs:ro"
-    command:
-      - "—-path.procfs=/host/proc"
-      - "--path.rootfs=/rootfs"
-      - "--path.sysfs=/host/sys"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
-    ports:
-      - "9100:9100"
-    networks:
-      - backend
-
-  nginx-exporter:
-    container_name: nginx-exporter
-    hostname: nginx-exporter
-    image: nginx/nginx-prometheus-exporter:edge
-    env_file: ./.env.dev
-    restart: unless-stopped
-    environment:
-      - nginx.scrape-uri=nginx:8080/metrics
-    ports:
-      - "9113:9113"
-    networks:
-      - backend
-
-  grafana:
-    container_name: grafana
-    hostname: grafana
-    build: ./grafana
-    env_file: ./.env.dev
-    restart: unless-stopped
-    volumes:
-      - "./grafana/data:/var/lib/grafana"
-      - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
-    ports:
-      - "4000:3000"
-    networks:
-      - backend
-
-  jaeger:
-    container_name: jaeger
-    hostname: jaegertracing
-    image: jaegertracing/all-in-one:latest
-    env_file: ./.env.dev
-    restart: unless-stopped
-    environment:
-      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
-    ports:
-      - "5775:5775/udp"
-      - "6831:6831/udp"
-      - "6832:6832/udp"
-      - "5778:5778"
-      - "16686:16686" # ui
-      - "14268:14268"
-      - "14250:14250"
-      - "9411:9411"
-    networks:
-      - backend
-
 
 # node01:
 #     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
@@ -329,35 +244,6 @@ services:
     networks:
       - backend
 
-  nginx:
-    container_name: nginx
-    hostname: nginx
-    build: ./nginx
-    env_file: ./.env.dev
-    restart: always
-    volumes:
-      - "./nginx/etc/nginx/nginx.conf:/etc/nginx:ro"
-
-      - "./nginx/swagger-ui:/var/www/swagger-ui:ro"
-      - "./packages/services/web/dist:/usr/share/nginx/html"
-
-      - "./nginx.conf:/etc/nginx/nginx.conf"
-      - ./jaeger-config.json:/etc/jaeger-config.json
-    environment:
-      - NGINX_ENTRYPOINT_QUIET_LOGS=1
-      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
-      - NGINX_HOST=${RABBITMQ_PASSWORD:-localhost}
-    depends_on:
-      - user-service
-      - auth-service
-      - workspace-service
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - backend
-      - frontend
-
   web:
     container_name: web
     hostname: web
@@ -379,6 +265,136 @@ services:
       - "3000:3000"
     networks:
       - frontend
+
+  nginx:
+    container_name: nginx
+    hostname: nginx
+    build: ./nginx
+    env_file: ./.env.dev
+    restart: on-failure
+    volumes:
+      - "./nginx/nginx:/etc/nginx:ro"
+      - "./nginx/jaeger-config.json:/etc/jaeger-config.json"
+      - "./nginx/swagger-ui:/var/www/swagger-ui:ro"
+      - "./packages/services/web/dist:/usr/share/nginx/html"
+    environment:
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+      - NGINX_HOST=${NGINX_HOST:-localhost}
+    depends_on:
+      - user-service
+      - auth-service
+      - workspace-service
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - backend
+      - frontend
+
+  # infrastructure
+
+  prometheus:
+    container_name: prometheus
+    hostname: prometheus
+    build: ./prometheus
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "./prometheus/data:/prometheus"
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+    healthcheck:
+      test: exit 0
+
+  cadvisor:
+    container_name: cadvisor
+    hostname: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - postgres
+      - rabbitmq
+    networks:
+      - backend
+
+  node-exporter:
+    container_name: node-exporter
+    hostname: node-exporter
+    image: prom/node-exporter:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/rootfs:ro"
+    command:
+      - "—-path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    ports:
+      - "9100:9100"
+    networks:
+      - backend
+
+  nginx-exporter:
+    container_name: nginx-exporter
+    hostname: nginx-exporter
+    image: nginx/nginx-prometheus-exporter:edge
+    env_file: ./.env.dev
+    restart: unless-stopped
+    environment:
+      - nginx.scrape-uri=nginx:8080/metrics
+    depends_on:
+      - nginx
+    ports:
+      - "9113:9113"
+    networks:
+      - backend
+
+  grafana:
+    container_name: grafana
+    hostname: grafana
+    image: grafana/grafana:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    ports:
+      - "4000:3000"
+    networks:
+      - backend
+
+  jaeger:
+    container_name: jaeger
+    hostname: jaegertracing
+    image: jaegertracing/all-in-one:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686" # ui
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    networks:
+      - backend
 
 networks:
   backend:
