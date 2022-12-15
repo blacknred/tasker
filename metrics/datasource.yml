@@ -1,0 +1,48 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://docker.for.mac.host.internal:9090 # http://prometheus:9090
+    basicAuth: false
+    isDefault: true
+    editable: true
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    url: http://docker.for.mac.host.internal:3100 # http://loki:3100
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: true
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger-spectra
+    access: proxy
+    url: http://docker.for.mac.host.internal:16686 # http://jaeger:16686/
+    basicAuth: false
+    isDefault: true
+    editable: true
+    jsonData:
+      tracesToLogs:
+        # Field with internal link pointing to a logs data source in Grafana.
+        # datasourceUid value must match the datasourceUid value of the logs data source.
+        datasourceUid: 'loki'
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+      tracesToMetrics:
+        datasourceUid: 'prom'
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+        queries:
+          - name: 'Sample query'
+            query: 'sum(rate(tempo_spanmetrics_latency_bucket{$__tags}[5m]))'
+    secureJsonData:
+      basicAuthPassword: my_password

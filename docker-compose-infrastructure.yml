@@ -1,0 +1,204 @@
+version: "3.8"
+
+services:
+  mc:
+    build: ./minio/mc
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
+    depends_on:
+      - minio
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 8081:8080 ]
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9100:9100 ]
+    command:
+      - "—-path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:edge
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9113:9113 ]
+    environment:
+      - nginx.scrape-uri=nginx:80/metrics
+    depends_on:
+      - nginx
+
+  postgres-exporter:
+    image: bitnami/postgres-exporter:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9187:9187 ]
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}?sslmode=disable
+    depends_on:
+      - postgres
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9121:9121 ]
+    environment:
+      - REDIS_ADDR=redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
+    depends_on:
+      - redis
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9419:9419 ]
+    environment:
+      - RABBITMQ_USER=${RABBITMQ_USER:-test}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
+    depends_on:
+      - rabbitmq
+
+  prometheus:
+    image: prom/prometheus:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 9090:9090 ]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention=7d"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    volumes:
+      - ./metrics/data:/prometheus
+      - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - node-exporter
+      - cadvisor
+      - nginx-exporter
+      - postgres-exporter
+      - redis-exporter
+      - rabbitmq-exporter
+      - minio
+
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 3100:3100 ]
+    command: -config.file=/mnt/loki-local-config.yaml
+    volumes:
+      - ./logs/data:/tmp/loki
+      - ./logs/loki.yml:/mnt/loki-local-config.yaml:ro
+
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    volumes:
+      - ./logs/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    env_file: ./.env.dev
+    restart: unless-stopped
+    networks: [ infrastructure ]
+    ports: [ 3003:3000 ]
+    volumes:
+      - ./metrics/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      # - ./metrics/grafana/data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER={GRAFANA_USER:-test}
+      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD:-test}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    depends_on:
+      - loki
+      - prometheus
+      - jaeger
+  # elasticsearch:
+  #   build: ./elasticsearch
+  #   env_file: ./.env.dev
+  #   restart: always
+  #   networks: [infrastructure]
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - ".logs/elk/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+  #     - ".logs/elk/elasticsearch/data:/usr/share/elasticsearch/data"
+  #   environment:
+  #     - node.name=node01
+  #     - ES_JAVA_OPTS="-Xmx512m -Xms512m"
+  #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-test}
+  #     - discovery.type=single-node
+  #     - xpack.license.self_generated.type=basic
+  #     - xpack.security.enabled=false
+
+  #   kibana:
+  #     image: docker.elastic.co/kibana/kibana:8.3.3
+  #     restart: always
+  #     networks: [infrastructure]
+  #     ports: [5601:5601]
+  #     environment:
+  #       ELASTICSEARCH_HOSTS: http://node01:9200
+  #     depends_on:
+  #       - elasticsearch
+
+
+networks:
+  infrastructure:
+    name: main

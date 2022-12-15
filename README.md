@@ -11,34 +11,40 @@ Sample app for agile project management
 > monorepo + docker + microservices\
 > for a real world scenario you definitely need an easily sharded nosql db instead of ordbms
 
-| Services          | Container            | Stack                    | Ports  |
-| ----------------- | -------------------- | ------------------------ | ------ |
-| Redis             | redis                | Redis                    | 6379   |
-| Queue             | rabbitmq             | RabbitMQ                 | 5672   |
-| DB                | postgres             | Postgres, db per service | 5432   |
-| Prometheus        | prometheus           | Prometheus               | 9090   |
-| Nginx             | nginx                | Nginx, HTTP1.1, Swagger  | 80/443 |
-| Nginx metrics     | nginx-exporter       | nginx prometheus metrics | 9113   |
-| ELK               | -                    | -                        | -      |
-| -                 | -                    | -                        | -      |
-| User CRUD         | user-service         | TS, NestJs, HTTP         | 8001   |
-| Auth CRUD         | auth-service         | TS, NestJs, HTTP         | 8002   |
-| Notification CRUD | notification-service | TS, NestJs, HTTP, AMQP   | 8003   |
-| Billing CRUD      | billing-service      | TS, NestJs, HTTP, AMQP   | 8004   |
-| -                 | -                    | -                        | -      |
-| Project CRUD      | project-service      | TS, NestJs, HTTP, AMQP   | 8005   |
-| Member CRUD       | member-service       | TS, NestJs, HTTP, AMQP   | 8006   |
-| Sprint CRUD       | sprint-service       | TS, NestJs, HTTP, AMQP   | 8007   |
-| Issue CRUD        | issue-service        | TS, NestJs, HTTP, AMQP   | 8008   |
-| Comment CRUD      | comment-service      | TS, NestJs, HTTP, AMQP   | 8009   |
-| Watchlist CRUD    | watchlist-service    | TS, NestJs, HTTP         | 8010   |
-| -                 | -                    | -                        | -      |
-| Search CRUD       | search-service       | TS, NestJs, HTTP         | 8011   |
-| Report CRUD       | report-service       | TS, NestJs, HTTP         | 8012   |
-| -                 | -                    | -                        | -      |
-| Client Web        | web                  | TS, NextJS, SSG+CSR      | 3000   |
-| Admin Web         | admin-web            | TS, React, CSR           | 3001   |
-| Grafana UI        | grafana              | Grafana                  | 3002   |
+| Services          | Container            | Stack                   | Ports  |
+| ----------------- | -------------------- | ----------------------- | ------ |
+| Redis             | redis                | Redis stack             | 6379   |
+| DB                | postgres             | Postgres/db_per_service | 5432   |
+| Queue             | rabbitmq             | RabbitMQ                | 5672   |
+| -                 | -                    | -                       | -      |
+| User CRUD         | user-service         | NodeJs, HTTP1.1         | 8001   |
+| Auth CRUD         | auth-service         | NodeJs, HTTP1.1         | 8002   |
+| Notification CRUD | notification-service | NodeJs, HTTP1.1, AMQP   | 8003   |
+| Billing CRUD      | billing-service      | NodeJs, HTTP1.1, AMQP   | 8004   |
+| Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8005   |
+| Member CRUD       | member-service       | NodeJs, HTTP1.1, AMQP   | 8006   |
+| Sprint CRUD       | sprint-service       | NodeJs, HTTP1.1, AMQP   | 8007   |
+| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8008   |
+| Favorite CRUD     | favorite-service     | NodeJs, HTTP1.1, AMQP   | 8009   |
+| Watchlist CRUD    | watchlist-service    | NodeJs, HTTP1.1         | 8010   |
+| Search CRUD       | search-service       | NodeJs, HTTP1.1         | 8011   |
+| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8012   |
+| Object storage    | minio                | Minio                   | 9000   |
+| Nginx             | nginx                | Nginx, HTTP1.1, Swagger | 80/443 |
+| Client Web        | web                  | NextJS, SSG+CSR         | 3000   |
+| Admin Web         | admin-web            | React, CSR              | 3001   |
+| -                 | -                    | -                       | -      |
+| Tracing           | jaeger               | Jaeger                  | 9411   |
+| Prometheus        | prometheus           | Prometheus              | 9090   |
+| Container metrics | cadvisor             | Prom cadvisor           | 8081   |
+| Unix metrics      | node-exporter        | Prom node exporter      | 9100   |
+| Nginx metrics     | nginx-exporter       | Prom nginx exporter     | 9113   |
+| Postgres metrics  | postgres-exporter    | Prom postgres exporter  | 9187   |
+| Redis metrics     | redis-exporter       | Prom redis exporter     | 9121   |
+| Rabbitmq metrics  | rabbitmq-exporter    | Prom rabbitmq exporter  | 9419   |
+| Logs storage      | loki                 | Grafana Loki            | 3100   |
+| Logs aggregator   | fluent-bit           | Fluent Bit              | 24224  |
+| Grafana           | grafana              | Grafana                 | 3003   |
 
 ## Features
 

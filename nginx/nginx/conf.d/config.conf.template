@@ -1,9 +1,9 @@
-set $server_name ${NGINX_HOST}; # '*.example.com example.com';
-set $api_version 'v1';
-set $request_timeout '5s'; # 60 sec by default
+set $server_name ${HOST}; # '*.example.com example.com';
+set $api_version ${API_VERSION};
+set $request_timeout ${REQUEST_TIMEOUT}; # 60 sec by default
 set $body_limit '16k'; # 1m by default
 set $keepalive_timeout 70;
-set $bandwidth_limit '20k';
+set $bandwidth_limit '50k'; # 50k per sec
 set $bandwidth_limit_threshold '100k';
 set $main_rate_limit '1r/s';
 set $auth_rate_limit '20r/s';
