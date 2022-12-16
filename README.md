@@ -41,10 +41,10 @@ Sample app for agile project management
 | Nginx metrics     | nginx-exporter       | Prom nginx exporter     | 9113   |
 | Postgres metrics  | postgres-exporter    | Prom postgres exporter  | 9187   |
 | Redis metrics     | redis-exporter       | Prom redis exporter     | 9121   |
-| Rabbitmq metrics  | rabbitmq-exporter    | Prom rabbitmq exporter  | 9419   |
 | Logs storage      | loki                 | Grafana Loki            | 3100   |
 | Logs aggregator   | fluent-bit           | Fluent Bit              | 24224  |
 | Grafana           | grafana              | Grafana                 | 3003   |
+| Alerts            | alertmanager         | Alertmanager            | 9093   |
 
 ## Features
 
@@ -134,3 +134,5 @@ INFO:    Starting build for version 1.0.0
    make prod-build
    make prod
    ```
+
+Configure alerting on grafana

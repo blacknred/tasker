@@ -1,5 +1,9 @@
 version: "3.8"
 
+networks:
+  apps:
+    name: main
+
 services:
 
   user-service:
@@ -71,6 +75,7 @@ services:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
     depends_on:
       - postgres
       - rabbitmq
@@ -334,9 +339,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports:
-      - 9000:9000
-      - 9001:9001
+    ports: [9000, 9001]
     volumes:
       - ./minio/data:/data
     environment:
@@ -349,32 +352,12 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  web:
-    build:
-      context: ./packages/apps/web
-      target: build # production
-    env_file: ./.env.dev
-    restart: unless-stopped
-    command: yarn dev
-    ports: [ 3000:3000 ]
-    volumes:
-      - ./packages/apps/web:/usr/src/app
-      - /usr/src/app/node_modules
-    environment:
-      - NODE_OPTIONS=--openssl-legacy-provider
-      - SKIP_PREFLIGHT_CHECK=true
-      - CHOKIDAR_USEPOLLING=true
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
-
   nginx:
     build: ./nginx
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports:
-      - 80:80
-      - 443:443
+    ports: [80, 443]
     volumes:
       - ./nginx/nginx:/etc/nginx:ro
       - ./nginx/jaeger-config.json:/etc/jaeger-config.json:ro
@@ -391,6 +374,20 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-networks:
-  apps:
-    name: main
+  web:
+    build:
+      context: ./packages/apps/web
+      target: build # production
+    env_file: ./.env.dev
+    restart: unless-stopped
+    command: yarn dev
+    ports: [ 3000 ]
+    volumes:
+      - ./packages/apps/web:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_OPTIONS=--openssl-legacy-provider
+      - SKIP_PREFLIGHT_CHECK=true
+      - CHOKIDAR_USEPOLLING=true
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
