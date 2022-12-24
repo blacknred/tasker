@@ -29,7 +29,7 @@ Sample app for agile project management
 | Watchlist CRUD    | watchlist-service    | NodeJs, HTTP1.1         | 8010   |
 | Search CRUD       | search-service       | NodeJs, HTTP1.1         | 8011   |
 | Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8012   |
-| Object storage    | minio                | Minio                   | 9000   |
+| Object storage    | minio                | Minio(s3)               | 9000   |
 | Nginx             | nginx                | Nginx, HTTP1.1, Swagger | 80/443 |
 | Client Web        | web                  | NextJS, SSG+CSR         | 3000   |
 | Admin Web         | admin-web            | React, CSR              | 3001   |
