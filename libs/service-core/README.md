@@ -1,11 +1,7 @@
-# `service`
+# Taskapp Service Core library
 
-> TODO: description
+This package contains core modules for Taskapp microservices
 
-## Usage
+## Stack
 
-```
-const service = require('service');
-
-// TODO: DEMONSTRATE API
-```
+TS, Nodejs, NestJs
