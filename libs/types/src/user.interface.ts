@@ -1,3 +1,4 @@
+import { IBase } from './base.interface';
 import { ExtraNotificationMethod } from './notification.interface';
 // import { Merge } from 'type-fest';
 
@@ -12,8 +13,8 @@ export interface IProfile {
   userId: number;
 }
 
-export interface IUser extends IProfile {
-  id: number;
+export interface IUser extends IBase {
+  profile: IProfile;
   name: string;
   email: string;
   phone?: string;
@@ -22,6 +23,4 @@ export interface IUser extends IProfile {
   extraNotificationMethod: ExtraNotificationMethod;
   locale: string;
   currency: string;
-  createdAt: string;
-  updatedAt: string;
 }

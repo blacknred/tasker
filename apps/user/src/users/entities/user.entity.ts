@@ -1,40 +1,56 @@
 import {
+  BeforeCreate,
   Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  CreateDateColumn,
-  BeforeInsert,
+  Enum,
   Index,
-  DeleteDateColumn,
-} from 'typeorm';
-import { IUser } from '../interfaces/user.interface';
-import { Exclude } from 'class-transformer';
+  OneToOne,
+  Property,
+} from '@mikro-orm/core';
 import * as bcrypt from 'bcryptjs';
+import { BaseEntity } from '@taskapp/service-core';
+import { ExtraNotificationMethod } from '@taskapp/types';
 
-@Entity()
-export class User implements IUser {
-  @PrimaryGeneratedColumn()
-  id: number;
+@Entity({ tableName: 'user' })
+export class User extends BaseEntity<User> {
+  @Property({ unique: true, check: 'length(email) >= 5' })
+  email!: string;
+
+  @Property({ hidden: true })
+  password!: string;
+
+  @Property({ nullable: true })
+  phone?: string;
+
+  @Property()
+  isAdmin = false;
+
+  @Property({ length: 3, check: 'length(currency) == 3' })
+  currency = 'USD';
+
+  @Property({ length: 5, check: 'length(locale) == 5' })
+  locale!: string;
+
+  @Enum({
+    items: () => ExtraNotificationMethod,
+    default: ExtraNotificationMethod.EMAIL,
+  })
+  extraNotificationMethod: ExtraNotificationMethod = ExtraNotificationMethod.EMAIL;
+
+  @Index({ name: 'identity_user_id_idx' })
+  @OneToOne()
+  profile: Profile;
+
+
+
 
   @Column({ length: 200 })
   name: string;
 
-  @Column({ unique: true })
-  email: string;
-
-  @Exclude()
-  @Column()
-  password: string;
-
   @Column({ nullable: true })
   image?: string;
 
-  @Column({ nullable: true })
-  phone?: string;
 
-  @Column({ default: false })
-  isAdmin: boolean;
+
 
   @CreateDateColumn()
   @Index('user_createdAt_index')

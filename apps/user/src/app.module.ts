@@ -1,24 +1,23 @@
 import * as Joi from '@hapi/joi';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MicroserviceModule } from '@taskapp/microservice';
-import { Express } from '@taskapp/types';
-
-// import { TokensModule } from './tokens/tokens.module';
-// import { UsersModule } from './users/users.module';
+import { CoreModule, providers } from '@taskapp/service-core';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
+        SERVICE_NAME: Joi.string().required(),
+        NODE_ENV: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
-        REDIS_URL: Joi.string().required(),
-        RABBITMQ_URL: Joi.string().required(),
         SECRET: Joi.string().required(),
       }),
     }),
-    // UsersModule,
-    // TokensModule,
+    CoreModule,
+    MikroOrmModule.forRootAsync(providers.database),
+    UsersModule,
   ],
 })
 export class AppModule {}

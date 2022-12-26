@@ -1,6 +1,9 @@
-import { LoadStrategy } from '@mikro-orm/core';
+import { EntityManager, LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModuleAsyncOptions } from '@mikro-orm/nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AsyncLocalStorage } from 'async_hooks';
+
+const storage = new AsyncLocalStorage<EntityManager>();
 
 export const databaseProvider: MikroOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -13,6 +16,8 @@ export const databaseProvider: MikroOrmModuleAsyncOptions = {
     ensureIndexes: true,
     type: 'postgresql',
     loadStrategy: LoadStrategy.JOINED,
+    registerRequestContext: false, // disable automatatic middleware
+    context: () => storage.getStore(), // use our AsyncLocalStorage instance
     // preferReadReplicas: true,
     // replicas: [
     //   { name: 'read-1', host: 'read_host_1', user: 'read_user' },

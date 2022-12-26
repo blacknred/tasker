@@ -9,7 +9,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         exporterConfig: {
-          serviceName: config.get("apiTitle")
+          serviceName: config.get("SERVICE_NAME")
         },
         isSimpleSpanProcessor: true
       })

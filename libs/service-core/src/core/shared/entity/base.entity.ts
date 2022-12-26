@@ -5,7 +5,7 @@ export abstract class BaseEntity<T extends { id: unknown }> extends Base<
   'id'
 > {
   @PrimaryKey()
-  id: unknown;
+  id: number;
 
   @Property()
   createdAt: Date = new Date();

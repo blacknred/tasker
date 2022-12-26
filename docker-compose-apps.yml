@@ -21,6 +21,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=user-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -48,6 +49,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=auth-service
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
@@ -72,6 +74,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=notification-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -100,6 +103,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=billing-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -127,6 +131,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=project-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -155,6 +160,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=member-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -182,6 +188,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=sprint-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -210,6 +217,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=issue-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -238,6 +246,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=favorite-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -266,6 +275,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=watchlist-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -294,6 +304,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=search-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
@@ -321,6 +332,7 @@ services:
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
+      - SERVICE_NAME=report-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/${POSTGRES_DB:-test}
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379

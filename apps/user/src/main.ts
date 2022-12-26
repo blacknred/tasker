@@ -1,23 +1,17 @@
-// import { ClassSerializerInterceptor } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import { bootstrap } from '@taskapp/service-core';
 import { AppModule } from './app.module';
-// import { AllExceptionFilter } from './__shared__/filters/all-exception.filter';
-// import { ValidationPipe } from './__shared__/pipes/validation.pipe';
 
-async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AppModule, {
-    transport: Transport.TCP,
-    options: { host: 'user-service' },
-    // bufferLogs: true,
-  });
-
-  // app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  // app.useGlobalFilters(new AllExceptionFilter());
-
-  app.enableShutdownHooks();
-  await app.listen();
-}
-
-bootstrap();
+bootstrap(AppModule, [
+  {
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL],
+      queue: 'tasks',
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  },
+]);
