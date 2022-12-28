@@ -20,7 +20,6 @@
     "db": "npx mikro-orm migration:create && npx mikro-orm migration:up"
   },
   "dependencies": {
-    "@taskapp/types": "workspace:*",
     "@taskapp/service-core": "workspace:*",
     "@hapi/joi": "^17.1.1",
     "@mikro-orm/core": "^5.2.1",

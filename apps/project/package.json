@@ -1,8 +1,8 @@
 {
-  "name": "@taskapp/workspace",
+  "name": "@taskapp/project",
   "private": true,
   "version": "0.0.0",
-  "description": "Taskapp workspace microservice",
+  "description": "Taskapp project microservice",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -20,7 +20,7 @@
     "db": "npx mikro-orm migration:create && npx mikro-orm migration:up"
   },
   "dependencies": {
-    "@taskapp/microservice": "workspace:*",
+    "@taskapp/service-core": "workspace:*",
     "@hapi/joi": "^17.1.1",
     "@mikro-orm/core": "^4.5.9",
     "@mikro-orm/nestjs": "^4.3.1",

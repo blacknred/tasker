@@ -1,25 +1,17 @@
-import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
-import { RmqOptions, Transport } from '@nestjs/microservices';
-import 'reflect-metadata';
+import { Transport } from '@nestjs/microservices';
+import { bootstrap } from '@taskapp/service-core';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const appCtx = await NestFactory.createApplicationContext(AppModule);
-  const configService = appCtx.get(ConfigService);
-
-  const app = await NestFactory.createMicroservice<RmqOptions>(AppModule, {
-    // bufferLogs: true,
+bootstrap(AppModule, [
+  {
     transport: Transport.RMQ,
     options: {
-      urls: [configService.get('RABBITMQ_URL') as string],
+      urls: [process.env.RABBITMQ_URL],
       queue: 'notifications',
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
     },
-  });
-
-  app.enableShutdownHooks();
-  await app.listen();
-  appCtx.close();
-}
-
-bootstrap();
+  },
+]);

@@ -23,11 +23,8 @@ services:
       - NODE_ENV=development
       - SERVICE_NAME=user-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/users
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
-      - rabbitmq
       - redis
     logging:
       driver: fluentd
@@ -54,8 +51,9 @@ services:
       - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
       - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
     depends_on:
-      - postgres
       - redis
+      - user-service
+      - member-service
     logging:
       driver: fluentd
       options:
@@ -136,12 +134,9 @@ services:
       - SERVICE_NAME=project-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-      - redis
-      - member-service
     logging:
       driver: fluentd
       options:
@@ -165,11 +160,9 @@ services:
       - SERVICE_NAME=member-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/members
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-      - redis
     logging:
       driver: fluentd
       options:
@@ -193,12 +186,9 @@ services:
       - SERVICE_NAME=sprint-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/sprints
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-      - redis
-      - member-service
     logging:
       driver: fluentd
       options:
@@ -222,12 +212,9 @@ services:
       - SERVICE_NAME=issue-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-      - redis
-      - member-service
     logging:
       driver: fluentd
       options:
@@ -250,13 +237,10 @@ services:
       - NODE_ENV=development
       - SERVICE_NAME=favorite-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/favorites
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
-      - rabbitmq
       - redis
-      - member-service
     logging:
       driver: fluentd
       options:
@@ -279,13 +263,10 @@ services:
       - NODE_ENV=development
       - SERVICE_NAME=watchlist-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/watchlist
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
-      - rabbitmq
       - redis
-      - member-service
     logging:
       driver: fluentd
       options:
@@ -308,6 +289,7 @@ services:
       - NODE_ENV=development
       - SERVICE_NAME=search-service
     depends_on:
+      - project-service
       - member-service
       - issue-service
       - sprint-service
@@ -334,12 +316,8 @@ services:
       - SERVICE_NAME=report-service
       - ISSUE_POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
       - SPRINT_POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/sprints
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
     logging:
       driver: fluentd
       options:

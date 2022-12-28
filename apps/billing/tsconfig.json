@@ -1,13 +1,16 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
     "sourceMap": true,
     "outDir": "./dist"
   },
-  "references": [{
-    "path": "../../libs/microservice",
-  }, {
-    "path": "../../libs/types",
-  }]
+  "references": [
+    {
+      "path": "../../libs/service-core"
+    },
+    {
+      "path": "../../libs/types"
+    }
+  ]
 }

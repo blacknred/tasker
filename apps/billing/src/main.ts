@@ -1,16 +1,17 @@
-import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
+import { bootstrap } from '@taskapp/service-core';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.createMicroservice(AppModule, {
-    transport: Transport.TCP,
-    options: { host: 'billing-service' },
-    // bufferLogs: true,
-  });
-
-  app.enableShutdownHooks();
-  await app.listen();
-}
-
-bootstrap();
+bootstrap(AppModule, [
+  {
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RABBITMQ_URL],
+      queue: 'invoices',
+      noAck: false,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  },
+]);
