@@ -1,7 +1,5 @@
 import {
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
+  ExecutionContext, Injectable
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 
@@ -11,14 +9,10 @@ export class AdminGuard extends AuthGuard {
     super();
   }
 
-  canActivate(context: ExecutionContext): boolean {
-    try {
-      return (
-        super.canActivate(context) &&
-        context.switchToHttp().getRequest().user.user.isAdmin
-      );
-    } catch (_) {
-      throw new ForbiddenException('Access restricted');
-    }
+  canActivate(ctx: ExecutionContext): boolean {
+    return (
+      super.canActivate(ctx) &&
+      ctx.switchToHttp().getRequest().headers['x-if-admin']
+    );
   }
 }

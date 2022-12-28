@@ -1,3 +1,14 @@
+-- CREATE DATABASE users;
+-- CREATE DATABASE notifications;
+-- CREATE DATABASE billing;
+-- CREATE DATABASE projects;
+-- CREATE DATABASE issues;
+
+-- CREATE DATABASE members;
+-- CREATE DATABASE sprints;
+-- CREATE DATABASE favorites;
+-- CREATE DATABASE watchlist;
+
 DROP TABLE IF EXISTS task_watcher;
 DROP TABLE IF EXISTS project_task;
 DROP TABLE IF EXISTS project_user;

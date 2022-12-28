@@ -14,8 +14,6 @@ export interface IProfile {
 }
 
 export interface IUser extends IBase {
-  profile: IProfile;
-  name: string;
   email: string;
   phone?: string;
   isAdmin: boolean;
@@ -23,4 +21,6 @@ export interface IUser extends IBase {
   extraNotificationMethod: ExtraNotificationMethod;
   locale: string;
   currency: string;
+  //
+  profile: IProfile;
 }

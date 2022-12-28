@@ -1,4 +1,7 @@
-export enum ProjectPrivilege {
+import { IProjectPreview } from './project.interface';
+import { IProfile } from './user.interface';
+
+export enum ProjectPermission {
   PROJECT_MANAGEMENT = 'PROJECT_MANAGEMENT',
   PROJECT_DELETION = 'PROJECT_DELETION',
   SPRINT_MANAGEMENT = 'SPRINT_MANAGEMENT',
@@ -14,12 +17,13 @@ export interface IProjectRole {
   projectId: number;
   name: string;
   color?: string;
-  privilege: ProjectPrivilege;
+  permissions: ProjectPermission[];
 }
 
 export interface IProjectMember {
-  userId: number;
-  projectId: number;
   role: IProjectRole;
   createdAt: string;
+  //
+  user: IProfile;
+  project: IProjectPreview;
 }

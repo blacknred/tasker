@@ -1,3 +1,7 @@
+import { IBase } from './base.interface';
+import { ISprintPreview } from './sprint.interface';
+import { IProfile } from './user.interface';
+
 export enum IssueType {
   EPIC = 'EPIC',
   STORY = 'STORY',
@@ -22,57 +26,50 @@ export interface IIssueTag {
   color?: string;
 }
 
-export interface IIssueComment {
-  id: number;
-  authorId: number;
+export interface IIssueComment extends IBase {
   issueId: number;
   body: string;
   assets: string[];
-  createdAt: string;
-  updatedAt: string;
+  //
+  author: IProfile;
 }
 
 export interface IIssueFavorite {
-  userId: number;
-  issueId: number;
+  user: IProfile;
+  issue: IIssuePreview;
 }
 
 export interface IIssueWatcher {
-  userId: number;
-  issueId: number;
+  user: IProfile;
+  issue: IIssuePreview;
 }
 
 export interface IIssueRelation {
-  issueId: number;
-  relatedIssueId: number;
   relation: IssueRelation;
   comment?: string;
+  //
+  issue: IIssuePreview;
+  subIssueId: IIssuePreview;
 }
 
 export interface IIssueUpdate {
-  userId: number;
   createdAt: string;
   field: string;
   prev: string;
   next: string;
+  //
+  user: IProfile;
 }
 
-export interface IIssue {
-  id: number;
+export interface IIssue extends IBase {
   type: IssueType;
-  authorId: number;
   projectId: number;
-  assigneeId?: number;
-  epicId?: number;
-  sprintId?: number;
   name: string;
   title: string;
   details?: string;
   assets: string[];
   updates: IIssueUpdate[];
   status: string;
-  createdAt: string;
-  updatedAt: string;
   startedAt: string;
   endedAt: string;
   //
@@ -80,4 +77,12 @@ export interface IIssue {
   weight?: number;
   priority: IIssuePriority;
   tags: IIssueTag[];
+  author: IProfile;
+  assignee?: IProfile;
+  epic?: IIssuePreview;
+  sprint?: ISprintPreview;
+  relations: IIssueRelation[];
+  comments: IIssueComment[];
 }
+
+export type IIssuePreview = Pick<IIssue, 'id' | 'name' | 'title'>;

@@ -4,7 +4,7 @@ import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
-import { UserResponseDto, UsersResponseDto } from './dto/response.dto';
+import { UserResponseDto, UsersResponseDto } from './dto/user-response.dto';
 import { RestoreUserDto } from './dto/restore-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';

@@ -1,5 +1,7 @@
+import { IBase } from './base.interface';
 import { IIssuePriority, IIssueTag } from './issue.interface';
 import { IProjectRole } from './member.interface';
+import { IProfile } from './user.interface';
 
 export enum ProjectType {
   SCRUM = 'SCRUM',
@@ -21,21 +23,20 @@ export interface IProjectWorkflow {
   isLast: boolean;
 }
 
-export interface IProject {
-  id: number;
-  authorId: number;
+export interface IProject extends IBase {
   type: ProjectType;
   key: string;
   name: string;
   details?: string;
   image?: string;
   isUnlimited: boolean;
-  createdAt: string;
-  updatedAt: string;
   //
+  workflow: IProjectWorkflow;
+  boards: IProjectBoard[];
+  roles: IProjectRole[];
   issuePriorities: IIssuePriority[];
   issueTags: IIssueTag[];
-  boards: IProjectBoard[];
-  workflow: IProjectWorkflow;
-  roles: IProjectRole[];
+  author: IProfile;
 }
+
+export type IProjectPreview = Pick<IProject, 'id' | 'name' | 'image' | 'type'>;

@@ -28,6 +28,7 @@ services:
 
   postgres:
     build: ./postgres
+    image: postgres:15beta2-alpine3.16
     env_file: ./.env.dev
     restart: always
     networks: [ data ]

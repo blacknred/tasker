@@ -2,13 +2,13 @@ import {
   BeforeCreate,
   Entity,
   Enum,
-  Index,
   OneToOne,
   Property,
 } from '@mikro-orm/core';
-import * as bcrypt from 'bcryptjs';
 import { BaseEntity } from '@taskapp/service-core';
 import { ExtraNotificationMethod } from '@taskapp/types';
+import * as bcrypt from 'bcryptjs';
+import { Profile } from './profile.entity';
 
 @Entity({ tableName: 'user' })
 export class User extends BaseEntity<User> {
@@ -24,59 +24,38 @@ export class User extends BaseEntity<User> {
   @Property()
   isAdmin = false;
 
+  @Property({ hidden: true })
+  isConfirmed = false;
+
   @Property({ length: 3, check: 'length(currency) == 3' })
   currency = 'USD';
 
   @Property({ length: 5, check: 'length(locale) == 5' })
-  locale!: string;
+  locale = 'en_US';
+
+  @Property({ lazy: true, nullable: true })
+  deletedAt?: Date;
 
   @Enum({
     items: () => ExtraNotificationMethod,
     default: ExtraNotificationMethod.EMAIL,
   })
-  extraNotificationMethod: ExtraNotificationMethod = ExtraNotificationMethod.EMAIL;
+  extraNotificationMethod: ExtraNotificationMethod =
+    ExtraNotificationMethod.EMAIL;
 
-  @Index({ name: 'identity_user_id_idx' })
-  @OneToOne()
+  @OneToOne({ mappedBy: 'user' })
   profile: Profile;
 
-
-
-
-  @Column({ length: 200 })
-  name: string;
-
-  @Column({ nullable: true })
-  image?: string;
-
-
-
-
-  @CreateDateColumn()
-  @Index('user_createdAt_index')
-  createdAt = new Date();
-
-  @UpdateDateColumn()
-  updatedAt = new Date();
-
-  @Exclude()
-  @DeleteDateColumn()
-  deletedAt: Date;
-
-  @BeforeInsert()
+  @BeforeCreate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
 
-  static isSearchable(column: string) {
-    return ['name', 'email', 'createdAt'].includes(column);
-  }
+  // static isSearchable(column: string) {
+  //   return ['name', 'email', 'createdAt'].includes(column);
+  // }
 
-  static isNotSecured(column: string) {
-    return ['id', 'name', 'image'].includes(column);
-  }
-
-  constructor(user?: Partial<User>) {
-    Object.assign(this, user);
-  }
+  // static isNotSecured(column: string) {
+  //   return ['id', 'name', 'image'].includes(column);
+  // }
 }
