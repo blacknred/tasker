@@ -12,17 +12,22 @@ import 'reflect-metadata';
 import { ValidationPipe } from './__shared__/pipes/validation.pipe';
 
 export { CoreModule } from './core/core.module';
-export * from './core/shared';
+export * from './core/utils';
 
-export async function bootstrap(appModule: any, microservices: MicroserviceOptions[]) {
+export async function bootstrap(
+  appModule: any,
+  microservices: MicroserviceOptions[],
+) {
   // init app
   const app = await NestFactory.create(appModule, { bufferLogs: true });
   const logger = app.get(Logger);
   const config = app.get(ConfigService);
 
   // init microservices
-  for (let config of microservices) {
-    app.connectMicroservice<MicroserviceOptions>(config, { inheritAppConfig: true });
+  for (const config of microservices) {
+    app.connectMicroservice<MicroserviceOptions>(config, {
+      inheritAppConfig: true,
+    });
   }
 
   // openapi
@@ -39,7 +44,10 @@ export async function bootstrap(appModule: any, microservices: MicroserviceOptio
 
   try {
     const document = SwaggerModule.createDocument(app, options);
-    fs.writeFileSync(path.resolve(__dirname, '../', 'swagger.json'), JSON.stringify(document))
+    fs.writeFileSync(
+      path.resolve(__dirname, '../', 'swagger.json'),
+      JSON.stringify(document),
+    );
   } catch (error) {
     logger.error({ err: error });
   }
@@ -71,7 +79,6 @@ export async function bootstrap(appModule: any, microservices: MicroserviceOptio
   });
 }
 
-
 // issue(pid) -> Member(pid,uid)(user) -> (read)[User,Sprint]
 // sprint(pid) -> Member(pid,uid)(user) -> (read)User
 // [favorite,watchlist](pid) -> (create)Member(pid,uid)(role) -> (read)[User,Project]
@@ -79,7 +86,6 @@ export async function bootstrap(appModule: any, microservices: MicroserviceOptio
 
 // search(uid,q) -> (uid)member.getAll(users) -> [MEMBER(pids,q),ISSUE(pids,q),SPRINT(pids,q)]
 
- 
 // firstValueFrom(this.httpService.post(url, data))
 
 // @MessagePattern('time.us.*', Transport.NATS)
@@ -91,7 +97,6 @@ export async function bootstrap(appModule: any, microservices: MicroserviceOptio
 // getTCPDate(@Payload() data: number[]) {
 //   return new Date().toLocaleTimeString(...);
 // }
-
 
 // import { Observable } from 'rxjs';
 // import { map, timeout } from 'rxjs/operators';
@@ -114,3 +119,7 @@ export async function bootstrap(appModule: any, microservices: MicroserviceOptio
 //   }),
 // );
 // }
+
+// this.logger.verbose({ foo: 'bar' }, 'baz %s', 'qux');
+// this.logger.debug('foo %s %o', 'bar', { baz: 'qux' });
+// this.logger.log('foo');

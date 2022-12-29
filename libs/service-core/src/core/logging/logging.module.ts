@@ -1,7 +1,7 @@
-import { Module } from "@nestjs/common";
+import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { stdTimeFunctions } from 'pino';
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -11,22 +11,12 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
       useFactory: (config: ConfigService) => ({
         pinoHttp: {
           timestamp: stdTimeFunctions.isoTime,
-          level: config.get("NODE_ENV") !== 'production' ? 'trace' : 'info',
-          prettyPrint: config.get("NODE_ENV") !== 'production',
+          level: config.get('NODE_ENV') !== 'production' ? 'trace' : 'info',
+          prettyPrint: config.get('NODE_ENV') !== 'production',
           useLevelLabels: true,
         },
       }),
-    })
-  ]
+    }),
+  ],
 })
 export class LoggingModule {}
-
-// const module: TestingModule = await Test.createTestingModule({
-//   providers: [
-//     MyService,
-//     {
-//       provide: getLoggerToken(MyService.name),
-//       useValue: mockLogger,
-//     },
-//   ],
-// }).compile();

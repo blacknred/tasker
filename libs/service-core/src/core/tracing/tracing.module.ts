@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { TracingModule as Tracing } from "@dollarsign/nestjs-jaeger-tracing";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { Module } from '@nestjs/common';
+import { TracingModule as Tracing } from '@dollarsign/nestjs-jaeger-tracing';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -9,11 +9,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         exporterConfig: {
-          serviceName: config.get("SERVICE_NAME")
+          serviceName: config.get('SERVICE_NAME'),
         },
-        isSimpleSpanProcessor: true
-      })
-    })
-  ]
+        isSimpleSpanProcessor: true,
+      }),
+    }),
+  ],
 })
 export class TracingModule {}

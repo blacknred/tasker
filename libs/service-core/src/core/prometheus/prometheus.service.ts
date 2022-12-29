@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from "@nestjs/config";
+import { ConfigService } from '@nestjs/config';
 import { Registry, collectDefaultMetrics, Histogram, Gauge } from 'prom-client';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class PrometheusService {
 
     // add a default label which is added to all metrics
     this.registry.setDefaultLabels({
-      app: this.configService.get("SERVICE_NAME"),
+      app: this.configService.get('SERVICE_NAME'),
     });
 
     // enable default metrics

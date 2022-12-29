@@ -12,10 +12,6 @@ export class MetricsService {
   ) {}
 
   public get metrics(): Promise<string> {
-    // this.logger.verbose({ foo: 'bar' }, 'baz %s', 'qux');
-    // this.logger.debug('foo %s %o', 'bar', { baz: 'qux' });
-    // this.logger.log('foo');
-
     this.healthService.check();
     return this.prometheusService.metrics;
   }
