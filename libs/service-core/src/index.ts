@@ -7,12 +7,15 @@ import * as cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import fs from 'fs';
 import { Logger } from 'nestjs-pino';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import path from 'path';
 import 'reflect-metadata';
 import { ValidationPipe } from './__shared__/pipes/validation.pipe';
 
 export { CoreModule } from './core/core.module';
 export * from './core/utils';
+
+export const ALS = new AsyncLocalStorage<any>();
 
 export async function bootstrap(
   appModule: any,

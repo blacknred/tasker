@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { CoreModule, providers } from '@taskapp/service-core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ASL, CoreModule } from '@taskapp/service-core';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -15,8 +15,22 @@ import { UsersModule } from './users/users.module';
         SECRET: Joi.string().required(),
       }),
     }),
+    MikroOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        clientUrl: configService.get('POSTGRES_URL'),
+        debug: configService.get('NODE_ENV') === 'development',
+        loadStrategy: LoadStrategy.JOINED,
+        context: () => ASL.getStore(),
+        registerRequestContext: false,
+        autoLoadEntities: true,
+        ensureIndexes: true,
+        type: 'postgresql',
+        flushMode: 1,
+      }),
+    }),
     CoreModule,
-    MikroOrmModule.forRootAsync(providers.database),
     UsersModule,
   ],
 })

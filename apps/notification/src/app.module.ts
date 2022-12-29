@@ -1,9 +1,10 @@
 import * as Joi from '@hapi/joi';
+import { LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { CoreModule, providers } from '@taskapp/service-core';
-import { AmqpModule } from 'nestjs-amqp';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ALS, CoreModule } from '@taskapp/service-core';
 import { RedisModule } from 'nestjs-redis';
 import { NotificationsModule } from './notifications/notifications.module';
 
@@ -17,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         REDIS_URL: Joi.string().required(),
         RABBITMQ_URL: Joi.string().required(),
         SMTP_URL: Joi.string().required(),
+        SMTP_USER: Joi.string().required(),
         VAPID_PUBLIC_KEY: Joi.string().required(),
         VAPID_PRIVATE_KEY: Joi.string().required(),
         TWILIO_ACCOUNT_SID: Joi.string().required(),
@@ -25,10 +27,40 @@ import { NotificationsModule } from './notifications/notifications.module';
         TWILIO_SENDER_PHONE_NUMBER: Joi.string().required(),
       }),
     }),
+    MikroOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        clientUrl: configService.get('POSTGRES_URL'),
+        debug: configService.get('NODE_ENV') === 'development',
+        loadStrategy: LoadStrategy.JOINED,
+        context: () => ALS.getStore(),
+        registerRequestContext: false,
+        autoLoadEntities: true,
+        ensureIndexes: true,
+        type: 'postgresql',
+        flushMode: 1,
+      }),
+    }),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        url: configService.get('REDIS_URL'),
+        showFriendlyErrorStack: configService.get('NODE_ENV') !== 'production',
+        enableAutoPipelining: true,
+      }),
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        debug: configService.get('NODE_ENV') === 'development',
+        transport: configService.get('SMTP_URL'),
+        defaults: { from: configService.get('SMTP_USER') },
+        logger: true,
+      }),
+    }),
     CoreModule,
-    MikroOrmModule.forRootAsync(providers.database),
-    RedisModule.forRootAsync(providers.redisProvider),
-    AmqpModule.forRootAsync(providers.queueProvider),
     NotificationsModule,
   ],
 })

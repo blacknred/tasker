@@ -8,5 +8,5 @@ module.exports = {
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
-  projects: ['<rootDir>/(libs|apps)/**/jest.config.js'],
+  projects: ['<rootDir>/{libs,apps}/**/jest.config.js'],
 };

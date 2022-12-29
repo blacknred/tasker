@@ -1,9 +1,11 @@
 import * as Joi from '@hapi/joi';
+import { LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { CoreModule, providers } from '@taskapp/service-core';
-import { AmqpModule } from 'nestjs-amqp';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { ASL, CoreModule } from '@taskapp/service-core';
+import { NOTIFICATION_SERVICE } from './members/consts';
 import { MembersModule } from './members/members.module';
 
 @Module({
@@ -16,10 +18,41 @@ import { MembersModule } from './members/members.module';
         RABBITMQ_URL: Joi.string().required(),
       }),
     }),
+    MikroOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        clientUrl: configService.get('POSTGRES_URL'),
+        debug: configService.get('NODE_ENV') === 'development',
+        loadStrategy: LoadStrategy.JOINED,
+        context: () => ASL.getStore(),
+        registerRequestContext: false,
+        autoLoadEntities: true,
+        ensureIndexes: true,
+        type: 'postgresql',
+        flushMode: 1,
+      }),
+    }),
     CoreModule,
-    MikroOrmModule.forRootAsync(providers.database),
-    AmqpModule.forRootAsync(providers.queueProvider),
     MembersModule,
+  ],
+  providers: [
+    {
+      provide: NOTIFICATION_SERVICE,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        ClientProxyFactory.create({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get('RABBITMQ_URL')],
+            queue: 'notifications',
+            noAck: false,
+            queueOptions: {
+              durable: true,
+            },
+          },
+        }),
+    },
   ],
 })
 export class AppModule {}
