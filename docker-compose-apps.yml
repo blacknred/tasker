@@ -142,32 +142,6 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  member-service:
-    build:
-      context: ./packages/apps/member
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8006:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/member:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=member-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/members
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-    depends_on:
-      - postgres
-      - rabbitmq
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
   sprint-service:
     build:
       context: ./packages/apps/sprint
@@ -175,7 +149,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8007:3000 ]
+    ports: [ 8006:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/sprint:/usr/src/app
@@ -201,7 +175,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8008:3000 ]
+    ports: [ 8007:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/issue:/usr/src/app
@@ -220,58 +194,6 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  favorite-service:
-    build:
-      context: ./packages/apps/favorite
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8009:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/favorite:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=favorite-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/favorites
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  watchlist-service:
-    build:
-      context: ./packages/apps/watchlist
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8010:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/watchlist:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=watchlist-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/watchlist
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
   search-service:
     build:
       context: ./packages/apps/search
@@ -279,7 +201,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8011:3000 ]
+    ports: [ 8008:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/search:/usr/src/app
@@ -305,7 +227,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8012:3000 ]
+    ports: [ 8009:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/report:/usr/src/app

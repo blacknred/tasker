@@ -1,0 +1,24 @@
+{
+  "name": "@taskapp/types",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "description": "Taskapp Types library",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p . --build",
+    "postinstall": "pnpm run build",
+    "build:watch": "tsc -p . --watch"
+  },
+  "dependencies": {
+    "type-fest": "^1.0.2",
+    "@nestjs/cqrs": "*"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4",
+    "tsconfig-paths": "^4.1.0"
+  },
+  "typeScriptVersion": "4.8",
+  "packageManager": "pnpm@7.0.0"
+}

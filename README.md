@@ -22,13 +22,10 @@ Sample app for agile project management
 | Notification CRUD | notification-service | NodeJs, HTTP1.1, AMQP   | 8003   |
 | Billing CRUD      | billing-service      | NodeJs, HTTP1.1, AMQP   | 8004   |
 | Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8005   |
-| Member CRUD       | member-service       | NodeJs, HTTP1.1, AMQP   | 8006   |
-| Sprint CRUD       | sprint-service       | NodeJs, HTTP1.1, AMQP   | 8007   |
-| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8008   |
-| Favorite CRUD     | favorite-service     | NodeJs, HTTP1.1, AMQP   | 8009   |
-| Watchlist CRUD    | watchlist-service    | NodeJs, HTTP1.1         | 8010   |
-| Search CRUD       | search-service       | NodeJs, HTTP1.1         | 8011   |
-| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8012   |
+| Sprint CRUD       | sprint-service       | NodeJs, HTTP1.1, AMQP   | 8006   |
+| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8007   |
+| Search CRUD       | search-service       | NodeJs, HTTP1.1         | 8008   |
+| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8009   |
 | Object storage    | minio                | Minio(s3)               | 9000   |
 | Nginx             | nginx                | Nginx, HTTP1.1, Swagger | 80/443 |
 | Client Web        | web                  | NextJS, SSG+CSR         | 3000   |
