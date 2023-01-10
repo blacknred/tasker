@@ -1,4 +1,4 @@
-import { IBase, ID } from './base.interface';
+import type { IBase, ID } from './base.interface';
 
 export enum InvoiceType {
   UNLIMITED_PROJECT = 'UNLIMITED_PROJECT',

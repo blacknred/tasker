@@ -1,5 +1,5 @@
-import { IBase } from './base.interface';
-import { IUserPreview } from './user.interface';
+import type { IBase } from './base.interface';
+import type { IUserPreview } from './user.interface';
 
 export enum ProjectType {
   SCRUM = 'SCRUM',

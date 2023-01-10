@@ -1,5 +1,6 @@
 FROM node:alpine As build
 RUN apk add g++ make py3-pip
+RUN apk add git
 ENV NODE_ENV=development
 WORKDIR /usr/src/app
 # USER node

@@ -36,7 +36,8 @@
     "@dollarsign/nestjs-jaeger-tracing": "^1.0.8",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.3.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "uuid": "*"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.1.1",

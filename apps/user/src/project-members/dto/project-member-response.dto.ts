@@ -21,7 +21,7 @@ export const userMock: IUser = {
   },
 };
 
-export class UserResponseDto extends ResponseDto<Partial<IUser>> {
+export class ProjectMemberResponseDto extends ResponseDto<Partial<IUser>> {
   @ApiProperty({ example: userMock, required: false })
   data?: IUser;
 }

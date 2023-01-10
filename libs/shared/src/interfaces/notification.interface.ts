@@ -1,5 +1,5 @@
-import { ID } from './base.interface';
-import { IUser } from './user.interface';
+import type { ID } from './base.interface';
+import type { IUser } from './user.interface';
 
 export interface INotification {
   body: string;
@@ -11,7 +11,7 @@ export interface INotification {
 export interface UserNotificationTransport
   extends Pick<
     IUser,
-    'email' | 'phone' | 'notificationTransport' | 'securedNotificationTransport'
+    'email' | 'phone' | 'notificationMethod' | 'securedNotificationMethod'
   > {
   pushTokens: string[];
 }

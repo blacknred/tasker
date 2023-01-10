@@ -1,18 +1,18 @@
 import { IEvent } from '@nestjs/cqrs';
-import { IProjectPreview } from '../interfaces';
+import type { IProject } from '../interfaces';
 
 export class ProjectCreatedEvent implements IEvent {
-  constructor(public readonly data: IProjectPreview) {}
+  constructor(public readonly data: IProject) {}
 }
 
 export class ProjectUpdatedEvent implements IEvent {
-  constructor(public readonly data: IProjectPreview) {}
+  constructor(public readonly data: IProject) {}
 }
 
 export class ProjectDeletedEvent implements IEvent {
-  constructor(public readonly id: IProjectPreview['id']) {}
+  constructor(public readonly id: IProject['id']) {}
 }
 
 export class ProjectRestoredEvent implements IEvent {
-  constructor(public readonly id: IProjectPreview['id']) {}
+  constructor(public readonly id: IProject['id']) {}
 }

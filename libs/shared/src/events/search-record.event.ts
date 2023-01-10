@@ -1,5 +1,5 @@
 import { IEvent } from '@nestjs/cqrs';
-import { ISearchRecord } from '../interfaces';
+import type { ISearchRecord } from '../interfaces';
 
 export class SearchRecordCreatedEvent implements IEvent {
   constructor(public readonly data: ISearchRecord) {}

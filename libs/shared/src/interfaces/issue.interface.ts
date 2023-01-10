@@ -1,6 +1,6 @@
-import { IBase, ID } from './base.interface';
-import { ISprintPreview } from './sprint.interface';
-import { IUserPreview } from './user.interface';
+import type { IBase, ID } from './base.interface';
+import type { ISprintPreview } from './sprint.interface';
+import type { IUserPreview } from './user.interface';
 
 export enum IssueType {
   EPIC = 'EPIC',

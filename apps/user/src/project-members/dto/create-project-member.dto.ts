@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsLocale, Length, MinLength,  } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateProjectMemberDto {
   @ApiProperty({ type: 'string', example: 'John Dou' })
   @Length(5, 100, { message: 'Must have from 5 to 100 chars' })
   name: string;
@@ -22,6 +22,8 @@ export class CreateUserDto {
   @IsLocale({ message: 'Non valid locale' })
   locale: string;
 }
+
+email -> send token
 
 // @IsNotEmpty()
 // @IsString({ message: 'Must be a string' })
@@ -70,3 +72,49 @@ email conf
 // маркера идентификатора и установите сеанс для пользователя. Вы можете запросить
 // у пользователя любую дополнительную информацию о профиле, которая вам требуется,
 // когда вы обнаружите вновь созданного пользователя в своем приложении.
+
+
+
+
+// @IsNotEmpty()
+// @IsString({ message: 'Must be a string' })
+// emailToken: string;
+
+// @ApiProperty({ type: 'string', example: 'user info', required: false })
+// @IsOptional()
+// @MinLength(1, { message: 'Empty description' })
+// bio?: string;
+
+// @ApiProperty({
+//   type: Map,
+//   example: {
+//     author: 'Rudyard Kipling',
+//     year: '1894',
+//   },
+// })
+// @IsInstance(Map)
+// @IsString({ each: true })
+// specifications: Map<string, any>;
+
+// @ApiProperty({
+//   type: 'string',
+//   example: 'https://path-to-file-preview-1.png',
+//   isArray: true,
+//   required: false,
+// })
+// @IsOptional()
+// @IsArray({ message: 'Must be an array' })
+// @ArrayMaxSize(4, { message: 'Must includes 4 assets at max' })
+// @IsUrl({ message: 'Not valid url', each: true })
+// assets?: string[];
+
+// @ApiProperty({
+//   enum: ExtraNotificationMethod,
+//   example: ExtraNotificationMethod.EMAIL,
+//   required: false,
+// })
+// @IsOptional()
+// @IsEnum(ExtraNotificationMethod, {
+//   message: 'Must be an ExtraNotificationMethod enum',
+// })
+// extraNotificationMethod?: ExtraNotificationMethod;

@@ -4,13 +4,14 @@ import {
   Property,
   Index,
 } from '@mikro-orm/core';
+import { v4 } from 'uuid';
 
 export abstract class BaseEntity<T extends { id: unknown }> extends Base<
   T,
   'id'
 > {
   @PrimaryKey()
-  id: number;
+  id: string = v4();
 
   @Index() // { name: 'identity_user_id_idx' }
   @Property()

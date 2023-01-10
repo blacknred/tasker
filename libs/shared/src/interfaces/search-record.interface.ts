@@ -1,4 +1,4 @@
-import { ID } from './base.interface';
+import type { ID } from './base.interface';
 
 enum SearchRecordType {
   PROJECT = 'PROJECT',
