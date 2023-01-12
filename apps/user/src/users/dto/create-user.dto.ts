@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsLocale, Length, MinLength,  } from 'class-validator';
+import { IsEmail, IsLocale, Length, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ type: 'string', example: 'John Dou' })
@@ -22,51 +22,3 @@ export class CreateUserDto {
   @IsLocale({ message: 'Non valid locale' })
   locale: string;
 }
-
-// @IsNotEmpty()
-// @IsString({ message: 'Must be a string' })
-// emailToken: string;
-// b4db61c5-d10e-4ed3-a903-b8fd75fc3d30
-
-token(email) ? (validate token ? save user : Error) : send email
-
-
-
-
-email token invite(email conf, + role)
-sso(email conf)
-email conf
-
-// после успешного входа пользователя отправьте токен идентификатора пользователя
-// на ваш сервер с помощью HTTPS. Затем на сервере проверьте целостность маркера 
-// ID и используйте информацию о пользователе, содержащуюся в маркере, 
-// для установления сеанса или создания новой учетной записи.
-// https://oauth2.googleapis.com/tokeninfo?id_token=XYZ123
-
-// {
-//   // These six fields are included in all Google ID Tokens.
-//   "iss": "https://accounts.google.com",
-//   "sub": "110169484474386276334",
-//   "azp": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
-//   "aud": "1008719970978-hb24n2dstb40o45d4feuo2ukqmcc6381.apps.googleusercontent.com",
-//   "iat": "1433978353",
-//   "exp": "1433981953",
- 
-//   // These seven fields are only included when the user has granted the "profile" and
-//   // "email" OAuth scopes to the application.
-//   "email": "testuser@gmail.com",
-//   "email_verified": "true",
-//   "name" : "Test User",
-//   "picture": "https://lh4.googleusercontent.com/-kYgzyAWpZzJ/ABCDEFGHI/AAAJKLMNOP/tIXL9Ir44LE/s99-c/photo.jpg",
-//   "given_name": "Test",
-//   "family_name": "User",
-//   "locale": "en"
-//  }
-
-// После того, как вы проверили токен, проверьте, есть ли пользователь уже в вашей
-// базе данных пользователей. Если это так, установите аутентифицированный сеанс для
-// пользователя. Если пользователя еще нет в вашей базе данных пользователей,
-// создайте новую запись о пользователе на основе информации в полезной нагрузке
-// маркера идентификатора и установите сеанс для пользователя. Вы можете запросить
-// у пользователя любую дополнительную информацию о профиле, которая вам требуется,
-// когда вы обнаружите вновь созданного пользователя в своем приложении.

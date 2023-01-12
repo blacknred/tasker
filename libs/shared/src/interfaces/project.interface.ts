@@ -1,4 +1,5 @@
 import type { IBase } from './base.interface';
+import { ISprintPreview } from './sprint.interface';
 import type { IUserPreview } from './user.interface';
 
 export enum ProjectType {
@@ -15,6 +16,7 @@ export interface IProject extends IBase {
   isUnlimited: boolean;
   //
   author: IUserPreview;
+  activeSprint: ISprintPreview;
 }
 
 export type IProjectPreview = Pick<

@@ -17,15 +17,14 @@ Sample app for agile project management
 | DB                | postgres             | Postgres/db_per_service | 5432   |
 | Queue             | rabbitmq             | RabbitMQ                | 5672   |
 | -                 | -                    | -                       | -      |
-| User CRUD         | user-service         | NodeJs, HTTP1.1         | 8001   |
-| Auth CRUD         | auth-service         | NodeJs, HTTP1.1         | 8002   |
-| Notification CRUD | notification-service | NodeJs, HTTP1.1, AMQP   | 8003   |
-| Billing CRUD      | billing-service      | NodeJs, HTTP1.1, AMQP   | 8004   |
-| Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8005   |
-| Sprint CRUD       | sprint-service       | NodeJs, HTTP1.1, AMQP   | 8006   |
-| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8007   |
-| Search CRUD       | search-service       | NodeJs, HTTP1.1         | 8008   |
-| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8009   |
+| User CRUD         | user-service         | NodeJs, HTTP1.1, AMQP   | 8001   |
+| Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8002   |
+| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8003   |
+| Search CRUD       | search-service       | NodeJs, HTTP1.1, AMQP   | 8004   |
+| Auth CRUD         | auth-service         | NodeJs, HTTP1.1         | 8005   |
+| Notification CRUD | notification-service | NodeJs, HTTP1.1, AMQP   | 8006   |
+| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8007   |
+| Billing CRUD      | billing-service      | NodeJs, HTTP1.1, AMQP   | 8008   |
 | Object storage    | minio                | Minio(s3)               | 9000   |
 | Nginx             | nginx                | Nginx, HTTP1.1, Swagger | 80/443 |
 | Client Web        | web                  | NextJS, SSG+CSR         | 3000   |
@@ -85,7 +84,6 @@ Sample app for agile project management
 - stripe + billing setup
 - admin web?: billing reports
 - teams?
-- filters(jql)?
 - automation?
 - shared boards?
 

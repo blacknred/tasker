@@ -51,7 +51,7 @@ services:
     env_file: ./.env.dev
     restart: always
     networks: [ data ]
-    ports: [5672, 15672, 15692]
+    ports: [ 5672, 15672, 15692 ]
     volumes:
       - ./data/rabbitmq/data:/var/lib/rabbitmq"
     environment:

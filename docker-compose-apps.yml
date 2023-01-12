@@ -23,88 +23,6 @@ services:
       - NODE_ENV=development
       - SERVICE_NAME=user-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/users
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  auth-service:
-    build:
-      context: ./packages/apps/auth
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8002:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/auth:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=auth-service
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-      - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
-      - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
-    depends_on:
-      - redis
-      - user-service
-      - member-service
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  notification-service:
-    build:
-      context: ./packages/apps/notification
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8003:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/notification:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=notification-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/notifications
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-      - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  billing-service:
-    build:
-      context: ./packages/apps/billing
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8004:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/billing:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=billing-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/billing
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
@@ -123,7 +41,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8005:3000 ]
+    ports: [ 8002:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/project:/usr/src/app
@@ -134,35 +52,11 @@ services:
       - SERVICE_NAME=project-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  sprint-service:
-    build:
-      context: ./packages/apps/sprint
-      target: build # production
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8006:3000 ]
-    command: yarn start:dev
-    volumes:
-      - ./packages/apps/sprint:/usr/src/app
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - NODE_ENV=development
-      - SERVICE_NAME=sprint-service
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/sprints
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-    depends_on:
-      - postgres
-      - rabbitmq
+      - redis
     logging:
       driver: fluentd
       options:
@@ -175,7 +69,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8007:3000 ]
+    ports: [ 8003:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/issue:/usr/src/app
@@ -186,9 +80,11 @@ services:
       - SERVICE_NAME=issue-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
+      - redis
     logging:
       driver: fluentd
       options:
@@ -201,7 +97,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8008:3000 ]
+    ports: [ 8004:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/search:/usr/src/app
@@ -210,11 +106,71 @@ services:
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=search-service
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/search
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
-      - project-service
-      - member-service
-      - issue-service
-      - sprint-service
+      - postgres
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  auth-service:
+    build:
+      context: ./packages/apps/auth
+      target: build # production
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8005:3000 ]
+    command: yarn start:dev
+    volumes:
+      - ./packages/apps/auth:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=auth-service
+      - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
+      - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - user-service
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  notification-service:
+    build:
+      context: ./packages/apps/notification
+      target: build # production
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8006:3000 ]
+    command: yarn start:dev
+    volumes:
+      - ./packages/apps/notification:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=notification-service
+      - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/notifications
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
     logging:
       driver: fluentd
       options:
@@ -227,7 +183,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8009:3000 ]
+    ports: [ 8007:3000 ]
     command: yarn start:dev
     volumes:
       - ./packages/apps/report:/usr/src/app
@@ -236,10 +192,41 @@ services:
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=report-service
-      - ISSUE_POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - SPRINT_POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/sprints
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  billing-service:
+    build:
+      context: ./packages/apps/billing
+      target: build # production
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8008:3000 ]
+    command: yarn start:dev
+    volumes:
+      - ./packages/apps/billing:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - NODE_ENV=development
+      - SERVICE_NAME=billing-service
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/billing
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
     logging:
       driver: fluentd
       options:

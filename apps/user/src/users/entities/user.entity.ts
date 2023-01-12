@@ -3,100 +3,93 @@ import {
   Collection,
   Entity,
   Enum,
-  ManyToMany,
+  Index,
+  OneToMany,
   Property,
 } from '@mikro-orm/core';
 import { BaseEntity } from '@taskapp/service-core';
-import { NotificationMethod, SecuredNotificationMethod, IUser } from '@taskapp/shared';
+import {
+  IUser,
+  NotificationMethod,
+  SecuredNotificationMethod,
+} from '@taskapp/shared';
 import * as bcrypt from 'bcryptjs';
-import { Teammate } from '../../project-members/entities/project-member.entity';
-import { ProjectRole } from '../../project-roles/entities/project-role.entity';
+import { Teammate } from '../../teammates/entities/teammate.entity';
 
 @Entity({ tableName: 'user' })
 export class User extends BaseEntity<User> implements IUser {
+  @Index({ name: 'user_username_idx' })
   @Property({ unique: true, length: 30, check: 'length(username) >= 5' })
   username!: string;
 
-  @Property({ length: 100, check: 'length(username) >= 5' })
+  @Property({ length: 100, check: 'length(name) >= 5' })
   name!: string;
-
-  @Property({ nullable: true, check: 'length(bio) > 0' })
-  image?: string;
 
   @Property({
     nullable: true,
-    check: 'length(bio) > 0',
+    check: 'image ~ "^(https?://.*.(?:png|gif|webp|jpeg|jpg))$"',
   })
+  image?: string;
+
+  @Property({ lazy: true, nullable: true })
   details?: string;
 
-  @Property({ unique: true, check: 'length(email) >= 5' })
+  @Index({ name: 'user_email_idx' })
+  @Property({ lazy: true, unique: true, check: 'length(email) >= 5' })
   email!: string;
 
-  @Property({ hidden: true })
+  @Property({ lazy: true, hidden: true })
   password!: string;
 
   @Property({
+    lazy: true,
     nullable: true,
     check: "phone ~ '^(+|00)[1-9][0-9 -().]{7,32}$'",
   })
   phone?: string;
 
-  @Property()
+  @Property({ lazy: true })
   isAdmin = false;
 
-  @Property()
+  @Property({ lazy: true })
   isConfirmed = false;
 
-  @Property()
+  @Property({ lazy: true })
   is2faEnabled = false;
 
-  @Property({ length: 3, check: 'length(currency) == 3' })
+  @Property({ lazy: true, length: 3, check: 'length(currency) == 3' })
   currency = 'USD';
 
-  @Property({ length: 5, check: 'length(locale) == 5' })
+  @Property({ lazy: true, length: 5, check: 'length(locale) == 5' })
   locale = 'en_US';
 
   @Property({ lazy: true, nullable: true })
   deletedAt?: Date;
 
   @Enum({
+    lazy: true,
     items: () => NotificationMethod,
     default: NotificationMethod.NONE,
   })
   notificationMethod: NotificationMethod = NotificationMethod.NONE;
 
   @Enum({
+    lazy: true,
     items: () => SecuredNotificationMethod,
     default: NotificationMethod.EMAIL,
   })
   securedNotificationMethod: SecuredNotificationMethod =
     SecuredNotificationMethod.EMAIL;
 
-  @ManyToMany({ entity: () => ProjectRole, pivotEntity: () => Teammate })
-  roles = new Collection<ProjectRole>(this);
+  @OneToMany({
+    lazy: true,
+    entity: () => Teammate,
+    mappedBy: 'user',
+  })
+  roles = new Collection<Teammate>(this);
 
   @BeforeCreate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
 }
-
-// @OneToOne({ mappedBy: 'user' })
-// profile: Profile;
-// @Index({ name: 'profile_user_id_idx' })
-// @OneToOne({ name: 'user_id' })
-// user!: User;
-
-// @Index({ name: 'offer_author_id_idx' })
-// @ManyToOne(() => User)
-// author!: User;
-
-// @Index({ name: 'offer_category_id_idx' })
-// @ManyToOne(() => Category, { nullable: true })
-// category?: Category;
-
-// @ManyToMany({ entity: () => User, pivotEntity: () => Bid })
-// bids = new Collection<Bid>(this);
-
-// @ManyToMany({ entity: () => User, pivotEntity: () => Watcher })
-// watchers = new Collection<User>(this);

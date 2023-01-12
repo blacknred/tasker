@@ -1,5 +1,5 @@
 import type { IBase } from './base.interface';
-import { IProjectRole } from './project-role.interface';
+import { IRole } from './role.interface';
 // import { Merge } from 'type-fest';
 
 // export interface ApiAllUsers {
@@ -32,7 +32,7 @@ export interface IUser extends IBase {
   notificationMethod: NotificationMethod;
   securedNotificationMethod: SecuredNotificationMethod;
   //
-  roles: IProjectRole[];
+  roles: IRole[];
 }
 
 export type IUserPreview = Pick<IUser, 'id' | 'name' | 'image'>;

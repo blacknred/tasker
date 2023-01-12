@@ -5,10 +5,10 @@ networks:
     name: main
 
 volumes:
-    prometheus_data: {}
-    grafana_data: {}
-    alertmanager_data: {}
-    elasticsearch_data: {}
+  prometheus_data: {}
+  grafana_data: {}
+  alertmanager_data: {}
+  elasticsearch_data: {}
 
 services:
 
@@ -94,7 +94,7 @@ services:
 
   redis-exporter:
     # we use this since only redis enterprice has native prometheus supporting
-    image: oliver006/redis_exporter 
+    image: oliver006/redis_exporter
     env_file: ./.env.dev
     restart: unless-stopped
     networks: [ infrastructure ]
@@ -152,7 +152,7 @@ services:
     env_file: ./.env.dev
     restart: unless-stopped
     networks: [ infrastructure ]
-    ports: [24224, 24224:24224/udp]
+    ports: [ 24224, 24224:24224/udp ]
     volumes:
       - ./monitoring/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
     environment:
@@ -193,8 +193,6 @@ services:
       - ./monitoring/alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
     depends_on:
       - prometheus
-
-  
   # elasticsearch:
   #   build: ./monitoring/elk/elasticsearch
   #   env_file: ./.env.dev

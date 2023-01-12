@@ -1,13 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/mapped-types';
-import { ExtraNotificationMethod } from '@taskapp/types';
+import { ApiProperty } from '@nestjs/swagger';
+import { NotificationMethod, SecuredNotificationMethod } from '@taskapp/types';
 import {
   IsEnum,
+  IsLocale,
   IsOptional,
   IsPhoneNumber,
   IsUrl,
   MinLength,
-  IsCurrency,
 } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
@@ -15,7 +15,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({ type: 'string', example: 'user info', required: false })
   @IsOptional()
   @MinLength(1, { message: 'Empty description' })
-  bio?: string;
+  details?: string;
 
   @ApiProperty({
     type: 'string',
@@ -32,17 +32,33 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   phone?: string;
 
   @ApiProperty({
-    enum: ExtraNotificationMethod,
-    example: ExtraNotificationMethod.EMAIL,
+    enum: NotificationMethod,
+    example: NotificationMethod.PUSH,
     required: false,
   })
   @IsOptional()
-  @IsEnum(ExtraNotificationMethod, {
-    message: 'Must be an ExtraNotificationMethod enum',
+  @IsEnum(NotificationMethod, {
+    message: `Must be a one of the fields: ${Object.keys(
+      NotificationMethod,
+    ).join(', ')}`,
   })
-  extraNotificationMethod?: ExtraNotificationMethod;
+  notificationMethod: NotificationMethod;
 
-  @ApiProperty({ type: 'string', example: 'USD' })
-  @IsCurrency({ message: 'Not valid currency' })
-  currency: string;
+  @ApiProperty({
+    enum: SecuredNotificationMethod,
+    example: SecuredNotificationMethod.EMAIL,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(SecuredNotificationMethod, {
+    message: `Must be a one of the fields: ${Object.keys(
+      SecuredNotificationMethod,
+    ).join(', ')}`,
+  })
+  securedNotificationMethod: SecuredNotificationMethod;
+
+  @ApiProperty({ type: 'string', example: 'USD', required: false })
+  @IsOptional()
+  @IsLocale({ message: 'Non valid currency' })
+  currency?: string;
 }

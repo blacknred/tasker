@@ -1,5 +1,7 @@
 import type { IBase, ID } from './base.interface';
 import type { ISprintPreview } from './sprint.interface';
+import { IStatus } from './status.interface';
+import { ITag } from './tag.interface';
 import type { IUserPreview } from './user.interface';
 
 export enum IssueType {
@@ -25,47 +27,6 @@ export enum IssueRelation {
   CAUSE = 'CAUSE',
 }
 
-export interface IIssueTag {
-  id: ID;
-  projectId: ID;
-  name: string;
-  color?: string;
-}
-
-export interface IIssueStatus {
-  id: ID;
-  projectId: ID;
-  name: string;
-  color?: string;
-  isFirst: boolean;
-  isLast: boolean;
-  //
-  transitions: IIssueStatus[];
-}
-
-export interface IProjectBoard {
-  id: ID;
-  projectId: ID;
-  name: string;
-  colls: IProjectBoardColumn[];
-}
-
-interface IProjectBoardColumn {
-  order: number;
-  //
-  status: IIssueStatus;
-}
-
-export interface IIssueLike {
-  user: IUserPreview;
-  issue: IIssuePreview;
-}
-
-export interface IIssueSubscription {
-  user: IUserPreview;
-  issue: IIssuePreview;
-}
-
 export interface IIssueComment extends IBase {
   issueId: ID;
   body: string;
@@ -83,10 +44,10 @@ export interface IIssueRelation {
 }
 
 export interface IIssueUpdate {
-  createdAt: string;
   field: string;
   prev: string;
   next: string;
+  createdAt: string;
   //
   user: IUserPreview;
 }
@@ -99,22 +60,22 @@ export interface IIssue extends IBase {
   details?: string;
   assets: string[];
   updates: IIssueUpdate[];
-  status: IIssueStatus;
+  status: IStatus;
   priority: IssuePriority;
   startedAt: string;
   endedAt: string;
   //
   version?: number;
   weight?: number;
-  tags: IIssueTag[];
+  tags: ITag[];
   author: IUserPreview;
   assignee?: IUserPreview;
   epic?: IIssuePreview;
   sprint?: ISprintPreview;
   relations: IIssueRelation[];
   comments: IIssueComment[];
-  subscribers: IIssueSubscription[];
-  likes: IIssueLike[];
+  subscribers: IUserPreview[];
+  voters: IUserPreview[];
 }
 
 export type IIssuePreview = Pick<
@@ -127,5 +88,5 @@ export type IIssuePreview = Pick<
   | 'status'
   | 'type'
   | 'tags'
-  | 'likes'
+  | 'voters'
 >;
