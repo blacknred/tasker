@@ -1,31 +1,9 @@
+import { IssuePriority, IssueRelation, IssueType } from '../enums';
 import type { IBase, ID } from './base.interface';
 import type { ISprintPreview } from './sprint.interface';
-import { IStatus } from './status.interface';
-import { ITag } from './tag.interface';
+import type { IStatus } from './status.interface';
+import type { ITag } from './tag.interface';
 import type { IUserPreview } from './user.interface';
-
-export enum IssueType {
-  EPIC = 'EPIC',
-  STORY = 'STORY',
-  TASK = 'TASK',
-  BUG = 'BUG',
-}
-
-export enum IssuePriority {
-  TRIVIAL = 'TRIVIAL',
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL',
-  BLOCKER = 'BLOCKER',
-}
-
-export enum IssueRelation {
-  RELATE = 'RELATE',
-  BLOCK = 'BLOCK',
-  DUPLICATE = 'DUPLICATE',
-  CAUSE = 'CAUSE',
-}
 
 export interface IIssueComment extends IBase {
   issueId: ID;

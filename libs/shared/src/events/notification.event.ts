@@ -1,11 +1,7 @@
 import { IEvent } from '@nestjs/cqrs';
 import type { INotification } from '../interfaces';
 
-export enum NotificationTransport {
-  EMAIL = 'EMAIL',
-  SECURED = 'SECURED',
-  DEFAULT = 'DEFAULT',
-}
+
 
 export class NotificationCreatedEvent implements IEvent {
   constructor(

@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@taskapp/service-core": "workspace:*",
-    "@taskapp/types": "workspace:*",
+    "@taskapp/shared": "workspace:*",
     "@hapi/joi": "^17.1.1",
     "@mikro-orm/core": "^5.2.1",
     "@mikro-orm/nestjs": "^4.3.1",

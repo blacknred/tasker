@@ -1,13 +1,15 @@
-import { Entity, Property } from '@mikro-orm/core';
-import { PickType } from '@nestjs/mapped-types';
-import { BaseEntity } from '@taskapp/service-core';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { IUserPreview } from '@taskapp/shared';
 
 @Entity({ tableName: 'sprint_preview' })
-export class Sprint
-  extends PickType(BaseEntity<Sprint>, ['id'])
-  implements IUserPreview
-{
+export class Sprint implements IUserPreview {
+  @PrimaryKey({ type: 'uuid' })
+  id!: string;
+
   @Property({ length: 100, check: 'length(name) >= 5' })
   name!: string;
+
+  constructor(instance?: Partial<Sprint>) {
+    Object.assign(this, instance);
+  }
 }

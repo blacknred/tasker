@@ -4,8 +4,11 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ASL, CoreModule } from '@taskapp/service-core';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { ISSUE_DB, SPRINT_DB } from './reports/consts';
 import { ReportsModule } from './reports/reports.module';
+
+const ALS = new AsyncLocalStorage<any>();
 
 @Module({
   imports: [
@@ -25,7 +28,7 @@ import { ReportsModule } from './reports/reports.module';
         clientUrl: configService.get('ISSUE_POSTGRES_URL'),
         debug: configService.get('NODE_ENV') === 'development',
         loadStrategy: LoadStrategy.JOINED,
-        context: () => ASL.getStore(),
+        context: () => ALS.getStore(),
         registerRequestContext: false,
         autoLoadEntities: true,
         ensureIndexes: true,

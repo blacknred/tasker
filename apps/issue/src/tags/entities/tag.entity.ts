@@ -1,9 +1,10 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { AggregateRoot } from '@nestjs/cqrs';
 import { ITag } from '@taskapp/shared';
 import { v4 } from 'uuid';
 
 @Entity({ tableName: 'tag' })
-export class Tag implements ITag {
+export class Tag extends AggregateRoot implements ITag {
   @PrimaryKey()
   id: string = v4();
 
@@ -15,4 +16,9 @@ export class Tag implements ITag {
 
   @Property({ nullable: true, check: 'color ~ "^#(?:[0-9a-fA-F]{3}){1,2}$"' })
   color?: string;
+
+  constructor(instance?: Partial<Tag>) {
+    super();
+    Object.assign(this, instance);
+  }
 }

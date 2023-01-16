@@ -1,11 +1,11 @@
-export type SortingDto = {
+export interface ISorting {
   'sort.field'?: string;
   'sort.order'?: 'ASC' | 'DESC';
-};
+}
 
-export type OffsetPaginationDto = {
+export interface IOffsetPagination {
   limit: number;
   offset?: number;
-};
+}
 
-export type PaginatedRequestDto = SortingDto & OffsetPaginationDto;
+export interface IPaginatedRequest extends ISorting, IOffsetPagination {}

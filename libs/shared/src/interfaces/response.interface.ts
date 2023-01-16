@@ -1,20 +1,20 @@
-export type ValidationErrorDto = {
+export interface IValidationError {
   field: string;
   message: string;
-};
+}
 
-export type PaginatedDataDto<T> = {
+export interface IPaginatedData<T> {
   hasMore: boolean;
   total?: number;
   items: T[];
-};
+}
 
-export type ResponseDto<T = unknown> = {
+export interface IResponse<T = unknown> {
   message?: string;
-  errors?: ValidationErrorDto[];
+  errors?: IValidationError[];
   data?: T;
-};
+}
 
-export type EmptyResponseDto = ResponseDto<null>;
+export type IEmptyResponse = IResponse<null>;
 
-export type PaginatedResponseDto<T> = ResponseDto<PaginatedDataDto<T>>;
+export type IPaginatedResponse<T> = IResponse<IPaginatedData<T>>;

@@ -7,9 +7,11 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  PrimaryKey,
   Property,
 } from '@mikro-orm/core';
 import { FullTextType } from '@mikro-orm/postgresql';
+import { AggregateRoot } from '@nestjs/cqrs';
 import { BaseEntity } from '@taskapp/service-core';
 import {
   IIssue,
@@ -20,6 +22,7 @@ import {
   IssueRelation,
   IssueType,
 } from '@taskapp/shared';
+import { v4 } from 'uuid';
 import { Sprint } from '../../sprints/entities/sprint.entity';
 import { Status } from '../../statuses/entities/status.entity';
 import { Tag } from '../../tags/entities/tag.entity';
@@ -56,7 +59,10 @@ export class Relation implements IIssueRelation {
 }
 
 @Entity({ tableName: 'issue' })
-export class Issue extends BaseEntity<Issue> implements IIssue {
+export class Issue extends AggregateRoot implements IIssue {
+  @PrimaryKey()
+  id: string = v4();
+
   @Index({ name: 'issue_project_id_idx' })
   @Property({ type: 'uuid' })
   projectId!: string;
@@ -67,6 +73,10 @@ export class Issue extends BaseEntity<Issue> implements IIssue {
 
   @Property({ length: 500, check: 'length(title) >= 5' })
   title!: string;
+
+  @Index({ type: 'fulltext' })
+  @Property({ type: FullTextType, onUpdate: (issue: Issue) => issue.title })
+  searchTitle!: string;
 
   @Property({ lazy: true, nullable: true })
   details?: string;
@@ -97,9 +107,12 @@ export class Issue extends BaseEntity<Issue> implements IIssue {
   @Property({ lazy: true, nullable: true })
   endedAt?: Date;
 
-  @Index({ type: 'fulltext' })
-  @Property({ type: FullTextType, onUpdate: (issue: Issue) => issue.title })
-  searchTitle!: string;
+  @Index({ name: `issue_created_at_idx` })
+  @Property()
+  createdAt: Date = new Date();
+
+  @Property({ onUpdate: () => new Date(), lazy: true })
+  updatedAt: Date = new Date();
 
   @Property({ lazy: true, type: 'json', default: [] })
   updates: IIssueUpdate[] = [];
@@ -157,4 +170,16 @@ export class Issue extends BaseEntity<Issue> implements IIssue {
     mappedBy: 'issue' || 'relatedIssue',
   })
   relations = new Collection<Relation>(this);
+
+  //
+
+  constructor(instance?: Partial<Issue>) {
+    super();
+    Object.assign(this, instance);
+  }
+
+  // killEnemy(enemyId: string) {
+  //   // logic
+  //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+  // }
 }

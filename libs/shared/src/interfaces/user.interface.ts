@@ -1,21 +1,11 @@
+import { NotificationMethod, SecuredNotificationMethod } from '../enums';
 import type { IBase } from './base.interface';
-import { IRole } from './role.interface';
+import type { IRole } from './role.interface';
 // import { Merge } from 'type-fest';
 
 // export interface ApiAllUsers {
 //   allUsers: Merge<User, { postCount: number }>[];
 // }
-
-export enum NotificationMethod {
-  EMAIL = 'EMAIL',
-  PUSH = 'PHONE',
-  NONE = 'NONE',
-}
-
-export enum SecuredNotificationMethod {
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-}
 
 export interface IUser extends IBase {
   username: string;

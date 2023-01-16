@@ -1,13 +1,11 @@
-import { Entity, Index, Property } from '@mikro-orm/core';
-import { PickType } from '@nestjs/mapped-types';
-import { BaseEntity } from '@taskapp/service-core';
+import { Entity, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { IUserPreview } from '@taskapp/shared';
 
 @Entity({ tableName: 'user_preview' })
-export class User
-  extends PickType(BaseEntity<User>, ['id'])
-  implements IUserPreview
-{
+export class User implements IUserPreview {
+  @PrimaryKey({ type: 'uuid' })
+  id!: string;
+
   @Index({ name: 'user_username_idx' })
   @Property({
     lazy: true,
@@ -25,4 +23,8 @@ export class User
     check: 'image ~ "^(https?://.*.(?:png|gif|webp|jpeg|jpg))$"',
   })
   image?: string;
+
+  constructor(instance?: Partial<User>) {
+    Object.assign(this, instance);
+  }
 }

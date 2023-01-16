@@ -5,19 +5,24 @@ import {
   Enum,
   Index,
   OneToMany,
+  PrimaryKey,
   Property,
 } from '@mikro-orm/core';
-import { BaseEntity } from '@taskapp/service-core';
+import { AggregateRoot } from '@nestjs/cqrs';
 import {
   IUser,
   NotificationMethod,
   SecuredNotificationMethod,
 } from '@taskapp/shared';
 import * as bcrypt from 'bcryptjs';
+import { v4 } from 'uuid';
 import { Teammate } from '../../teammates/entities/teammate.entity';
 
 @Entity({ tableName: 'user' })
-export class User extends BaseEntity<User> implements IUser {
+export class User extends AggregateRoot implements IUser {
+  @PrimaryKey()
+  id: string = v4();
+
   @Index({ name: 'user_username_idx' })
   @Property({ unique: true, length: 30, check: 'length(username) >= 5' })
   username!: string;
@@ -66,6 +71,13 @@ export class User extends BaseEntity<User> implements IUser {
   @Property({ lazy: true, nullable: true })
   deletedAt?: Date;
 
+  @Index({ name: `user_created_at_idx` })
+  @Property()
+  createdAt: Date = new Date();
+
+  @Property({ onUpdate: () => new Date(), lazy: true })
+  updatedAt: Date = new Date();
+
   @Enum({
     lazy: true,
     items: () => NotificationMethod,
@@ -92,4 +104,14 @@ export class User extends BaseEntity<User> implements IUser {
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
+
+  constructor(instance?: Partial<User>) {
+    super();
+    Object.assign(this, instance);
+  }
+
+  //   killEnemy(enemyId: string) {
+  //     // logic
+  //     this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+  //   }
 }

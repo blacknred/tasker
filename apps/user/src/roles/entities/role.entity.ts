@@ -1,9 +1,13 @@
-import { Entity, Enum, Property } from '@mikro-orm/core';
-import { BaseEntity } from '@taskapp/service-core';
-import { ProjectPermission, IRole } from '@taskapp/shared';
+import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
+import { AggregateRoot } from '@nestjs/cqrs';
+import { IRole, ProjectPermission } from '@taskapp/shared';
+import { v4 } from 'uuid';
 
 @Entity({ tableName: 'role' })
-export class Role extends BaseEntity<Role> implements IRole {
+export class Role extends AggregateRoot implements IRole {
+  @PrimaryKey()
+  id: string = v4();
+
   @Property({ type: 'uuid' })
   projectId!: string;
 
@@ -19,4 +23,21 @@ export class Role extends BaseEntity<Role> implements IRole {
     array: true,
   })
   permissions: ProjectPermission[] = [];
+
+  @Index({ name: `role_created_at_idx` })
+  @Property()
+  createdAt: Date = new Date();
+
+  @Property({ onUpdate: () => new Date(), lazy: true })
+  updatedAt: Date = new Date();
+
+  constructor(instance?: Partial<Role>) {
+    super();
+    Object.assign(this, instance);
+  }
+
+  //   killEnemy(enemyId: string) {
+  //     // logic
+  //     this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+  //   }
 }

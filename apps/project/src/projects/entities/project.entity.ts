@@ -1,9 +1,13 @@
-import { Entity, Enum, Property } from '@mikro-orm/core';
-import { BaseEntity } from '@taskapp/service-core';
+import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
+import { AggregateRoot } from '@nestjs/cqrs';
 import { IProject, ProjectType } from '@taskapp/shared';
+import { v4 } from 'uuid';
 
 @Entity({ tableName: 'project' })
-export class Project extends BaseEntity<Project> implements IProject {
+export class Project extends AggregateRoot implements IProject {
+  @PrimaryKey()
+  id: string = v4();
+
   @Property({ type: 'uuid' })
   authorId!: string;
 
@@ -31,5 +35,22 @@ export class Project extends BaseEntity<Project> implements IProject {
   @Property({ lazy: true, nullable: true })
   deletedAt?: Date;
 
+  @Index({ name: `project_created_at_idx` })
+  @Property()
+  createdAt: Date = new Date();
+
+  @Property({ onUpdate: () => new Date(), lazy: true })
+  updatedAt: Date = new Date();
+
   activeSprint?: string;
+
+  constructor(instance?: Partial<Project>) {
+    super();
+    Object.assign(this, instance);
+  }
+
+  // killEnemy(enemyId: string) {
+  //   // logic
+  //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+  // }
 }

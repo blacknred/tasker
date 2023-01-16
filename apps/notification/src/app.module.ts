@@ -4,9 +4,12 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ALS, CoreModule } from '@taskapp/service-core';
+import { CoreModule } from '@taskapp/service-core';
 import { RedisModule } from 'nestjs-redis';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { NotificationsModule } from './notifications/notifications.module';
+
+const ALS = new AsyncLocalStorage<any>();
 
 @Module({
   imports: [

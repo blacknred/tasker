@@ -1,5 +1,5 @@
-import { IRole } from './role.interface';
-import { IUser } from './user.interface';
+import type { IRole } from './role.interface';
+import type { IUser } from './user.interface';
 
 export interface ITeammate {
   isActive: boolean;

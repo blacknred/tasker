@@ -5,11 +5,12 @@ import {
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
+import { AggregateRoot } from '@nestjs/cqrs';
 import { IStatus } from '@taskapp/shared';
 import { v4 } from 'uuid';
 
 @Entity({ tableName: 'status' })
-export class Status implements IStatus {
+export class Status extends AggregateRoot implements IStatus {
   @PrimaryKey()
   id: string = v4();
 
@@ -30,4 +31,14 @@ export class Status implements IStatus {
 
   @ManyToMany({ entity: () => Status, pivotTable: 'status_transition' })
   transitions = new Collection<Status>(this);
+
+  constructor(instance?: Partial<Status>) {
+    super();
+    Object.assign(this, instance);
+  }
+
+  // killEnemy(enemyId: string) {
+  //   // logic
+  //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
+  // }
 }

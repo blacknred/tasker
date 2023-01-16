@@ -1,4 +1,4 @@
-export * from './invoice.interface';
+export * from './invoice.event';
 export * from './issue.interface';
 export * from './member.interface';
 export * from './notification.interface';

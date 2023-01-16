@@ -1,11 +1,7 @@
+import { ProjectType } from '../enums';
 import type { IBase } from './base.interface';
-import { ISprintPreview } from './sprint.interface';
+import type { ISprintPreview } from './sprint.interface';
 import type { IUserPreview } from './user.interface';
-
-export enum ProjectType {
-  SCRUM = 'SCRUM',
-  CANBAN = 'CANBAN',
-}
 
 export interface IProject extends IBase {
   type: ProjectType;

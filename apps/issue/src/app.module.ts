@@ -4,9 +4,12 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { ASL, CoreModule } from '@taskapp/service-core';
+import { CoreModule } from '@taskapp/service-core';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { NOTIFICATION_SERVICE } from './issues/consts';
 import { IssuesModule } from './issues/issues.module';
+
+const ALS = new AsyncLocalStorage<any>();
 
 @Module({
   imports: [
@@ -25,7 +28,7 @@ import { IssuesModule } from './issues/issues.module';
         clientUrl: configService.get('POSTGRES_URL'),
         debug: configService.get('NODE_ENV') === 'development',
         loadStrategy: LoadStrategy.JOINED,
-        context: () => ASL.getStore(),
+        context: () => ALS.getStore(),
         registerRequestContext: false,
         autoLoadEntities: true,
         ensureIndexes: true,
