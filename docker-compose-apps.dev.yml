@@ -91,12 +91,13 @@ services:
         fluentd-address: fluent-bit:24224
 
   # apps
-  user-service:
+
+  user:
     build:
       context: .
       dockerfile: apps/user/Dockerfile
-      target: deploy
-    image: taskapp/user-service:latest
+      target: build
+    image: user:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
@@ -121,28 +122,30 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  project-service:
+  project:
     build:
-      context: ./packages/apps/project
-      target: build # production
+      context: .
+      dockerfile: apps/project/Dockerfile
+      target: build
+    image: project:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8002:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev project
     volumes:
-      - ./packages/apps/project:/usr/src/app
+      - ./apps/project:/usr/src/app/apps/project
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=project-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
-      - rabbitmq
+      - eventstore
       - redis
     logging:
       driver: fluentd

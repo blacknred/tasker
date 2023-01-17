@@ -15,17 +15,22 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    // "moduleResolution": "node",
-    // "strict": true
-    // "paths": {
-    //   "@app/my-lib": [
-    //     "libs/my-lib/src"
-    //   ],
-    //   "@app/my-lib/*": [
-    //     "libs/my-lib/src/*"
-    //   ]
-    // }
+    "moduleResolution": "node", // ?
+    "paths": {
+      "@taskapp/core": [
+        "libs/core/src"
+      ],
+      "@taskapp/core/*": [
+        "libs/core/src/*"
+      ],
+      "@app/shared": [
+        "libs/core/src",
+      ],
+      "@app/shared/*": [
+        "libs/core/src/*",
+      ]
+    }
   },
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "exclude": ["node_modules", "dist"]
 }
 

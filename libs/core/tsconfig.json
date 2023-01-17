@@ -1,9 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "declaration": true,
-    "composite": true,
-    "sourceMap": false,
-    "outDir": "./dist",
-  },
-}
