@@ -1,10 +1,10 @@
-import type { ArgumentMetadata, ValidationPipeOptions } from '@nestjs/common';
+import { ArgumentMetadata, ValidationPipeOptions } from '@nestjs/common';
 import {
   Injectable,
   UnprocessableEntityException,
   ValidationPipe as VP,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class ValidationPipe extends VP {
 
   private errs = [];
   async transform(value: any, metadata: ArgumentMetadata): Promise<unknown> {
-    const obj = plainToInstance(metadata.metatype, value);
+    const obj = plainToClass(metadata.metatype, value);
     const errors = await validate(obj);
 
     if (errors.length) {

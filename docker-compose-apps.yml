@@ -90,32 +90,52 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
+  minio:
+    image: minio/minio:latest
+    env_file: ./.env.dev
+    restart: always
+    networks: [ apps ]
+    command: "server /data --console-address ':9001'"
+    ports: [ 9000, 9001 ]
+    volumes:
+      - ./data/minio/data:/data
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER:-test}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
+    healthcheck:
+      test: exit 0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
   # apps
+
   user-service:
     build:
       context: .
-      dockerfile: apps/user/Dockerfile
+      dockerfile: apps/user-service/Dockerfile
       target: deploy
     image: taskapp/user-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8001:3000 ]
-    command: yarn start:dev user
+    command: yarn start:dev user-service
     volumes:
-      - ./apps/user:/usr/src/app/apps/user
+      - ./apps/user-service:/usr/src/app/apps/user-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=user-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/users
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
       - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
       - eventstore
-      - redis
     logging:
       driver: fluentd
       options:
@@ -123,15 +143,17 @@ services:
 
   project-service:
     build:
-      context: ./packages/apps/project
-      target: build # production
+      context: .
+      dockerfile: apps/project-service/Dockerfile
+      target: build
+    image: project-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8002:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev project-service
     volumes:
-      - ./packages/apps/project:/usr/src/app
+      - ./apps/project-service:/usr/src/app/apps/project-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -139,11 +161,11 @@ services:
       - SERVICE_NAME=project-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
+      - eventstore
       - rabbitmq
-      - redis
     logging:
       driver: fluentd
       options:
@@ -151,27 +173,27 @@ services:
 
   issue-service:
     build:
-      context: ./packages/apps/issue
-      target: build # production
+      context: .
+      dockerfile: apps/issue-service/Dockerfile
+      target: build
+    image: issue-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8003:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev issue-service
     volumes:
-      - ./packages/apps/issue:/usr/src/app
+      - ./apps/issue-service:/usr/src/app/apps/issue-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=issue-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
+      - eventstore
     logging:
       driver: fluentd
       options:
@@ -179,27 +201,27 @@ services:
 
   search-service:
     build:
-      context: ./packages/apps/search
-      target: build # production
+      context: .
+      dockerfile: apps/search-service/Dockerfile
+      target: build
+    image: search-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8004:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev search-service
     volumes:
-      - ./packages/apps/search:/usr/src/app
+      - ./apps/search-service:/usr/src/app/apps/search-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=search-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/search
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
+      - eventstore
     logging:
       driver: fluentd
       options:
@@ -207,15 +229,17 @@ services:
 
   auth-service:
     build:
-      context: ./packages/apps/auth
-      target: build # production
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+      target: build
+    image: auth-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8005:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev auth-service
     volumes:
-      - ./packages/apps/auth:/usr/src/app
+      - ./apps/auth-service:/usr/src/app/apps/auth-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -223,12 +247,10 @@ services:
       - SERVICE_NAME=auth-service
       - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
       - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - user-service
-      - rabbitmq
-      - redis
+      - eventstore
     logging:
       driver: fluentd
       options:
@@ -236,15 +258,17 @@ services:
 
   notification-service:
     build:
-      context: ./packages/apps/notification
-      target: build # production
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+      target: build
+    image: notification-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8006:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev notification-service
     volumes:
-      - ./packages/apps/notification:/usr/src/app
+      - ./apps/notification-service:/usr/src/app/apps/notification-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -254,9 +278,11 @@ services:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/notifications
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
       - rabbitmq
+      - eventstore
       - redis
     logging:
       driver: fluentd
@@ -265,27 +291,27 @@ services:
 
   report-service:
     build:
-      context: ./packages/apps/report
-      target: build # production
+      context: .
+      dockerfile: apps/report-service/Dockerfile
+      target: build
+    image: report-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8007:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev report-service
     volumes:
-      - ./packages/apps/report:/usr/src/app
+      - ./apps/report-service:/usr/src/app/apps/report-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=report-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
+      - eventstore
     logging:
       driver: fluentd
       options:
@@ -293,46 +319,27 @@ services:
 
   billing-service:
     build:
-      context: ./packages/apps/billing
-      target: build # production
+      context: .
+      dockerfile: apps/billing-service/Dockerfile
+      target: build
+    image: billing-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8008:3000 ]
-    command: yarn start:dev
+    command: yarn start:dev billing-service
     volumes:
-      - ./packages/apps/billing:/usr/src/app
+      - ./apps/billing-service:/usr/src/app/apps/billing-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - NODE_ENV=development
       - SERVICE_NAME=billing-service
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/billing
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
-      - rabbitmq
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  minio:
-    image: minio/minio:latest
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    command: "server /data --console-address ':9001'"
-    ports: [ 9000, 9001 ]
-    volumes:
-      - ./minio/data:/data
-    environment:
-      - MINIO_ROOT_USER=${MINIO_USER:-test}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
+      - eventstore
     logging:
       driver: fluentd
       options:

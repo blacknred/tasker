@@ -8,9 +8,10 @@ const configService = new ConfigService();
 const MikroOrmConfig: Options = {
   namingStrategy: EntityCaseNamingStrategy,
   clientUrl: configService.get('POSTGRES_URL'),
+  debug: true,
   type: 'postgresql',
-  entities: ['./dist/entities'],
-  entitiesTs: ['./src/users/entities'],
+  entities: ['./dist/apps/**/*.entity.js'],
+  entitiesTs: ['./apps/**/src/**/entities/*.entity.ts'],
 };
 
 export default MikroOrmConfig;

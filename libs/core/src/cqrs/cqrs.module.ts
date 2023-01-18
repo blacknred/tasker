@@ -7,10 +7,11 @@ import { CqrsModule as Cqrs } from '@nestjs/cqrs';
     Cqrs,
     EventStoreModule.register({
       type: 'event-store',
-      tcpEndpoint: {
-        host: 'localhost',
-        port: 1113,
-      },
+      tcpEndpoint: 'fgfg',
+      // {
+      //   // host: 'localhost',
+      //   // port: 1113,
+      // },
       options: {
         defaultUserCredentials: {
           username: 'admin',

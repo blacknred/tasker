@@ -5,7 +5,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ESNext",
+    "target": "es2017",
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
@@ -15,22 +15,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "moduleResolution": "node", // ?
+    //  "moduleResolution": "node", //
     "paths": {
-      "@taskapp/core": [
-        "libs/core/src"
-      ],
-      "@taskapp/core/*": [
-        "libs/core/src/*"
-      ],
-      "@app/shared": [
-        "libs/core/src",
-      ],
-      "@app/shared/*": [
-        "libs/core/src/*",
-      ]
+      "@taskapp/core": ["libs/core/src"],
+      "@taskapp/core/*": ["libs/core/src/*"],
+      "@taskapp/shared": ["libs/shared/src"],
+      "@taskapp/shared/*": ["libs/shared/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
 }
-

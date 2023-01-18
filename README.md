@@ -1,4 +1,4 @@
-# Taskapp
+# Taskapp(caplan)
 
 <img src="services/web/static/images/logo.svg" width="75" alt="Taskapp Logo"/>
 
@@ -16,6 +16,7 @@ Sample app for agile project management
 | Redis             | redis                | Redis stack             | 6379   |
 | DB                | postgres             | Postgres/db_per_service | 5432   |
 | Queue             | rabbitmq             | RabbitMQ                | 5672   |
+
 | -                 | -                    | -                       | -      |
 | User CRUD         | user-service         | NodeJs, HTTP1.1, AMQP   | 8001   |
 | Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8002   |
