@@ -13,4 +13,4 @@ export * from './filter.interface';
 export * from './user.interface';
 export * from './tag.interface';
 export * from './status.interface';
-export * from './auth.interface';
+export * from './session.interface';

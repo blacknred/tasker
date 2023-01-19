@@ -17,31 +17,31 @@ export interface IIssueRelation {
   relation: IssueRelation;
   comment?: string;
   //
-  issue: IIssuePreview;
-  subIssueId: IIssuePreview;
+  issueId: ID;
+  relatedIssue: IIssuePreview;
 }
 
 export interface IIssueUpdate {
   field: string;
   prev: string;
   next: string;
-  createdAt: string;
+  createdAt: string | Date;
   //
   user: IUserPreview;
 }
 
 export interface IIssue extends IBase {
   type: IssueType;
-  projectId: number;
+  projectId: ID;
   name: string;
   title: string;
   details?: string;
   assets: string[];
   updates: IIssueUpdate[];
   status: IStatus;
-  priority: IssuePriority;
-  startedAt: string;
-  endedAt: string;
+  priority?: IssuePriority;
+  endsAt?: string | Date;
+  endedAt: string | Date;
   //
   version?: number;
   weight?: number;

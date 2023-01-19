@@ -8,7 +8,7 @@ import {
 } from '@nestjs/terminus';
 import { PrometheusService } from '../prometheus/prometheus.service';
 // import { DiskIndicator } from './indicators/disk.indicator';
-import { MemoryIndicator } from './indicators/memory.indicator';
+// import { MemoryIndicator } from './indicators/memory.indicator';
 import { MicroserviceIndicator } from './indicators/microservice.indicator';
 import { HealthIndicator } from './interfaces/health-indicator.interface';
 

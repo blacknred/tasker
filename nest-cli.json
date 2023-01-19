@@ -9,31 +9,85 @@
     "tsConfigPath": "apps/auth-service/tsconfig.app.json"
   },
   "projects": {
-    "user-service": {
+    "user-query-service": {
       "type": "application",
-      "root": "apps/user-service",
+      "root": "apps/user-query-service",
       "entryFile": "main",
-      "sourceRoot": "apps/user-service/src",
+      "sourceRoot": "apps/user-query-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/user-service/tsconfig.app.json"
+        "tsConfigPath": "apps/user-query-service/tsconfig.app.json"
       }
     },
-    "project-service": {
+    "user-command-service": {
       "type": "application",
-      "root": "apps/project-service",
+      "root": "apps/user-command-service",
       "entryFile": "main",
-      "sourceRoot": "apps/project-service/src",
+      "sourceRoot": "apps/user-command-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/project-service/tsconfig.app.json"
+        "tsConfigPath": "apps/user-command-service/tsconfig.app.json"
       }
     },
-    "issue-service": {
+    "project-query-service": {
       "type": "application",
-      "root": "apps/issue-service",
+      "root": "apps/project-query-service",
       "entryFile": "main",
-      "sourceRoot": "apps/issue-service/src",
+      "sourceRoot": "apps/project-query-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/issue-service/tsconfig.app.json"
+        "tsConfigPath": "apps/project-query-service/tsconfig.app.json"
+      }
+    },
+    "project-command-service": {
+      "type": "application",
+      "root": "apps/project-command-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/project-command-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/project-command-service/tsconfig.app.json"
+      }
+    },
+    "issue-query-service": {
+      "type": "application",
+      "root": "apps/issue-query-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/issue-query-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/issue-query-service/tsconfig.app.json"
+      }
+    },
+    "issue-command-service": {
+      "type": "application",
+      "root": "apps/issue-command-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/issue-command-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/issue-command-service/tsconfig.app.json"
+      }
+    },
+    "search-query-service": {
+      "type": "application",
+      "root": "apps/search-query-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/search-query-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/search-query-service/tsconfig.app.json"
+      }
+    },
+    "report-query-service": {
+      "type": "application",
+      "root": "apps/report-query-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/report-query-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/report-query-service/tsconfig.app.json"
+      }
+    },
+    "notification-query-service": {
+      "type": "application",
+      "root": "apps/notification-query-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification-query-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification-query-service/tsconfig.app.json"
       }
     },
     "auth-service": {
@@ -43,33 +97,6 @@
       "sourceRoot": "apps/auth-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/auth-service/tsconfig.app.json"
-      }
-    },
-    "notification-service": {
-      "type": "application",
-      "root": "apps/notification-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/notification-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
-      }
-    },
-    "search-service": {
-      "type": "application",
-      "root": "apps/search-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/search-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/search-service/tsconfig.app.json"
-      }
-    },
-    "report-service": {
-      "type": "application",
-      "root": "apps/report-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/report-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/report-service/tsconfig.app.json"
       }
     },
     "billing-service": {

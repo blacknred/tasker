@@ -1,6 +1,6 @@
 import { NotificationMethod, SecuredNotificationMethod } from '../enums';
 import type { IBase } from './base.interface';
-import type { IRole } from './role.interface';
+import type { ITeammate } from './teammate.interface';
 // import { Merge } from 'type-fest';
 
 // export interface ApiAllUsers {
@@ -22,7 +22,7 @@ export interface IUser extends IBase {
   notificationMethod: NotificationMethod;
   securedNotificationMethod: SecuredNotificationMethod;
   //
-  roles: IRole[];
+  roles: ITeammate[];
 }
 
 export type IUserPreview = Pick<IUser, 'id' | 'name' | 'image'>;

@@ -5,7 +5,7 @@ export interface INotification {
   body: string;
   recipients: ID[];
   directRecipients: ID[];
-  createdAt: string;
+  createdAt: string | Date;
 }
 
 export interface UserNotificationTransport

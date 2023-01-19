@@ -8,40 +8,40 @@ Sample app for agile project management
 
 ## Architecture
 
-> monorepo + docker + microservices\
-> for a real world scenario you definitely need an easily sharded nosql db instead of ordbms
+> for a real world scenario you definitely need an easily sharded nosql db for read DB
 
-| Services          | Container            | Stack                   | Ports  |
-| ----------------- | -------------------- | ----------------------- | ------ |
-| Redis             | redis                | Redis stack             | 6379   |
-| DB                | postgres             | Postgres/db_per_service | 5432   |
-| Queue             | rabbitmq             | RabbitMQ                | 5672   |
-
-| -                 | -                    | -                       | -      |
-| User CRUD         | user-service         | NodeJs, HTTP1.1, AMQP   | 8001   |
-| Project CRUD      | project-service      | NodeJs, HTTP1.1, AMQP   | 8002   |
-| Issue CRUD        | issue-service        | NodeJs, HTTP1.1, AMQP   | 8003   |
-| Search CRUD       | search-service       | NodeJs, HTTP1.1, AMQP   | 8004   |
-| Auth CRUD         | auth-service         | NodeJs, HTTP1.1         | 8005   |
-| Notification CRUD | notification-service | NodeJs, HTTP1.1, AMQP   | 8006   |
-| Report CRUD       | report-service       | NodeJs, HTTP1.1         | 8007   |
-| Billing CRUD      | billing-service      | NodeJs, HTTP1.1, AMQP   | 8008   |
-| Object storage    | minio                | Minio(s3)               | 9000   |
-| Nginx             | nginx                | Nginx, HTTP1.1, Swagger | 80/443 |
-| Client Web        | web                  | NextJS, SSG+CSR         | 3000   |
-| Admin Web         | admin-web            | React, CSR              | 3001   |
-| -                 | -                    | -                       | -      |
-| Tracing           | jaeger               | Jaeger                  | 9411   |
-| Prometheus        | prometheus           | Prometheus              | 9090   |
-| Container metrics | cadvisor             | Prom cadvisor           | 8081   |
-| Unix metrics      | node-exporter        | Prom node exporter      | 9100   |
-| Nginx metrics     | nginx-exporter       | Prom nginx exporter     | 9113   |
-| Postgres metrics  | postgres-exporter    | Prom postgres exporter  | 9187   |
-| Redis metrics     | redis-exporter       | Prom redis exporter     | 9121   |
-| Logs storage      | loki                 | Grafana Loki            | 3100   |
-| Logs aggregator   | fluent-bit           | Fluent Bit              | 24224  |
-| Grafana           | grafana              | Grafana                 | 3003   |
-| Alerts            | alertmanager         | Alertmanager            | 9093   |
+| Services           | Container                  | Stack                   | Ports  |
+| ------------------ | -------------------------- | ----------------------- | ------ |
+| Redis              | redis                      | Redis stack             | 6379   |
+| Queue              | rabbitmq                   | RabbitMQ                | 5672   |
+| Read DB            | postgres                   | Postgres                | 5432   |
+| Write DB           | eventstore                 | EventStoreDB            | 1113   |
+| Object storage(s3) | minio                      | Minio                   | 9000   |
+| -                  | -                          | -                       | -      |
+| User Query         | user-query-service         | NodeJs, HTTP1.1, AMQP   | 8001   |
+| User Command       | user-command-service       | NodeJs, HTTP1.1, AMQP   | 8002   |
+| Project Query      | project-query-service      | NodeJs, HTTP1.1, AMQP   | 8003   |
+| Project Command    | project-command-service    | NodeJs, HTTP1.1, AMQP   | 8004   |
+| Issue Query        | issue-query-service        | NodeJs, HTTP1.1, AMQP   | 8005   |
+| Issue Command      | issue-command-service      | NodeJs, HTTP1.1, AMQP   | 8006   |
+| Search Query       | search-query-service       | NodeJs, HTTP1.1, AMQP   | 8007   |
+| Report Query       | report-query-service       | NodeJs, HTTP1.1         | 8008   |
+| Notification Query | notification-query-service | NodeJs, HTTP1.1, AMQP   | 8009   |
+| Billing            | billing-service            | NodeJs, HTTP1.1, AMQP   | 8010   |
+| Auth               | auth-service               | NodeJs, HTTP1.1         | 8011   |
+| Api Gateway        | gateway                    | Nginx, HTTP1.1, Swagger | 80/443 |
+| -                  | -                          | -                       | -      |
+| Tracing            | jaeger                     | Jaeger                  | 9411   |
+| Prometheus         | prometheus                 | Prometheus              | 9090   |
+| Container metrics  | cadvisor                   | Prom cadvisor           | 8081   |
+| Unix metrics       | node-exporter              | Prom node exporter      | 9100   |
+| Nginx metrics      | nginx-exporter             | Prom nginx exporter     | 9113   |
+| Postgres metrics   | postgres-exporter          | Prom postgres exporter  | 9187   |
+| Redis metrics      | redis-exporter             | Prom redis exporter     | 9121   |
+| Logs storage       | loki                       | Grafana Loki            | 3100   |
+| Logs aggregator    | fluent-bit                 | Fluent Bit              | 24224  |
+| Grafana            | grafana                    | Grafana                 | 3003   |
+| Alerts             | alertmanager               | Alertmanager            | 9093   |
 
 ## Features
 
@@ -82,8 +82,7 @@ Sample app for agile project management
 
 ## Todo
 
-- stripe + billing setup
-- admin web?: billing reports
+- billing(+stripe)
 - teams?
 - automation?
 - shared boards?
