@@ -5,11 +5,11 @@ import { IsEnum, Length } from 'class-validator';
 export class CreateProjectDto {
   @ApiProperty({ type: 'string', example: 'SP' })
   @Length(3, 10, { message: 'Must have from 3 to 10 chars' })
-  key: string;
+  readonly key: string;
 
   @ApiProperty({ type: 'string', example: 'Super Project' })
   @Length(5, 100, { message: 'Must have from 5 to 100 chars' })
-  name: string;
+  readonly name: string;
 
   @ApiProperty({
     enum: ProjectType,
@@ -20,5 +20,5 @@ export class CreateProjectDto {
       ', ',
     )}`,
   })
-  type: ProjectType;
+  readonly type: ProjectType;
 }

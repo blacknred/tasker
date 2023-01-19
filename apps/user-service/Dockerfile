@@ -12,7 +12,7 @@ FROM base AS build
 WORKDIR /usr/src/app
 COPY . .
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
-RUN nest build core
+# RUN nest build core
 RUN nest build user-service
 
 FROM base AS deploy

@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OffsetPaginationDto } from '@taskapp/service-core';
+import { OffsetPaginationDto } from '@taskapp/shared';
 import { SearchEntryType } from '@taskapp/shared';
 import { IsEnum, IsOptional, IsUUID, Length } from 'class-validator';
 
 export class GetEntriesDto extends OffsetPaginationDto {
   @ApiProperty({ type: 'string', example: 'SP-1' })
-  @Length(0, 100, { message: 'Must have up to 100 chars' })
-  q: string;
+  @Length(2, 30, { message: 'Must have from 2 to 30 chars' })
+  readonly q: string;
 
   @ApiProperty({
     type: 'uuid',
@@ -15,7 +15,7 @@ export class GetEntriesDto extends OffsetPaginationDto {
   })
   @IsOptional()
   @IsUUID(4, { message: 'Must be an uuid' })
-  projectId: string;
+  readonly projectId?: string;
 
   @ApiProperty({
     enum: SearchEntryType,
@@ -28,5 +28,5 @@ export class GetEntriesDto extends OffsetPaginationDto {
       ', ',
     )}`,
   })
-  type?: SearchEntryType;
+  readonly type?: SearchEntryType;
 }

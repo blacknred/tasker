@@ -75,6 +75,8 @@ services:
     volumes:
       - ./data/eventstore/data:/var/lib/eventstore
     environment:
+      - EVENTSTORE_USER=${EVENTSTORE_USER:-admin}
+      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-changeit}
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=all
       - EVENTSTORE_START_STANDARD_PROJECTIONS=true

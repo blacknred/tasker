@@ -1,7 +1,6 @@
 import { ProjectType } from '../enums';
-import type { IBase } from './base.interface';
+import type { IBase, ID } from './base.interface';
 import type { ISprintPreview } from './sprint.interface';
-import type { IUserPreview } from './user.interface';
 
 export interface IProject extends IBase {
   type: ProjectType;
@@ -10,12 +9,12 @@ export interface IProject extends IBase {
   details?: string;
   image?: string;
   isUnlimited: boolean;
+  authorId: ID;
   //
-  author: IUserPreview;
   activeSprint: ISprintPreview;
 }
 
 export type IProjectPreview = Pick<
   IProject,
-  'id' | 'name' | 'image' | 'type' | 'author'
+  'id' | 'name' | 'image' | 'type' | 'authorId'
 >;

@@ -1,12 +1,11 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ProjectsController } from './sprints.controller';
-import { ProjectsService } from './projects.service';
+import { Sprint } from 'apps/issue-service/src/sprints/entities/sprint.entity';
+import { SprintsController } from './sprints.controller';
 
 @Module({
-  imports: [ConfigModule, MikroOrmModule.forFeature([Project])],
-  controllers: [ProjectsController],
-  providers: [ProjectsService],
+  imports: [ConfigModule, MikroOrmModule.forFeature([Sprint])],
+  controllers: [SprintsController],
 })
-export class ProjectsModule {}
+export class SprintsModule {}

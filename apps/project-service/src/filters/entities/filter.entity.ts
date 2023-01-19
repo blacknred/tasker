@@ -15,7 +15,7 @@ export class Filter extends AggregateRoot implements IFilter {
   name!: string;
 
   @Property({ check: 'schema ~ "^?([w-]+(=[w-]*)?(&[w-]+(=[w-]*)?)*)?$"' })
-  schema?: string;
+  schema: string;
 
   constructor(instance?: Partial<Filter>) {
     super();

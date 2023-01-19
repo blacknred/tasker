@@ -13,5 +13,5 @@ export class UpdateSprintDto extends PartialType(
   })
   @IsOptional()
   @MinLength(1, { message: 'Empty description' })
-  details?: string;
+  readonly details?: string;
 }

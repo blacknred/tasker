@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedResponseDto } from '@taskapp/service-core';
+import { PaginatedResponseDto } from '@taskapp/shared';
 import { IFilter } from '@taskapp/shared';
 import { filterMock } from './filter-response.dto';
 
@@ -11,7 +11,7 @@ export const filterPaginationMock = {
 
 export class FiltersResponseDto extends PaginatedResponseDto<IFilter> {
   @ApiProperty({ example: filterPaginationMock, required: false })
-  data?: {
+  readonly data?: {
     hasMore: boolean;
     total: number;
     items: IFilter[];

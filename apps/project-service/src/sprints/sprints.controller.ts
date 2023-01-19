@@ -14,7 +14,7 @@ import { TasksService } from './reports.service';
 
 @Controller()
 @UseGuards(AgentGuard)
-export class ProjectsController {
+export class SprintsController {
   constructor(private readonly tasksService: TasksService) {}
 
   @WithPrivilege(Privilege.CREATE_TASK)

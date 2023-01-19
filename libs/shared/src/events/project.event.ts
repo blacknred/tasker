@@ -5,10 +5,6 @@ export class ProjectCreatedEvent implements IEvent {
   constructor(public readonly data: IProject) {}
 }
 
-export class ProjectUpdatedEvent implements IEvent {
-  constructor(public readonly data: IProject) {}
-}
-
 export class ProjectDeletedEvent implements IEvent {
   constructor(public readonly id: IProject['id']) {}
 }

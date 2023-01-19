@@ -11,7 +11,7 @@ export class UpdateProjectDto extends PartialType(CreateProjectDto) {
   })
   @IsOptional()
   @MinLength(1, { message: 'Empty description' })
-  details?: string;
+  readonly details?: string;
 
   @ApiProperty({
     type: 'string',
@@ -20,5 +20,5 @@ export class UpdateProjectDto extends PartialType(CreateProjectDto) {
   })
   @IsOptional()
   @IsUrl({ message: 'Not valid url' })
-  image?: string;
+  readonly image?: string;
 }

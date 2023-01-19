@@ -9,16 +9,16 @@ class FilterSchemaDto {
       ', ',
     )}`,
   })
-  field: IssueFilterField;
+  readonly field: IssueFilterField;
 
   @IsString({ message: 'Must have from 5 to 100 chars' })
-  value: string | number;
+  readonly value: string | number;
 }
 
 export class CreateFilterDto {
   @ApiProperty({ type: 'string', example: 'My Filter' })
   @Length(5, 100, { message: 'Must have from 5 to 100 chars' })
-  name: string;
+  readonly name: string;
 
   @ApiProperty({
     type: 'string',
@@ -27,5 +27,5 @@ export class CreateFilterDto {
   @Transform(({ value }) => new URLSearchParams(value).entries())
   @Transform(() => FilterSchemaDto)
   @ValidateNested()
-  schema: FilterSchemaDto[];
+  readonly schema: FilterSchemaDto[];
 }

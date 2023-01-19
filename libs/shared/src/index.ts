@@ -7,3 +7,4 @@ export * from './filters';
 export * from './guards';
 export * from './pipes';
 export * from './enums';
+export * from './providers';

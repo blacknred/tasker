@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseDto } from '@taskapp/service-core';
+import { ResponseDto } from '@taskapp/shared';
 import { IFilter, IssueFilterField } from '@taskapp/shared';
 
 export const filterMock: IFilter = {
@@ -11,5 +11,5 @@ export const filterMock: IFilter = {
 
 export class FilterResponseDto extends ResponseDto<IFilter> {
   @ApiProperty({ example: filterMock, required: false })
-  data?: IFilter;
+  readonly data?: IFilter;
 }

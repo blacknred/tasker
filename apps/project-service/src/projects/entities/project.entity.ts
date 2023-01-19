@@ -1,6 +1,6 @@
 import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
-import { IProject, ProjectType } from '@taskapp/shared';
+import { IProject, ISprintPreview, ProjectType } from '@taskapp/shared';
 import { v4 } from 'uuid';
 
 @Entity({ tableName: 'project' })
@@ -32,6 +32,9 @@ export class Project extends AggregateRoot implements IProject {
   })
   type: ProjectType = ProjectType.SCRUM;
 
+  @Property()
+  isUnlimited = false;
+
   @Property({ lazy: true, nullable: true })
   deletedAt?: Date;
 
@@ -42,7 +45,7 @@ export class Project extends AggregateRoot implements IProject {
   @Property({ onUpdate: () => new Date(), lazy: true })
   updatedAt: Date = new Date();
 
-  activeSprint?: string;
+  activeSprint: ISprintPreview;
 
   constructor(instance?: Partial<Project>) {
     super();

@@ -75,6 +75,8 @@ services:
     volumes:
       - ./data/eventstore/data:/var/lib/eventstore
     environment:
+      - EVENTSTORE_USER=${EVENTSTORE_USER:-admin}
+      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-changeit}
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=all
       - EVENTSTORE_START_STANDARD_PROJECTIONS=true
@@ -123,7 +125,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8001:3000 ]
-    command: yarn start:dev user-service
+    command: nest start:dev user-service
     volumes:
       - ./apps/user-service:/usr/src/app/apps/user-service
       - /usr/src/app/node_modules
@@ -151,7 +153,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8002:3000 ]
-    command: yarn start:dev project-service
+    command: nest start:dev project-service
     volumes:
       - ./apps/project-service:/usr/src/app/apps/project-service
       - /usr/src/app/node_modules
@@ -181,7 +183,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8003:3000 ]
-    command: yarn start:dev issue-service
+    command: nest start:dev issue-service
     volumes:
       - ./apps/issue-service:/usr/src/app/apps/issue-service
       - /usr/src/app/node_modules
@@ -209,7 +211,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8004:3000 ]
-    command: yarn start:dev search-service
+    command: nest start:dev search-service
     volumes:
       - ./apps/search-service:/usr/src/app/apps/search-service
       - /usr/src/app/node_modules
@@ -237,7 +239,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8005:3000 ]
-    command: yarn start:dev auth-service
+    command: nest start:dev auth-service
     volumes:
       - ./apps/auth-service:/usr/src/app/apps/auth-service
       - /usr/src/app/node_modules
@@ -266,7 +268,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8006:3000 ]
-    command: yarn start:dev notification-service
+    command: nest start:dev notification-service
     volumes:
       - ./apps/notification-service:/usr/src/app/apps/notification-service
       - /usr/src/app/node_modules
@@ -299,7 +301,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8007:3000 ]
-    command: yarn start:dev report-service
+    command: nest start:dev report-service
     volumes:
       - ./apps/report-service:/usr/src/app/apps/report-service
       - /usr/src/app/node_modules
@@ -327,7 +329,7 @@ services:
     restart: on-failure
     networks: [ apps ]
     ports: [ 8008:3000 ]
-    command: yarn start:dev billing-service
+    command: nest start:dev billing-service
     volumes:
       - ./apps/billing-service:/usr/src/app/apps/billing-service
       - /usr/src/app/node_modules
@@ -372,7 +374,7 @@ services:
   #     target: build # production
   #   env_file: ./.env.dev
   #   restart: unless-stopped
-  #   command: yarn dev
+  #   command: nest dev
   #   ports: [ 3000 ]
   #   volumes:
   #     - ./packages/apps/web:/usr/src/app

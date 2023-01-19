@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedRequestDto } from '@taskapp/service-core';
+import { PaginatedRequestDto } from '@taskapp/shared';
 import {
   IsDateString,
   IsIn,
@@ -18,7 +18,7 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
     message:
       'Must be a one of the fields: "name", "startsAt", "endsAt", "createdAt"',
   })
-  'sort.field'?: 'name' | 'startsAt' | 'endsAt' | 'createdAt';
+  readonly 'sort.field'?: 'name' | 'startsAt' | 'endsAt' | 'createdAt';
 
   @ApiProperty({
     type: 'uuid',
@@ -27,12 +27,12 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
   })
   @IsOptional()
   @IsUUID(4, { message: 'Must be an uuid' })
-  projectId: string;
+  readonly projectId: string;
 
   @ApiProperty({ type: 'string', example: 'SP-sprint:1', required: false })
   @IsOptional()
   @Length(0, 100, { message: 'Must have up to 100 chars' })
-  name?: string;
+  readonly name?: string;
 
   @ApiProperty({
     type: 'string',
@@ -41,7 +41,7 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
   })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
-  startsAt?: string;
+  readonly startsAt?: string;
 
   @ApiProperty({
     type: 'string',
@@ -50,7 +50,7 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
   })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
-  endsAt?: string;
+  readonly endsAt?: string;
 
   @ApiProperty({
     type: 'string',
@@ -59,5 +59,5 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
   })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
-  createdAt?: string;
+  readonly createdAt?: string;
 }

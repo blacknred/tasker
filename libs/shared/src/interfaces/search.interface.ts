@@ -3,7 +3,8 @@ import type { ID } from './base.interface';
 
 export interface ISearchEntry {
   id: ID;
-  projectId: string;
+  projectId?: string;
+  userId?: string;
   type: SearchEntryType;
   text: string;
 }

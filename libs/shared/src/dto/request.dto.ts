@@ -13,7 +13,7 @@ export class SortingDto implements ISorting {
   @IsOptional()
   @Type(() => String)
   @IsString({ message: 'Must be a string' })
-  'sort.field'?: string;
+  readonly 'sort.field'?: string;
 
   @ApiProperty({
     type: 'string',
@@ -24,7 +24,7 @@ export class SortingDto implements ISorting {
   @IsOptional()
   @Type(() => String)
   @IsIn(['ASC', 'DESC'], { message: 'Must be an ASC or DESC' })
-  'sort.order'?: 'ASC' | 'DESC';
+  readonly 'sort.order'?: 'ASC' | 'DESC';
 }
 
 export class OffsetPaginationDto implements IOffsetPagination {
@@ -32,14 +32,14 @@ export class OffsetPaginationDto implements IOffsetPagination {
   @Type(() => Number)
   @IsNumber(null, { message: 'Must be a number' })
   @Min(1)
-  limit: number;
+  readonly limit: number;
 
   @ApiProperty({ type: 'number', example: 20, required: false })
   @IsOptional()
   @Type(() => Number)
   @IsNumber(null, { message: 'Must be a number' })
   @Min(0)
-  offset?: number;
+  readonly offset?: number;
 }
 
 export class PaginatedRequestDto

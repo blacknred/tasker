@@ -9,21 +9,21 @@ import {
 
 export class ValidationErrorDto implements IValidationError {
   @ApiProperty({ type: 'string', example: 'email' })
-  field: string;
+  readonly field: string;
 
   @ApiProperty({ type: 'string', example: 'Must be an valid email' })
-  message: string;
+  readonly message: string;
 }
 
 export class PaginatedDataDto<T> implements IPaginatedData<T> {
   @ApiProperty({ type: 'boolean', example: true })
-  hasMore: boolean;
+  readonly hasMore: boolean;
 
   @ApiProperty({ type: 'number', example: 100, required: false })
-  total?: number;
+  readonly total?: number;
 
   @ApiProperty({ isArray: true, example: null })
-  items: T[];
+  readonly items: T[];
 }
 
 export class ResponseDto<T = unknown> implements IResponse {
@@ -35,10 +35,10 @@ export class ResponseDto<T = unknown> implements IResponse {
     isArray: true,
     required: false,
   })
-  errors?: ValidationErrorDto[];
+  readonly errors?: ValidationErrorDto[];
 
   @ApiProperty({ required: false })
-  data?: T;
+  readonly data?: T;
 }
 
 export class EmptyResponseDto

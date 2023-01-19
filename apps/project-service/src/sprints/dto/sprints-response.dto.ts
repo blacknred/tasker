@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedResponseDto } from '@taskapp/service-core';
+import { PaginatedResponseDto } from '@taskapp/shared';
 import { ISprint } from '@taskapp/shared';
 import { sprintMock } from './sprint-response.dto';
 
@@ -11,7 +11,7 @@ export const sprintPaginationMock = {
 
 export class SprintsResponseDto extends PaginatedResponseDto<ISprint> {
   @ApiProperty({ example: sprintPaginationMock, required: false })
-  data?: {
+  readonly data?: {
     hasMore: boolean;
     total: number;
     items: ISprint[];
