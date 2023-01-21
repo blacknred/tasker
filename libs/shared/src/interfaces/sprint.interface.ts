@@ -8,5 +8,3 @@ export interface ISprint extends IBase {
   endsAt: string | Date;
   authorId: ID;
 }
-
-export type ISprintPreview = Pick<ISprint, 'id' | 'name'>;

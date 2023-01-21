@@ -72,31 +72,22 @@
         "tsConfigPath": "apps/search-query-service/tsconfig.app.json"
       }
     },
-    "report-query-service": {
+    "report-service": {
       "type": "application",
-      "root": "apps/report-query-service",
+      "root": "apps/report-service",
       "entryFile": "main",
-      "sourceRoot": "apps/report-query-service/src",
+      "sourceRoot": "apps/report-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/report-query-service/tsconfig.app.json"
+        "tsConfigPath": "apps/report-service/tsconfig.app.json"
       }
     },
-    "notification-query-service": {
+    "notification-service": {
       "type": "application",
-      "root": "apps/notification-query-service",
+      "root": "apps/notification-service",
       "entryFile": "main",
-      "sourceRoot": "apps/notification-query-service/src",
+      "sourceRoot": "apps/notification-service/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/notification-query-service/tsconfig.app.json"
-      }
-    },
-    "auth-service": {
-      "type": "application",
-      "root": "apps/auth-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/auth-service/tsconfig.app.json"
+        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
       }
     },
     "billing-service": {
@@ -106,6 +97,15 @@
       "sourceRoot": "apps/billing-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/billing-service/tsconfig.app.json"
+      }
+    },
+    "auth-service": {
+      "type": "application",
+      "root": "apps/auth-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth-service/tsconfig.app.json"
       }
     },
     "shared": {

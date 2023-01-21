@@ -1,6 +1,8 @@
 FROM node:alpine AS base
 ARG SERVICE_NAME
 ENV SERVICE_NAME $SERVICE_NAME
+ARG NODE_ENV=production
+ENV NODE_ENV $NODE_ENV
 RUN apk add g++ make py3-pip
 RUN npm i -g pnpm
 RUN pnpm add -g @nestjs/cli

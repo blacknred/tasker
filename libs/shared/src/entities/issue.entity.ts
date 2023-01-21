@@ -12,19 +12,18 @@ import {
 } from '@mikro-orm/core';
 import { FullTextType } from '@mikro-orm/postgresql';
 import { AggregateRoot } from '@nestjs/cqrs';
+import { v4 } from 'uuid';
 import { IssuePriority, IssueRelation, IssueType } from '../enums';
 import type {
   IIssue,
   IIssueComment,
   IIssueRelation,
   IIssueUpdate,
+  IProfile,
   ITag,
-  IUserPreview,
 } from '../interfaces';
+import { Profile } from './account.entity';
 import { Status } from './status.entity';
-import { User } from './user.entity';
-import { v4 } from 'uuid';
-import { Sprint } from './sprint.entity';
 import { Tag } from './tag.entity';
 
 @Entity({ tableName: 'issue_comment' })
@@ -48,8 +47,8 @@ export class Comment implements IIssueComment {
   @Property({ onUpdate: () => new Date(), lazy: true })
   updatedAt: Date = new Date();
 
-  @ManyToOne(() => User, { fieldName: 'authorId' })
-  author!: User;
+  @ManyToOne(() => Profile, { fieldName: 'authorId' })
+  author!: Profile;
 }
 
 @Entity({ tableName: 'issue_relation' })
@@ -75,6 +74,10 @@ export class Issue extends AggregateRoot implements IIssue {
   @Index({ name: 'issue_project_id_idx' })
   @Property({ type: 'uuid' })
   projectId!: string;
+
+  @Index({ name: 'issue_sprint_id_idx' })
+  @Property({ type: 'uuid' })
+  sprintId!: string;
 
   @Index({ name: 'issue_name_idx' })
   @Property({ unique: true, length: 10, check: 'length(name) >= 3' })
@@ -129,27 +132,19 @@ export class Issue extends AggregateRoot implements IIssue {
   //
 
   @Index({ name: 'issue_author_id_idx' })
-  @ManyToOne(() => User, { lazy: true, fieldName: 'authorId' })
-  author!: User;
+  @ManyToOne(() => Profile, { lazy: true, fieldName: 'authorId' })
+  author!: Profile;
 
   @Index({ name: 'issue_assignee_id_idx' })
-  @ManyToOne(() => User, {
+  @ManyToOne(() => Profile, {
     nullable: true,
     fieldName: 'assigneeId',
   })
-  assignee?: User;
+  assignee?: Profile;
 
   @Index({ name: 'issue_status_id_idx' })
   @ManyToOne(() => Status, { fieldName: 'statusId' })
   status!: Status;
-
-  @Index({ name: 'issue_sprint_id_idx' })
-  @ManyToOne(() => Sprint, {
-    lazy: true,
-    nullable: true,
-    fieldName: 'sprintId',
-  })
-  sprint?: Sprint;
 
   @ManyToOne(() => Issue, {
     nullable: true,
@@ -160,15 +155,15 @@ export class Issue extends AggregateRoot implements IIssue {
   @ManyToMany({ entity: () => Tag, pivotTable: 'issue_tag' })
   tags = new Collection<Tag>(this) as unknown as ITag[];
 
-  @ManyToMany({ lazy: true, entity: () => User, pivotTable: 'issue_vote' })
-  voters = new Collection<User>(this) as unknown as IUserPreview[];
+  @ManyToMany({ lazy: true, entity: () => Profile, pivotTable: 'issue_vote' })
+  voters = new Collection<Profile>(this) as unknown as IProfile[];
 
   @ManyToMany({
     lazy: true,
-    entity: () => User,
+    entity: () => Profile,
     pivotTable: 'issue_subscription',
   })
-  subscribers = new Collection<User>(this) as unknown as IUserPreview[];
+  subscribers = new Collection<Profile>(this) as unknown as IProfile[];
 
   @OneToMany({ lazy: true, entity: () => Comment, mappedBy: 'issueId' })
   comments = new Collection<Comment>(this) as unknown as IIssueComment[];

@@ -3,7 +3,7 @@ export * from './events';
 export * from './consts';
 export * from './decorators';
 export * from './dto';
-export * from './filters';
+export * from './entities';
 export * from './guards';
 export * from './pipes';
 export * from './enums';

@@ -2,9 +2,14 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from '@taskapp/core';
-import { getAmqpOptions, getOrmOptions } from '@taskapp/shared';
+import {
+  getAmqpOptions,
+  getEventStoreOptions,
+  getOrmOptions,
+} from '@taskapp/shared';
 import * as Joi from 'joi';
 import { AmqpModule } from 'nestjs-amqp';
+import { EventStoreCqrsModule } from 'nestjs-eventstore';
 import { FiltersModule } from './filters/filters.module';
 import { ProjectsModule } from './projects/projects.module';
 import { SprintsModule } from './sprints/sprints.module';
@@ -21,6 +26,7 @@ import { SprintsModule } from './sprints/sprints.module';
         EVENTSTORE_URL: Joi.string().required(),
       }),
     }),
+    EventStoreCqrsModule.forRootAsync(getEventStoreOptions(), null),
     MikroOrmModule.forRootAsync(getOrmOptions()),
     AmqpModule.forRootAsync(getAmqpOptions()),
     CoreModule,

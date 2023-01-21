@@ -7,6 +7,5 @@ export interface IStatus {
   color?: string;
   isFirst: boolean;
   isLast: boolean;
-  //
   transitions: IStatus[];
 }

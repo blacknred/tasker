@@ -12,11 +12,31 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import * as bcrypt from 'bcryptjs';
 import { v4 } from 'uuid';
 import { NotificationMethod, SecuredNotificationMethod } from '../enums';
-import type { ITeammate, IUser } from '../interfaces';
+import type { IAccount, ITeammate } from '../interfaces';
 import { Teammate } from './teammate.entity';
 
-@Entity({ tableName: 'user' })
-export class User extends AggregateRoot implements IUser {
+@Entity({ tableName: 'profile' })
+export class Profile {
+  @Index({ name: 'profile_account_id_idx' })
+  @Property({ type: 'uuid' })
+  userId!: string;
+
+  @Index({ name: 'user_username_idx' })
+  @Property({ unique: true, length: 30, check: 'length(username) >= 5' })
+  username!: string;
+
+  @Property({ length: 100, check: 'length(name) >= 5' })
+  name!: string;
+
+  @Property({
+    nullable: true,
+    check: 'image ~ "^(https?://.*.(?:png|gif|webp|jpeg|jpg))$"',
+  })
+  image?: string;
+}
+
+@Entity({ tableName: 'account' })
+export class Account extends AggregateRoot implements IAccount {
   @PrimaryKey()
   id: string = v4();
 
@@ -95,14 +115,14 @@ export class User extends AggregateRoot implements IUser {
     entity: () => Teammate,
     mappedBy: 'user',
   })
-  roles = new Collection<Teammate>(this) as unknown as ITeammate[];
+  projects = new Collection<Teammate>(this) as unknown as ITeammate[];
 
   @BeforeCreate()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 8);
   }
 
-  constructor(instance?: Partial<User>) {
+  constructor(instance?: Partial<Account>) {
     super();
     Object.assign(this, instance);
   }

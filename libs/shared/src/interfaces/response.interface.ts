@@ -1,3 +1,5 @@
+import { ID } from './base.interface';
+
 export interface IValidationError {
   field: string;
   message: string;
@@ -16,5 +18,7 @@ export interface IResponse<T = unknown> {
 }
 
 export type IEmptyResponse = IResponse<null>;
+
+export type IIdResponse = IResponse<ID>;
 
 export type IPaginatedResponse<T> = IResponse<IPaginatedData<T>>;

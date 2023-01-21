@@ -14,7 +14,6 @@ import { ReportsModule } from './reports/reports.module';
         SERVICE_NAME: Joi.string().required(),
         API_VERSION: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
-        EVENTSTORE_URL: Joi.string().required(),
       }),
     }),
     MikroOrmModule.forRootAsync(getOrmOptions()),

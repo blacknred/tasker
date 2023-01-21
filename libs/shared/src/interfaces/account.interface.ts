@@ -7,13 +7,13 @@ import type { ITeammate } from './teammate.interface';
 //   allUsers: Merge<User, { postCount: number }>[];
 // }
 
-export interface IUser extends IBase {
+export interface IAccount extends IBase {
   username: string;
   name: string;
-  email: string;
   image?: string;
-  phone?: string;
   details?: string;
+  email: string;
+  phone?: string;
   isAdmin: boolean;
   isConfirmed: boolean;
   locale: string;
@@ -21,8 +21,12 @@ export interface IUser extends IBase {
   is2faEnabled: boolean;
   notificationMethod: NotificationMethod;
   securedNotificationMethod: SecuredNotificationMethod;
-  //
-  roles: ITeammate[];
+  projects: ITeammate[];
 }
 
-export type IUserPreview = Pick<IUser, 'id' | 'name' | 'image'>;
+export interface IProfile
+  extends Pick<IAccount, 'username' | 'name' | 'image'> {
+  userId: IAccount['id'];
+}
+
+export type IExtendedProfile = IProfile & IAccount['details'];

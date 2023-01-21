@@ -7,4 +7,4 @@ export * from './sprint.entity';
 export * from './status.entity';
 export * from './tag.entity';
 export * from './teammate.entity';
-export * from './user.entity';
+export * from './account.entity';

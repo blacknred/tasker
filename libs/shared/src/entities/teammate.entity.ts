@@ -9,7 +9,7 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
 import type { ITeammate } from '../interfaces';
 import { Role } from './role.entity';
-import { User } from './user.entity';
+import { User } from './account.entity';
 
 @Entity({ tableName: 'user_role' })
 export class Teammate extends AggregateRoot implements ITeammate {

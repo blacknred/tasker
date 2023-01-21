@@ -10,7 +10,7 @@ export * from './response.interface';
 export * from './search.interface';
 export * from './sprint.interface';
 export * from './filter.interface';
-export * from './user.interface';
+export * from './account.interface';
 export * from './tag.interface';
 export * from './status.interface';
 export * from './session.interface';

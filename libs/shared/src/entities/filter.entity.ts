@@ -26,4 +26,8 @@ export class Filter extends AggregateRoot implements IFilter {
   //   // logic
   //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
   // }
+
+  createFilter() {
+    this.apply(new FilterCreatedEvent(this));
+  }
 }

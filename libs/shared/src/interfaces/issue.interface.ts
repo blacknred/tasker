@@ -1,16 +1,14 @@
 import { IssuePriority, IssueRelation, IssueType } from '../enums';
+import type { IProfile } from './account.interface';
 import type { IBase, ID } from './base.interface';
-import type { ISprintPreview } from './sprint.interface';
 import type { IStatus } from './status.interface';
 import type { ITag } from './tag.interface';
-import type { IUserPreview } from './user.interface';
 
 export interface IIssueComment extends IBase {
   issueId: ID;
   body: string;
   assets: string[];
-  //
-  author: IUserPreview;
+  author: IProfile;
 }
 
 export interface IIssueRelation {
@@ -26,13 +24,13 @@ export interface IIssueUpdate {
   prev: string;
   next: string;
   createdAt: string | Date;
-  //
-  user: IUserPreview;
+  user: IProfile;
 }
 
 export interface IIssue extends IBase {
   type: IssueType;
   projectId: ID;
+  sprintId?: ID;
   name: string;
   title: string;
   details?: string;
@@ -46,14 +44,13 @@ export interface IIssue extends IBase {
   version?: number;
   weight?: number;
   tags: ITag[];
-  author: IUserPreview;
-  assignee?: IUserPreview;
+  author: IProfile;
+  assignee?: IProfile;
   epic?: IIssuePreview;
-  sprint?: ISprintPreview;
   relations: IIssueRelation[];
   comments: IIssueComment[];
-  subscribers: IUserPreview[];
-  voters: IUserPreview[];
+  subscribers: IProfile[];
+  voters: IProfile[];
 }
 
 export type IIssuePreview = Pick<
@@ -66,5 +63,6 @@ export type IIssuePreview = Pick<
   | 'status'
   | 'type'
   | 'tags'
-  | 'voters'
+  | 'weight'
+  | 'endsAt'
 >;

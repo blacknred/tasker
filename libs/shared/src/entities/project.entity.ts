@@ -2,7 +2,7 @@ import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
 import { ProjectType } from '../enums';
-import type { IProject, ISprintPreview } from '../interfaces';
+import type { IProject, ISprint } from '../interfaces';
 
 @Entity({ tableName: 'project' })
 export class Project extends AggregateRoot implements IProject {
@@ -46,7 +46,7 @@ export class Project extends AggregateRoot implements IProject {
   @Property({ onUpdate: () => new Date(), lazy: true })
   updatedAt: Date = new Date();
 
-  activeSprint: ISprintPreview;
+  activeSprint: ISprint;
 
   constructor(instance?: Partial<Project>) {
     super();

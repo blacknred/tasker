@@ -121,6 +121,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=user-query-service
+        - NODE_ENV=development
     image: user-query-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -132,9 +133,8 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/users
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -149,6 +149,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=user-command-service
+        - NODE_ENV=development
     image: user-command-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -160,12 +161,13 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/users
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - eventstore
+      - redis
     logging:
       driver: fluentd
       options:
@@ -177,6 +179,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=project-query-service
+        - NODE_ENV=development
     image: project-query-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -188,10 +191,9 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -207,6 +209,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=project-command-service
+        - NODE_ENV=development
     image: project-command-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -218,10 +221,9 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/projects
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -237,6 +239,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=project-query-service
+        - NODE_ENV=development
     image: issue-query-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -248,9 +251,8 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -265,6 +267,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=project-command-service
+        - NODE_ENV=development
     image: issue-command-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -276,9 +279,8 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -293,6 +295,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=search-query-service
+        - NODE_ENV=development
     image: search-query-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -304,9 +307,8 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/search
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
       - eventstore
@@ -315,61 +317,57 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  report-query-service:
+  report-service:
     build:
       context: .
       target: build
       args:
-        - SERVICE_NAME=report-query-service
-    image: report-query-service:latest
+        - SERVICE_NAME=report-service
+        - NODE_ENV=development
+    image: report-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8008:3000 ]
-    command: nest start:dev report-query-service
+    command: nest start:dev report-service
     volumes:
-      - ./apps/report-query-service:/usr/src/app/apps/report-query-service
+      - ./apps/report-service:/usr/src/app/apps/report-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/issues
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
     depends_on:
       - postgres
-      - eventstore
     logging:
       driver: fluentd
       options:
         fluentd-address: fluent-bit:24224
 
-  notification-query-service:
+  notification-service:
     build:
       context: .
       target: build
       args:
-        - SERVICE_NAME=notification-query-service
-    image: notification-query-service:latest
+        - SERVICE_NAME=notification-service
+        - NODE_ENV=development
+    image: notification-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8009:3000 ]
-    command: nest start:dev notification-query-service
+    command: nest start:dev notification-service
     volumes:
-      - ./apps/notification-query-service:/usr/src/app/apps/notification-query-service
+      - ./apps/notification-service:/usr/src/app/apps/notification-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
       - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/notifications
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/notifications
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-      - EVENTSTORE_URL=tcp://eventstore:1113
     depends_on:
       - postgres
       - rabbitmq
-      - eventstore
       - redis
     logging:
       driver: fluentd
@@ -382,6 +380,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=billing-service
+        - NODE_ENV=development
     image: billing-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -393,12 +392,9 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@db:5432/billing
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/billing
     depends_on:
       - postgres
-      - eventstore
     logging:
       driver: fluentd
       options:
@@ -410,6 +406,7 @@ services:
       target: build
       args:
         - SERVICE_NAME=auth-service
+        - NODE_ENV=development
     image: auth-service:latest
     env_file: ./.env.dev
     restart: on-failure
@@ -421,13 +418,12 @@ services:
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - NODE_ENV=development
       - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
       - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
-      - EVENTSTORE_URL=tcp://eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - user-service
-      - eventstore
+      - redis
     logging:
       driver: fluentd
       options:

@@ -27,7 +27,6 @@
   "dependencies": {
     "@dollarsign/nestjs-jaeger-tracing": "^1.0.8",
     "@godaddy/terminus": "^4.4.1",
-    "@juicycleff/nestjs-event-store": "^3.1.18",
     "@mikro-orm/core": "^5.2.1",
     "@mikro-orm/nestjs": "^4.3.1",
     "@mikro-orm/postgresql": "^5.2.1",
@@ -52,8 +51,10 @@
     "ioredis": "^4.17.3",
     "joi": "*",
     "nestjs-amqp": "^0.2.2",
+    "nestjs-eventstore": "^2.1.0",
     "nestjs-pino": "^1.1.3",
     "nestjs-redis": "^1.3.3",
+    "node-eventstore-client": "^21.10.0",
     "nodemailer": "^6.6.5",
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",

@@ -1,10 +1,9 @@
 import type { IRole } from './role.interface';
-import type { IUser } from './user.interface';
+import type { IExtendedProfile } from './account.interface';
 
 export interface ITeammate {
-  isActive: boolean;
+  isActive?: boolean;
   createdAt: string | Date;
-  //
+  user: IExtendedProfile;
   role: IRole;
-  user: IUser;
 }
