@@ -1,34 +1,32 @@
 import {
+  Body,
   Controller,
-  Get,
-  HttpStatus,
+  Delete,
+  Param,
+  Patch,
   Post,
   UseFilters,
-  UseGuards,
 } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CommandBus } from '@nestjs/cqrs';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   AllExceptionFilter,
   Auth,
-  ResponseDto,
+  EmptyResponseDto,
+  IdResponseDto,
   Session,
 } from '@taskapp/shared';
-import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
-import { Agent } from 'src/__shared__/decorators/agent.decorator';
-import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
-
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
-import { CreateFilterCommand } from './commands/impl/create-filter.command';
-import { CreateFilterDto } from './dto/create-filter.dto';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { FiltersResponseDto } from './dto/filters-response.dto';
-import { GetTaskDto } from './dto/get-report.dto';
-import { GetTasksDto } from './dto/get-reports.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/reports-response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { TasksService } from './reports.service';
+import {
+  CreateFilterCommand,
+  DeleteFilterCommand,
+  UpdateFilterCommand,
+} from './commands';
+import { CreateFilterDto, DeleteFilterDto, UpdateFilterDto } from './dto';
 
 @Auth()
 @ApiTags('Filters')
@@ -38,48 +36,38 @@ export class FiltersController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
+  @ApiOperation({ description: 'List all filters' })
+  @ApiCreatedResponse({ type: IdResponseDto })
   async create(
     @Session('userId') userId,
-    @Payload() dto: CreateFilterDto,
-  ): Promise<ResponseDto<string>> {
+    @Body() dto: CreateFilterDto,
+  ): Promise<IdResponseDto> {
     const { id: data } = await this.commandBus.execute(
       new CreateFilterCommand(dto, userId),
     );
     return { data };
   }
 
-  // @Get()
-  // @ApiOperation({ description: 'List all filters' })
-  // @ApiOkResponse({ type: FiltersResponseDto })
-  // getAll(
-  //   @User('id') userId,
-  //   @User('projects') projectIds,
-  //   @Query() dto: GetEntriesDto,
-  // ): Promise<FiltersResponseDto> {
-  //   return this.queryBus.execute(new GetEntriesQuery(dto, userId, projectIds));
-  // }
-
-  @MessagePattern('tasks/getOne')
-  async getOne(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, agent);
-  }
-
-  @MessagePattern('tasks/update')
+  @Patch(':id')
+  @ApiOperation({ description: 'Update filter' })
+  @ApiOkResponse({ type: IdResponseDto })
   async update(
-    @Agent() agent,
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.update(updateTaskDto, agent);
+    @Session('userId') userId,
+    @Param() { id }: DeleteFilterDto,
+    @Body() dto: UpdateFilterDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new UpdateFilterCommand(id, dto, userId));
+    return { data: id };
   }
 
-  @MessagePattern('tasks/delete')
+  @Delete(':id')
+  @ApiOperation({ description: 'Delete filter' })
+  @ApiOkResponse({ type: EmptyResponseDto })
   async remove(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<ResponseDto> {
-    return this.tasksService.remove(id, agent);
+    @Session('userId') userId,
+    @Param() { id }: DeleteFilterDto,
+  ): Promise<EmptyResponseDto> {
+    await this.commandBus.execute(new DeleteFilterCommand(id, userId));
+    return { data: null };
   }
 }

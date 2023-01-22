@@ -6,3 +6,5 @@ export interface ITag {
   name: string;
   color?: string;
 }
+
+export type IHydratedTag = ITag;

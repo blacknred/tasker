@@ -10,3 +10,5 @@ export interface IFilter {
   name: string;
   schema: string;
 }
+
+export type IHydratedFilter = IFilter;

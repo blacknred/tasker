@@ -1,14 +1,17 @@
 import { IEvent } from '@nestjs/cqrs';
-import type { ISprintPreview } from '../interfaces';
+import type { ISprint } from '../interfaces';
 
 export class SprintCreatedEvent implements IEvent {
-  constructor(public readonly data: ISprintPreview) {}
+  constructor(public readonly data: ISprint) {}
+  streamName = () => `sprints-${this.data.projectId}`;
 }
 
 export class SprintUpdatedEvent implements IEvent {
-  constructor(public readonly data: ISprintPreview) {}
+  constructor(public readonly data: ISprint) {}
+  streamName = () => `sprints-${this.data.projectId}`;
 }
 
 export class SprintDeletedEvent implements IEvent {
-  constructor(public readonly id: ISprintPreview['id']) {}
+  constructor(public readonly data: ISprint) {}
+  streamName = () => `sprints-${this.data.projectId}`;
 }

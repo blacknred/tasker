@@ -1,68 +1,87 @@
-import { IssuePriority, IssueRelation, IssueType } from '../enums';
+import { IssueRelation, IssueType, Priority } from '../enums';
 import type { IProfile } from './account.interface';
 import type { IBase, ID } from './base.interface';
 import type { IStatus } from './status.interface';
 import type { ITag } from './tag.interface';
 
-export interface IIssueComment extends IBase {
+export interface IComment extends IBase {
   issueId: ID;
   body: string;
   assets: string[];
+  authorId: ID;
+}
+
+export interface IHydratedComment extends Omit<IComment, 'authorId'> {
   author: IProfile;
 }
 
 export interface IIssueRelation {
   relation: IssueRelation;
   comment?: string;
-  //
   issueId: ID;
-  relatedIssue: IIssuePreview;
 }
 
-export interface IIssueUpdate {
-  field: string;
-  prev: string;
-  next: string;
-  createdAt: string | Date;
-  user: IProfile;
+export interface IHydratedIssueRelation extends IIssueRelation {
+  relatedIssueId: IHydratedIssueBase;
 }
 
 export interface IIssue extends IBase {
   type: IssueType;
   projectId: ID;
-  sprintId?: ID;
   name: string;
   title: string;
-  details?: string;
-  assets: string[];
-  updates: IIssueUpdate[];
-  status: IStatus;
-  priority?: IssuePriority;
+  statusId: ID;
+  priority?: Priority;
   endsAt?: string | Date;
-  endedAt: string | Date;
-  //
-  version?: number;
   weight?: number;
-  tags: ITag[];
-  author: IProfile;
-  assignee?: IProfile;
-  epic?: IIssuePreview;
+  tags: ID[];
+  assigneeId?: ID;
+  epicId?: ID;
+  //
+  sprintId?: ID;
+  details?: string;
+  endedAt: string | Date;
+  assets: string[];
+  version?: number;
+  authorId: ID;
   relations: IIssueRelation[];
-  comments: IIssueComment[];
-  subscribers: IProfile[];
-  voters: IProfile[];
 }
 
-export type IIssuePreview = Pick<
-  IIssue,
+export interface IHydratedIssue
+  extends Omit<IIssue, 'statusId' | 'tags' | 'relations'> {
+  status: IStatus;
+  tags: ITag[];
+  assignee?: IProfile;
+  epic?: IHydratedIssueBase;
+  author: IProfile; //lazy
+  relations: IHydratedIssueRelation[]; //lazy
+
+  comments: IHydratedComment[]; //lazy
+  subscribers: IProfile[]; //lazy
+  voters: IProfile[]; //lazy
+  // updates?: IHydratedIssueUpdate[];
+}
+
+export type IHydratedIssueBase = Pick<
+  IHydratedIssue,
   | 'id'
+  | 'type'
+  | 'projectId'
   | 'name'
   | 'title'
-  | 'assignee'
-  | 'projectId'
   | 'status'
-  | 'type'
-  | 'tags'
-  | 'weight'
+  | 'priority'
   | 'endsAt'
+  | 'weight'
+  | 'tags'
+  | 'assignee'
+  | 'epic'
 >;
+
+// export interface IHydratedIssueUpdate {
+//   field: string;
+//   prev: string;
+//   next: string;
+//   createdAt: string | Date;
+//   user: IProfile;
+// }

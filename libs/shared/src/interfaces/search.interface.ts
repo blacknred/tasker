@@ -8,3 +8,5 @@ export interface ISearchEntry {
   type: SearchEntryType;
   text: string;
 }
+
+export type IHydratedSearchEntry = ISearchEntry;

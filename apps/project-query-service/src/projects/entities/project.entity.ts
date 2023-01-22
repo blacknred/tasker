@@ -1,13 +1,10 @@
 import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
-import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 } from 'uuid';
-import { ProjectType } from '../enums';
-import type { IProject, ISprint } from '../interfaces';
+import { IHydratedProject, ISprint, ProjectType } from '@taskapp/shared';
 
 @Entity({ tableName: 'project' })
-export class Project extends AggregateRoot implements IProject {
-  @PrimaryKey()
-  id: string = v4();
+export class Project implements IHydratedProject {
+  @PrimaryKey({ type: 'uuid' })
+  id!: string;
 
   @Property({ type: 'uuid' })
   authorId!: string;
@@ -49,12 +46,6 @@ export class Project extends AggregateRoot implements IProject {
   activeSprint: ISprint;
 
   constructor(instance?: Partial<Project>) {
-    super();
     Object.assign(this, instance);
   }
-
-  // killEnemy(enemyId: string) {
-  //   // logic
-  //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
-  // }
 }

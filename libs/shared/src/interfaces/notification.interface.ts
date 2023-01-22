@@ -8,6 +8,8 @@ export interface INotification {
   createdAt: string | Date;
 }
 
+export type IHydratedNotification = INotification;
+
 export interface UserNotificationTransport
   extends Pick<
     IAccount,

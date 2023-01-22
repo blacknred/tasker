@@ -1,3 +1,5 @@
+import { ReportType } from '../enums';
+
 export interface IReport {
-  name: string;
+  name: ReportType;
 }

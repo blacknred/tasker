@@ -7,3 +7,5 @@ export interface IRole extends IBase {
   color?: string;
   permissions: ProjectPermission[];
 }
+
+export type IHydratedRole = IRole;

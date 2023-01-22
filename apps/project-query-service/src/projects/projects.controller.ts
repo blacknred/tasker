@@ -1,60 +1,39 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
-import { Agent } from 'src/__shared__/decorators/agent.decorator';
-import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
-import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTaskDto } from './dto/get-report.dto';
-import { GetTasksDto } from './dto/get-reports.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/reports-response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { TasksService } from './reports.service';
+import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AllExceptionFilter, Auth, Session } from '@taskapp/shared';
+import {
+  GetProjectDto,
+  GetProjectsDto,
+  ProjectResponseDto,
+  ProjectsResponseDto,
+} from './dto';
+import { GetProjectQuery, GetProjectsQuery } from './queries';
 
-@Controller()
-@UseGuards(AgentGuard)
+@Auth()
+@ApiTags('Projects')
+@Controller('projects')
+@UseFilters(AllExceptionFilter)
 export class ProjectsController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
-  @WithPrivilege(Privilege.CREATE_TASK)
-  @MessagePattern('tasks/create')
-  async create(
-    @Agent() agent,
-    @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.create(createTaskDto, agent);
-  }
-
-  @MessagePattern('tasks/getAll')
+  @Get()
+  @ApiOperation({ description: 'List all projects' })
+  @ApiOkResponse({ type: ProjectsResponseDto })
   async getAll(
-    @Agent() agent,
-    @Payload() getTasksDto: GetTasksDto,
-  ): Promise<TasksResponseDto> {
-    return this.tasksService.findAll(getTasksDto, agent);
+    @Session('projects') allowedProjects,
+    @Query() dto: GetProjectsDto,
+  ): Promise<ProjectsResponseDto> {
+    return this.queryBus.execute(new GetProjectsQuery(dto, allowedProjects));
   }
 
-  @MessagePattern('tasks/getOne')
+  @Get(':id')
+  @ApiOperation({ description: 'Get project by id' })
+  @ApiOkResponse({ type: ProjectResponseDto })
   async getOne(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, agent);
-  }
-
-  @MessagePattern('tasks/update')
-  async update(
-    @Agent() agent,
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.update(updateTaskDto, agent);
-  }
-
-  @MessagePattern('tasks/delete')
-  async remove(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<ResponseDto> {
-    return this.tasksService.remove(id, agent);
+    @Session('projects') allowedProjects,
+    @Param() { id }: GetProjectDto,
+  ): Promise<ProjectResponseDto> {
+    return this.queryBus.execute(new GetProjectQuery(id, allowedProjects));
   }
 }

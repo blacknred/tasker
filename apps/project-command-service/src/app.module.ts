@@ -34,23 +34,5 @@ import { SprintsModule } from './sprints/sprints.module';
     SprintsModule,
     FiltersModule,
   ],
-  // providers: [
-  //   {
-  //     provide: 'NOTIFICATION_SERVICE',
-  //     inject: [ConfigService],
-  //     useFactory: (configService: ConfigService) =>
-  //       ClientProxyFactory.create({
-  //         transport: Transport.RMQ,
-  //         options: {
-  //           urls: [configService.get('RABBITMQ_URL')],
-  //           queue: 'notifications',
-  //           noAck: false,
-  //           queueOptions: {
-  //             durable: true,
-  //           },
-  //         },
-  //       }),
-  //   },
-  // ],
 })
 export class AppModule {}

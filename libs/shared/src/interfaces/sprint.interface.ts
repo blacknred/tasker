@@ -8,3 +8,5 @@ export interface ISprint extends IBase {
   endsAt: string | Date;
   authorId: ID;
 }
+
+export type IHydratedSprint = ISprint;

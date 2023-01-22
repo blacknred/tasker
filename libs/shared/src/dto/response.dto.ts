@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
+import type {
+  ID,
   IEmptyResponse,
+  IIdResponse,
   IPaginatedData,
   IPaginatedResponse,
   IResponse,
@@ -44,6 +46,8 @@ export class ResponseDto<T = unknown> implements IResponse {
 export class EmptyResponseDto
   extends ResponseDto<null>
   implements IEmptyResponse {}
+
+export class IdResponseDto extends ResponseDto<ID> implements IIdResponse {}
 
 export class PaginatedResponseDto<T>
   extends ResponseDto<PaginatedDataDto<T>>

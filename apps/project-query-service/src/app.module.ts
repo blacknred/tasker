@@ -3,10 +3,17 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from '@taskapp/core';
 import {
+  FilterCreatedEvent,
+  FilterDeletedEvent,
+  FilterUpdatedEvent,
   getAmqpOptions,
   getEventStoreOptions,
   getOrmOptions,
-  IFilter,
+  ProjectCreatedEvent,
+  ProjectUpdatedEvent,
+  SprintCreatedEvent,
+  SprintDeletedEvent,
+  SprintUpdatedEvent,
 } from '@taskapp/shared';
 import * as Joi from 'joi';
 import { AmqpModule } from 'nestjs-amqp';
@@ -17,14 +24,6 @@ import {
 import { FiltersModule } from './filters/filters.module';
 import { ProjectsModule } from './projects/projects.module';
 import { SprintsModule } from './sprints/sprints.module';
-
-export class FilterCreatedEvent {
-  constructor(public data: IFilter) {}
-
-  streamName() {
-    return `filters-${this.data.id}`;
-  }
-}
 
 @Module({
   imports: [
@@ -45,11 +44,26 @@ export class FilterCreatedEvent {
           stream: '$ce-filters',
           persistentSubscriptionName: 'filters',
         },
+        {
+          type: EventStoreSubscriptionType.Persistent,
+          stream: '$ce-projects',
+          persistentSubscriptionName: 'projects',
+        },
+        {
+          type: EventStoreSubscriptionType.Persistent,
+          stream: '$ce-sprints',
+          persistentSubscriptionName: 'sprints',
+        },
       ],
       events: {
         FilterCreatedEvent,
         FilterUpdatedEvent,
         FilterDeletedEvent,
+        ProjectCreatedEvent,
+        ProjectUpdatedEvent,
+        SprintCreatedEvent,
+        SprintUpdatedEvent,
+        SprintDeletedEvent,
       },
     }),
     MikroOrmModule.forRootAsync(getOrmOptions()),
@@ -59,23 +73,5 @@ export class FilterCreatedEvent {
     SprintsModule,
     FiltersModule,
   ],
-  // providers: [
-  //   {
-  //     provide: 'NOTIFICATION_SERVICE',
-  //     inject: [ConfigService],
-  //     useFactory: (configService: ConfigService) =>
-  //       ClientProxyFactory.create({
-  //         transport: Transport.RMQ,
-  //         options: {
-  //           urls: [configService.get('RABBITMQ_URL')],
-  //           queue: 'notifications',
-  //           noAck: false,
-  //           queueOptions: {
-  //             durable: true,
-  //           },
-  //         },
-  //       }),
-  //   },
-  // ],
 })
 export class AppModule {}

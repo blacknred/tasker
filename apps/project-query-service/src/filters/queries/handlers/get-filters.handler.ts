@@ -1,24 +1,20 @@
-import { MikroORM } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { FiltersResponseDto } from '../../dto/filters-response.dto';
+import { Filter } from '../../entities';
 import { GetFiltersQuery } from '../impl/get-filters.query';
 
 @QueryHandler(GetFiltersQuery)
 export class GetFiltersHandler implements IQueryHandler<GetFiltersQuery> {
   constructor(
-    private readonly orm: MikroORM,
-    private readonly em: EntityManager,
-    @InjectPinoLogger(GetFiltersHandler.name)
-    private readonly logger: PinoLogger,
+    @InjectRepository(Filter)
+    private filterRepository: EntityRepository<Filter>,
   ) {}
 
   async execute(query: GetFiltersQuery): Promise<FiltersResponseDto> {
     const { dto, userId } = query;
     const { limit, offset, ...rest } = dto;
-
-    this.em.execute('');
 
     // const _where = { deletedAt: null };
 

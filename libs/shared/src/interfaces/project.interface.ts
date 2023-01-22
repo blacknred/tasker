@@ -10,10 +10,8 @@ export interface IProject extends IBase {
   image?: string;
   isUnlimited: boolean;
   authorId: ID;
-  activeSprint: ISprint;
 }
 
-export type IProjectPreview = Pick<
-  IProject,
-  'id' | 'name' | 'image' | 'type' | 'authorId'
->;
+export interface IHydratedProject extends IProject {
+  activeSprint: ISprint;
+}
