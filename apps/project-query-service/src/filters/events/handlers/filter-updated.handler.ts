@@ -16,8 +16,8 @@ export class FilterUpdatedHandler implements IEventHandler<FilterUpdatedEvent> {
 
   async handle({ data: { id, ...rest } }: FilterUpdatedEvent) {
     try {
-      const entry = await this.filterRepository.findOneOrFail(id);
-      wrap(entry).assign(rest);
+      const filter = await this.filterRepository.findOneOrFail(id);
+      wrap(filter).assign(rest);
       await this.filterRepository.flush();
     } catch (e) {
       this.logger.error(e);

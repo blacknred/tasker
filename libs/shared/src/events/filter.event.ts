@@ -3,21 +3,15 @@ import type { IFilter } from '../interfaces';
 
 export class FilterCreatedEvent implements IEvent {
   constructor(public readonly data: IFilter) {}
-  streamName = () => `filters-${this.data.ownerId || 'common'}`;
+  streamName = () => `filter-${this.data.id}`;
 }
 
 export class FilterUpdatedEvent implements IEvent {
-  constructor(
-    public readonly data: Partial<IFilter>,
-    public readonly ownerId: IFilter['ownerId'],
-  ) {}
-  streamName = () => `filters-${this.ownerId || 'common'}`;
+  constructor(public readonly data: Partial<IFilter>) {}
+  streamName = () => `filter-${this.data.id}`;
 }
 
 export class FilterDeletedEvent implements IEvent {
-  constructor(
-    public readonly id: IFilter['id'],
-    public readonly ownerId: IFilter['ownerId'],
-  ) {}
-  streamName = () => `filters-${this.ownerId || 'common'}`;
+  constructor(public readonly id: IFilter['id']) {}
+  streamName = () => `filter-${this.id}`;
 }

@@ -7,8 +7,9 @@ export interface IStatus {
   color?: string;
   isFirst: boolean;
   isLast: boolean;
+  transitions: ID[];
 }
 
-export interface IHydratedStatus extends IStatus {
+export interface IHydratedStatus extends Omit<IStatus, 'transitions'> {
   transitions: IStatus[];
 }

@@ -10,38 +10,39 @@ Sample app for agile project management
 
 > for a real world scenario you definitely need an easily sharded nosql db for read DB
 
-| Services           | Container                  | Stack                   | Ports  |
-| ------------------ | -------------------------- | ----------------------- | ------ |
-| Redis              | redis                      | Redis stack             | 6379   |
-| Queue              | rabbitmq                   | RabbitMQ                | 5672   |
-| Read DB            | postgres                   | Postgres                | 5432   |
-| Write DB           | eventstore                 | EventStoreDB            | 1113   |
-| Object storage(s3) | minio                      | Minio                   | 9000   |
-| -                  | -                          | -                       | -      |
-| User Query         | user-query-service         | NodeJs, HTTP1.1, AMQP   | 8001   |
-| User Command       | user-command-service       | NodeJs, HTTP1.1, AMQP   | 8002   |
-| Project Query      | project-query-service      | NodeJs, HTTP1.1, AMQP   | 8003   |
-| Project Command    | project-command-service    | NodeJs, HTTP1.1, AMQP   | 8004   |
-| Issue Query        | issue-query-service        | NodeJs, HTTP1.1, AMQP   | 8005   |
-| Issue Command      | issue-command-service      | NodeJs, HTTP1.1, AMQP   | 8006   |
-| Search Query       | search-query-service       | NodeJs, HTTP1.1, AMQP   | 8007   |
-| Report Query       | report-query-service       | NodeJs, HTTP1.1         | 8008   |
-| Notification Query | notification-query-service | NodeJs, HTTP1.1, AMQP   | 8009   |
-| Billing            | billing-service            | NodeJs, HTTP1.1, AMQP   | 8010   |
-| Auth               | auth-service               | NodeJs, HTTP1.1         | 8011   |
-| Api Gateway        | gateway                    | Nginx, HTTP1.1, Swagger | 80/443 |
-| -                  | -                          | -                       | -      |
-| Tracing            | jaeger                     | Jaeger                  | 9411   |
-| Prometheus         | prometheus                 | Prometheus              | 9090   |
-| Container metrics  | cadvisor                   | Prom cadvisor           | 8081   |
-| Unix metrics       | node-exporter              | Prom node exporter      | 9100   |
-| Nginx metrics      | nginx-exporter             | Prom nginx exporter     | 9113   |
-| Postgres metrics   | postgres-exporter          | Prom postgres exporter  | 9187   |
-| Redis metrics      | redis-exporter             | Prom redis exporter     | 9121   |
-| Logs storage       | loki                       | Grafana Loki            | 3100   |
-| Logs aggregator    | fluent-bit                 | Fluent Bit              | 24224  |
-| Grafana            | grafana                    | Grafana                 | 3003   |
-| Alerts             | alertmanager               | Alertmanager            | 9093   |
+| Services           | Container                  | Stack                   | Ports      |
+| ------------------ | -------------------------- | ----------------------- | ---------- |
+| Redis              | redis                      | Redis stack             | 6379       |
+| Queue              | rabbitmq                   | RabbitMQ                | 5672/15672 |
+| Read DB            | postgres                   | Postgres                | 5432       |
+| Write DB           | eventstore                 | EventStoreDB            | 1113/2113  |
+| Object storage(s3) | minio                      | Minio                   | 9000       |
+| -                  | -                          | -                       | -          |
+| Project Query      | project-query-service      | NodeJs, HTTP1.1, AMQP   | 8001       |
+| Project Command    | project-command-service    | NodeJs, HTTP1.1, AMQP   | 8002       |
+| Issue Query        | issue-query-service        | NodeJs, HTTP1.1, AMQP   | 8003       |
+| Issue Command      | issue-command-service      | NodeJs, HTTP1.1, AMQP   | 8004       |
+| Member Query       | member-query-service       | NodeJs, HTTP1.1, AMQP   | 8005       |
+| Member Command     | member-command-service     | NodeJs, HTTP1.1, AMQP   | 8006       |
+| Search Query       | search-query-service       | NodeJs, HTTP1.1, AMQP   | 8007       |
+| User               | user-service               | NodeJs, HTTP1.1, AMQP   | 8008       |
+| Report             | report-service             | NodeJs, HTTP1.1         | 8009       |
+| Notification       | notification-service       | NodeJs, HTTP1.1, AMQP   | 8010       |
+| Billing            | billing-service            | NodeJs, HTTP1.1, AMQP   | 8011       |
+| Auth               | auth-service               | NodeJs, HTTP1.1         | 8012       |
+| Api Gateway        | gateway                    | Nginx, HTTP1.1, Swagger | 80/443     |
+| -                  | -                          | -                       | -          |
+| Tracing            | jaeger                     | Jaeger                  | 9411/16686 |
+| Prometheus         | prometheus                 | Prometheus              | 9090       |
+| Container metrics  | cadvisor                   | Prom cadvisor           | 8081       |
+| Unix metrics       | node-exporter              | Prom node exporter      | 9100       |
+| Nginx metrics      | nginx-exporter             | Prom nginx exporter     | 9113       |
+| Postgres metrics   | postgres-exporter          | Prom postgres exporter  | 9187       |
+| Redis metrics      | redis-exporter             | Prom redis exporter     | 9121       |
+| Logs storage       | loki                       | Grafana Loki            | 3100       |
+| Logs aggregator    | fluent-bit                 | Fluent Bit              | 24224      |
+| Grafana            | grafana                    | Grafana                 | 3003       |
+| Alerts             | alertmanager               | Alertmanager            | 9093       |
 
 ## Features
 
@@ -82,6 +83,7 @@ Sample app for agile project management
 
 ## Todo
 
+- tenancy
 - billing(+stripe)
 - teams?
 - automation?

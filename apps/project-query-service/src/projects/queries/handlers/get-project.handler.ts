@@ -13,7 +13,7 @@ export class GetProjectHandler implements IQueryHandler<GetProjectQuery> {
   ) {}
 
   async execute(query: GetProjectQuery): Promise<ProjectResponseDto> {
-    const { id, allowedProjects } = query;
+    const { id } = query;
 
     // const _where = { deletedAt: null };
 
@@ -36,11 +36,7 @@ export class GetProjectHandler implements IQueryHandler<GetProjectQuery> {
     // });
 
     return {
-      // data: {
-      //   hasMore: items.length === +limit + 1,
-      //   items: items.slice(0, limit),
-      //   total,
-      // },
+      // data: {},
     };
   }
 }

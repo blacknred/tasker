@@ -3,34 +3,33 @@ import { EventRepository } from '@taskapp/shared';
 import { EventPublisher } from 'nestjs-eventstore';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { v4 } from 'uuid';
-import { FilterAggregate } from '../../aggregations';
-import { CreateFilterCommand } from '../impl';
+import { ProjectAggregate } from '../../aggregations';
+import { CreateProjectCommand } from '../impl';
 
-@CommandHandler(CreateFilterCommand)
-export class CreateFilterHandler
-  implements ICommandHandler<CreateFilterCommand>
+@CommandHandler(CreateProjectCommand)
+export class CreateProjectHandler
+  implements ICommandHandler<CreateProjectCommand>
 {
   constructor(
     private readonly publisher: EventPublisher,
     private readonly eventRepository: EventRepository,
-    @InjectPinoLogger(CreateFilterCommand.name)
+    @InjectPinoLogger(CreateProjectCommand.name)
     private readonly logger: PinoLogger,
   ) {}
 
-  async execute({ dto, userId: ownerId }: CreateFilterCommand) {
+  async execute({ dto }: CreateProjectCommand) {
     // TODO: db validation 409
 
-    const filter = this.publisher.mergeObjectContext<any>(
-      new FilterAggregate({
+    const project = this.publisher.mergeObjectContext<any>(
+      new ProjectAggregate({
         ...dto,
         id: v4(),
-        ownerId,
       }),
     );
 
-    filter.create();
-    filter.commit();
+    project.create();
+    project.commit();
 
-    return filter.id;
+    return project.id;
   }
 }

@@ -59,7 +59,7 @@ export interface IHydratedIssue
   comments: IHydratedComment[]; //lazy
   subscribers: IProfile[]; //lazy
   voters: IProfile[]; //lazy
-  // updates?: IHydratedIssueUpdate[];
+  updates?: IHydratedIssueUpdate[];
 }
 
 export type IHydratedIssueBase = Pick<
@@ -78,10 +78,8 @@ export type IHydratedIssueBase = Pick<
   | 'epic'
 >;
 
-// export interface IHydratedIssueUpdate {
-//   field: string;
-//   prev: string;
-//   next: string;
-//   createdAt: string | Date;
-//   user: IProfile;
-// }
+export interface IHydratedIssueUpdate {
+  createdAt: string | Date;
+  user: IProfile;
+  state: Partial<IHydratedIssue>;
+}

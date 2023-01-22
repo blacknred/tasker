@@ -1,2 +1,2 @@
-export * from './get-filter.handler';
-export * from './get-filters.handler';
+export * from './get-project.handler';
+export * from './get-projects.handler';

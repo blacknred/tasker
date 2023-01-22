@@ -11,12 +11,12 @@ export class UpdateFilterHandler
   constructor(
     private readonly publisher: EventPublisher,
     private readonly eventRepository: EventRepository,
-    @InjectPinoLogger(UpdateFilterCommand.name)
+    @InjectPinoLogger(UpdateFilterHandler.name)
     private readonly logger: PinoLogger,
   ) {}
 
   async execute({ id, dto, userId: ownerId }: UpdateFilterCommand) {
-    // TODO: db validation 409
+    // TODO: db validation 409: if i owner of filter
 
     const filter = this.publisher.mergeObjectContext(
       new FilterAggregate({ ...dto, id, ownerId }),

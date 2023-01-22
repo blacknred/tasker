@@ -1,11 +1,11 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ProjectPermission } from '@taskapp/types';
+import { ProjectPermission } from '@taskapp/shared';
 import { PERMISSION_KEY } from '../consts';
-import { ProjectMemberGuard } from './project-member.guard';
+import { ProjectAccessGuard } from './project-access.guard';
 
 @Injectable()
-export class ProjectPermissionGuard extends ProjectMemberGuard {
+export class ProjectPermissionGuard extends ProjectAccessGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }

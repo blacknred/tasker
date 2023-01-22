@@ -1,19 +1,25 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ProjectUnArchivedEvent } from '@taskapp/shared';
 import { Project } from './entities';
-import { ProjectCreatedHandler, ProjectUpdatedHandler } from './events';
+import {
+  ProjectArchivedHandler,
+  ProjectCreatedHandler,
+  ProjectUpdatedHandler,
+} from './events';
 import { ProjectsController } from './projects.controller';
 import { GetProjectHandler, GetProjectsHandler } from './queries';
 
 @Module({
-  imports: [ConfigModule, MikroOrmModule.forFeature([Project])],
+  imports: [MikroOrmModule.forFeature([Project])],
   controllers: [ProjectsController],
   providers: [
     GetProjectHandler,
     GetProjectsHandler,
     ProjectCreatedHandler,
     ProjectUpdatedHandler,
+    ProjectArchivedHandler,
+    ProjectUnArchivedEvent,
   ],
 })
 export class ProjectsModule {}

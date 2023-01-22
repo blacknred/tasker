@@ -33,25 +33,25 @@ import { SprintsModule } from './sprints/sprints.module';
         SERVICE_NAME: Joi.string().required(),
         API_VERSION: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
-        RABBITMQ_URL: Joi.string().required(),
         EVENTSTORE_URL: Joi.string().required(),
+        RABBITMQ_URL: Joi.string().required(),
       }),
     }),
     EventStoreCqrsModule.forRootAsync(getEventStoreOptions(), {
       subscriptions: [
         {
           type: EventStoreSubscriptionType.Persistent,
-          stream: '$ce-filters',
+          stream: '$ce-filter',
           persistentSubscriptionName: 'filters',
         },
         {
           type: EventStoreSubscriptionType.Persistent,
-          stream: '$ce-projects',
+          stream: '$ce-project',
           persistentSubscriptionName: 'projects',
         },
         {
           type: EventStoreSubscriptionType.Persistent,
-          stream: '$ce-sprints',
+          stream: '$ce-sprint',
           persistentSubscriptionName: 'sprints',
         },
       ],

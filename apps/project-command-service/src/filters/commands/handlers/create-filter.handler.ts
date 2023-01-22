@@ -13,7 +13,7 @@ export class CreateFilterHandler
   constructor(
     private readonly publisher: EventPublisher,
     private readonly eventRepository: EventRepository,
-    @InjectPinoLogger(CreateFilterCommand.name)
+    @InjectPinoLogger(CreateFilterHandler.name)
     private readonly logger: PinoLogger,
   ) {}
 

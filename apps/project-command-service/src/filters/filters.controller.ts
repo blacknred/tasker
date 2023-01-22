@@ -36,7 +36,7 @@ export class FiltersController {
   constructor(private readonly commandBus: CommandBus) {}
 
   @Post()
-  @ApiOperation({ description: 'List all filters' })
+  @ApiOperation({ description: 'Create filter' })
   @ApiCreatedResponse({ type: IdResponseDto })
   async create(
     @Session('userId') userId,

@@ -1,22 +1,22 @@
 import { IEvent } from '@nestjs/cqrs';
-import type { IProject } from '../interfaces';
+import type { ID, IProject } from '../interfaces';
 
 export class ProjectCreatedEvent implements IEvent {
   constructor(public readonly data: IProject) {}
-  streamName = () => `projects-${this.data.id}`;
+  streamName = () => `project-${this.data.id}`;
 }
 
 export class ProjectUpdatedEvent implements IEvent {
-  constructor(public readonly data: IProject) {}
-  streamName = () => `projects-${this.data.id}`;
+  constructor(public readonly data: IProject, public readonly emitterId: ID) {}
+  streamName = () => `project-${this.data.id}`;
 }
 
-export class ProjectDeletedEvent implements IEvent {
-  constructor(public readonly id: IProject['id']) {}
-  streamName = () => `projects-${this.id}`;
+export class ProjectArchivedEvent implements IEvent {
+  constructor(public readonly id: ID, public readonly emitterId: ID) {}
+  streamName = () => `project-${this.id}`;
 }
 
-export class ProjectRestoredEvent implements IEvent {
-  constructor(public readonly id: IProject['id']) {}
-  streamName = () => `projects-${this.id}`;
+export class ProjectUnArchivedEvent implements IEvent {
+  constructor(public readonly id: ID, public readonly emitterId: ID) {}
+  streamName = () => `project-${this.id}`;
 }

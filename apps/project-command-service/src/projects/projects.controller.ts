@@ -1,60 +1,81 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
-import { Agent } from 'src/__shared__/decorators/agent.decorator';
-import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
-import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTaskDto } from './dto/get-report.dto';
-import { GetTasksDto } from './dto/get-reports.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/reports-response.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { TasksService } from './reports.service';
+import {
+  Body,
+  Controller,
+  Param,
+  Patch,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  AllExceptionFilter,
+  Auth,
+  IdResponseDto,
+  Permission,
+  ProjectPermission,
+  Session,
+} from '@taskapp/shared';
+import {
+  ArchiveProjectCommand,
+  CreateProjectCommand,
+  UnArchiveProjectCommand,
+  UpdateProjectCommand,
+} from './commands';
+import { CreateProjectDto, DeleteProjectDto, UpdateProjectDto } from './dto';
 
-@Controller()
-@UseGuards(AgentGuard)
+@Auth()
+@ApiTags('Projects')
+@Controller('projects')
+@UseFilters(AllExceptionFilter)
 export class ProjectsController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
-  @WithPrivilege(Privilege.CREATE_TASK)
-  @MessagePattern('tasks/create')
+  @Post()
+  @ApiOperation({ description: 'Сreate project' })
+  @ApiCreatedResponse({ type: IdResponseDto })
   async create(
-    @Agent() agent,
-    @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.create(createTaskDto, agent);
+    @Session('userId') userId,
+    @Body() dto: CreateProjectDto,
+  ): Promise<IdResponseDto> {
+    const { id: data } = await this.commandBus.execute(
+      new CreateProjectCommand(dto, userId),
+    );
+    return { data };
   }
 
-  @MessagePattern('tasks/getAll')
-  async getAll(
-    @Agent() agent,
-    @Payload() getTasksDto: GetTasksDto,
-  ): Promise<TasksResponseDto> {
-    return this.tasksService.findAll(getTasksDto, agent);
-  }
-
-  @MessagePattern('tasks/getOne')
-  async getOne(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, agent);
-  }
-
-  @MessagePattern('tasks/update')
+  @Patch(':id')
+  @ApiOperation({ description: 'Update project' })
+  @ApiOkResponse({ type: IdResponseDto })
+  @Permission(ProjectPermission.PROJECT_MANAGEMENT)
   async update(
-    @Agent() agent,
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.update(updateTaskDto, agent);
+    @Param() { id }: DeleteProjectDto,
+    @Body() dto: UpdateProjectDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new UpdateProjectCommand(id, dto));
+    return { data: id };
   }
 
-  @MessagePattern('tasks/delete')
-  async remove(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<ResponseDto> {
-    return this.tasksService.remove(id, agent);
+  @Patch(':id/archive')
+  @ApiOperation({ description: 'Archive project' })
+  @ApiOkResponse({ type: IdResponseDto })
+  @Permission(ProjectPermission.PROJECT_MANAGEMENT)
+  async archive(@Param() { id }: DeleteProjectDto): Promise<IdResponseDto> {
+    await this.commandBus.execute(new ArchiveProjectCommand(id));
+    return { data: id };
+  }
+
+  @Patch(':id/unarchive')
+  @ApiOperation({ description: 'Unarchive project' })
+  @ApiOkResponse({ type: IdResponseDto })
+  @Permission(ProjectPermission.PROJECT_MANAGEMENT)
+  async unarchive(@Param() { id }: DeleteProjectDto): Promise<IdResponseDto> {
+    await this.commandBus.execute(new UnArchiveProjectCommand(id));
+    return { data: id };
   }
 }

@@ -1,11 +1,11 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { Sprint } from 'apps/issue-command-service/src/sprints/entities/sprint.entity';
+import { Sprint } from '@taskapp/shared';
 import { SprintsController } from './sprints.controller';
 
 @Module({
-  imports: [ConfigModule, MikroOrmModule.forFeature([Sprint])],
+  imports: [MikroOrmModule.forFeature([Sprint])],
   controllers: [SprintsController],
+  providers: [],
 })
 export class SprintsModule {}

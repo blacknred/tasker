@@ -1,4 +1,11 @@
-import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  Entity,
+  Enum,
+  Formula,
+  Index,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
 import { IHydratedProject, ISprint, ProjectType } from '@taskapp/shared';
 
 @Entity({ tableName: 'project' })
@@ -43,6 +50,9 @@ export class Project implements IHydratedProject {
   @Property({ onUpdate: () => new Date(), lazy: true })
   updatedAt: Date = new Date();
 
+  @Formula(
+    'select * from sprint s where s.project_id = id and current_date between s.starts_at and s.ends.at',
+  )
   activeSprint: ISprint;
 
   constructor(instance?: Partial<Project>) {

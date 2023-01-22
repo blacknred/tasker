@@ -18,8 +18,8 @@ export class ProjectUpdatedHandler
 
   async handle({ data: { id, ...rest } }: ProjectUpdatedEvent) {
     try {
-      const entry = await this.projectRepository.findOneOrFail(id);
-      wrap(entry).assign(rest);
+      const project = await this.projectRepository.findOneOrFail(id);
+      wrap(project).assign(rest);
       await this.projectRepository.flush();
     } catch (e) {
       this.logger.error(e);

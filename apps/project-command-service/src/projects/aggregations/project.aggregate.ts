@@ -1,10 +1,10 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import {
   IProject,
+  ProjectArchivedEvent,
   ProjectCreatedEvent,
-  ProjectDeletedEvent,
-  ProjectRestoredEvent,
   ProjectType,
+  ProjectUnArchivedEvent,
   ProjectUpdatedEvent,
 } from '@taskapp/shared';
 
@@ -40,11 +40,11 @@ export class ProjectAggregate extends AggregateRoot implements IProject {
     this.apply(new ProjectUpdatedEvent(this));
   }
 
-  delete() {
-    this.apply(new ProjectDeletedEvent(this.id));
+  archive() {
+    this.apply(new ProjectArchivedEvent(this.id));
   }
 
-  restore() {
-    this.apply(new ProjectRestoredEvent(this.id));
+  unarchived() {
+    this.apply(new ProjectUnArchivedEvent(this.id));
   }
 }

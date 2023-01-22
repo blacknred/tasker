@@ -11,12 +11,12 @@ export class DeleteFilterHandler
   constructor(
     private readonly publisher: EventPublisher,
     private readonly eventRepository: EventRepository,
-    @InjectPinoLogger(DeleteFilterCommand.name)
+    @InjectPinoLogger(DeleteFilterHandler.name)
     private readonly logger: PinoLogger,
   ) {}
 
   async execute({ id, userId: ownerId }: DeleteFilterCommand) {
-    // TODO: db validation 409
+    // TODO: db validation 409: if i owner of filter
 
     const filter = this.publisher.mergeObjectContext(
       new FilterAggregate({ id, ownerId }),

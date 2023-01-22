@@ -152,7 +152,7 @@ export class Issue extends AggregateRoot implements IIssue {
   })
   epic?: Issue;
 
-  @ManyToMany({ entity: () => Tag, pivotTable: 'issue_tag' })
+  @ManyToMany({ entity: () => Tag, pivotTable: 'issue_tag', lazy: true })
   tags = new Collection<Tag>(this) as unknown as ITag[];
 
   @ManyToMany({ lazy: true, entity: () => Profile, pivotTable: 'issue_vote' })

@@ -1,10 +1,10 @@
 import { Entity, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
-import { ISprint } from '@taskapp/shared';
+import { IHydratedSprint } from '@taskapp/shared';
 import { v4 } from 'uuid';
 
 @Entity({ tableName: 'sprint' })
-export class Sprint extends AggregateRoot implements ISprint {
+export class Sprint extends AggregateRoot implements IHydratedSprint {
   @PrimaryKey()
   id: string = v4();
 
