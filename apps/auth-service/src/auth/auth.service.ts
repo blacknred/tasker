@@ -1,18 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
-
-import { ACCESS_TOKEN_LIFESPAN, REFRESH_TOKEN_LIFESPAN } from './consts';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
-
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly redisService: RedisService,
+    @InjectPinoLogger(AuthService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
   public async isBlocked(id: number) {
@@ -21,22 +20,24 @@ export class AuthService {
 
   public createAccessCookie(id: number) {
     const payload = { id };
+    const LIFESPAN = this.configService.get('AUTH_ACCESS_TOKEN_LIFESPAN');
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('SECRET'),
-      expiresIn: ACCESS_TOKEN_LIFESPAN,
+      expiresIn: LIFESPAN,
     });
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${ACCESS_TOKEN_LIFESPAN}`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
   }
 
   public createRefreshCookie(id: number) {
     const payload = { id };
+    const LIFESPAN = this.configService.get('AUTH_REFRESH_TOKEN_LIFESPAN');
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('SECRET'),
-      expiresIn: REFRESH_TOKEN_LIFESPAN,
+      expiresIn: LIFESPAN,
     });
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${REFRESH_TOKEN_LIFESPAN}`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
   }
 
   public remove() {

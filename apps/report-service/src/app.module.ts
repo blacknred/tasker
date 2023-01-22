@@ -10,9 +10,8 @@ import { ReportsModule } from './reports/reports.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().required(),
         SERVICE_NAME: Joi.string().required(),
-        API_VERSION: Joi.string().required(),
+        NODE_ENV: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
       }),
     }),

@@ -9,24 +9,6 @@
     "tsConfigPath": "apps/auth-service/tsconfig.app.json"
   },
   "projects": {
-    "user-query-service": {
-      "type": "application",
-      "root": "apps/user-query-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/user-query-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/user-query-service/tsconfig.app.json"
-      }
-    },
-    "user-command-service": {
-      "type": "application",
-      "root": "apps/user-command-service",
-      "entryFile": "main",
-      "sourceRoot": "apps/user-command-service/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/user-command-service/tsconfig.app.json"
-      }
-    },
     "project-query-service": {
       "type": "application",
       "root": "apps/project-query-service",
@@ -63,6 +45,24 @@
         "tsConfigPath": "apps/issue-command-service/tsconfig.app.json"
       }
     },
+    "member-query-service": {
+      "type": "application",
+      "root": "apps/member-query-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/member-query-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/member-query-service/tsconfig.app.json"
+      }
+    },
+    "member-command-service": {
+      "type": "application",
+      "root": "apps/member-command-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/member-command-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/member-command-service/tsconfig.app.json"
+      }
+    },
     "search-query-service": {
       "type": "application",
       "root": "apps/search-query-service",
@@ -79,6 +79,15 @@
       "sourceRoot": "apps/report-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/report-service/tsconfig.app.json"
+      }
+    },
+    "user-service": {
+      "type": "application",
+      "root": "apps/user-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/user-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/user-service/tsconfig.app.json"
       }
     },
     "notification-service": {

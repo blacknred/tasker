@@ -1,22 +1,20 @@
-import * as Joi from '@hapi/joi';
-import { LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MailerModule } from '@nest-modules/mailer';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CoreModule } from '@taskapp/service-core';
+import { CoreModule } from '@taskapp/core';
+import { getOrmOptions, getRedisOptions } from '@taskapp/shared';
+import * as Joi from 'joi';
 import { RedisModule } from 'nestjs-redis';
-import { AsyncLocalStorage } from 'node:async_hooks';
 import { NotificationsModule } from './notifications/notifications.module';
-
-const ALS = new AsyncLocalStorage<any>();
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        SERVICE_NAME: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
+        SERVICE_NAME: Joi.string().required(),
+        API_VERSION: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
         RABBITMQ_URL: Joi.string().required(),
@@ -30,29 +28,8 @@ const ALS = new AsyncLocalStorage<any>();
         TWILIO_SENDER_PHONE_NUMBER: Joi.string().required(),
       }),
     }),
-    MikroOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        clientUrl: configService.get('POSTGRES_URL'),
-        debug: configService.get('NODE_ENV') === 'development',
-        loadStrategy: LoadStrategy.JOINED,
-        context: () => ALS.getStore(),
-        registerRequestContext: false,
-        autoLoadEntities: true,
-        ensureIndexes: true,
-        type: 'postgresql',
-        flushMode: 1,
-      }),
-    }),
-    RedisModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        url: configService.get('REDIS_URL'),
-        showFriendlyErrorStack: configService.get('NODE_ENV') !== 'production',
-        enableAutoPipelining: true,
-      }),
-    }),
+    MikroOrmModule.forRootAsync(getOrmOptions()),
+    RedisModule.forRootAsync(getRedisOptions()),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

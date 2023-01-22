@@ -1,7 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-
-import { ValidationPipe } from 'src/__shared__/pipes/validation.pipe';
+import { ValidationPipe } from '@taskapp/shared';
 import { CreateAuthDto } from '../dto/create-auth.dto';
 
 @Injectable()

@@ -1,4 +1,4 @@
-export * from '../../../../apps/project-query-service/src/filters/entities/filter.entity';
+export * from '../../../../apps/user-service/src/filters/entities/filter.entity';
 export * from './issue.entity';
 export * from '../../../../apps/project-query-service/src/projects/entities/project.entity';
 export * from './role.entity';

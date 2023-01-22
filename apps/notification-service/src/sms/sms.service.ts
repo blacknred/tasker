@@ -1,9 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
-import { NewConfirmationDto } from './dto/new-confirmation.dto';
-import { NewMessageDto } from './dto/new-message.dto';
-import { NewVerificationDto } from './dto/new-verification.dto';
 
 @Injectable()
 export default class SmsService {
@@ -20,39 +17,39 @@ export default class SmsService {
     this.twilioClient = new Twilio(accountSid, authToken);
   }
 
-  async verifyPhoneNumber({ to }: NewVerificationDto) {
-    return this.twilioClient.verify
-      .services(this.serviceSid)
-      .verifications.create({ to, channel: 'sms' });
-  }
+  // async verifyPhoneNumber({ to }: NewVerificationDto) {
+  //   return this.twilioClient.verify
+  //     .services(this.serviceSid)
+  //     .verifications.create({ to, channel: 'sms' });
+  // }
 
-  async confirmPhoneNumber(newConfirmationDto: NewConfirmationDto) {
-    const result = await this.twilioClient.verify
-      .services(this.serviceSid)
-      .verificationChecks.create(newConfirmationDto);
+  // async confirmPhoneNumber(newConfirmationDto: NewConfirmationDto) {
+  //   const result = await this.twilioClient.verify
+  //     .services(this.serviceSid)
+  //     .verificationChecks.create(newConfirmationDto);
 
-    if (!result.valid || result.status !== 'approved') {
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        errors: [
-          {
-            field: 'code',
-            message: 'Wrong code provided',
-          },
-        ],
-      };
-    }
+  //   if (!result.valid || result.status !== 'approved') {
+  //     return {
+  //       status: HttpStatus.BAD_REQUEST,
+  //       errors: [
+  //         {
+  //           field: 'code',
+  //           message: 'Wrong code provided',
+  //         },
+  //       ],
+  //     };
+  //   }
 
-    return {
-      status: HttpStatus.OK,
-      data: newConfirmationDto.to,
-    };
-  }
+  //   return {
+  //     status: HttpStatus.OK,
+  //     data: newConfirmationDto.to,
+  //   };
+  // }
 
-  async message(newMessageDto: NewMessageDto) {
-    return this.twilioClient.messages.create({
-      ...newMessageDto,
-      from: this.from,
-    });
-  }
+  // async message(newMessageDto: NewMessageDto) {
+  //   return this.twilioClient.messages.create({
+  //     ...newMessageDto,
+  //     from: this.from,
+  //   });
+  // }
 }

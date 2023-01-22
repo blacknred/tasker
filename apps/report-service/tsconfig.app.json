@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "sourceMap": true,
-    "outDir": "../../dist/apps/report-query-service"
+    "outDir": "../../dist/apps/report-service"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

@@ -1,10 +1,10 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ProjectUnArchivedEvent } from '@taskapp/shared';
 import { Project } from './entities';
 import {
   ProjectArchivedHandler,
   ProjectCreatedHandler,
+  ProjectUnArchivedHandler,
   ProjectUpdatedHandler,
 } from './events';
 import { ProjectsController } from './projects.controller';
@@ -19,7 +19,7 @@ import { GetProjectHandler, GetProjectsHandler } from './queries';
     ProjectCreatedHandler,
     ProjectUpdatedHandler,
     ProjectArchivedHandler,
-    ProjectUnArchivedEvent,
+    ProjectUnArchivedHandler,
   ],
 })
 export class ProjectsModule {}

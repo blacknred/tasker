@@ -115,64 +115,6 @@ services:
 
   # apps
 
-  user-query-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=user-query-service
-        - NODE_ENV=development
-    image: user-query-service:latest
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8001:3000 ]
-    command: nest start:dev user-query-service
-    volumes:
-      - ./apps/user-query-service:/usr/src/app/apps/user-query-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-    depends_on:
-      - postgres
-      - eventstore
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  user-command-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=user-command-service
-        - NODE_ENV=development
-    image: user-command-service:latest
-    env_file: ./.env.dev
-    restart: on-failure
-    networks: [ apps ]
-    ports: [ 8002:3000 ]
-    command: nest start:dev user-command-service
-    volumes:
-      - ./apps/user-command-service:/usr/src/app/apps/user-command-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-    depends_on:
-      - postgres
-      - eventstore
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
   project-query-service:
     build:
       context: .
@@ -184,7 +126,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8003:3000 ]
+    ports: [ 8001:3000 ]
     command: nest start:dev project-query-service
     volumes:
       - ./apps/project-query-service:/usr/src/app/apps/project-query-service
@@ -192,8 +134,8 @@ services:
       - /usr/src/app/dist
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     depends_on:
       - postgres
       - eventstore
@@ -214,20 +156,16 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8004:3000 ]
+    ports: [ 8002:3000 ]
     command: nest start:dev project-command-service
     volumes:
       - ./apps/project-command-service:/usr/src/app/apps/project-command-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
-      - postgres
       - eventstore
-      - rabbitmq
     logging:
       driver: fluentd
       options:
@@ -244,7 +182,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8005:3000 ]
+    ports: [ 8003:3000 ]
     command: nest start:dev issue-query-service
     volumes:
       - ./apps/issue-query-service:/usr/src/app/apps/issue-query-service
@@ -253,9 +191,11 @@ services:
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
     depends_on:
       - postgres
       - eventstore
+      - rabbitmq
     logging:
       driver: fluentd
       options:
@@ -272,17 +212,69 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8006:3000 ]
+    ports: [ 8004:3000 ]
     command: nest start:dev issue-command-service
     volumes:
       - ./apps/issue-command-service:/usr/src/app/apps/issue-command-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+    depends_on:
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  member-query-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=member-query-service
+        - NODE_ENV=development
+    image: member-query-service:latest
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8005:3000 ]
+    command: nest start:dev member-query-service
+    volumes:
+      - ./apps/member-query-service:/usr/src/app/apps/member-query-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
     depends_on:
       - postgres
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  member-command-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=member-command-service
+        - NODE_ENV=development
+    image: member-command-service:latest
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8006:3000 ]
+    command: nest start:dev member-command-service
+    volumes:
+      - ./apps/member-command-service:/usr/src/app/apps/member-command-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+    depends_on:
       - eventstore
     logging:
       driver: fluentd
@@ -343,6 +335,34 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
+  user-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=user-service
+        - NODE_ENV=development
+    image: user-service:latest
+    env_file: ./.env.dev
+    restart: on-failure
+    networks: [ apps ]
+    ports: [ 8009:3000 ]
+    command: nest start:dev user-service
+    volumes:
+      - ./apps/user-service:/usr/src/app/apps/user-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
   notification-service:
     build:
       context: .
@@ -354,7 +374,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8009:3000 ]
+    ports: [ 8010:3000 ]
     command: nest start:dev notification-service
     volumes:
       - ./apps/notification-service:/usr/src/app/apps/notification-service
@@ -385,7 +405,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8010:3000 ]
+    ports: [ 8011:3000 ]
     command: nest start:dev billing-service
     volumes:
       - ./apps/billing-service:/usr/src/app/apps/billing-service
@@ -411,7 +431,7 @@ services:
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
-    ports: [ 8011:3000 ]
+    ports: [ 8012:3000 ]
     command: nest start:dev auth-service
     volumes:
       - ./apps/auth-service:/usr/src/app/apps/auth-service
@@ -421,9 +441,11 @@ services:
       - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
       - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
     depends_on:
-      - user-service
       - redis
+      - user-service
+      - member-query-service
     logging:
       driver: fluentd
       options:
@@ -444,7 +466,7 @@ services:
     environment:
       - HOST=${HOST:-localhost}
       - API_VERSION=${API_VERSION:-v1}
-      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:60}
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
       - NGINX_ENTRYPOINT_QUIET_LOGS=1
       - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
     logging:

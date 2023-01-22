@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationsService } from './notifications.service';
 
@@ -7,8 +7,17 @@ import { NotificationsService } from './notifications.service';
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
-  @EventPattern('notify')
-  async notify(@Payload() createNotificationDto: CreateNotificationDto) {
-    await this.notificationsService.notify(createNotificationDto);
+  @EventPattern('create')
+  async notify(
+    @Payload() dto: CreateNotificationDto,
+    @Ctx() context: RmqContext,
+  ) {
+    const {
+      properties: { headers },
+    } = context.getMessage();
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    channel.ack(originalMsg);
+    // await this.notificationsService.create(dto);
   }
 }

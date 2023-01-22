@@ -25,8 +25,8 @@ Sample app for agile project management
 | Member Query       | member-query-service       | NodeJs, HTTP1.1, AMQP   | 8005       |
 | Member Command     | member-command-service     | NodeJs, HTTP1.1, AMQP   | 8006       |
 | Search Query       | search-query-service       | NodeJs, HTTP1.1, AMQP   | 8007       |
-| User               | user-service               | NodeJs, HTTP1.1, AMQP   | 8008       |
-| Report             | report-service             | NodeJs, HTTP1.1         | 8009       |
+| Report             | report-service             | NodeJs, HTTP1.1         | 8008       |
+| User               | user-service               | NodeJs, HTTP1.1, AMQP   | 8009       |
 | Notification       | notification-service       | NodeJs, HTTP1.1, AMQP   | 8010       |
 | Billing            | billing-service            | NodeJs, HTTP1.1, AMQP   | 8011       |
 | Auth               | auth-service               | NodeJs, HTTP1.1         | 8012       |

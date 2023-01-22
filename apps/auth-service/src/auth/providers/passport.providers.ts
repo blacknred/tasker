@@ -1,26 +1,44 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { IAccount } from '@taskapp/shared';
 import type { Request } from 'express';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import jwt from 'passport-jwt';
 import local from 'passport-local';
-
-import { UsersService } from 'src/users/users/users.service';
+import { catchError, firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth.service';
-import { Auth } from '../types/auth.type';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(local.Strategy) {
-  constructor(private userService: UsersService) {
+  constructor(
+    private readonly httpService: HttpService,
+    @InjectPinoLogger(LocalStrategy.name)
+    private readonly logger: PinoLogger,
+  ) {
     super();
   }
 
   async validate(email: string, password: string): Promise<any> {
     const params = { password, email };
-    const user = await this.userService.findValidatedOne(params);
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<IAccount>('http://user-service/accounts', { params })
+        .pipe(
+          catchError((err) => {
+            this.logger.error(err);
+            throw new InternalServerErrorException();
+          }),
+        ),
+    );
 
-    if (!user) throw new UnauthorizedException();
-    return user;
+    if (!data) throw new UnauthorizedException();
+    return data;
   }
 }
 

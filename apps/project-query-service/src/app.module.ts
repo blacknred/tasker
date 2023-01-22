@@ -3,13 +3,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from '@taskapp/core';
 import {
-  FilterCreatedEvent,
-  FilterDeletedEvent,
-  FilterUpdatedEvent,
   getAmqpOptions,
   getEventStoreOptions,
   getOrmOptions,
+  ProjectArchivedEvent,
   ProjectCreatedEvent,
+  ProjectUnArchivedEvent,
   ProjectUpdatedEvent,
   SprintCreatedEvent,
   SprintDeletedEvent,
@@ -21,7 +20,6 @@ import {
   EventStoreCqrsModule,
   EventStoreSubscriptionType,
 } from 'nestjs-eventstore';
-import { FiltersModule } from './filters/filters.module';
 import { ProjectsModule } from './projects/projects.module';
 import { SprintsModule } from './sprints/sprints.module';
 
@@ -40,27 +38,19 @@ import { SprintsModule } from './sprints/sprints.module';
     EventStoreCqrsModule.forRootAsync(getEventStoreOptions(), {
       subscriptions: [
         {
-          type: EventStoreSubscriptionType.Persistent,
-          stream: '$ce-filter',
-          persistentSubscriptionName: 'filters',
-        },
-        {
-          type: EventStoreSubscriptionType.Persistent,
+          type: EventStoreSubscriptionType.CatchUp,
           stream: '$ce-project',
-          persistentSubscriptionName: 'projects',
         },
         {
-          type: EventStoreSubscriptionType.Persistent,
+          type: EventStoreSubscriptionType.CatchUp,
           stream: '$ce-sprint',
-          persistentSubscriptionName: 'sprints',
         },
       ],
       events: {
-        FilterCreatedEvent,
-        FilterUpdatedEvent,
-        FilterDeletedEvent,
         ProjectCreatedEvent,
         ProjectUpdatedEvent,
+        ProjectArchivedEvent,
+        ProjectUnArchivedEvent,
         SprintCreatedEvent,
         SprintUpdatedEvent,
         SprintDeletedEvent,
@@ -71,7 +61,6 @@ import { SprintsModule } from './sprints/sprints.module';
     CoreModule,
     ProjectsModule,
     SprintsModule,
-    FiltersModule,
   ],
 })
 export class AppModule {}

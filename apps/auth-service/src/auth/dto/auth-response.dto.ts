@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseResponseDto } from 'src/__shared__/dto/response.dto';
-import { Auth } from '../types/auth.type';
+import { ResponseDto } from '@taskapp/shared';
 
 export const authMock: Auth = {
   id: 1,
 };
 
-export class AuthResponseDto extends BaseResponseDto {
+export class AuthResponseDto extends ResponseDto<> {
   @ApiProperty({ example: authMock })
   data: Auth;
 }

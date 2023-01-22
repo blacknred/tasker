@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "sourceMap": true,
-    "outDir": "../../dist/apps/notification-query-service"
+    "outDir": "../../dist/apps/notification-service"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
