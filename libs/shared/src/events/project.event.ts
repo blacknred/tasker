@@ -4,6 +4,7 @@ import type { ID, IProject } from '../interfaces';
 export class ProjectCreatedEvent implements IEvent {
   constructor(public readonly data: IProject) {}
   streamName = () => `project-${this.data.id}`;
+  metadata = ()
 }
 
 export class ProjectUpdatedEvent implements IEvent {

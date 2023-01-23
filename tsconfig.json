@@ -15,10 +15,11 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    //  "moduleResolution": "node", //
     "paths": {
       "@taskapp/core": ["libs/core/src"],
       "@taskapp/core/*": ["libs/core/src/*"],
+      "@taskapp/eventstore": ["libs/eventstore/src"],
+      "@taskapp/eventstore/*": ["libs/eventstore/src/*"],
       "@taskapp/shared": ["libs/shared/src"],
       "@taskapp/shared/*": ["libs/shared/src/*"]
     }

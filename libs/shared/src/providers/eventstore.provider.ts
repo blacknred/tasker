@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EventStoreModuleAsyncOptions } from 'nestjs-eventstore';
+import { EventStoreModuleAsyncOptions } from '@taskapp/eventstore';
 
 export function getEventStoreOptions(
   options?: EventStoreModuleAsyncOptions,

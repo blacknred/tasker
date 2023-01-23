@@ -1,6 +1,6 @@
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { Inject } from '@nestjs/common';
-import { EventStore } from 'nestjs-eventstore';
+import { EventStore } from '@taskapp/eventstore';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { EventStoreNodeConnection } from 'node-eventstore-client';
 
 export class EventRepository {

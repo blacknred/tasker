@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { EventPublisher } from '@taskapp/eventstore';
 import { EventRepository } from '@taskapp/shared';
-import { EventPublisher } from 'nestjs-eventstore';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { v4 } from 'uuid';
 import { ProjectAggregate } from '../../aggregations';

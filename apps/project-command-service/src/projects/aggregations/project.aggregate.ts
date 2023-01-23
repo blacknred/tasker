@@ -1,4 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
+import {EventStoreBus, EventBusProvider} from 'nestjs-eventstore';
 import {
   IProject,
   ProjectArchivedEvent,
@@ -38,13 +39,15 @@ export class ProjectAggregate extends AggregateRoot implements IProject {
 
   update() {
     this.apply(new ProjectUpdatedEvent(this));
+    this.getUncommittedEvents(
   }
 
-  archive() {
+  archivate() {
+    new EventStoreBus().
     this.apply(new ProjectArchivedEvent(this.id));
   }
 
-  unarchived() {
+  unarchivate() {
     this.apply(new ProjectUnArchivedEvent(this.id));
   }
 }
