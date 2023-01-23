@@ -4,7 +4,7 @@ import { IEventHandler } from '@nestjs/cqrs';
 import { EventsHandler } from '@nestjs/cqrs/dist/decorators/events-handler.decorator';
 import { SearchEntryUpdatedEvent } from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { Entry } from '../../../../../../libs/shared/src/entities/search.entity';
+import { Entry } from '../../entities/entry.entity';
 
 @EventsHandler(SearchEntryUpdatedEvent)
 export class SearchEntryUpdatedHandler

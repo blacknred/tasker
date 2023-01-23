@@ -2,7 +2,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Profile } from './entities/profile.entity';
-import { User } from '../../../../libs/shared/src/entities/role.entity';
+import { User } from '../../../member-query-service/src/roles/entities/role.entity';
 import { UsersController } from './roles.controller';
 import { UsersService } from './project.service';
 

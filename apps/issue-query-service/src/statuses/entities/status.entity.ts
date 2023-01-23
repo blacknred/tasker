@@ -7,7 +7,7 @@ import {
 } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
-import type { IHydratedStatus, IStatus } from '../interfaces';
+import type { IHydratedStatus, IStatus } from '../../../../../libs/shared/src/interfaces';
 
 @Entity({ tableName: 'status' })
 export class Status extends AggregateRoot implements IHydratedStatus {

@@ -1,8 +1,8 @@
 import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
-import { ProjectPermission } from '../enums';
-import type { IHydratedRole } from '../interfaces';
+import { ProjectPermission } from '../../../../../libs/shared/src/enums';
+import type { IHydratedRole } from '../../../../../libs/shared/src/interfaces';
 
 @Entity({ tableName: 'role' })
 export class Role extends AggregateRoot implements IHydratedRole {

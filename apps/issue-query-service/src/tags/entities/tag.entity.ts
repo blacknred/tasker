@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
-import type { IHydratedTag } from '../interfaces';
+import type { IHydratedTag } from '../../../../../libs/shared/src/interfaces';
 
 @Entity({ tableName: 'tag' })
 export class Tag extends AggregateRoot implements IHydratedTag {

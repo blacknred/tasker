@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AggregateRoot, IEvent } from '@nestjs/cqrs';
-import { EventBusProvider } from './event-bus.provider';
+import { AggregateRoot } from '@nestjs/cqrs';
 import { IAggregateEvent } from '../aggregate-event.interface';
+import { EventBusProvider } from './event-bus.provider';
 
 export interface Constructor<T> {
   new (...args: any[]): T;
@@ -11,20 +11,22 @@ export interface Constructor<T> {
 export class EventPublisher {
   constructor(private readonly eventBus: EventBusProvider) {}
 
-  mergeClassContext<T extends Constructor<AggregateRoot>>(metatype: T): T {
+  mergeClassContext<T extends Constructor<AggregateRoot<IAggregateEvent>>>(
+    metatype: T,
+  ): T {
     const eventBus = this.eventBus;
     return class extends metatype {
-      publish(event: IEvent) {
-        const { streamName, metadata } = event as IAggregateEvent;
+      publish(event: IAggregateEvent) {
+        const { streamName, metadata } = event;
         eventBus.publish(event, streamName, metadata);
       }
     };
   }
 
-  mergeObjectContext<T extends AggregateRoot>(object: T): T {
+  mergeObjectContext<T extends AggregateRoot<IAggregateEvent>>(object: T): T {
     const eventBus = this.eventBus;
-    object.publish = (event: IEvent) => {
-      const { streamName, metadata } = event as IAggregateEvent;
+    object.publish = (event: IAggregateEvent) => {
+      const { streamName, metadata } = event;
       eventBus.publish(event, streamName, metadata);
     };
     return object;

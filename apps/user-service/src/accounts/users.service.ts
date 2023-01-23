@@ -12,7 +12,7 @@ import { classToPlain } from 'class-transformer';
 import { TokensService } from 'src/tokens/tokens.service';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
 import { USER_REPOSITORY, WORKSPACE_SERVICE } from './consts';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-account.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { RestoreUserDto } from './dto/restore-user.dto';

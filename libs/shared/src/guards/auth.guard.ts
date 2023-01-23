@@ -1,17 +1,5 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { AuthGuard as BaseGuard } from '@nestjs/passport';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  canActivate(ctx: ExecutionContext) {
-    if (!ctx.switchToHttp().getRequest().headers['x-user-id']) {
-      throw new UnauthorizedException();
-    }
-
-    return true;
-  }
-}
+export class AuthGuard extends BaseGuard('headers-auth') {}

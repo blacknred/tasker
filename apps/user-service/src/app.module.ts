@@ -5,8 +5,8 @@ import { CoreModule } from '@taskapp/core';
 import { getOrmOptions, getRedisOptions } from '@taskapp/shared';
 import * as Joi from 'joi';
 import { RedisModule } from 'nestjs-redis';
-import { FiltersModule } from './filters/filters/filters.module';
-import { UsersModule } from './users/users.module';
+import { FiltersModule } from './filters/filters.module';
+import { UsersModule } from './accounts/users.module';
 
 @Module({
   imports: [

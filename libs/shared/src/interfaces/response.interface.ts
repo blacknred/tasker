@@ -1,4 +1,4 @@
-import { ID } from './base.interface';
+import type { ID } from './base.interface';
 
 export interface IValidationError {
   field: string;

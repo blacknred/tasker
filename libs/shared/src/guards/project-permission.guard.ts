@@ -1,11 +1,12 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ProjectPermission } from '@taskapp/shared';
+import { IAuth } from '@taskapp/shared';
+import type { Request } from 'express';
 import { PERMISSION_KEY } from '../consts';
-import { ProjectAccessGuard } from './project-access.guard';
+import { ProjectRoleGuard } from './project-role.guard';
 
 @Injectable()
-export class ProjectPermissionGuard extends ProjectAccessGuard {
+export class ProjectPermissionGuard extends ProjectRoleGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }
@@ -20,9 +21,9 @@ export class ProjectPermissionGuard extends ProjectAccessGuard {
 
     super.canActivate(ctx);
 
-    const permissions = ctx.switchToHttp().getRequest().headers[
-      'x-project-permissions'
-    ] as ProjectPermission[];
-    return claims.every((p) => permissions.includes(p));
+    const { user, params } = ctx.switchToHttp().getRequest() as Request;
+    return claims.every((p) =>
+      (user as IAuth).permissions.get(params.id).includes(p),
+    );
   }
 }

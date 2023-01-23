@@ -60,6 +60,7 @@ specifiers:
   node-eventstore-client: ^21.10.0
   nodemailer: ^6.6.5
   passport: ^0.4.1
+  passport-custom: ^1.1.1
   passport-facebook: ^3.0.0
   passport-github: ^1.1.0
   passport-google-oauth: ^2.0.0
@@ -118,6 +119,7 @@ dependencies:
   node-eventstore-client: 21.10.0
   nodemailer: 6.9.0
   passport: 0.4.1
+  passport-custom: 1.1.1
   passport-facebook: 3.0.0
   passport-github: 1.1.0
   passport-google-oauth: 2.0.0
@@ -9928,6 +9930,13 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.3.0
+    dev: false
+
+  /passport-custom/1.1.1:
+    resolution: {integrity: sha512-/2m7jUGxmCYvoqenLB9UrmkCgPt64h8ZtV+UtuQklZ/Tn1NpKBeOorCYkB/8lMRoiZ5hUrCoMmDtxCS/d38mlg==}
+    engines: {node: '>= 0.10.0'}
+    dependencies:
+      passport-strategy: 1.0.0
     dev: false
 
   /passport-facebook/3.0.0:

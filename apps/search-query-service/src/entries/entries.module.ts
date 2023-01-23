@@ -1,6 +1,6 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { Entry } from '../../../../libs/shared/src/entities/search.entity';
+import { Entry } from './entities/entry.entity';
 import { EntriesController } from './entries.controller';
 import { GetEntriesHandler } from './queries/handlers/get-entries.handler';
 

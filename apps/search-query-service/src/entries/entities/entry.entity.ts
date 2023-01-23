@@ -1,7 +1,7 @@
 import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { FullTextType } from '@mikro-orm/postgresql';
-import { SearchEntryType } from '../enums';
-import type { IHydratedSearchEntry } from '../interfaces';
+import { SearchEntryType } from '../../../../../libs/shared/src/enums';
+import type { IHydratedSearchEntry } from '../../../../../libs/shared/src/interfaces';
 
 @Entity({ tableName: 'search_entry' })
 export class Entry implements IHydratedSearchEntry {

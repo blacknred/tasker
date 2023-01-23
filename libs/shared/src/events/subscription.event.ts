@@ -1,12 +1,16 @@
-import { IEvent } from '@nestjs/cqrs';
-import type { ID } from '../interfaces';
+import { IAggregateEvent } from '@taskapp/eventstore';
+import type { ISubscription } from '../interfaces';
 
-export class SubscriptionCreatedEvent implements IEvent {
-  constructor(public readonly userId: ID, public readonly issueId: ID) {}
-  streamName = () => `subscription-${this.issueId}`;
+export class SubscriptionCreatedEvent implements IAggregateEvent {
+  constructor(public readonly data: ISubscription) {}
+  get streamName() {
+    return `subscription-${this.data.issueId}`;
+  }
 }
 
-export class SubscriptionDeletedEvent implements IEvent {
-  constructor(public readonly userId: ID, public readonly issueId: ID) {}
-  streamName = () => `subscription-${this.issueId}`;
+export class SubscriptionDeletedEvent implements IAggregateEvent {
+  constructor(public readonly data: ISubscription) {}
+  get streamName() {
+    return `subscription-${this.data.issueId}`;
+  }
 }

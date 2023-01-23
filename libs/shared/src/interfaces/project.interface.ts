@@ -1,6 +1,6 @@
 import { ProjectType } from '../enums';
 import type { IBase, ID } from './base.interface';
-import type { ISprint } from './sprint.interface';
+import type { IHydratedSprint } from './sprint.interface';
 
 export interface IProject extends IBase {
   type: ProjectType;
@@ -13,5 +13,5 @@ export interface IProject extends IBase {
 }
 
 export interface IHydratedProject extends IProject {
-  activeSprint: ISprint;
+  activeSprint: IHydratedSprint;
 }

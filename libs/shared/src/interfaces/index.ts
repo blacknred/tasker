@@ -13,4 +13,7 @@ export * from './filter.interface';
 export * from './account.interface';
 export * from './tag.interface';
 export * from './status.interface';
-export * from './session.interface';
+export * from './auth.interface';
+export * from './vote.interface';
+export * from './subscription.interface';
+export * from './comment.interface';

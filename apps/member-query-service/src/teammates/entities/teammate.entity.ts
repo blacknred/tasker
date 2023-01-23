@@ -7,8 +7,8 @@ import {
 } from '@mikro-orm/core';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
-import type { ITeammate } from '../interfaces';
-import { Role } from './role.entity';
+import type { ITeammate } from '../../../../../libs/shared/src/interfaces';
+import { Role } from '../../roles/entities/role.entity';
 import { User } from './account.entity';
 
 @Entity({ tableName: 'user_role' })

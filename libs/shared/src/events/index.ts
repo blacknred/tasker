@@ -1,7 +1,6 @@
 export * from './notification.event';
 export * from './project.event';
 export * from './sprint.event';
-export * from './account.event';
 export * from './issue.event';
 export * from './status.event';
 export * from './tag.event';

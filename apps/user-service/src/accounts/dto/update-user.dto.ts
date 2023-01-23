@@ -9,7 +9,7 @@ import {
   IsUrl,
   MinLength,
 } from 'class-validator';
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserDto } from './create-account.dto';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({ type: 'string', example: 'user info', required: false })

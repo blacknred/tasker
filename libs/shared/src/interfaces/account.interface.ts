@@ -1,6 +1,5 @@
 import { NotificationMethod, SecuredNotificationMethod } from '../enums';
 import type { IBase } from './base.interface';
-import type { ITeammate } from './teammate.interface';
 // import { Merge } from 'type-fest';
 
 // export interface ApiAllUsers {
@@ -21,12 +20,11 @@ export interface IAccount extends IBase {
   is2faEnabled: boolean;
   notificationMethod: NotificationMethod;
   securedNotificationMethod: SecuredNotificationMethod;
-  projects: ITeammate[];
 }
+
+export type IHydratedAccount = IAccount;
 
 export interface IProfile
-  extends Pick<IAccount, 'username' | 'name' | 'image'> {
+  extends Pick<IAccount, 'username' | 'name' | 'image' | 'details'> {
   userId: IAccount['id'];
 }
-
-export type IExtendedProfile = IProfile & IAccount['details'];

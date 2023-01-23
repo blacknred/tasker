@@ -1,19 +1,9 @@
 import { IssueRelation, IssueType, Priority } from '../enums';
 import type { IProfile } from './account.interface';
 import type { IBase, ID } from './base.interface';
+import type { IHydratedComment } from './comment.interface';
 import type { IStatus } from './status.interface';
 import type { ITag } from './tag.interface';
-
-export interface IComment extends IBase {
-  issueId: ID;
-  body: string;
-  assets: string[];
-  authorId: ID;
-}
-
-export interface IHydratedComment extends Omit<IComment, 'authorId'> {
-  author: IProfile;
-}
 
 export interface IIssueRelation {
   relation: IssueRelation;
@@ -48,7 +38,10 @@ export interface IIssue extends IBase {
 }
 
 export interface IHydratedIssue
-  extends Omit<IIssue, 'statusId' | 'tags' | 'relations'> {
+  extends Omit<
+    IIssue,
+    'statusId' | 'tags' | 'assigneeeId' | 'epic' | 'authorId' | 'relations'
+  > {
   status: IStatus;
   tags: ITag[];
   assignee?: IProfile;
@@ -59,7 +52,7 @@ export interface IHydratedIssue
   comments: IHydratedComment[]; //lazy
   subscribers: IProfile[]; //lazy
   voters: IProfile[]; //lazy
-  updates?: IHydratedIssueUpdate[];
+  // activity?: IHydratedIssueUpdate[];
 }
 
 export type IHydratedIssueBase = Pick<

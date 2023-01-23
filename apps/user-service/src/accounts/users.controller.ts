@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-account.dto';
 import { GetUserDto } from './dto/get-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import { UserResponseDto, UsersResponseDto } from './dto/user-response.dto';

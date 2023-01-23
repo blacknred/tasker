@@ -1,12 +1,16 @@
-import { IEvent } from '@nestjs/cqrs';
-import type { ID } from '../interfaces';
+import { IAggregateEvent } from '@taskapp/eventstore';
+import type { IVote } from '../interfaces';
 
-export class VoteCreatedEvent implements IEvent {
-  constructor(public readonly userId: ID, public readonly issueId: ID) {}
-  streamName = () => `vote-${this.issueId}`;
+export class VoteCreatedEvent implements IAggregateEvent {
+  constructor(public readonly data: IVote) {}
+  get streamName() {
+    return `vote-${this.data.issueId}`;
+  }
 }
 
-export class VoteDeletedEvent implements IEvent {
-  constructor(public readonly userId: ID, public readonly issueId: ID) {}
-  streamName = () => `vote-${this.issueId}`;
+export class VoteDeletedEvent implements IAggregateEvent {
+  constructor(public readonly data: IVote) {}
+  get streamName() {
+    return `vote-${this.data.issueId}`;
+  }
 }

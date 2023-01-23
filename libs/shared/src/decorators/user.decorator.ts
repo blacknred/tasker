@@ -1,8 +1,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { ISession } from '../interfaces';
+import type { IAuth } from '../interfaces';
 
-export const Session = createParamDecorator(
-  (prop: keyof ISession, ctx: ExecutionContext) => {
+export const User = createParamDecorator(
+  (prop: keyof IAuth, ctx: ExecutionContext) => {
     const { user } = ctx.switchToHttp().getRequest();
 
     return prop ? user?.[prop] : user;

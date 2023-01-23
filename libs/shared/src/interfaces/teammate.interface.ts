@@ -1,16 +1,16 @@
-import type { IRole } from './role.interface';
-import type { IExtendedProfile } from './account.interface';
+import type { IProfile } from './account.interface';
 import type { ID } from './base.interface';
+import type { IRole } from './role.interface';
 
 export interface ITeammate {
   isActive?: boolean;
   createdAt: string | Date;
-  userId: ID;
+  accountId: ID;
   roleId: ID;
 }
 
 export interface IHydratedTeammate
-  extends Omit<ITeammate, 'userId' | 'roleId'> {
-  user: IExtendedProfile;
+  extends Omit<ITeammate, 'accountId' | 'roleId'> {
+  profile: IProfile;
   role: IRole;
 }
