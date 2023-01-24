@@ -1,13 +1,10 @@
-import { applyDecorators, UseGuards } from '@nestjs/common';
-import { ApiCookieAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { AuthGuard } from '../guards';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import type { IAuth } from '../interfaces';
 
-export function Auth() {
-  return applyDecorators(
-    ApiCookieAuth(),
-    // @ApiBasicAuth()
-    // @ApiBearerAuth()
-    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
-    UseGuards(AuthGuard),
-  );
-}
+export const Auth = createParamDecorator(
+  (prop: keyof IAuth, ctx: ExecutionContext) => {
+    const user: IAuth = ctx.switchToHttp().getRequest().user;
+
+    return prop ? user?.[prop] : user;
+  },
+);

@@ -15,3 +15,5 @@ export interface IProject extends IBase {
 export interface IHydratedProject extends IProject {
   activeSprint: IHydratedSprint;
 }
+
+export type IHydratedProjectPreview = Pick<IProject, 'id' | 'name'>;

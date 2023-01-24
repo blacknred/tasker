@@ -6,6 +6,6 @@ import type { IAuth } from '../interfaces';
 export class ProjectRoleGuard implements CanActivate {
   canActivate(ctx: ExecutionContext) {
     const { user, params } = ctx.switchToHttp().getRequest() as Request;
-    return (user as IAuth).permissions.has(params.id);
+    return (user as IAuth).permissions[params.id]?.length > 0;
   }
 }

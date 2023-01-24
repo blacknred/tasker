@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResponseDto } from '@taskapp/shared';
+import { IAuth, ProjectPermission, ResponseDto } from '@taskapp/shared';
 
-export const authMock: Auth = {
-  id: 1,
+export const authMock: IAuth = {
+  userId: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+  permissions: {
+    'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30': [
+      ProjectPermission.PROJECT_MANAGEMENT,
+      ProjectPermission.REPORT_ACCESS,
+    ],
+  },
 };
 
-export class AuthResponseDto extends ResponseDto<> {
+export class AuthResponseDto extends ResponseDto<IAuth> {
   @ApiProperty({ example: authMock })
-  data: Auth;
+  data: IAuth;
 }

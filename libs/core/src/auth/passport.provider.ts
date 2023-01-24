@@ -15,7 +15,7 @@ export class AuthStrategy extends PassportStrategy(
       throw new UnauthorizedException();
     }
 
-    const session: IAuth = { userId, permissions: new Map() };
+    const session: IAuth = { userId, permissions: {} };
 
     request
       .header('x-user-permissions') // "x-user-permissions"="uuid-1234,uuid-24"
@@ -30,7 +30,7 @@ export class AuthStrategy extends PassportStrategy(
             ) as unknown[] as ProjectPermission[];
 
           if (permissions.length) {
-            session.permissions.set(projectId, permissions);
+            session.permissions[projectId] = permissions;
           }
         }
       });
@@ -38,6 +38,3 @@ export class AuthStrategy extends PassportStrategy(
     return session;
   }
 }
-
-// create, getAll(email,password), getOne(me), patch, delete(soft)
-// create(login=>tokens), getOne(from jwt), patch(upd access token), delete(logout)

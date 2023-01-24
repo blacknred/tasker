@@ -12,7 +12,7 @@ export interface IIssueRelation {
 }
 
 export interface IHydratedIssueRelation extends IIssueRelation {
-  relatedIssueId: IHydratedIssueBase;
+  relatedIssueId: IHydratedIssuePreview;
 }
 
 export interface IIssue extends IBase {
@@ -45,7 +45,7 @@ export interface IHydratedIssue
   status: IStatus;
   tags: ITag[];
   assignee?: IProfile;
-  epic?: IHydratedIssueBase;
+  epic?: IHydratedIssuePreview;
   author: IProfile; //lazy
   relations: IHydratedIssueRelation[]; //lazy
 
@@ -55,7 +55,7 @@ export interface IHydratedIssue
   // activity?: IHydratedIssueUpdate[];
 }
 
-export type IHydratedIssueBase = Pick<
+export type IHydratedIssuePreview = Pick<
   IHydratedIssue,
   | 'id'
   | 'type'

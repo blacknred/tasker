@@ -1,5 +1,5 @@
 import type { ID } from './base.interface';
-import type { IHydratedIssueBase } from './issue.interface';
+import type { IHydratedIssuePreview } from './issue.interface';
 
 export interface ISubscription {
   issueId: ID;
@@ -7,5 +7,5 @@ export interface ISubscription {
 }
 
 export interface IHydratedSubscription extends Omit<ISubscription, 'issueId'> {
-  issue: IHydratedIssueBase;
+  issue: IHydratedIssuePreview;
 }

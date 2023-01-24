@@ -1,5 +1,5 @@
 import type { ID } from './base.interface';
-import type { IHydratedIssueBase } from './issue.interface';
+import type { IHydratedIssuePreview } from './issue.interface';
 
 export interface IVote {
   issueId: ID;
@@ -7,5 +7,5 @@ export interface IVote {
 }
 
 export interface IHydratedVote extends Omit<IVote, 'issueId'> {
-  issue: IHydratedIssueBase;
+  issue: IHydratedIssuePreview;
 }

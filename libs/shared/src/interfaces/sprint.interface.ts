@@ -10,3 +10,5 @@ export interface ISprint extends IBase {
 }
 
 export type IHydratedSprint = ISprint;
+
+export type IHydratedSprintPreview = Pick<ISprint, 'id' | 'name'>;

@@ -33,6 +33,7 @@ export class UsersController {
     return this.usersService.findOneValidated(rest);
   }
 
+  auth
   @MessagePattern('users/update')
   async update(
     @Payload() updateUserDto: UpdateUserDto,
@@ -40,6 +41,7 @@ export class UsersController {
     return this.usersService.update(updateUserDto);
   }
 
+  auth
   @MessagePattern('users/delete')
   async remove(@Payload() { id }: GetUserDto): Promise<ResponseDto> {
     return this.usersService.remove(id);

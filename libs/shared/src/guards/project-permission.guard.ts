@@ -23,7 +23,7 @@ export class ProjectPermissionGuard extends ProjectRoleGuard {
 
     const { user, params } = ctx.switchToHttp().getRequest() as Request;
     return claims.every((p) =>
-      (user as IAuth).permissions.get(params.id).includes(p),
+      (user as IAuth).permissions[params.id].includes(p),
     );
   }
 }

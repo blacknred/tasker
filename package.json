@@ -22,12 +22,14 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "kompose": "kompose convert -o kubernetes/deployment.yaml",
     "docs": "npx compodoc --theme material --output docs -p tsconfig.json -s",
-    "db": "npx mikro-orm migration:create && npx mikro-orm migration:up"
+    "db-up": "npx mikro-orm migration:create && npx mikro-orm migration:up",
+    "db-gen-entities": "npx mikro-orm generate-entities --save --path=./libs/entities"
   },
   "dependencies": {
     "@dollarsign/nestjs-jaeger-tracing": "^1.0.8",
     "@godaddy/terminus": "^4.4.1",
     "@mikro-orm/core": "^5.2.1",
+    "@mikro-orm/entity-generator": "^5.6.7",
     "@mikro-orm/nestjs": "^4.3.1",
     "@mikro-orm/postgresql": "^5.2.1",
     "@nest-modules/mailer": "^1.3.22",
@@ -49,7 +51,6 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "cookie-parser": "^1.4.6",
-    "ioredis": "^4.17.3",
     "joi": "*",
     "nestjs-amqp": "^0.2.2",
     "nestjs-pino": "^1.1.3",
@@ -78,7 +79,7 @@
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.15",
     "@mikro-orm/cli": "^5.2.1",
-    "@mikro-orm/migrations": "^5.2.1",
+    "@mikro-orm/migrations": "^5.6.7",
     "@nestjs/cli": "^8.2.8",
     "@nestjs/schematics": "^8.0.11",
     "@nestjs/testing": "^8.4.7",
@@ -151,7 +152,8 @@
   "mikro-orm": {
     "useTsNode": true,
     "configPaths": [
-      "./mikro-orm.config.ts"
+      "./mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
     ]
   },
   "husky": {
