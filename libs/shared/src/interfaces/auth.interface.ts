@@ -1,5 +1,5 @@
 import { ProjectPermission } from '../enums';
-import type { IAccount } from './account.interface';
+import { IAccount } from './account.interface';
 import type { ID } from './base.interface';
 
 export interface IAuth {
@@ -7,4 +7,8 @@ export interface IAuth {
   permissions: Record<ID, ProjectPermission[]>;
 }
 
-export type IAuthExtended = IAuth & Pick<IAccount, 'name' | 'image' | 'locale'>;
+export interface IAuthExtended
+  extends IAuth,
+    Pick<IAccount, 'name' | 'image' | 'locale'> {
+  vapidPublicKey?: string;
+}

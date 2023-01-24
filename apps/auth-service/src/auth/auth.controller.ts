@@ -17,7 +17,7 @@ import {
 import { Auth, EmptyResponseDto, IAuth, IAuthExtended } from '@taskapp/shared';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { AuthResponseDto, LoginResponseDto } from './dto';
+import { AuthResponseDto, AuthExtendedResponseDto } from './dto';
 import { AuthGuard, LocalAuthGuard, RefreshTokenGuard } from './guards';
 
 @ApiTags('Auth')
@@ -28,8 +28,11 @@ export class AuthController {
   @Post()
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ description: 'Login' })
-  @ApiCreatedResponse({ type: LoginResponseDto })
-  create(@Auth() data: IAuthExtended, @Res() res: Response): LoginResponseDto {
+  @ApiCreatedResponse({ type: AuthExtendedResponseDto })
+  create(
+    @Auth() data: IAuthExtended,
+    @Res() res: Response,
+  ): AuthExtendedResponseDto {
     const refresh = this.authService.createRefreshCookie(data);
     const access = this.authService.createAccessCookie(data);
     res.setHeader('Set-Cookie', [refresh, access]);
@@ -44,10 +47,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiOperation({ description: 'Check auth' })
   @ApiOkResponse({ type: AuthResponseDto })
-  async getOne(
-    @Auth() data: IAuth,
-    @Res() res: Response,
-  ): Promise<AuthResponseDto> {
+  getOne(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {
     res.setHeader('x-user-id', data.userId);
     res.setHeader(
       'x-user-permissions',
@@ -60,8 +60,11 @@ export class AuthController {
   @Patch()
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ description: 'Refresh access token' })
-  @ApiOkResponse({ type: AuthResponseDto })
-  refresh(@Auth() data: IAuthExtended, @Res() res: Response) {
+  @ApiOkResponse({ type: AuthExtendedResponseDto })
+  refresh(
+    @Auth() data: IAuthExtended,
+    @Res() res: Response,
+  ): AuthExtendedResponseDto {
     const access = this.authService.createAccessCookie(data);
     res.setHeader('Set-Cookie', access);
 
@@ -78,7 +81,3 @@ export class AuthController {
     return { data: null };
   }
 }
-
-// post(cred) => Accounts,Teammates => set tokens => profile
-// patch(refresh_tkn) => Accounts,Teammates => set access_token => data
-// get(access_tkn) => set headers => data

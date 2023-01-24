@@ -16,7 +16,7 @@ const MikroOrmConfig: Options = {
     path: './dist/migrations',
     pathTs: './src/migrations',
     glob: '!(*.d).{js,ts}',
-    allOrNothing: true, // wrap all migrations in master transaction
+    allOrNothing: true,
   },
 };
 

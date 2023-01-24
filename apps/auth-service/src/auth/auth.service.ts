@@ -1,10 +1,24 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { IAuth, ID } from '@taskapp/shared';
+import {
+  IAuth,
+  IAuthExtended,
+  ID,
+  IHydratedAccount,
+  IHydratedMember,
+  IPaginatedResponse,
+  IResponse,
+} from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
+import { catchError, firstValueFrom, map } from 'rxjs';
+import { CreateAuthDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +43,63 @@ export class AuthService {
       .join(',');
   }
 
-  public async isBlocked(id: ID) {
-    return this.redisService.getClient().zscore('BLACKLIST', `${id}`);
+  public isBlocked(userId: ID) {
+    return this.redisService.getClient().zscore('BLACKLIST', `${userId}`);
+  }
+
+  public async getProfile(
+    id?: ID,
+    dto?: CreateAuthDto,
+  ): Promise<IAuthExtended> {
+    return firstValueFrom(
+      this.httpService
+        .get<IResponse<IHydratedAccount>>(
+          `http://accounts-service/account/${id ?? ''}`,
+          { params: dto },
+        )
+        .pipe(
+          catchError((err): never => {
+            if (err.status > 500) {
+              this.logger.error(err);
+            }
+
+            throw new HttpException(err.data, err.status);
+          }),
+          map(({ data: { data } }) => ({
+            userId: data.id,
+            name: data.name,
+            image: data.image,
+            locale: data.locale,
+            vapidPublicKey: this.configService.get('VAPID_PUBLIC_KEY'),
+            permissions: null,
+          })),
+        ),
+    );
+  }
+
+  public async getPermissions(userId: ID): Promise<IAuth['permissions']> {
+    return firstValueFrom(
+      this.httpService
+        .get<IPaginatedResponse<IHydratedMember>>(
+          'http://member-query-service/members',
+          {
+            params: { accountId: userId },
+            headers: { 'x-user-id': userId },
+          },
+        )
+        .pipe(
+          catchError((err) => {
+            this.logger.error(err);
+            throw new InternalServerErrorException();
+          }),
+          map(({ data }) =>
+            data.data.items.reduce(
+              (all, c) => ({ ...all, [c.role.projectId]: c.role.permissions }),
+              {},
+            ),
+          ),
+        ),
+    );
   }
 
   public createAccessCookie({ userId, permissions }: IAuth) {
@@ -52,6 +121,6 @@ export class AuthService {
       expiresIn: LIFESPAN,
     });
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
+    return `Refresh=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
   }
 }

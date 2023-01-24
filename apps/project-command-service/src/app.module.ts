@@ -10,7 +10,7 @@ import {
 import * as Joi from 'joi';
 import { AmqpModule } from 'nestjs-amqp';
 import { EventStoreCqrsModule } from 'nestjs-eventstore';
-import { FiltersModule } from '../../user-service/src/filters/filters/filters.module';
+import { FiltersModule } from '../../accounts-service/src/filters/filters/filters.module';
 import { ProjectsModule } from './projects/projects.module';
 import { SprintsModule } from './sprints/sprints.module';
 

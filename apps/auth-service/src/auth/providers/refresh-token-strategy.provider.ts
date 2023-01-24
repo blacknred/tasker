@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { IAuth } from '@taskapp/shared';
+import { IAuth, IAuthExtended } from '@taskapp/shared';
 import type { Request } from 'express';
 import jwt from 'passport-jwt';
 import { AuthService } from '../auth.service';
@@ -17,10 +17,13 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
         (req: Request) => req?.cookies?.Refresh,
       ]),
       secretOrKey: configService.get('SECRET'),
+      passReqToCallback: false,
     });
   }
+  async validate(payload: Pick<IAuth, 'userId'>): Promise<IAuthExtended> {
+    const profile = await this.authService.getProfile(payload.userId);
+    profile.permissions = await this.authService.getPermissions(profile.userId);
 
-  async validate(payload: Pick<IAuth, 'userId'>) {
-    // return this.userService.findOne(payload.userId);
+    return profile;
   }
 }

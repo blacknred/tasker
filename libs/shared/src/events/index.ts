@@ -7,5 +7,5 @@ export * from './tag.event';
 export * from './comment.event';
 export * from './role.event';
 export * from './vote.event';
-export * from './teammate.event';
+export * from './member.event';
 export * from './subscription.event';

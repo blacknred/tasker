@@ -43,6 +43,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.48.2
   amqp-connection-manager: ^3.7.0
   amqplib: ^0.8.0
+  axios: ^1.2.3
   bcryptjs: ^2.4.3
   class-transformer: ^0.4.0
   class-validator: ^0.13.1
@@ -108,6 +109,7 @@ dependencies:
   '@nestjs/terminus': 8.1.1_jptkjjceqltaolwcxnvxx3xgm4
   amqp-connection-manager: 3.9.0_amqplib@0.8.0
   amqplib: 0.8.0
+  axios: 1.2.3
   bcryptjs: 2.4.3
   class-transformer: 0.4.0
   class-validator: 0.13.2
@@ -4846,6 +4848,16 @@ packages:
 
   /axios/1.2.1:
     resolution: {integrity: sha512-I88cFiGu9ryt/tfVEi4kX2SITsvDddTajXTOFmt2uK1ZVA8LytjtdeyefdQWEf5PU8w+4SSJDoYnggflB5tW4A==}
+    dependencies:
+      follow-redirects: 1.15.2
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios/1.2.3:
+    resolution: {integrity: sha512-pdDkMYJeuXLZ6Xj/Q5J3Phpe+jbGdsSzlQaFVkMQzRUL05+6+tetX8TV3p4HrU4kzuO9bt+io/yGQxuyxA/xcw==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0

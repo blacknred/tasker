@@ -19,6 +19,8 @@ import { AuthModule } from './auth/auth.module';
         REDIS_URL: Joi.string().required(),
         AUTH_ACCESS_TOKEN_LIFESPAN: Joi.string().required(),
         AUTH_REFRESH_TOKEN_LIFESPAN: Joi.string().required(),
+        VAPID_PUBLIC_KEY: Joi.string().optional(),
+        VAPID_PRIVATE_KEY: Joi.string().optional(),
       }),
     }),
     CoreModule,

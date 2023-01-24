@@ -345,25 +345,25 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  user-service:
+  account-service:
     build:
       context: .
       target: build
       args:
-        - SERVICE_NAME=user-service
+        - SERVICE_NAME=account-service
         - NODE_ENV=development
-    image: user-service:latest
+    image: account-service:latest
     env_file: ./.env.dev
     restart: on-failure
     networks: [ apps ]
     ports: [ 8009:3000 ]
-    command: nest start:dev user-service
+    command: nest start:dev account-service
     volumes:
-      - ./apps/user-service:/usr/src/app/apps/user-service
+      - ./apps/account-service:/usr/src/app/apps/account-service
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/users
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/accounts
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
@@ -456,7 +456,7 @@ services:
       - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
     depends_on:
       - redis
-      - user-service
+      - account-service
       - member-query-service
     logging:
       driver: fluentd

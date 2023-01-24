@@ -13,5 +13,5 @@ export const authMock: IAuth = {
 
 export class AuthResponseDto extends ResponseDto<IAuth> {
   @ApiProperty({ example: authMock })
-  data: IAuth;
+  readonly data: IAuth;
 }

@@ -18,7 +18,7 @@ export class AuthStrategy extends PassportStrategy(
     const session: IAuth = { userId, permissions: {} };
 
     request
-      .header('x-user-permissions') // "x-user-permissions"="uuid-1234,uuid-24"
+      .header('x-user-permissions')
       ?.split(',')
       .forEach((entryStr) => {
         const [projectId, permissionStr] = entryStr.split('-');

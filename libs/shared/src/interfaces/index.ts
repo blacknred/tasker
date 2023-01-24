@@ -2,7 +2,7 @@ export * from './base.interface';
 export * from './issue.interface';
 export * from './notification.interface';
 export * from './role.interface';
-export * from './teammate.interface';
+export * from './member.interface';
 export * from './project.interface';
 export * from './report.interface';
 export * from './request.interface';
