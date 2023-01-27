@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { IAuth, IAuthExtended } from '@taskapp/shared';
+import { IAuth } from '@taskapp/shared';
 import type { Request } from 'express';
 import jwt from 'passport-jwt';
 import { AuthService } from '../auth.service';
@@ -20,10 +20,10 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
       passReqToCallback: false,
     });
   }
-  async validate(payload: Pick<IAuth, 'userId'>): Promise<IAuthExtended> {
-    const profile = await this.authService.getProfile(payload.userId);
-    profile.permissions = await this.authService.getPermissions(profile.userId);
 
-    return profile;
+  async validate(auth: IAuth): Promise<IAuth> {
+    auth.permissions = await this.authService.getPermissions(auth.userId);
+
+    return auth;
   }
 }

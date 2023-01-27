@@ -10,4 +10,4 @@ import { Account } from './entities';
   controllers: [AccountsController],
   providers: [AccountsService],
 })
-export class UsersModule {}
+export class AccountsModule {}

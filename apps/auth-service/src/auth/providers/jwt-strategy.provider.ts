@@ -16,15 +16,18 @@ export class JwtStrategy extends PassportStrategy(jwt.Strategy) {
       ]),
       secretOrKey: configService.get('SECRET'),
       ignoreExpiration: false,
-      passReqToCallback: true,
     });
   }
 
-  async validate(_, payload: IAuth) {
-    if (this.authService.isBlocked(payload.userId)) {
+  async validate(auth: IAuth) {
+    if (auth.needTFA) {
       throw new UnauthorizedException();
     }
 
-    return payload;
+    if (this.authService.isBlocked(auth.userId)) {
+      throw new UnauthorizedException();
+    }
+
+    return auth;
   }
 }

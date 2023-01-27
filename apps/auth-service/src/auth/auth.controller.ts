@@ -10,15 +10,21 @@ import {
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Auth, EmptyResponseDto, IAuth, IAuthExtended } from '@taskapp/shared';
+import { Auth, AuthHeaders, EmptyResponseDto, IAuth } from '@taskapp/shared';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { AuthResponseDto, AuthExtendedResponseDto } from './dto';
-import { AuthGuard, LocalAuthGuard, RefreshTokenGuard } from './guards';
+import { AuthResponseDto } from './dto';
+import {
+  AuthGuard,
+  LocalAuthGuard,
+  RefreshTokenGuard,
+  TFAGuard,
+} from './guards';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -28,31 +34,35 @@ export class AuthController {
   @Post()
   @UseGuards(LocalAuthGuard)
   @ApiOperation({ description: 'Login' })
-  @ApiCreatedResponse({ type: AuthExtendedResponseDto })
-  create(
-    @Auth() data: IAuthExtended,
-    @Res() res: Response,
-  ): AuthExtendedResponseDto {
-    const refresh = this.authService.createRefreshCookie(data);
+  @ApiCreatedResponse({ type: AuthResponseDto })
+  create(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {
+    const refresh = this.authService.createRefreshCookie(data.userId);
     const access = this.authService.createAccessCookie(data);
     res.setHeader('Set-Cookie', [refresh, access]);
 
     return { data };
   }
-  // passport-facebook
-  // passport-github
   // passport-google-oauth
+  // passport-github
 
   @Get()
   @UseGuards(AuthGuard)
   @ApiOperation({ description: 'Check auth' })
   @ApiOkResponse({ type: AuthResponseDto })
   getOne(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {
-    res.setHeader('x-user-id', data.userId);
-    res.setHeader(
-      'x-user-permissions',
-      this.authService.serializePermissions(data.permissions),
-    );
+    const headers = AuthHeaders.getSerializedHeaders(data);
+    res.setHeader('x-user-id', headers['x-user-id']);
+    res.setHeader('x-user-permissions', headers['x-user-permissions']);
+
+    return { data };
+  }
+
+  @Patch('2fa')
+  @UseGuards(TFAGuard)
+  @ApiOperation({ description: '2FA' })
+  @ApiCreatedResponse({ type: AuthResponseDto })
+  totp(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {
+    res.setHeader('Set-Cookie', this.authService.createAccessCookie(data));
 
     return { data };
   }
@@ -60,13 +70,9 @@ export class AuthController {
   @Patch()
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ description: 'Refresh access token' })
-  @ApiOkResponse({ type: AuthExtendedResponseDto })
-  refresh(
-    @Auth() data: IAuthExtended,
-    @Res() res: Response,
-  ): AuthExtendedResponseDto {
-    const access = this.authService.createAccessCookie(data);
-    res.setHeader('Set-Cookie', access);
+  @ApiNoContentResponse({ type: AuthResponseDto })
+  refresh(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {
+    res.setHeader('Set-Cookie', this.authService.createAccessCookie(data));
 
     return { data };
   }

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -71,7 +72,7 @@ export class FiltersController {
 
   @Patch(':id')
   @ApiOperation({ description: 'Update filter' })
-  @ApiOkResponse({ type: FilterResponseDto })
+  @ApiNoContentResponse({ type: FilterResponseDto })
   async update(
     @Auth('userId') userId,
     @Param() { id }: GetFilterDto,

@@ -1,15 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import {
-  HttpException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
   IAuth,
-  IAuthExtended,
-  ID,
   IHydratedAccount,
   IHydratedMember,
   IPaginatedResponse,
@@ -18,7 +12,7 @@ import {
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
 import { catchError, firstValueFrom, map } from 'rxjs';
-import { CreateAuthDto } from './dto';
+import { CreateAuthDto, TFAAuthDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -36,48 +30,50 @@ export class AuthService {
     'Refresh=; HttpOnly; Path=/; Max-Age=0',
   ];
 
-  public serializePermissions(permissions: IAuth['permissions']) {
-    // "uuid-1234,uuid-24"
-    return Object.entries(permissions)
-      .map(([k, v]) => `${k}-${v.join()}`)
-      .join(',');
-  }
-
-  public isBlocked(userId: ID) {
+  public isBlocked(userId: IAuth['userId']) {
     return this.redisService.getClient().zscore('BLACKLIST', `${userId}`);
   }
 
-  public async getProfile(
-    id?: ID,
-    dto?: CreateAuthDto,
-  ): Promise<IAuthExtended> {
+  public async getAuth(dto: CreateAuthDto): Promise<IAuth> {
     return firstValueFrom(
       this.httpService
         .get<IResponse<IHydratedAccount>>(
-          `http://accounts-service/account/${id ?? ''}`,
+          `http://accounts-service/account/validate`,
           { params: dto },
         )
         .pipe(
+          map(({ data }) => {
+            const { id: userId, isTfaEnabled: needTFA } = data.data;
+            return { userId, needTFA, permissions: null };
+          }),
           catchError((err): never => {
-            if (err.status > 500) {
-              this.logger.error(err);
-            }
-
+            if (err.status > 499) this.logger.error(err);
             throw new HttpException(err.data, err.status);
           }),
-          map(({ data: { data } }) => ({
-            userId: data.id,
-            name: data.name,
-            image: data.image,
-            locale: data.locale,
-            vapidPublicKey: this.configService.get('VAPID_PUBLIC_KEY'),
-            permissions: null,
-          })),
         ),
     );
   }
 
-  public async getPermissions(userId: ID): Promise<IAuth['permissions']> {
+  public async validateTFA(dto: TFAAuthDto) {
+    return firstValueFrom(
+      this.httpService
+        .get<IResponse<boolean>>(
+          `http://accounts-service/account/2fa-secret/validate`,
+          { params: dto },
+        )
+        .pipe(
+          map(({ data }) => data.data),
+          catchError((err): never => {
+            if (err.status > 499) this.logger.error(err);
+            throw new HttpException(err.data, err.status);
+          }),
+        ),
+    );
+  }
+
+  public async getPermissions(
+    userId: IAuth['userId'],
+  ): Promise<IAuth['permissions']> {
     return firstValueFrom(
       this.httpService
         .get<IPaginatedResponse<IHydratedMember>>(
@@ -89,8 +85,8 @@ export class AuthService {
         )
         .pipe(
           catchError((err) => {
-            this.logger.error(err);
-            throw new InternalServerErrorException();
+            if (err.status > 499) this.logger.error(err);
+            throw new HttpException(err.data, err.status);
           }),
           map(({ data }) =>
             data.data.items.reduce(
@@ -102,10 +98,9 @@ export class AuthService {
     );
   }
 
-  public createAccessCookie({ userId, permissions }: IAuth) {
-    const payload = { userId, permissions };
+  public createAccessCookie(auth: IAuth) {
     const LIFESPAN = this.configService.get('AUTH_ACCESS_TOKEN_LIFESPAN');
-    const token = this.jwtService.sign(payload, {
+    const token = this.jwtService.sign(auth, {
       secret: this.configService.get('SECRET'),
       expiresIn: LIFESPAN,
     });
@@ -113,7 +108,7 @@ export class AuthService {
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
   }
 
-  public createRefreshCookie({ userId }: IAuth) {
+  public createRefreshCookie(userId: IAuth['userId']) {
     const payload = { userId };
     const LIFESPAN = this.configService.get('AUTH_REFRESH_TOKEN_LIFESPAN');
     const token = this.jwtService.sign(payload, {

@@ -1,4 +1,8 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IAuth } from '@taskapp/shared';
 import type { Request } from 'express';
@@ -21,9 +25,21 @@ export class ProjectPermissionGuard extends ProjectRoleGuard {
 
     super.canActivate(ctx);
 
-    const { user, params } = ctx.switchToHttp().getRequest() as Request;
-    return claims.every((p) =>
-      (user as IAuth).permissions[params.id].includes(p),
-    );
+    const req = ctx.switchToHttp().getRequest() as Request;
+    const projectId = req.body.projectId || req.params.id;
+    const user = req.user as IAuth;
+
+    if (!claims.every((p) => user.permissions[projectId].includes(p))) {
+      throw new ForbiddenException({
+        errors: [
+          {
+            message: 'You have no permission to operation',
+            field: 'projectId',
+          },
+        ],
+      });
+    }
+
+    return true;
   }
 }

@@ -1,14 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Patch,
-  Post,
-  UseFilters,
-} from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseFilters } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -20,9 +13,14 @@ import {
   EmptyResponseDto,
 } from '@taskapp/shared';
 import { AccountsService } from './accounts.service';
-import { AccountResponseDto, CreateAccountDto, UpdateAccountDto } from './dto';
+import {
+  AccountResponseDto,
+  CreateAccountDto,
+  GetValidatedAccountDto,
+  RestoreAccountDto,
+  UpdateAccountDto,
+} from './dto';
 
-@Authentication()
 @ApiTags('Accounts')
 @Controller('account')
 @UseFilters(AllExceptionFilter)
@@ -37,35 +35,26 @@ export class AccountsController {
   }
 
   @Get()
+  @Authentication()
   @ApiOperation({ description: 'Get account' })
   @ApiOkResponse({ type: AccountResponseDto })
   async getOne(@Auth('userId') userId): Promise<AccountResponseDto> {
-    return this.accountsService.find(userId);
+    return this.accountsService.findOne(userId);
   }
 
-  //   @Get()
-  //   @WithAuth()
-  //   @WithOkApi(UsersResponseDto, 'List all users')
-  //   async getAll(
-  //     @Auth() { id },
-  //     @Query() getUsersDto: GetUsersDto,
-  //   ): Promise<UsersResponseDto> {
-  //     return this.usersService.findAll(id, getUsersDto);
-  //   }
-
-  //   @Get(':id')
-  //   @WithAuth()
-  //   @WithOkApi(UserResponseDto, 'Get user by id')
-  //   async getOne(
-  //     @Auth() { id: uid },
-  //     @Param() { id }: GetUserDto,
-  //   ): Promise<UserResponseDto> {
-  //     return this.usersService.findOne(uid, id);
-  //   }
+  @Get('validate')
+  @ApiOperation({ description: 'Find account by credentials' })
+  @ApiOkResponse({ type: AccountResponseDto })
+  async getValidated(
+    @Body() dto: GetValidatedAccountDto,
+  ): Promise<AccountResponseDto> {
+    return this.accountsService.findOneWithCredentials(dto);
+  }
 
   @Patch()
-  @ApiOperation({ description: 'Update account' })
-  @ApiOkResponse({ type: AccountResponseDto })
+  @Authentication()
+  @ApiOperation({ description: 'Update an account' })
+  @ApiNoContentResponse({ type: AccountResponseDto })
   async update(
     @Auth('userId') userId,
     @Body() dto: UpdateAccountDto,
@@ -73,10 +62,18 @@ export class AccountsController {
     return this.accountsService.update(userId, dto);
   }
 
-  @Delete()
-  @ApiOperation({ description: 'Delete account' })
+  @Patch('restore')
+  @ApiOperation({ description: 'Update own password before auth' })
+  @ApiNoContentResponse({ type: EmptyResponseDto })
+  async restore(@Body() dto: RestoreAccountDto): Promise<EmptyResponseDto> {
+    return this.accountsService.restore(dto);
+  }
+
+  @Patch('delete')
+  @Authentication()
+  @ApiOperation({ description: 'Delete own account' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth('userId') userId): Promise<EmptyResponseDto> {
-    return this.accountsService.remove(userId);
+    return this.accountsService.delete(userId);
   }
 }

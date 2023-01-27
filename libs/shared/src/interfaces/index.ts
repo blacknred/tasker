@@ -17,3 +17,5 @@ export * from './auth.interface';
 export * from './vote.interface';
 export * from './subscription.interface';
 export * from './comment.interface';
+export * from './invitation.interface';
+export * from './verification.interface';

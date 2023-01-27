@@ -18,16 +18,15 @@ export class Filter implements IHydratedFilter {
   schema: string;
 
   constructor(instance?: Partial<Filter>) {
-    instance.schema = this.schemaSerialiser(instance.schema);
     Object.assign(this, instance);
   }
 
-  schemaSerialiser(schema: CreateFilterDto['schema'] | string): string {
-    if (typeof schema === 'string') return schema;
-    return '?' + schema.map((rec) => `${rec.field}=${rec.value}`).join('&');
+  static serializeSchema(schema?: CreateFilterDto['schema']): string {
+    if (!schema) return;
+    return '?' + schema.map((r) => `${r.field}=${r.value}`).join('&');
+  }
+
+  static isSearchable(column: string): boolean {
+    return ['name'].includes(column);
   }
 }
-
-// static isSearchable(column: string): boolean {
-//   return ['userId', 'name', 'role', 'createdAt'].includes(column);
-// }

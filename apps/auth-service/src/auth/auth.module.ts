@@ -7,12 +7,19 @@ import { AuthService } from './auth.service';
 import {
   JwtRefreshTokenStrategy,
   JwtStrategy,
+  JwtTFAStrategy,
   LocalStrategy,
 } from './providers';
 
 @Module({
   imports: [ConfigModule, PassportModule, JwtModule.register({})],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshTokenStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtTFAStrategy,
+    JwtRefreshTokenStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

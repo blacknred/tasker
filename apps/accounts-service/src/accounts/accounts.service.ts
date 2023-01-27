@@ -1,70 +1,106 @@
-import * as bcrypt from 'bcryptjs';
-import { Repository } from 'typeorm';
+import { EntityRepository, wrap } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import {
-  forwardRef,
+  BadRequestException,
+  ConflictException,
   HttpStatus,
-  Inject,
   Injectable,
-  Logger,
+  NotFoundException,
+  PreconditionFailedException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { classToPlain } from 'class-transformer';
-import { TokensService } from 'src/tokens/tokens.service';
-import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { USER_REPOSITORY, WORKSPACE_SERVICE } from './consts';
-import { CreateUserDto } from './dto/create-account.dto';
-import { GetUserDto } from './dto/get-account.dto';
-import { GetUsersDto } from './dto/get-accounts.dto';
-import { RestoreUserDto } from './dto/restore-account.dto';
-import { UpdateUserDto } from './dto/update-account.dto';
-import { User } from './entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { RpcException } from '@nestjs/microservices';
+import {
+  IAccount,
+  IInvitation,
+  IVerification,
+  VERIFICATION_KEY,
+} from '@taskapp/shared';
+import * as bcrypt from 'bcryptjs';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { RedisService } from 'nestjs-redis';
+import {
+  CreateAccountDto,
+  GetValidatedAccountDto,
+  RestoreAccountDto,
+  UpdateAccountDto,
+} from './dto';
+import { Account } from './entities';
 
 @Injectable()
 export class AccountsService {
   constructor(
-    @Inject(forwardRef(() => TokensService))
-    private readonly tokensService: TokensService,
-    @Inject(USER_REPOSITORY) private userRepository: Repository<User>,
-    @Inject(WORKSPACE_SERVICE) private workspacesService: ClientProxy,
+    @InjectRepository(Account)
+    private accountRepository: EntityRepository<Account>,
+    private readonly redisService: RedisService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    @InjectPinoLogger(AccountsService.name)
+    private readonly logger: PinoLogger,
   ) {}
 
-  private fieldMapper<T>(obj: T, isPartial?: boolean): Partial<T> {
-    return Object.keys(classToPlain(obj)).reduce((o, k) => {
-      if (!isPartial || User.isNotSecured(k)) o[k] = obj[k];
-      return o;
-    }, {});
-  }
+  async create({ emailCode, inviteToken, ...dto }: CreateAccountDto) {
+    let email, projectId, roleId;
 
-  async create({ emailToken, ...rest }: CreateUserDto) {
-    try {
+    if (inviteToken) {
       // check token
-      const { data } = await this.tokensService.findOne(emailToken);
-      if (!data) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
+      const secret = this.configService.get('SECRET');
+      let invitation: IInvitation;
+
+      try {
+        invitation = await this.jwtService.verifyAsync<IInvitation>(
+          inviteToken,
+          { secret },
+        );
+      } catch (err) {}
+
+      if (!invitation?.email) {
+        throw new BadRequestException({
           errors: [
-            { message: 'Invalid or expired token', field: 'emailToken' },
+            { message: 'Invalid or expired token', field: 'inviteToken' },
           ],
-        };
+        });
       }
 
-      const { email, wid, uid } = data;
+      email = invitation.email;
+      projectId = invitation.projectId;
+      roleId = invitation.roleId;
+    } else {
+      // check code
+      const cache = this.redisService.getClient();
+      const key = `${VERIFICATION_KEY}:${emailCode}`;
+      const verification: IVerification = await cache.get(key);
 
-      // create user
-      const user = this.userRepository.create({ ...rest, email });
-      await this.userRepository.save(user);
-
-      // add user to workspace
-      if (wid) {
-        const { name, id, image } = user;
-        const payload = { userId: id, name, image, wid, uid };
-        await this.workspacesService.send('agents/create', payload).toPromise();
+      if (!verification?.isVerified || !verification?.email) {
+        throw new BadRequestException({
+          errors: [{ message: 'Invalid or expired code', field: 'emailCode' }],
+        });
       }
 
-      return {
-        status: HttpStatus.CREATED,
-        data: user,
-      };
+      email = verification.email;
+    }
+
+    const account = await this.accountRepository.findOne({ email });
+
+    if (account) {
+      throw new ConflictException({
+        errors: [{ message: 'Email already in use', field: 'email' }],
+      });
+    }
+
+    try {
+      // account
+      const data = new Account({ ...dto, email });
+      await this.accountRepository.nativeInsert(data);
+
+      // project membership
+      if (projectId && roleId) {
+        //
+      }
+
+      return { data };
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
@@ -72,80 +108,36 @@ export class AccountsService {
     }
   }
 
-  async findAll({ limit, offset, partial, ...rest }: GetUsersDto) {
-    const [items, total] = await this.userRepository.findAndCount({
-      where: Object.keys(rest).reduce((acc, key) => {
-        if (!(User.isSearchable(key) && rest[key])) return acc;
-        acc[key] = rest[key];
-        return acc;
-      }, {}),
-      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-      skip: offset,
-      take: limit + 1,
-      withDeleted: !partial,
-    });
-
-    return {
-      status: HttpStatus.OK,
-      data: {
-        hasMore: items.length === limit + 1,
-        items: items.slice(0, limit).map((i) => this.fieldMapper(i, partial)),
-        total,
-      },
-    };
-  }
-
-  async findOne(id: number, partial?: boolean, withDeleted?: boolean) {
-    const data = await this.userRepository.findOne(id, { withDeleted });
+  async findOne(id: IAccount['id']) {
+    const data = await this.accountRepository.findOne(id);
 
     if (!data) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        data: null,
-      };
+      throw new NotFoundException();
     }
 
-    return {
-      status: HttpStatus.OK,
-      data: this.fieldMapper(data, partial),
-    };
+    return { data };
   }
 
-  async findOneValidated({ email, password }: GetUserDto) {
+  async findOneWithCredentials({ email, password }: GetValidatedAccountDto) {
     try {
-      const param = { email };
-      const user = await this.userRepository.findOne(param, {
-        withDeleted: false,
-      });
+      const data = await this.accountRepository.findOne({ email });
 
-      if (!user) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          errors: [
-            {
-              message: 'Email not in use',
-              field: 'email',
-            },
-          ],
-        };
+      if (!data) {
+        throw new NotFoundException({
+          errors: [{ message: 'Email not in use', field: 'email' }],
+        });
       }
 
-      if (!bcrypt.compareSync(password, user.password)) {
-        return {
-          status: HttpStatus.UNAUTHORIZED,
-          errors: [
-            {
-              message: 'Wrong password',
-              field: 'password',
-            },
-          ],
-        };
+      if (!bcrypt.compareSync(password, data.password)) {
+        throw new UnauthorizedException({
+          errors: [{ message: 'Wrong password', field: 'password' }],
+        });
       }
 
-      return {
-        status: HttpStatus.OK,
-        data: user,
-      };
+      data.deletedAt = undefined;
+      this.accountRepository.flush();
+
+      return { data };
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,
@@ -153,91 +145,82 @@ export class AccountsService {
     }
   }
 
-  async update({ id, emailToken, password, ...rest }: UpdateUserDto) {
+  async update(id: IAccount['id'], { emailCode, ...dto }: UpdateAccountDto) {
+    const { data } = await this.findOne(id);
+
+    if (emailCode) {
+      // check code
+      const cache = this.redisService.getClient();
+      const key = `${VERIFICATION_KEY}:${emailCode}`;
+      const verification: IVerification = await cache.get(key);
+
+      if (!verification?.isVerified || !verification?.email) {
+        throw new BadRequestException({
+          errors: [{ message: 'Invalid or expired code', field: 'emailCode' }],
+        });
+      }
+
+      data.email = verification.email;
+    }
+
     try {
-      const res = await this.findOne(id);
-      if (!res.data) return res;
+      wrap(data).assign(dto);
 
-      if (emailToken) {
-        const { data } = await this.tokensService.findOne(emailToken);
-        if (!data) {
-          return {
-            status: HttpStatus.BAD_REQUEST,
-            errors: [
-              { message: 'Invalid or expired token', field: 'emailToken' },
-            ],
-          };
-        }
-
-        res.data.email = data.email;
+      if (dto.password) {
+        await data.hashPassword();
       }
 
-      if (password) {
-        res.data.password = password;
-        await res.data.hashPassword();
-      }
+      await this.accountRepository.persistAndFlush(data);
 
-      Object.assign(res.data, rest);
-      const data = await this.userRepository.save(res.data);
-
-      return {
-        status: HttpStatus.OK,
-        data,
-      };
-    } catch (e) {
-      throw new RpcException({
-        status: HttpStatus.PRECONDITION_FAILED,
-      });
+      return { data };
+    } catch (err) {
+      this.logger.error(err);
+      throw new PreconditionFailedException();
     }
   }
 
-  async remove(id: number) {
+  async delete(id: IAccount['id']) {
+    const { data } = await this.findOne(id);
+
     try {
-      const res = await this.findOne(id);
-      if (!res.data) return res as ResponseDto;
+      data.deletedAt = new Date();
 
-      const deleted = await this.userRepository.softDelete(id);
-      if (!deleted.affected) {
-        return {
-          status: HttpStatus.CONFLICT,
-          data: null,
-        };
-      }
-
-      return {
-        status: HttpStatus.OK,
-        data: null,
-      };
-    } catch (e) {
-      throw new RpcException({
-        status: HttpStatus.PRECONDITION_FAILED,
-      });
+      return { data: null };
+    } catch (err) {
+      this.logger.error(err);
+      throw new PreconditionFailedException();
     }
   }
 
-  async restore({ emailToken, password }: RestoreUserDto) {
+  async restore({ emailCode, password }: RestoreAccountDto) {
+    // check code
+    const cache = this.redisService.getClient();
+    const key = `${VERIFICATION_KEY}:${emailCode}`;
+    const verification: IVerification = await cache.get(key);
+
+    if (!verification || !verification.isVerified) {
+      throw new BadRequestException({
+        errors: [{ message: 'Invalid or expired code', field: 'emailCode' }],
+      });
+    }
+
+    // check email
+    const account = await this.accountRepository.findOne({
+      email: verification.email,
+    });
+
+    if (!account) {
+      throw new ConflictException({
+        errors: [{ message: 'Email not in use', field: 'emailCode' }],
+      });
+    }
+
     try {
-      // check token
-      const res = await this.tokensService.findOne(emailToken);
-      if (!res.data) {
-        return {
-          status: HttpStatus.BAD_REQUEST,
-          errors: [
-            { message: 'Invalid or expired token', field: 'emailToken' },
-          ],
-        };
-      }
+      wrap(account).assign({ password });
+      await account.hashPassword();
+      await this.accountRepository.persistAndFlush(account);
 
-      const user = await this.userRepository.findOne({ email: res.data.email });
-      Object.assign(user, { deletedAt: null, password });
-      await user.hashPassword();
-
-      const data = await this.userRepository.save(user);
-
-      return {
-        status: HttpStatus.OK,
-        data,
-      };
+      return { data: null };
     } catch (e) {
       throw new RpcException({
         status: HttpStatus.PRECONDITION_FAILED,

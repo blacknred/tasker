@@ -6,7 +6,7 @@ import {
   NotFoundException,
   PreconditionFailedException,
 } from '@nestjs/common';
-import { ID } from '@taskapp/shared';
+import { IAuth, ID, IFilter } from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { CreateFilterDto, GetFiltersDto, UpdateFilterDto } from './dto';
 import { Filter } from './entities';
@@ -22,99 +22,78 @@ export class FiltersService {
 
   async create(dto: CreateFilterDto, ownerId: ID) {
     try {
-      const filter = new Filter({ ...dto, ownerId });
-      await this.filterRepository.nativeInsert(filter);
+      const schema = Filter.serializeSchema(dto.schema);
+      const data = new Filter({ ...dto, schema, ownerId });
+      await this.filterRepository.nativeInsert(data);
 
-      return { data: filter };
+      return { data };
     } catch (err) {
       this.logger.error(err);
       throw new PreconditionFailedException();
     }
   }
 
-  async findAll({ limit, offset, ...rest }: GetFiltersDto, userId: ID) {
+  async findAll(dto: GetFiltersDto, ownerId: IAuth['userId']) {
+    const { limit, offset, ...rest } = dto;
     const [items, total] = await this.filterRepository.findAndCount({
-      where: Object.keys(rest).reduce((acc, key) => {
-        if (!(User.isSearchable(key) && rest[key])) return acc;
-        acc[key] = rest[key];
-        return acc;
-      }, {}),
-      order: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
+      where: Object.keys(rest).reduce(
+        (acc, key) => {
+          if (!(Filter.isSearchable(key) && rest[key])) return acc;
+          acc[key] = rest[key];
+          return acc;
+        },
+        { ownerId },
+      ),
+      order: {
+        [rest['sort.field'] || 'createdAt']: rest['sort.order'] || 'ASC',
+      },
       skip: offset,
       take: limit + 1,
-      withDeleted: !partial,
     });
 
     return {
       data: {
         hasMore: items.length === limit + 1,
-        items: items.slice(0, limit).map((i) => this.fieldMapper(i, partial)),
+        items: items.slice(0, limit),
         total,
       },
     };
   }
 
-  //   async execute(query: GetFilterQuery): Promise<FilterResponseDto> {
-  //     const { id, userId } = query;
+  async findOne(id: IFilter['id'], ownerId: IAuth['userId']) {
+    const data = await this.filterRepository.findOne(id);
 
-  //     // const _where = { deletedAt: null };
-
-  //     // if (uid) {
-  //     //   const wids = await this.agentRepository.find({ userId: uid });
-  //     //   _where['id'] = wids.map((w) => w.workspace);
-  //     //   console.log(uid, wids);
-  //     // }
-
-  //     // const where = Object.keys(rest).reduce((acc, key) => {
-  //     //   if (!(Workspace.isSearchable(key) && rest[key])) return acc;
-  //     //   acc[key] = { $eq: rest[key] };
-  //     //   return acc;
-  //     // }, _where);
-
-  //     // const [items, total] = await this.entryRepository..findAndCount(where, {
-  //     //   orderBy: { [rest['sort.field'] || 'id']: rest['sort.order'] || 'ASC' },
-  //     //   limit: +limit + 1,
-  //     //   offset: +offset,
-  //     // });
-
-  //     return {
-  //       // data: {
-  //       //   hasMore: items.length === +limit + 1,
-  //       //   items: items.slice(0, limit),
-  //       //   total,
-  //       // },
-  //     };
-  //   }
-
-  async findOne(id: ID, ownerId: ID) {
-    const filter = await this.filterRepository.findOne(id);
-
-    if (!filter) {
+    if (!data) {
       throw new NotFoundException();
     }
 
-    if (filter.ownerId && filter.ownerId != ownerId) {
+    if (data.ownerId && data.ownerId != ownerId) {
       throw new ForbiddenException();
     }
 
-    return { data: filter };
+    return { data };
   }
 
-  async update(id: ID, dto: UpdateFilterDto, ownerId: ID) {
-    const filter = await this.findOne(id, ownerId);
+  async update(
+    id: IFilter['id'],
+    dto: UpdateFilterDto,
+    ownerId: IAuth['userId'],
+  ) {
+    const { data } = await this.findOne(id, ownerId);
 
     try {
-      wrap(filter).assign(dto);
+      const schema = Filter.serializeSchema(dto.schema);
+      wrap(data).assign({ ...dto, schema });
       await this.filterRepository.flush();
 
-      return { data: filter };
+      return { data };
     } catch (err) {
       this.logger.error(err);
       throw new PreconditionFailedException();
     }
   }
 
-  async remove(id: ID, ownerId: ID) {
+  async remove(id: IFilter['id'], ownerId: IAuth['userId']) {
     await this.findOne(id, ownerId);
 
     try {

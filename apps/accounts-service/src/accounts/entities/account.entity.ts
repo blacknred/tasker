@@ -33,18 +33,17 @@ export class Account extends AggregateRoot implements IAccount {
   })
   image?: string;
 
-  @Property({ lazy: true, nullable: true })
+  @Property({ nullable: true })
   details?: string;
 
   @Index({ name: 'account_email_idx' })
   @Property({ lazy: true, unique: true, check: 'length(email) >= 5' })
   email!: string;
 
-  @Property({ lazy: true, hidden: true })
+  @Property({ hidden: true })
   password!: string;
 
   @Property({
-    lazy: true,
     nullable: true,
     check: "phone ~ '^(+|00)[1-9][0-9 -().]{7,32}$'",
   })
@@ -53,16 +52,19 @@ export class Account extends AggregateRoot implements IAccount {
   @Property({ lazy: true })
   isAdmin = false;
 
-  @Property({ lazy: true })
-  isConfirmed = false;
+  @Property()
+  isTfaEnabled = false;
 
-  @Property({ lazy: true })
-  is2faEnabled = false;
+  @Property({ lazy: true, nullable: true })
+  tfaSecret?: string;
 
-  @Property({ lazy: true, length: 3, check: 'length(currency) == 3' })
+  @Property({ lazy: true, nullable: true })
+  tfaReserveCode?: string;
+
+  @Property({ length: 3, check: 'length(currency) == 3' })
   currency = 'USD';
 
-  @Property({ lazy: true, length: 5, check: 'length(locale) == 5' })
+  @Property({ length: 5, check: 'length(locale) == 5' })
   locale = 'en_US';
 
   @Property({ lazy: true, nullable: true })
@@ -76,14 +78,12 @@ export class Account extends AggregateRoot implements IAccount {
   updatedAt: Date = new Date();
 
   @Enum({
-    lazy: true,
     items: () => NotificationMethod,
     default: NotificationMethod.NONE,
   })
   notificationMethod: NotificationMethod = NotificationMethod.NONE;
 
   @Enum({
-    lazy: true,
     items: () => SecuredNotificationMethod,
     default: NotificationMethod.EMAIL,
   })

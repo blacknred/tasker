@@ -14,10 +14,11 @@ export interface IAccount extends IBase {
   email: string;
   phone?: string;
   isAdmin: boolean;
-  isConfirmed: boolean;
   locale: string;
   currency: string;
-  is2faEnabled: boolean;
+  isTfaEnabled: boolean;
+  tfaSecret?: string;
+  tfaReserveCode?: string;
   notificationMethod: NotificationMethod;
   securedNotificationMethod: SecuredNotificationMethod;
 }

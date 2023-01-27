@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { NotificationMethod, SecuredNotificationMethod } from '@taskapp/shared';
 import {
@@ -11,11 +11,13 @@ import {
 } from 'class-validator';
 import { CreateAccountDto } from './create-account.dto';
 
-export class UpdateAccountDto extends PartialType(CreateAccountDto) {
+export class UpdateAccountDto extends PartialType(
+  OmitType(CreateAccountDto, ['inviteToken']),
+) {
   @ApiProperty({ type: 'string', example: 'user info', required: false })
   @IsOptional()
   @MinLength(1, { message: 'Empty description' })
-  details?: string;
+  readonly details?: string;
 
   @ApiProperty({
     type: 'string',
@@ -24,12 +26,12 @@ export class UpdateAccountDto extends PartialType(CreateAccountDto) {
   })
   @IsOptional()
   @IsUrl({ message: 'Not valid url' })
-  image?: string;
+  readonly image?: string;
 
   @ApiProperty({ type: 'string', example: '+1 893 287 345', required: false })
   @IsOptional()
   @IsPhoneNumber(null, { message: 'Non valid phone number' })
-  phone?: string;
+  readonly phone?: string;
 
   @ApiProperty({
     enum: NotificationMethod,
@@ -42,7 +44,7 @@ export class UpdateAccountDto extends PartialType(CreateAccountDto) {
       NotificationMethod,
     ).join(', ')}`,
   })
-  notificationMethod: NotificationMethod;
+  readonly notificationMethod: NotificationMethod;
 
   @ApiProperty({
     enum: SecuredNotificationMethod,
@@ -55,10 +57,10 @@ export class UpdateAccountDto extends PartialType(CreateAccountDto) {
       SecuredNotificationMethod,
     ).join(', ')}`,
   })
-  securedNotificationMethod: SecuredNotificationMethod;
+  readonly securedNotificationMethod: SecuredNotificationMethod;
 
   @ApiProperty({ type: 'string', example: 'USD', required: false })
   @IsOptional()
   @IsLocale({ message: 'Non valid currency' })
-  currency?: string;
+  readonly currency?: string;
 }
