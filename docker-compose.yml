@@ -1,267 +1,396 @@
-version: "3.7"
+version: "3.8"
+
+networks:
+  apps:
+    name: main
+  monitoring:
+    name: main
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
 
 services:
-  rabbitmq:
-    container_name: rabbitmq
-    build: ./rabbitmq
-    env_file: ./.env
-    restart: always
-    volumes:
-      - "./rabbitmq/data:/var/lib/rabbitmq"
-    environment:
-      - RABBITMQ_USER=${RABBITMQ_USER}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
+
+  # data
 
   redis:
-    container_name: redis
-    build: ./redis
-    env_file: ./.env
-    restart: always
-    volumes:
-      - "./redis/data:/data"
+    image: redis/redis-stack-server:latest
+    networks: [ apps ]
+    ports: [ 6379 ]
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    ports:
-      - "6379:6379"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
   postgres:
-    container_name: postgres
     build: ./postgres
-    env_file: ./.env
-    restart: always
-    volumes:
-      - "./postgres/data:/var/lib/postgresql/data"
+    image: postgres:15beta2-alpine3.16
+    networks: [ apps ]
+    ports: [ 5432 ]
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
-  prometheus:
-    container_name: prometheus
-    hostname: prometheus
-    build: ./prometheus
-    env_file: ./.env
-    restart: unless-stopped
-    volumes:
-      - "./prometheus/data:/prometheus"
-      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
-    ports:
-      - "9090:9090"
-    networks:
-      - backend
-    healthcheck:
-      test: exit 0
-
-  # services
-
-  user-service:
-    container_name: user-service
-    hostname: user-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./user-service
-      target: production
-    volumes:
-      - "./user-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
+  rabbitmq:
+    build: ./rabbitmq
+    networks: [ apps ]
+    ports: [ 5672, 15672, 15692 ]
     environment:
-      - NODE_ENV=production
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - RABBITMQ_USER=${RABBITMQ_USER}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  eventstore:
+    image: eventstore/eventstore:21.10.9-alpha-arm64v8
+    networks: [ apps ]
+    ports: [ 1113, 2113 ]
+    environment:
+      - EVENTSTORE_USER=${EVENTSTORE_USER}
+      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD}
+      - EVENTSTORE_CLUSTER_SIZE=1
+      - EVENTSTORE_RUN_PROJECTIONS=all
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
+      - EVENTSTORE_EXT_TCP_PORT=1113
+      - EVENTSTORE_EXT_HTTP_PORT=2113
+      - EVENTSTORE_INSECURE=true
+      - EVENTSTORE_ENABLE_EXTERNAL_TCP=true
+      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  minio:
+    image: minio/minio:latest
+    networks: [ apps ]
+    command: "server /data --console-address ':9001'"
+    ports: [ 9000, 9001 ]
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  mc:
+    image: minio/mc:latest
+    networks: [ apps ]
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD}; /usr/bin/mc rm -r --force myminio/loki; /usr/bin/mc mb myminio/loki; /usr/bin/mc policy set public myminio/loki; exit 0; "
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+    depends_on:
+      - minio
+
+  # apps
+
+  project-query-service:
+    image: taskapp/project-query-service:latest
+    networks: [ apps ]
+    ports: [ 8001:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/projects
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
     depends_on:
       - postgres
+      - eventstore
       - rabbitmq
-    ports:
-      - "8080:3000"
-    networks:
-      - backend
-
-  auth-service:
-    container_name: auth-service
-    hostname: auth-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./auth-service
-      target: production
-    volumes:
-      - "./auth-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
-    environment:
-      - NODE_ENV=production
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-    depends_on:
       - redis
-      - user-service
-    ports:
-      - "8081:3000"
-    networks:
-      - backend
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
-  workspace-service:
-    container_name: workspace-service
-    hostname: workspace-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./workspace-service
-      target: production
-    volumes:
-      - "./workspace-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
+  project-command-service:
+    image: taskapp/project-command-service:latest
+    networks: [ apps ]
+    ports: [ 8002:3000 ]
     environment:
-      - NODE_ENV=production
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
+    depends_on:
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  issue-query-service:
+    image: taskapp/issue-query-service:latest
+    networks: [ apps ]
+    ports: [ 8003:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
     depends_on:
       - postgres
+      - eventstore
       - rabbitmq
-    ports:
-      - "8082:3000"
-    networks:
-      - backend
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
-  billing-service:
-    container_name: billing-service
-    hostname: billing-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./billing-service
-      target: production
-    volumes:
-      - "./billing-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
+  issue-command-service:
+    image: taskapp/issue-command-service:latest
+    networks: [ apps ]
+    ports: [ 8004:3000 ]
     environment:
-      - NODE_ENV=production
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
+    depends_on:
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  member-query-service:
+    image: taskapp/member-query-service:latest
+    networks: [ apps ]
+    ports: [ 8005:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/members
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
     depends_on:
       - postgres
-      - rabbitmq
-    ports:
-      - "8083:3000"
-    networks:
-      - backend
+      - eventstore
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  member-command-service:
+    image: taskapp/member-command-service:latest
+    networks: [ apps ]
+    ports: [ 8006:3000 ]
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
+    depends_on:
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  search-service:
+    image: taskapp/search-service:latest
+    networks: [ apps ]
+    ports: [ 8007:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/search
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      - postgres
+      - eventstore
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  report-service:
+    image: taskapp/report-service:latest
+    networks: [ apps ]
+    ports: [ 8008:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  account-service:
+    image: taskapp/account-service:latest
+    networks: [ apps ]
+    ports: [ 8009:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/accounts
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
   notification-service:
-    container_name: notification-service
-    hostname: notification-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./notification-service
-      target: production
-    volumes:
-      - "./notification-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
+    image: taskapp/notification-service:latest
+    networks: [ apps ]
+    ports: [ 8010:3000 ]
     environment:
-      - NODE_ENV=production
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/1
+      - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/notifications
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  billing-service:
+    image: taskapp/billing-service:latest
+    networks: [ apps ]
+    ports: [ 8011:3000 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/billing
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      - postgres
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  auth-service:
+    image: taskapp/auth-service:latest
+    networks: [ apps ]
+    ports: [ 8012:3000 ]
+    environment:
+      - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
+      - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
     depends_on:
       - redis
-      - rabbitmq
-    ports:
-      - "8084:3000"
-    networks:
-      - backend
-
-  workerbot-service:
-    container_name: workerbot-service
-    hostname: workerbot-service
-    env_file: ./.env
-    restart: always
-    build:
-      context: ./workerbot-service
-      target: production
-    volumes:
-      - "./workerbot-service:/usr/src/app"
-      - "/usr/src/app/node_modules"
-      - "/usr/src/app/dist"
-    environment:
-      - NODE_ENV=production
-      - WORKERS_QNT=${WORKERS_QNT:-5}
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-    depends_on:
-      - rabbitmq
-    ports:
-      - "8085:3000"
-    networks:
-      - backend
-
-  # gateway, clients
-
-  grafana:
-    container_name: grafana
-    hostname: grafana
-    build: ./grafana
-    env_file: ./.env
-    restart: unless-stopped
-    volumes:
-      - "./grafana/data:/var/lib/grafana"
-      - "./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
-    ports:
-      - "3002:3000"
-    networks:
-      - frontend
+      - account-service
+      - member-query-service
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
 
   gateway:
-    container_name: gateway
-    hostname: gateway
-    build: ./nginx
-    env_file: ./.env
-    restart: always
-    volumes:
-      - "./nginx/etc/ssl:/etc/nginx/ssl"
-      - "./nginx/etc/service.conf:/etc/nginx/service.conf"
+    image: taskapp/gateway:latest
+    networks: [ apps ]
+    ports: [ 80, 443 ]
     environment:
-      - TZ=${TZ}
-      - LETSENCRYPT=true
-      - LE_FQDN=${SSL_DOMAIN}
-      - LE_EMAIL=${SSL_EMAIL}
-    depends_on:
-      - user-service
-      - auth-service
-      - workspace-service
-    ports:
-      - "80:80"
-      - "443:443"
+      - API_VERSION=${API_VERSION:-v1}
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
     logging:
-      driver: json-file
+      driver: fluentd
       options:
-        max-size: "10m"
-        max-file: "5"
-    networks:
-      - backend
-      - frontend
+        fluentd-address: fluent-bit:24224
 
-networks:
-  backend:
-    driver: bridge
-  frontend:
-    external:
-      name: infrastructure
+  # web:
+  #   image: taskapp/web:latest
+  #   ports: [ 3000 ]
+  #   environment:
+  #     - NODE_OPTIONS=--openssl-legacy-provider
+  #     - SKIP_PREFLIGHT_CHECK=true
+  #     - CHOKIDAR_USEPOLLING=true
+  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+  #     - API_HOST=${HOST}
+
+  # monitoring
+
+  loki:
+    image: grafana/loki:latest
+    networks: [ monitoring ]
+    ports: [ 3100 ]
+    user: root
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./monitoring/loki/config.yml:/etc/loki/config.yaml:ro
+      - ./monitoring/loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
+    environment:
+      # the dot in the S3 address for MinIO is used because there is no need to specify AWS Region
+      - MINIO_URL=http://${MINIO_USER}:${MINIO_PASSWORD}@minio.:9000/loki
+    depends_on:
+      - minio
+
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    networks: [ monitoring ]
+    ports: [ 24224, 24224:24224/udp ]
+    volumes:
+      - ./monitoring/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    depends_on:
+      - loki
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks: [ monitoring ]
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778
+      - 16686
+      - 14268
+      - 14250
+      - 9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+
+  prometheus:
+    image: prom/prometheus:latest
+    networks: [ monitoring ]
+    ports: [ 9090 ]
+    command:
+      - "--config.file=/etc/prometheus/config.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention=7d"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    volumes:
+      - prometeus_data:/prometheus
+      - ./monitoring/prometheus/config.yml:/etc/prometheus/config.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on:
+      - minio
+
+  grafana:
+    image: grafana/grafana:latest
+    networks: [ monitoring ]
+    ports: [ 3003:3000 ]
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER={GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    depends_on:
+      - prometheus
+      - jaeger
+      - loki

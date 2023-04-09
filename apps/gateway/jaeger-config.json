@@ -1,0 +1,20 @@
+{
+  "service_name": "nginx",
+  "reporter": {
+    "logSpans": true,
+    "localAgentHostPort": "jaeger:6831"
+  },
+  "sampler": {
+    "type": "const",
+    "param": "1"
+  },
+  "headers": {
+    "jaegerDebugHeader": "jaeger_debug_id",
+    "jaegerBaggageHeader": "jaeger_baggage",
+    "traceBaggageHeaderPrefix": "uberctx_"
+  },
+  "baggage_restrictions": {
+    "denyBaggageOnInitializationFailure": false,
+    "hostPort": ""
+  }
+}

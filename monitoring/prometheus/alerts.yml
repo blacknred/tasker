@@ -1,0 +1,455 @@
+groups:
+  - name: AllInstances
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        annotations:
+          title: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+        labels:
+          severity: "critical"
+
+
+  - name: Service
+    rules:
+      - alert: "Service"
+        expr: 'absent(container_tasks_state{state="running",name="my-service"})'
+        for: 1m
+        annotations:
+          title: "Container {{ $labels.name }} down"
+          description: "{{ $labels.name }} has been down for more than 1 minute."
+        labels:
+          severity: "critical"
+
+
+
+  - name: containers
+    rules:
+      - alert: Some container is down
+        expr: 
+            absent (container_start_time_seconds{image!="",instance="server2.mydomain.com:8888",name=~".+redis.+"} ) or
+            absent (container_start_time_seconds{image!="",instance="server2.mydomain.com:8888",name=~".+nginx.+"} )
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical: Some container is down on the host {{ $labels.instance }} for more than 1 minutes"
+          description: "Some container is down on the host {{ $labels.instance }}"
+
+
+
+  - name: PostgreSQL
+    rules:
+      - alert: PostgreSQLMaxConnectionsReached
+        expr: sum(pg_stat_activity_count) by (instance) >= sum(pg_settings_max_connections) by (instance) - sum(pg_settings_superuser_reserved_connections) by (instance)
+        for: 1m
+        labels:
+          severity: email
+        annotations:
+          summary: "{{ $labels.instance }} has maxed out Postgres connections."
+          description: "{{ $labels.instance }} is exceeding the currently configured maximum Postgres connection limit (current value: {{ $value }}s). Services may be degraded - please take immediate action (you probably need to increase max_connections in the Docker image and re-deploy."
+
+      - alert: PostgreSQLHighConnections
+        expr: sum(pg_stat_activity_count) by (instance) > (sum(pg_settings_max_connections) by (instance) - sum(pg_settings_superuser_reserved_connections) by (instance)) * 0.8
+        for: 10m
+        labels:
+          severity: email
+        annotations:
+          summary: "{{ $labels.instance }} is over 80% of max Postgres connections."
+          description: "{{ $labels.instance }} is exceeding 80% of the currently configured maximum Postgres connection limit (current value: {{ $value }}s). Please check utilization graphs and confirm if this is normal service growth, abuse or an otherwise temporary condition or if new resources need to be provisioned (or the limits increased, which is mostly likely)."
+
+      - alert: PostgreSQLDown
+        expr: pg_up != 1
+        for: 1m
+        labels:
+          severity: email
+        annotations:
+          summary: "PostgreSQL is not processing queries: {{ $labels.instance }}"
+          description: "{{ $labels.instance }} is rejecting query requests from the exporter, and thus probably not allowing DNS requests to work either. User services should not be effected provided at least 1 node is still alive."
+
+      - alert: PostgreSQLSlowQueries
+        expr: avg(rate(pg_stat_activity_max_tx_duration{datname!~"template.*"}[2m])) by (datname) > 2 * 60
+        for: 2m
+        labels:
+          severity: email
+        annotations:
+          summary: "PostgreSQL high number of slow on {{ $labels.cluster }} for database {{ $labels.datname }} "
+          description: "PostgreSQL high number of slow queries {{ $labels.cluster }} for database {{ $labels.datname }} with a value of {{ $value }} "
+
+      - alert: PostgreSQLQPS
+        expr: avg(irate(pg_stat_database_xact_commit{datname!~"template.*"}[5m]) + irate(pg_stat_database_xact_rollback{datname!~"template.*"}[5m])) by (datname) > 10000
+        for: 5m
+        labels:
+          severity: email
+        annotations:
+          summary: "PostgreSQL high number of queries per second {{ $labels.cluster }} for database {{ $labels.datname }}"
+          description: "PostgreSQL high number of queries per second on {{ $labels.cluster }} for database {{ $labels.datname }} with a value of {{ $value }}"
+
+      - alert: PostgreSQLCacheHitRatio
+        expr: avg(rate(pg_stat_database_blks_hit{datname!~"template.*"}[5m]) / (rate(pg_stat_database_blks_hit{datname!~"template.*"}[5m]) + rate(pg_stat_database_blks_read{datname!~"template.*"}[5m]))) by (datname) < 0.98
+        for: 5m
+        labels:
+          severity: email
+        annotations:
+          summary: "PostgreSQL low cache hit rate on {{ $labels.cluster }} for database {{ $labels.datname }}"
+          description: "PostgreSQL low on cache hit rate on {{ $labels.cluster }} for database {{ $labels.datname }} with a value of {{ $value }}"
+
+  - name: Redis
+    rules:
+      - alert: RedisDown
+        annotations:
+          description: |-
+            Redis instance is down
+              VALUE = {{ $value }}
+              LABELS: {{ $labels }}
+          summary: Redis down (instance {{ $labels.instance }})
+        expr: redis_up == 0
+        for: 5m
+        labels:
+          severity: critical
+      - alert: RedisOutOfMemory
+        annotations:
+          description: |-
+            Redis is running out of memory (> 90%)
+              VALUE = {{ $value }}
+              LABELS: {{ $labels }}
+          summary: Redis out of memory (instance {{ $labels.instance }})
+        expr: redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+      - alert: RedisTooManyConnections
+        annotations:
+          description: |-
+            Redis instance has too many connections
+              VALUE = {{ $value }}
+              LABELS: {{ $labels }}
+          summary: Redis too many connections (instance {{ $labels.instance }})
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+
+  - name: Nginx
+    rules:
+      - alert: nginx_is_running
+        expr: nginx_up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical: Nginx is down on the host {{ $labels.instance }}."
+          description: "Nginx has been down for more than 30 seconds"
+    
+      - alert: nginx_not_all_connections_are_handled
+        expr: rate (nginx_connections_handled{job="nginx-exporter"}[5m]) / rate (nginx_connections_accepted{job="nginx-exporter"}[5m]) <1 
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          description: "Critical: Nginx does not handle all accept connections on the host {{ $labels.instance }} for more than 3 minutes"
+          summary: "Nginx issue with handling connections"
+    
+      - alert: nginx_high_number_active_connections_f3.mydomain.com
+        expr: nginx_connections_active{instance="f3.mydomain.com:9113",job="nginx-exporter"} > 3000
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          description: "Critical: Nginx high number active connections on the host {{ $labels.instance }} for more than 3 minutes"
+          summary: "Nginx high number active connections"
+    
+      - alert: nginx_high_number_active_connections_f4.mydomain.com
+        expr: nginx_connections_active{instance="f4.mydomain.com:9113",job="nginx-exporter"} > 1500
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          description: "Critical: Nginx high number active connections on the host {{ $labels.instance }} for more than 3 minutes"
+          summary: "Nginx high number active connections"
+
+
+
+groups:
+- name: hosts
+  rules:
+
+########## Load Average ##########
+  - alert: high_cpu_load_average
+    expr: ((node_load1) / count without (cpu,mode) (node_cpu_seconds_total{mode="system"}) ) > 0.8
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High CPU Load average(>0.8) on the host {{ $labels.instance }}"
+      description: "Host CPU load average is {{ $value}} on the host {{ $labels.instance }}"
+
+########## CPU ##########
+  - alert: high_cpu_load_average
+    expr: ((node_load1) / count without (cpu,mode) (node_cpu_seconds_total{mode="system"}) ) > 1
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: High CPU Load average(>1) on the host {{ $labels.instance }}"
+      description: "Host CPU load average is {{ $value}} on the host {{ $labels.instance }}"
+
+  - alert: high_cpu_usage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High CPU usage(>80%) on the host {{ $labels.instance }}"
+      description: "Host CPU usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+  - alert: high_cpu_usage
+    expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 100
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: High CPU usage(>100%) on the host {{ $labels.instance }}"
+      description: "Host CPU usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+  #- alert: high_cpu_context_switching_non_prod.mydomain.com
+  #  expr: rate(node_context_switches_total{instance!~"server1.mydomain.com.+|server2.mydomain.com.+"}[5m]) > 6000
+  #  for: 5m
+  #  labels:
+  #    severity: warning
+  #  annotations:
+  #    summary: "Warning: High CPU context switching(>6000) on the host {{ $labels.instance }}"
+  #    description: "Host cpu context switching is {{ humanize $value}}"
+
+
+  #- alert: high_cpu_context_switching_prod.mydomain.com
+  #  expr: rate(node_context_switches_total{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"}[5m]) > 45000
+  #  for: 5m
+  #  labels:
+  #    severity: warning
+  #  annotations:
+  #    summary: "Warning: High CPU context switching(>45000) on the host {{ $labels.instance }}"
+  #    description: "Host cpu context switching is {{ humanize $value}}"
+
+
+########## Memory ##########
+  - alert: high_memory_usage
+    expr: ((node_memory_MemTotal_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"} - 
+          node_memory_MemAvailable_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"}) / 
+          node_memory_MemTotal_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"}) * 100 > 80
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High memory usage(>80%) on the host {{ $labels.instance }}"
+      description: "Host memory usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+  - alert: high_memory_usage
+    expr: ((node_memory_MemTotal_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"} - 
+          node_memory_MemAvailable_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"}) / 
+          node_memory_MemTotal_bytes{instance!~"server3.mydomain.com.+",instance!~"server4.mydomain.com.+"}) * 100 > 90
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: High memory usage(>90%) on the host {{ $labels.instance }}"
+      description: "Host memory usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+
+  - alert: high_memory_usage_server{3,4}
+    expr: ((node_memory_MemTotal_bytes{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"} - node_memory_MemAvailable_bytes{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"}) / 
+          node_memory_MemTotal_bytes{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"}) * 100 > 85
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High memory usage(>85%) on the host {{ $labels.instance }}"
+      description: "Host memory usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+  - alert: high_memory_usage_server_{3,4}
+    expr: ((node_memory_MemTotal_bytes{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"} - node_memory_MemAvailable_bytes{instance=~"server3.+mydomain.com.+|server4.mydomain.com.+"}) / 
+          node_memory_MemTotal_bytes{instance=~"server3.mydomain.com.+|server4.mydomain.com.+"}) * 100 > 95
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: High memory usage(>95%) on the host {{ $labels.instance }}"
+      description: "Host memory usage is {{ humanize $value}}% on the host {{ $labels.instance }}"
+
+
+########## Swap ##########
+  - alert: high_swap_usage
+    expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 60
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High swap usage(>60%) on the host {{ $labels.instance }}"
+      description: "Host swap usage is {{ humanize $value}}%"
+
+  - alert: high_swap_usage
+    expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 80
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: High swap usage(>80%) on the host {{ $labels.instance }}"
+      description: "Host swap usage is {{ humanize $value}}%"
+
+########## Disk ##########
+  - alert: high_ROOT/BOOT_inode_disk_usage
+    expr: 100 - ((node_filesystem_files_free{mountpoint =~"/|/boot",fstype=~"xfs|ext4"} / node_filesystem_files{mountpoint=~"/|/boot",fstype=~"xfs|ext4"}) *100) > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: Disk {{ $labels.mountpoint }} inode usage is almost full(>80%) on the host {{ $labels.instance }}"
+      description: "Host disk {{ $labels.mountpoint }} inode usage is {{ humanize $value}}%"
+
+  - alert: high_ROOT/BOOT_inode_disk_usage
+    expr: 100 - (node_filesystem_files_free{mountpoint =~"/|/boot",fstype=~"xfs|ext4"} / node_filesystem_files{mountpoint=~"/|/boot",fstype=~"xfs|ext4"})*100 > 90
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: Disk {{ $labels.mountpoint }} inode usage is almost full(>90%) on the host {{ $labels.instance }}"
+      description: "Host disk {{ $labels.mountpoint }} inode usage is {{ humanize $value}}%"
+
+  - alert: high_ROOT/BOOT_storage_disk_usage
+    expr: 100 - (node_filesystem_free_bytes{mountpoint=~"/|/boot",fstype=~"xfs|ext4"} / node_filesystem_size_bytes{mountpoint=~"/|/boot",fstype=~"xfs|ext4"} )*100 > 80 
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: Disk {{ $labels.mountpoint }} storage is almost full(>80%) on the host {{ $labels.instance }}"
+      description: "Host disk {{ $labels.mountpoint }} storage usage is {{ humanize $value}}%"
+
+  - alert: high_ROOT/BOOT_storage_disk_usage
+    expr: 100 - (node_filesystem_free_bytes{mountpoint=~"/|/boot",fstype=~"xfs|ext4"} / node_filesystem_size_bytes{mountpoint=~"/|/boot",fstype=~"xfs|ext4"} )*100 > 90 
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: Disk {{ $labels.mountpoint }} storage is almost full(>90%) on the host {{ $labels.instance }}"
+      description: "Host disk {{ $labels.mountpoint }} storage usage is {{ humanize $value}}%"
+ 
+  - alert: node_disk_fill_rate_6h
+    expr: predict_linear(node_filesystem_free_bytes{mountpoint=~"/|/boot"}[1h], 6 * 3600) < 0
+    for: 1h
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: Disk {{ $labels.mountpoint }} is going to fill up in 6h on the host {{ $labels.instance }}"
+      description: "Host disk {{ $labels.mountpoint }} is going to fill up  on the host {{ $labels.instance }}"
+
+  - alert: high_disk_read_latency
+    expr: rate(node_disk_read_time_seconds_total{device!~"md[0-9]"}[1m]) / rate(node_disk_reads_completed_total{device!~"md[0-9]"}[1m]) > 100
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High disk read latency(>100ms) on the host {{ $labels.instance }}"
+      description: "Host disk read latency is {{ humanize $value}}ms"
+
+  - alert: high_disk_write_latency
+    expr: rate(node_disk_write_time_seconds_total{device!~"md[0-9]"}[1m]) / rate(node_disk_writes_completed_total{device!~"md[0-9]"}[1m]) > 100
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High disk write latency(>100ms) on the host {{ $labels.instance }}"
+      description: "Host disk write latency is {{ humanize $value}}ms"
+
+  - alert: high_disk_input_output_latency
+    expr: (irate(node_disk_io_time_seconds_total{device!~"md[0-9]|nvme[0-9].+"}[5m])) * 1000 > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High disk input/output latency(>1000ms) on the host {{ $labels.instance }}"
+      description: "Host disk input/output latency is {{ humanize $value}}ms"
+
+  - alert: high_disk_read_rate
+    expr: sum by (instance,device) (rate(node_disk_read_bytes_total{device!~"md[0-9]"}[2m]) /1024/1024) > 30
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High disk read rate(>30MB/s) on the host {{ $labels.instance }} on the disk {{ $labels.device }} for more than 5 minutes"
+      description: "Host disk read rate is {{ humanize $value}}MB/s"
+
+  - alert: high_disk_write_rate
+    expr: sum by (instance,device) (rate(node_disk_written_bytes_total{device!~"md[0-9]"}[2m]) /1024/1024) > 30
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High disk write rate(>30MB/s) on the host {{ $labels.instance }} on the disk {{ $labels.device }} for more than 5 minutes"
+      description: "Host disk write rate is {{ humanize $value}}MB/s"
+
+  - alert: software_raid_is_broken
+    expr: (node_md_disks_active / node_md_disks) != 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: Software raid is broken for device {{ $labels.device }} on the host {{ $labels.instance }} "
+      description: "Software raid is broken on the host {{ $labels.instance }}"
+
+  - alert: software_raid_is_not_active
+    expr: node_md_is_active != 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical: Software raid is not active for device {{ $labels.device }} on the host {{ $labels.instance }} "
+      description: "Software raid is not active on the host {{ $labels.instance }}"
+
+########## Network ##########
+  - alert: high_network_input_throughput
+    expr: sum by (instance) (rate(node_network_receive_bytes_total{instance!~"server3.+",instance!~"server4.+"}[2m])) / 1024 / 1024 > 50
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High network input throughput(>50MB/s) on the host {{ $labels.instance }}"
+      description: "Host network input throughput is {{ humanize $value}}MB/s"    
+
+  - alert: high_network_input_throughput_server{3_4}.mydomain.com
+    expr: sum by (instance) (rate(node_network_receive_bytes_total{instance=~"server3.+|server4.+"}[2m])) / 1024 / 1024 > 70
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High network input throughput(>70MB/s) on the host {{ $labels.instance }}"
+      description: "Host network input throughput is {{ humanize $value}}MB/s"   
+
+  - alert: high_network_output_throughput
+    expr: sum by (instance) (rate(node_network_transmit_bytes_total{instance!~"server1.+",instance!~"server2.+"}[2m])) / 1024 / 1024 > 50
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High network output throughput(>50MB/s) on the host {{ $labels.instance }}"
+      description: "Host network output throughput is {{ humanize $value}}MB/s"
+
+  - alert: high_network_output_throughput_server{3_4}.mydomain.com
+    expr: sum by (instance) (rate(node_network_transmit_bytes_total{instance=~"server3.+|server4.+"}[2m])) / 1024 / 1024 > 70
+    for: 3m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Warning: High network output throughput(>70MB/s) on the host {{ $labels.instance }}"
+      description: "Host network output throughput is {{ humanize $value}}MB/s"
+
+
+########## Instance(exporter) ##########
+  - alert: instance_down
+    expr: up == 0
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      description: "Instance {{ $labels.instance }} of job {{ $labels.job }} has been down for more than 3 minutes."
+      summary: "Instance {{ $labels.instance }} is down"

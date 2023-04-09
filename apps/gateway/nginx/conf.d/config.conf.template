@@ -1,0 +1,22 @@
+set $server_name ${HOST}; # '*.example.com example.com';
+set $api_version ${API_VERSION};
+set $request_timeout ${REQUEST_TIMEOUT}; # 60 sec by default
+set $body_limit '16k'; # 1m by default
+set $keepalive_timeout 70;
+set $bandwidth_limit '50k'; # 50k per sec
+set $bandwidth_limit_threshold '100k';
+set $main_rate_limit '1r/s';
+set $auth_rate_limit '20r/s';
+set $conn_limit 10;
+
+# Passive Health checks
+# the server will be unavailable for 30 sec if NGINX fails during request/response 3 times in 30 sec
+set $upstream_fail_timeout 30s;
+set $upstream_max_fails 3;
+
+# Allowlisting by IP/Referer/User-Agent/GeoIP
+set $blocked_ip_range -; # range 123.123.123.0/28
+set $allowed_ip_range -; # range 123.123.123.0/28
+set $blocked_geo_ip -;
+set $http_referrer -;
+set $http_user_agent -;

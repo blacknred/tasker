@@ -1,0 +1,172 @@
+{
+  "name": "taskapp",
+  "private": true,
+  "license": "MIT",
+  "version": "0.0.1",
+  "description": "Sample application for managing tasks",
+  "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",
+  "repository": "https://github.com/blacknred/full-taskapp.git",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "npx nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "npx nest start",
+    "start:dev": "npx nest start --watch",
+    "start:debug": "npx nest start --debug --watch",
+    "start:prod": "node dist/apps/auth-service/main.js",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "kompose": "kompose convert -o kubernetes/deployment.yaml",
+    "docs": "npx compodoc --theme material --output docs -p tsconfig.json -s",
+    "db-up": "npx mikro-orm migration:create && npx mikro-orm migration:up",
+    "db-gen": "npx mikro-orm generate-entities --save --path=./libs/entities"
+  },
+  "dependencies": {
+    "@dollarsign/nestjs-jaeger-tracing": "^1.0.8",
+    "@godaddy/terminus": "^4.4.1",
+    "@mikro-orm/core": "^5.2.1",
+    "@mikro-orm/entity-generator": "^5.6.7",
+    "@mikro-orm/nestjs": "^4.3.1",
+    "@mikro-orm/postgresql": "^5.2.1",
+    "@nest-modules/mailer": "^1.3.22",
+    "@nestjs/axios": "^1.0.1",
+    "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^1.0.1",
+    "@nestjs/core": "^8.4.7",
+    "@nestjs/cqrs": "8.0.5",
+    "@nestjs/jwt": "^8.0.1",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/microservices": "^8.0.6",
+    "@nestjs/passport": "^8.0.1",
+    "@nestjs/platform-express": "^8.4.7",
+    "@nestjs/swagger": "^5.0.9",
+    "@nestjs/terminus": "^8.0.1",
+    "amqp-connection-manager": "^3.7.0",
+    "amqplib": "^0.8.0",
+    "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.4.0",
+    "class-validator": "^0.13.1",
+    "cookie-parser": "^1.4.6",
+    "joi": "*",
+    "nestjs-amqp": "^0.2.2",
+    "nestjs-pino": "^1.1.3",
+    "nestjs-redis": "^1.3.3",
+    "node-eventstore-client": "^21.10.0",
+    "nodemailer": "^6.6.5",
+    "otplib": "^12.0.1",
+    "passport": "^0.4.1",
+    "passport-custom": "^1.1.1",
+    "passport-facebook": "^3.0.0",
+    "passport-github": "^1.1.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.7.1",
+    "pino": "*",
+    "pino-pretty": "^3.5.0",
+    "prom-client": "^14.0.0",
+    "qrcode": "^1.5.1",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.8.0",
+    "twilio": "^3.71.2",
+    "type-fest": "^1.0.2",
+    "uuid": "*",
+    "web-push": "^3.4.5"
+  },
+  "devDependencies": {
+    "@compodoc/compodoc": "^1.1.15",
+    "@mikro-orm/cli": "^5.2.1",
+    "@mikro-orm/migrations": "^5.6.7",
+    "@nestjs/cli": "^8.2.8",
+    "@nestjs/schematics": "^8.0.11",
+    "@nestjs/testing": "^8.4.7",
+    "@types/amqplib": "^0.8.2",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/express": "^4.17.15",
+    "@types/jest": "27.4.1",
+    "@types/node": "^16.18.11",
+    "@types/nodemailer": "^6.4.4",
+    "@types/passport-facebook": "^2.1.10",
+    "@types/passport-facebook-token": "^0.4.34",
+    "@types/passport-jwt": "^3.0.6",
+    "@types/passport-local": "^1.0.33",
+    "@types/supertest": "^2.0.12",
+    "@types/web-push": "^3.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.1",
+    "jest": "^27.5.1",
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.8.3",
+    "source-map-support": "^0.5.21",
+    "supertest": "^6.3.3",
+    "ts-jest": "^27.1.5",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^3.14.1",
+    "typescript": "^4.9.4"
+  },
+  "packageManager": "pnpm@7.0.0",
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "modulePaths": [
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "roots": [
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "@taskapp/core/(.*)": "<rootDir>/libs/core/src/$1",
+      "@taskapp/core": "<rootDir>/libs/core/src",
+      "@taskapp/eventstore/(.*)": "<rootDir>/libs/eventstore/src/$1",
+      "@taskapp/eventstore": "<rootDir>/libs/eventstore/src",
+      "@taskapp/shared/(.*)": "<rootDir>/libs/shared/src/$1",
+      "@taskapp/shared": "<rootDir>/libs/shared/src"
+    }
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.+(ts|tsx)": [
+      "pnpm format",
+      "pnpm lint"
+    ]
+  }
+}

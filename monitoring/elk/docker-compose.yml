@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+
+     # elasticsearch:
+    #   build: ./monitoring/elk/elasticsearch
+    #   env_file: ./.env.dev
+    #   restart: always
+    #   networks: [infrastructure]
+    #   ports: [9200, 9300]
+    #   volumes:
+    #     - elasticsearch_data:/usr/share/elasticsearch/data"
+    #     - ./monitoring/elk/elasticsearch/config.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    #   environment:
+    #     - node.name=node01
+    #     - ES_JAVA_OPTS="-Xmx512m -Xms512m"
+    #     - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-test}
+    #     - discovery.type=single-node
+    #     - xpack.license.self_generated.type=basic
+    #     - xpack.security.enabled=false
+
+    # logstash:
+    #   build: ./monitoring/elk/logstash
+    #   env_file: ./.env.dev
+    #   restart: always
+    #   networks: [infrastructure]
+    #   ports:
+    #     - 5000:5000/tcp
+    #     - 5044:5044/tcp
+    #     - 5000:5000/udp
+    #     - 9600
+    #   volumes:
+    #     - ./monitoring/elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    #     - ./monitoring/elk/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    #   environment:
+    #     LS_JAVA_OPTS=-Xmx256m -Xms256m
+    #   depends_on:
+    #     - elasticsearch
+
+
+    #   kibana:
+    #     image: docker.elastic.co/kibana/kibana:8.3.3
+    #     restart: always
+    #     networks: [infrastructure]
+    #     ports: [5601:5601]
+    #     environment:
+    #       ELASTICSEARCH_HOSTS: http://node01:9200
+    #     depends_on:
+    #       - elasticsearch
+
+
+
+    # kibana:
+    #   hostname: kibana
+    #   build:
+    #     context: kibana/
+    #     args:
+    #       ELK_VERSION: $ELK_VERSION
+    #   volumes:
+    #     - type: bind
+    #       source: ./kibana/config/kibana.yml
+    #       target: /usr/share/kibana/config/kibana.yml
+    #       read_only: true
+    #   ports:
+    #     - "5601:5601"
+    #   networks:
+    #     - elk
+    #   depends_on:
+    #     - elasticsearch
+
+    # filebeat:
+    #   image: docker-logs-elk/filebeat:1.0.0
+    #   build:
+    #     context: filebeat/
+    #     args:
+    #       ELK_VERSION: $ELK_VERSION
+    #   volumes:
+    #     # needed to access all docker logs (read only) :
+    #     - "/var/lib/docker/containers:/usr/share/dockerlogs/data:ro"
+    #     # needed to access additional informations about containers
+    #     - "/var/run/docker.sock:/var/run/docker.sock"
+    #   depends_on:
+    #     - elasticsearch
+    #     - logstash
+    #   networks:
+    #     - elk

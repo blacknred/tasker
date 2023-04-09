@@ -1,0 +1,562 @@
+version: "3.8"
+
+services:
+
+  # data
+
+  redis:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  postgres:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  rabbitmq:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on_failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  eventstore:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  minio:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  mc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  # apps
+
+  project-query-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  project-command-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-query-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-command-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  member-query-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  member-command-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  search-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  report-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  account-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  notification-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  billing-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  auth-service:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  gateway:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  # web:
+  #   restart: always
+  #   healthcheck:
+  #     test: exit 0
+  #   deploy:
+  #     mode: global
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #     resources:
+  #       limits:
+  #         cpus: '0.50'
+  #         memory: 50M
+  #         pids: 1
+
+  # monitoring
+
+  loki:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  fluent-bit:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  jaeger:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    networks: [ monitoring ]
+    ports: [ 8081:8080 ]
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    networks: [ monitoring ]
+    ports: [ 9100 ]
+    command:
+      - "—-path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:edge
+    networks: [ monitoring ]
+    ports: [ 9113 ]
+    environment:
+      - nginx.scrape-uri=nginx:80/metrics
+    depends_on:
+      - nginx
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  postgres-exporter:
+    image: bitnami/postgres-exporter:latest
+    networks: [ monitoring ]
+    ports: [ 9187 ]
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+    depends_on:
+      - postgres
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  redis-exporter:
+    # we use this since only redis enterprice has native prometheus supporting
+    image: oliver006/redis_exporter
+    networks: [ monitoring ]
+    ports: [ 9121 ]
+    environment:
+      - REDIS_ADDR=redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  prometheus:
+    depends_on:
+      - node-exporter
+      - cadvisor
+      - nginx-exporter
+      - postgres-exporter
+      - redis-exporter
+      - rabbitmq-exporter
+      - minio
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    networks: [ monitoring ]
+    ports: [ 9093 ]
+    command:
+      - "--storage.path=/alertmanager"
+      - "--config.file=/etc/alertmanager/config.yml"
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./monitoring/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+      - ./monitoring/alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  grafana:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
