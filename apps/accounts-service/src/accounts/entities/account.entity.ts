@@ -61,9 +61,6 @@ export class Account extends AggregateRoot implements IAccount {
   @Property({ lazy: true, nullable: true })
   tfaReserveCode?: string;
 
-  @Property({ length: 3, check: 'length(currency) == 3' })
-  currency = 'USD';
-
   @Property({ length: 5, check: 'length(locale) == 5' })
   locale = 'en_US';
 

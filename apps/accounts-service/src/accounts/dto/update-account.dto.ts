@@ -58,9 +58,4 @@ export class UpdateAccountDto extends PartialType(
     ).join(', ')}`,
   })
   readonly securedNotificationMethod: SecuredNotificationMethod;
-
-  @ApiProperty({ type: 'string', example: 'USD', required: false })
-  @IsOptional()
-  @IsLocale({ message: 'Non valid currency' })
-  readonly currency?: string;
 }

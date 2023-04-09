@@ -1,13 +1,13 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AccountsController } from './2fa.controller';
-import { AccountsService } from './accounts.service';
-import { Account } from './entities';
+import { Account } from '../accounts/entities';
+import { TfaController } from './tfa.controller';
+import { TfaService } from './tfa.service';
 
 @Module({
   imports: [ConfigModule, MikroOrmModule.forFeature([Account])],
-  controllers: [AccountsController],
-  providers: [AccountsService],
+  controllers: [TfaController],
+  providers: [TfaService],
 })
 export class UsersModule {}

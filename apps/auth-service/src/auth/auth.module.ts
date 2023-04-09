@@ -5,9 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import {
+  JwtTfaStrategy,
   JwtRefreshTokenStrategy,
   JwtStrategy,
-  JwtTFAStrategy,
   LocalStrategy,
 } from './providers';
 
@@ -17,7 +17,7 @@ import {
     AuthService,
     LocalStrategy,
     JwtStrategy,
-    JwtTFAStrategy,
+    JwtTfaStrategy,
     JwtRefreshTokenStrategy,
   ],
   controllers: [AuthController],

@@ -17,7 +17,6 @@ export const accountMock: IAccount = {
   notificationMethod: NotificationMethod.PUSH,
   securedNotificationMethod: SecuredNotificationMethod.EMAIL,
   isAdmin: false,
-  currency: 'USD',
   locale: 'en_EN',
   createdAt: '2022-08-14 13:55:16.622111',
   isTfaEnabled: false,

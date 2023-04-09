@@ -10,8 +10,6 @@ import {
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import {
   IVerification,
-  NotificationEvent,
-  NotificationTransport,
   NOTIFICATION_SERVICE,
   VERIFICATION_CODE_TTL,
   VERIFICATION_KEY,
@@ -64,10 +62,10 @@ export class VerificationsService {
       await cache.hmset(key, { email, isVerified: false });
       await cache.persistAt(key, endsAt);
 
-      this.notificationsService.emit(
-        'email',
-        new NotificationEvent({ body: code }, NotificationTransport.EMAIL),
-      );
+      // this.notificationsService.emit(
+      //   'email',
+      //   new NotificationEvent({ body: code }, NotificationTransport.EMAIL),
+      // );
 
       return { data };
     } catch (e) {

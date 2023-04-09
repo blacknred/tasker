@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(jwt.Strategy) {
   }
 
   async validate(auth: IAuth) {
-    if (auth.needTFA) {
+    if (auth.needTfa) {
       throw new UnauthorizedException();
     }
 

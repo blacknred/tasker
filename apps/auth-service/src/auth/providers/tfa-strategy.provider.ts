@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { IAuth } from '@taskapp/shared';
@@ -7,7 +7,7 @@ import jwt from 'passport-jwt';
 import { AuthService } from '../auth.service';
 
 @Injectable()
-export class JwtTFAStrategy extends PassportStrategy(jwt.Strategy, 'jwt-2fa') {
+export class JwtTfaStrategy extends PassportStrategy(jwt.Strategy, 'jwt-tfa') {
   constructor(configService: ConfigService, private authService: AuthService) {
     super({
       jwtFromRequest: jwt.ExtractJwt.fromExtractors([
@@ -20,14 +20,9 @@ export class JwtTFAStrategy extends PassportStrategy(jwt.Strategy, 'jwt-2fa') {
   }
 
   async validate({ body }: Request, auth: IAuth): Promise<IAuth> {
-    const valid = await this.authService.validateTFA(body);
-    if (!valid) {
-      throw new UnauthorizedException({
-        errors: [{ message: 'Invalid or expired totp', field: 'totp' }],
-      });
-    }
+    await this.authService.checkTfaAuth(body);
 
-    auth.needTFA = false;
+    auth.needTfa = false;
     return auth;
   }
 }

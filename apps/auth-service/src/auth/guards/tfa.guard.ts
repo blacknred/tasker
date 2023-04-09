@@ -1,15 +1,15 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ValidationPipe } from '@taskapp/shared';
-import { TFAAuthDto } from '../dto';
+import { TfaAuthDto } from '../dto';
 
 @Injectable()
-export class TFAGuard extends AuthGuard('jwt-2fa') {
+export class TfaGuard extends AuthGuard('jwt-tfa') {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     // input dto validation
     const { body } = ctx.switchToHttp().getRequest();
     await new ValidationPipe({}).transform(body, {
-      metatype: TFAAuthDto,
+      metatype: TfaAuthDto,
       type: 'body',
     });
 

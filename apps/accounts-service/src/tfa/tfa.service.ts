@@ -1,4 +1,4 @@
-import { EntityRepository, wrap } from '@mikro-orm/core';
+import { EntityRepository, wrap, orm } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import {
   BadRequestException,
@@ -18,24 +18,22 @@ import {
   IAccount,
   IConfirmationCode,
   IInvitation,
-  INVITATION_KEY,
   NOTIFICATION_SERVICE,
 } from '@taskapp/shared';
 import * as bcrypt from 'bcryptjs';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
 import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
 import {
   CreateAccountDto,
   GetValidatedAccountDto,
-  RestoreAccountDto,
   UpdateAccountDto,
 } from './dto';
-import { Account } from './entities';
-import { toDataURL } from 'qrcode';
+import { Account } from '../accounts/entities';
 
 @Injectable()
-export class AccountsService {
+export class TfaService {
   constructor(
     @InjectRepository(Account)
     private accountRepository: EntityRepository<Account>,
@@ -43,7 +41,7 @@ export class AccountsService {
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    @InjectPinoLogger(AccountsService.name)
+    @InjectPinoLogger(TfaService.name)
     private readonly logger: PinoLogger,
   ) {}
 
@@ -198,10 +196,14 @@ export class AccountsService {
   }
 
   async delete(id: IAccount['id']) {
-    const { data } = await this.findOne(id);
-
     try {
-      data.deletedAt = new Date();
+      const account = await this.accountRepository.findOne(id);
+
+      account.tfaSecret = null;
+      account.tfaReserveCode = null;
+      account.isTfaEnabled = false;
+
+      await this.accountRepository.removeAndFlush(account);
 
       return { data: null };
     } catch (err) {
@@ -209,46 +211,21 @@ export class AccountsService {
       throw new PreconditionFailedException();
     }
   }
-
-  async restore({ emailCode, password }: RestoreAccountDto) {
-    // check code
-    const cache = this.redisService.getClient();
-    const key = `${CONFIRMATION_KEY}:${emailCode}`;
-    const confirmation: IConfirmationCode = await cache.get(key);
-
-    if (!confirmation || !confirmation.isConfirmed) {
-      throw new BadRequestException({
-        errors: [{ message: 'Invalid or expired code', field: 'emailCode' }],
-      });
-    }
-
-    // check email
-    const account = await this.accountRepository.findOne({
-      email: confirmation.email,
-    });
-
-    if (!account) {
-      throw new ConflictException({
-        errors: [{ message: 'Email not in use', field: 'emailCode' }],
-      });
-    }
-
-    try {
-      wrap(account).assign({ password });
-      await account.hashPassword();
-      await this.accountRepository.persistAndFlush(account);
-
-      return { data: null };
-    } catch (e) {
-      throw new RpcException({
-        status: HttpStatus.PRECONDITION_FAILED,
-      });
-    }
-  }
 }
 
+// post secret,enabled=false,reserve
+// get  true
+// patch enabled=true
+// delete secret=NULL,enabled=false,reserve=NULL
 
-post secret,enabled=false,reserve
-get  true
-patch enabled=true
-delete secret=NULL,enabled=false,reserve=NULL
+// if (!valid) {
+//   throw new UnauthorizedException({
+//     errors: [{ message: 'Invalid or expired totp', field: 'totp' }],
+//   });
+// }
+
+
+
+// create(2fa) -> ResponseDto<secret_qr_string>
+// get(2fa/auth) -> ResponseDto<boolean>
+// patch() -> ResponseDto<reserve_code_string>

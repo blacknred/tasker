@@ -15,7 +15,6 @@ export interface IAccount extends IBase {
   phone?: string;
   isAdmin: boolean;
   locale: string;
-  currency: string;
   isTfaEnabled: boolean;
   tfaSecret?: string;
   tfaReserveCode?: string;

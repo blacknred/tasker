@@ -11,6 +11,7 @@ import {
   Auth,
   Authentication,
   EmptyResponseDto,
+  ResponseDto,
 } from '@taskapp/shared';
 import { AccountsService } from './accounts.service';
 import {
@@ -42,7 +43,7 @@ export class AccountsController {
     return this.accountsService.findOne(userId);
   }
 
-  @Get('validate')
+  @Get('auth')
   @ApiOperation({ description: 'Find account by credentials' })
   @ApiOkResponse({ type: AccountResponseDto })
   async getValidated(
@@ -64,7 +65,7 @@ export class AccountsController {
 
   @Patch('restore')
   @ApiOperation({ description: 'Update own password before auth' })
-  @ApiNoContentResponse({ type: EmptyResponseDto })
+  @ApiOkResponse({ type: EmptyResponseDto })
   async restore(@Body() dto: RestoreAccountDto): Promise<EmptyResponseDto> {
     return this.accountsService.restore(dto);
   }
@@ -74,6 +75,23 @@ export class AccountsController {
   @ApiOperation({ description: 'Delete own account' })
   @ApiOkResponse({ type: EmptyResponseDto })
   async remove(@Auth('userId') userId): Promise<EmptyResponseDto> {
+    return this.accountsService.delete(userId);
+  }
+
+  //
+
+  @Post()
+  @ApiOperation({ description: 'Create 2fa' })
+  @ApiCreatedResponse({ type: ResponseDto<string> })
+  async create2fa(@Auth('userId') userId): Promise<AccountResponseDto> {
+    return this.accountsService.create2fa(dto);
+  }
+
+  @Patch('2fa')
+  @Authentication()
+  @ApiOperation({ description: 'Delete own account' })
+  @ApiOkResponse({ type: EmptyResponseDto })
+  async tfa(@Auth('userId') userId): Promise<EmptyResponseDto> {
     return this.accountsService.delete(userId);
   }
 }

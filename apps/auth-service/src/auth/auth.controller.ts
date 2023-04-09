@@ -23,7 +23,7 @@ import {
   AuthGuard,
   LocalAuthGuard,
   RefreshTokenGuard,
-  TFAGuard,
+  TfaGuard,
 } from './guards';
 
 @ApiTags('Auth')
@@ -58,7 +58,7 @@ export class AuthController {
   }
 
   @Patch('2fa')
-  @UseGuards(TFAGuard)
+  @UseGuards(TfaGuard)
   @ApiOperation({ description: '2FA' })
   @ApiCreatedResponse({ type: AuthResponseDto })
   totp(@Auth() data: IAuth, @Res() res: Response): AuthResponseDto {

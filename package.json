@@ -23,7 +23,7 @@
     "kompose": "kompose convert -o kubernetes/deployment.yaml",
     "docs": "npx compodoc --theme material --output docs -p tsconfig.json -s",
     "db-up": "npx mikro-orm migration:create && npx mikro-orm migration:up",
-    "db-gen-entities": "npx mikro-orm generate-entities --save --path=./libs/entities"
+    "db-gen": "npx mikro-orm generate-entities --save --path=./libs/entities"
   },
   "dependencies": {
     "@dollarsign/nestjs-jaeger-tracing": "^1.0.8",

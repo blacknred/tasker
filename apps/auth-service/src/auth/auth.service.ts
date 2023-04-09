@@ -12,7 +12,7 @@ import {
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
 import { catchError, firstValueFrom, map } from 'rxjs';
-import { CreateAuthDto, TFAAuthDto } from './dto';
+import { CreateAuthDto, TfaAuthDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -38,13 +38,13 @@ export class AuthService {
     return firstValueFrom(
       this.httpService
         .get<IResponse<IHydratedAccount>>(
-          `http://accounts-service/account/validate`,
+          `http://accounts-service/account/auth`,
           { params: dto },
         )
         .pipe(
           map(({ data }) => {
-            const { id: userId, isTfaEnabled: needTFA } = data.data;
-            return { userId, needTFA, permissions: null };
+            const { id: userId, isTfaEnabled: needTfa } = data.data;
+            return { userId, needTfa, permissions: null };
           }),
           catchError((err): never => {
             if (err.status > 499) this.logger.error(err);
@@ -54,13 +54,12 @@ export class AuthService {
     );
   }
 
-  public async validateTFA(dto: TFAAuthDto) {
+  public async checkTfaAuth(dto: TfaAuthDto) {
     return firstValueFrom(
       this.httpService
-        .get<IResponse<boolean>>(
-          `http://accounts-service/account/2fa-secret/validate`,
-          { params: dto },
-        )
+        .get<IResponse<boolean>>(`http://accounts-service/account/2fa/auth`, {
+          params: dto,
+        })
         .pipe(
           map(({ data }) => data.data),
           catchError((err): never => {

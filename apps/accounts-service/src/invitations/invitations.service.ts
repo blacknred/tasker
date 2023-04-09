@@ -9,8 +9,6 @@ import {
   IHydratedRole,
   INVITATION_TTL,
   IResponse,
-  NotificationEvent,
-  NotificationTransport,
   NOTIFICATION_SERVICE,
 } from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -55,10 +53,10 @@ export class InvitationsService {
       const data = { ...dto, endsAt: new Date(exp) };
       const link = `${signupPath}?token=${token}&email=${dto.email}`;
 
-      this.notificationsService.emit(
-        'email',
-        new NotificationEvent({ body: link }, NotificationTransport.EMAIL),
-      );
+      // this.notificationsService.emit(
+      //   'email',
+      //   new NotificationEvent({ body: link }, NotificationTransport.EMAIL),
+      // );
 
       return { data };
     } catch (e) {
