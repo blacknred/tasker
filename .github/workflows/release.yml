@@ -1,0 +1,199 @@
+name: release
+
+on:
+  release:
+    types: [published]
+    workflow_dispatch: # allow manual trigger
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        # multiarch
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        # build only changed services
+      - name: Filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            project-query-service:
+              - 'apps/project-query-service/**'
+            project-command-service:
+              - 'apps/project-command-service/**'
+            issue-query-service:
+              - 'apps/issue-query-service/**'
+            issue-command-service:
+              - 'apps/issue-command-service/**'
+            member-query-service:
+              - 'apps/member-query-service/**'
+            member-command-service:
+              - 'apps/member-command-service/**'
+            search-service:
+              - 'apps/search-service/**'
+            report-service:
+              - 'apps/report-service/**'
+            account-service:
+              - 'apps/account-service/**'
+            notification-service:
+              - 'apps/notification-service/**'
+            billing-service:
+              - 'apps/billing-service/**'
+            auth-service:
+              - 'apps/auth-service/**'
+            gateway:
+              - 'apps/gateway/**'
+      - name: Build and push project-query-service
+        if: steps.filter.outputs.project-query-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=project-query-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-service:latest
+      - name: Build and push project-command-service
+        if: steps.filter.outputs.project-command-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=project-command-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-service:latest
+      - name: Build and push issue-query-service
+        if: steps.filter.outputs.issue-query-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=issue-query-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-service:latest
+      - name: Build and push issue-command-service
+        if: steps.filter.outputs.issue-command-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=issue-command-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-service:latest
+      - name: Build and push member-query-service
+        if: steps.filter.outputs.member-query-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=member-query-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-service:latest
+      - name: Build and push member-command-service
+        if: steps.filter.outputs.member-command-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=member-command-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-service:latest
+      - name: Build and push search-service
+        if: steps.filter.outputs.search-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=search-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/search-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/search-service:latest
+      - name: Build and push report-service
+        if: steps.filter.outputs.report-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=report-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/report-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/report-service:latest
+      - name: Build and push account-service
+        if: steps.filter.outputs.account-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=account-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/account-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/account-service:latest
+      - name: Build and push notification-service
+        if: steps.filter.outputs.notification-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=notification-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:latest
+      - name: Build and push billing-service
+        if: steps.filter.outputs.billing-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=billing-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/billing-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/billing-service:latest
+      - name: Build and push auth-service
+        if: steps.filter.outputs.auth-service == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=auth-service
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+      - name: Build and push gateway
+        if: steps.filter.outputs.gateway == 'true'
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          context: ./apps/gateway
+          file: ./apps/gateway/Dockerfile
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/gateway:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/gateway:latest
+            - name: "Run deploy"
+      - name: "Testing"
+        run: echo 'not implemented'
+      - name: "Run deploy"
+        run: echo 'not implemented'
+#       uses: appleboy/ssh-action@master
+#       with:
+#         host: ${{ secrets.SERVER_HOST }}
+#         username: ${{ secrets.SERVER_USERNAME }}
+#         key: ${{ secrets.SERVER_KEY }}
+#         port: ${{ secrets.SERVER_PORT }}
+#         script: |
+#           sudo docker-compose -f docker-compose.prod-ci.yml -p prod pull
+#           sudo docker-compose -f docker-compose.prod-ci.yml -p prod up -d

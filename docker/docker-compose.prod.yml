@@ -300,8 +300,8 @@ services:
       - "--config.file=/etc/alertmanager/config.yml"
     volumes:
       - alertmanager_data:/alertmanager
-      - ./docker/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
-      - ./docker/alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
+      - ./alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+      - ./alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
     restart: always
     healthcheck:
       test: exit 0

@@ -28,7 +28,7 @@ services:
     networks: [ apps ]
     ports: [ 5432 ]
     volumes:
-      - .docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -45,8 +45,8 @@ services:
     command: >
       bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_prometheus && chmod +x /init.sh && /init.sh"
     volumes:
-      - ./docker/rabbitmq/plugins/:/opt/rabbitmq/plugins/"
-      - ./docker/rabbitmq/init.sh:/init.sh"
+      - ./rabbitmq/plugins/:/opt/rabbitmq/plugins/"
+      - ./rabbitmq/init.sh:/init.sh"
     environment:
       - RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq
       - RABBITMQ_USER=${RABBITMQ_USER}
@@ -111,8 +111,8 @@ services:
     user: root
     command: -config.file=/etc/loki/config.yaml
     volumes:
-      - ./docker/loki/config.yml:/etc/loki/config.yaml:ro
-      - ./docker/loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
+      - ./loki/config.yml:/etc/loki/config.yaml:ro
+      - ./loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
     environment:
       # the dot in the S3 address for MinIO is used because there is no need to specify AWS Region
       - MINIO_URL=http://${MINIO_USER}:${MINIO_PASSWORD}@minio.:9000/loki
@@ -124,7 +124,7 @@ services:
     networks: [ monitoring ]
     ports: [ 24224, 24224:24224/udp ]
     volumes:
-      - ./docker/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
     environment:
       - LOKI_URL=http://loki:3100/loki/api/v1/push
     depends_on:
@@ -156,8 +156,8 @@ services:
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
     volumes:
-      - ./docker/prometheus/config.yml:/etc/prometheus/config.yml:ro
-      - ./docker/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./prometheus/config.yml:/etc/prometheus/config.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     depends_on:
       - minio
 
@@ -166,7 +166,7 @@ services:
     networks: [ monitoring ]
     ports: [ 3003:3000 ]
     volumes:
-      - ./docker/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
     environment:
       - GF_SECURITY_ADMIN_USER={GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD}
@@ -179,7 +179,7 @@ services:
   # apps
 
   project-query-service:
-    image: taskapp/project-query-service:latest
+    image: taskapp/project-query-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8001:3000 ]
     environment:
@@ -198,7 +198,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   project-command-service:
-    image: taskapp/project-command-service:latest
+    image: taskapp/project-command-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8002:3000 ]
     environment:
@@ -211,7 +211,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   issue-query-service:
-    image: taskapp/issue-query-service:latest
+    image: taskapp/issue-query-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8003:3000 ]
     environment:
@@ -230,7 +230,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   issue-command-service:
-    image: taskapp/issue-command-service:latest
+    image: taskapp/issue-command-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8004:3000 ]
     environment:
@@ -243,7 +243,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   member-query-service:
-    image: taskapp/member-query-service:latest
+    image: taskapp/member-query-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8005:3000 ]
     environment:
@@ -260,7 +260,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   member-command-service:
-    image: taskapp/member-command-service:latest
+    image: taskapp/member-command-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8006:3000 ]
     environment:
@@ -273,7 +273,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   search-service:
-    image: taskapp/search-service:latest
+    image: taskapp/search-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8007:3000 ]
     environment:
@@ -290,7 +290,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   report-service:
-    image: taskapp/report-service:latest
+    image: taskapp/report-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8008:3000 ]
     environment:
@@ -305,7 +305,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   account-service:
-    image: taskapp/account-service:latest
+    image: taskapp/account-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8009:3000 ]
     environment:
@@ -320,7 +320,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   notification-service:
-    image: taskapp/notification-service:latest
+    image: taskapp/notification-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8010:3000 ]
     environment:
@@ -338,7 +338,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   billing-service:
-    image: taskapp/billing-service:latest
+    image: taskapp/billing-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8011:3000 ]
     environment:
@@ -353,7 +353,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   auth-service:
-    image: taskapp/auth-service:latest
+    image: taskapp/auth-service:${TAG:-latest}
     networks: [ apps ]
     ports: [ 8012:3000 ]
     environment:
@@ -371,7 +371,7 @@ services:
         fluentd-address: fluent-bit:24224
 
   gateway:
-    image: taskapp/gateway:latest
+    image: taskapp/gateway:${TAG:-latest}
     networks: [ apps ]
     ports: [ 80, 443 ]
     environment:

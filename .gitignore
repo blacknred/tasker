@@ -33,7 +33,7 @@ coverage
 ##
 # Env
 .env.*
-!.env.dev
+!.env.example
 *.pem
 *_orig
 
