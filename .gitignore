@@ -33,12 +33,12 @@ coverage
 ##
 # Env
 .env.*
-!.env.dev
+!.env.example
 *.pem
 *_orig
 
 # Storage data
-data/*/data/
+docker/*/data/
 packages/*/*/lib
 
 # Extras
