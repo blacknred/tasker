@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+
+  # apps
+
+  project-query-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=project-query-service
+
+  project-command-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=project-command-service
+
+  issue-query-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=issue-query-service
+  issue-command-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=issue-command-service
+
+  member-query-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=member-query-service
+
+  member-command-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=member-command-service
+
+  search-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=search-service
+
+  report-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=report-service
+
+  account-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=account-service
+
+  notification-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=notification-service
+
+  billing-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=billing-services
+
+  auth-service:
+    build:
+      context: .
+      target: deploy
+      args:
+        - SERVICE_NAME=auth-service
+
+  gateway:
+    build: ./apps/gateway
+    volumes:
+      - ./apps/gateway/nginx:/etc/nginx:ro
+      - ./apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
+      - ./apps/gateway/swagger-ui:/var/www/swagger-ui:ro
+
+

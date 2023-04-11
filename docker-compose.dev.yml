@@ -7,14 +7,14 @@ services:
   redis:
     env_file: ./.env.dev
     volumes:
-      - ./data/redis/data:/data
+      - ./docker/redis/data:/data
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
 
   postgres:
     env_file: ./.env.dev
     volumes:
-      - ./data/postgres/data:/var/lib/postgresql/data
+      - ./docker/postgres/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-test}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
@@ -23,7 +23,7 @@ services:
   rabbitmq:
     env_file: ./.env.dev
     volumes:
-      - ./data/rabbitmq/data:/var/lib/rabbitmq"
+      - ./docker/rabbitmq/data:/var/lib/rabbitmq"
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
@@ -31,7 +31,7 @@ services:
   eventstore:
     env_file: ./.env.dev
     volumes:
-      - ./data/eventstore/data:/var/lib/eventstore
+      - ./docker/eventstore/data:/var/lib/eventstore
     environment:
       - EVENTSTORE_USER=${EVENTSTORE_USER:-admin}
       - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-changeit}
@@ -39,7 +39,7 @@ services:
   minio:
     env_file: ./.env.dev
     volumes:
-      - ./data/minio/data:/data
+      - ./docker/minio/data:/data
     environment:
       - MINIO_ROOT_USER=${MINIO_USER:-test}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
@@ -51,303 +51,6 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_USER:-test}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
-
-  # apps
-
-  project-query-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=project-query-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=project-query-service
-    env_file: ./.env.dev
-    command: nest start:dev project-query-service
-    volumes:
-      - ./apps/project-query-service:/usr/src/app/apps/project-query-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  project-command-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=project-command-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=project-command-service
-    env_file: ./.env.dev
-    command: nest start:dev project-command-service
-    volumes:
-      - ./apps/project-command-service:/usr/src/app/apps/project-command-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-
-  issue-query-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=issue-query-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=issue-query-service
-    env_file: ./.env.dev
-    command: nest start:dev issue-query-service
-    volumes:
-      - ./apps/issue-query-service:/usr/src/app/apps/issue-query-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  issue-command-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=issue-command-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=issue-command-service
-    env_file: ./.env.dev
-    command: nest start:dev issue-command-service
-    volumes:
-      - ./apps/issue-command-service:/usr/src/app/apps/issue-command-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-
-  member-query-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=member-query-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=member-query-service
-    env_file: ./.env.dev
-    command: nest start:dev member-query-service
-    volumes:
-      - ./apps/member-query-service:/usr/src/app/apps/member-query-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/members
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  member-command-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=member-command-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=member-command-service
-    env_file: ./.env.dev
-    command: nest start:dev member-command-service
-    volumes:
-      - ./apps/member-command-service:/usr/src/app/apps/member-command-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-
-  search-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=search-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=search-service
-    env_file: ./.env.dev
-    command: nest start:dev search-service
-    volumes:
-      - ./apps/search-service:/usr/src/app/apps/search-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  report-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=report-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=report-service
-    env_file: ./.env.dev
-    command: nest start:dev report-service
-    volumes:
-      - ./apps/report-service:/usr/src/app/apps/report-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  account-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=account-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=account-service
-    env_file: ./.env.dev
-    command: nest start:dev account-service
-    volumes:
-      - ./apps/account-service:/usr/src/app/apps/account-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/accounts
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  notification-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=notification-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=notification-service
-    env_file: ./.env.dev
-    command: nest start:dev notification-service
-    volumes:
-      - ./apps/notification-service:/usr/src/app/apps/notification-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/notifications
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  billing-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=billing-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=billing-service
-    env_file: ./.env.dev
-    command: nest start:dev billing-service
-    volumes:
-      - ./apps/billing-service:/usr/src/app/apps/billing-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/billing
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  auth-service:
-    build:
-      context: .
-      target: build
-      args:
-        - SERVICE_NAME=auth-service
-        - NODE_ENV=development
-    # build:
-    #   context: .
-    #   target: deploy
-    #   args:
-    #     - SERVICE_NAME=auth-service
-    env_file: ./.env.dev
-    command: nest start:dev auth-service
-    volumes:
-      - ./apps/auth-service:/usr/src/app/apps/auth-service
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  gateway:
-    build: ./apps/gateway
-    env_file: ./.env.dev
-    volumes:
-      - ./apps/gateway/nginx:/etc/nginx:ro
-      - ./apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
-      - ./apps/gateway/swagger-ui:/var/www/swagger-ui:ro
-      # - ./apps/web/dist:/usr/share/nginx/html:ro
-    environment:
-      - HOST=${HOST:-localhost}
-
-  # web:
-  #   build:
-  #     context: ./packages/apps/web
-  #     target: build # production
-  #   # build:
-  #   #   context: ./packages/apps/web
-  #   #   target: deploy
-  #   env_file: ./.env.dev
-  #   command: nest dev
-  #   volumes:
-  #     - ./packages/apps/web:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   environment:
-  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
-  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
-  #     - API_HOST=${HOST:-localhost}
 
   # monitoring
 
@@ -370,3 +73,223 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER={GRAFANA_USER:-test}
       - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD:-test}
+
+  # apps
+
+  project-query-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=project-query-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev project-query-service
+    volumes:
+      - ./apps/project-query-service:/usr/src/app/apps/project-query-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  project-command-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=project-command-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev project-command-service
+    volumes:
+      - ./apps/project-command-service:/usr/src/app/apps/project-command-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+
+  issue-query-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=issue-query-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev issue-query-service
+    volumes:
+      - ./apps/issue-query-service:/usr/src/app/apps/issue-query-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  issue-command-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=issue-command-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev issue-command-service
+    volumes:
+      - ./apps/issue-command-service:/usr/src/app/apps/issue-command-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+
+  member-query-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=member-query-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev member-query-service
+    volumes:
+      - ./apps/member-query-service:/usr/src/app/apps/member-query-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/members
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  member-command-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=member-command-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev member-command-service
+    volumes:
+      - ./apps/member-command-service:/usr/src/app/apps/member-command-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+
+  search-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=search-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev search-service
+    volumes:
+      - ./apps/search-service:/usr/src/app/apps/search-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  report-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=report-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev report-service
+    volumes:
+      - ./apps/report-service:/usr/src/app/apps/report-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  account-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=account-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev account-service
+    volumes:
+      - ./apps/account-service:/usr/src/app/apps/account-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/accounts
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  notification-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=notification-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev notification-service
+    volumes:
+      - ./apps/notification-service:/usr/src/app/apps/notification-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/notifications
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  billing-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=billing-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev billing-service
+    volumes:
+      - ./apps/billing-service:/usr/src/app/apps/billing-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/billing
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  auth-service:
+    build:
+      context: .
+      target: build
+      args:
+        - SERVICE_NAME=auth-service
+        - NODE_ENV=development
+    env_file: ./.env.dev
+    command: nest start:dev auth-service
+    volumes:
+      - ./apps/auth-service:/usr/src/app/apps/auth-service
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+
+  gateway:
+    build: ./apps/gateway
+    env_file: ./.env.dev
+    volumes:
+      - ./apps/gateway/nginx:/etc/nginx:ro
+      - ./apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
+      - ./apps/gateway/swagger-ui:/var/www/swagger-ui:ro
+    # - ./apps/web/dist:/usr/share/nginx/html:ro
+    environment:
+      - HOST=${HOST:-localhost}

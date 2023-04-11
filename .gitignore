@@ -38,7 +38,7 @@ coverage
 *_orig
 
 # Storage data
-data/*/data/
+docker/*/data/
 packages/*/*/lib
 
 # Extras

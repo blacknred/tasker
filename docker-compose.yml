@@ -6,11 +6,6 @@ networks:
   monitoring:
     name: main
 
-volumes:
-  prometheus_data:
-  grafana_data:
-  alertmanager_data:
-
 services:
 
   # data
@@ -29,10 +24,11 @@ services:
         fluentd-address: fluent-bit:24224
 
   postgres:
-    build: ./postgres
     image: postgres:15beta2-alpine3.16
     networks: [ apps ]
     ports: [ 5432 ]
+    volumes:
+      - .docker/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -43,10 +39,16 @@ services:
         fluentd-address: fluent-bit:24224
 
   rabbitmq:
-    build: ./rabbitmq
+    image: rabbitmq:management-alpine
     networks: [ apps ]
     ports: [ 5672, 15672, 15692 ]
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_prometheus && chmod +x /init.sh && /init.sh"
+    volumes:
+      - ./docker/rabbitmq/plugins/:/opt/rabbitmq/plugins/"
+      - ./docker/rabbitmq/init.sh:/init.sh"
     environment:
+      - RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq
       - RABBITMQ_USER=${RABBITMQ_USER}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
     logging:
@@ -77,7 +79,7 @@ services:
   minio:
     image: minio/minio:latest
     networks: [ apps ]
-    command: "server /data --console-address ':9001'"
+    command: "bash -c 'server /data --console-address ':9001''"
     ports: [ 9000, 9001 ]
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
@@ -93,12 +95,86 @@ services:
     image: minio/mc:latest
     networks: [ apps ]
     entrypoint: >
-      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD}; /usr/bin/mc rm -r --force myminio/loki; /usr/bin/mc mb myminio/loki; /usr/bin/mc policy set public myminio/loki; exit 0; "
+      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD}; && /usr/bin/mc rm -r --force myminio/loki; && /usr/bin/mc mb myminio/loki; && /usr/bin/mc policy set public myminio/loki; && exit 0; "
     environment:
       - MINIO_ROOT_USER=${MINIO_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
     depends_on:
       - minio
+
+  # monitoring
+
+  loki:
+    image: grafana/loki:latest
+    networks: [ monitoring ]
+    ports: [ 3100 ]
+    user: root
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./docker/loki/config.yml:/etc/loki/config.yaml:ro
+      - ./docker/loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
+    environment:
+      # the dot in the S3 address for MinIO is used because there is no need to specify AWS Region
+      - MINIO_URL=http://${MINIO_USER}:${MINIO_PASSWORD}@minio.:9000/loki
+    depends_on:
+      - minio
+
+  fluent-bit:
+    image: grafana/fluent-bit-plugin-loki:latest
+    networks: [ monitoring ]
+    ports: [ 24224, 24224:24224/udp ]
+    volumes:
+      - ./docker/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+    environment:
+      - LOKI_URL=http://loki:3100/loki/api/v1/push
+    depends_on:
+      - loki
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks: [ monitoring ]
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778
+      - 16686
+      - 14268
+      - 14250
+      - 9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+
+  prometheus:
+    image: prom/prometheus:latest
+    networks: [ monitoring ]
+    ports: [ 9090 ]
+    command:
+      - "--config.file=/etc/prometheus/config.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention=7d"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    volumes:
+      - ./docker/prometheus/config.yml:/etc/prometheus/config.yml:ro
+      - ./docker/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on:
+      - minio
+
+  grafana:
+    image: grafana/grafana:latest
+    networks: [ monitoring ]
+    ports: [ 3003:3000 ]
+    volumes:
+      - ./docker/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER={GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    depends_on:
+      - prometheus
+      - jaeger
+      - loki
 
   # apps
 
@@ -303,94 +379,8 @@ services:
       - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
       - NGINX_ENTRYPOINT_QUIET_LOGS=1
       - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+      - HOST=${HOST}
     logging:
       driver: fluentd
       options:
         fluentd-address: fluent-bit:24224
-
-  # web:
-  #   image: taskapp/web:latest
-  #   ports: [ 3000 ]
-  #   environment:
-  #     - NODE_OPTIONS=--openssl-legacy-provider
-  #     - SKIP_PREFLIGHT_CHECK=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-  #     - API_HOST=${HOST}
-
-  # monitoring
-
-  loki:
-    image: grafana/loki:latest
-    networks: [ monitoring ]
-    ports: [ 3100 ]
-    user: root
-    command: -config.file=/etc/loki/config.yaml
-    volumes:
-      - ./monitoring/loki/config.yml:/etc/loki/config.yaml:ro
-      - ./monitoring/loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
-    environment:
-      # the dot in the S3 address for MinIO is used because there is no need to specify AWS Region
-      - MINIO_URL=http://${MINIO_USER}:${MINIO_PASSWORD}@minio.:9000/loki
-    depends_on:
-      - minio
-
-  fluent-bit:
-    image: grafana/fluent-bit-plugin-loki:latest
-    networks: [ monitoring ]
-    ports: [ 24224, 24224:24224/udp ]
-    volumes:
-      - ./monitoring/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
-    environment:
-      - LOKI_URL=http://loki:3100/loki/api/v1/push
-    depends_on:
-      - loki
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    networks: [ monitoring ]
-    ports:
-      - 5775:5775/udp
-      - 6831:6831/udp
-      - 6832:6832/udp
-      - 5778
-      - 16686
-      - 14268
-      - 14250
-      - 9411
-    environment:
-      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
-
-  prometheus:
-    image: prom/prometheus:latest
-    networks: [ monitoring ]
-    ports: [ 9090 ]
-    command:
-      - "--config.file=/etc/prometheus/config.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention=7d"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-    volumes:
-      - prometeus_data:/prometheus
-      - ./monitoring/prometheus/config.yml:/etc/prometheus/config.yml:ro
-      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
-    depends_on:
-      - minio
-
-  grafana:
-    image: grafana/grafana:latest
-    networks: [ monitoring ]
-    ports: [ 3003:3000 ]
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
-    environment:
-      - GF_SECURITY_ADMIN_USER={GRAFANA_USER}
-      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD}
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel
-    depends_on:
-      - prometheus
-      - jaeger
-      - loki
