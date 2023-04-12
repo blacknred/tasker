@@ -1,48 +1,48 @@
 # Taskapp(caplan)
 
-<img src="services/web/static/images/logo.svg" width="75" alt="Taskapp Logo"/>
+<img src="apps/gateway/nginx/www/logo.svg" width="75" alt="Taskapp Logo"/>
 
 Sample app for agile project management
 
-[![CI](https://github.com/blacknred/full-taskapp/workflows/Build%20and%20release/badge.svg)](https://github.com/blacknred/full-taskapp/actions)
+[![CI](https://github.com/blacknred/full-taskapp/workflows/release/badge.svg)](https://github.com/blacknred/full-taskapp/actions)
 
 ## Architecture
 
-> for a real world scenario you definitely need an easily sharded nosql db for read DB
+| Services           | Container               | Stack                   | Ports      |
+| ------------------ | ----------------------- | ----------------------- | ---------- |
+| Redis              | redis                   | Redis stack             | 6379       |
+| Queue              | rabbitmq                | RabbitMQ                | 5672/15672 |
+| Read DB            | postgres                | Postgres                | 5432       |
+| Write DB           | eventstore              | EventStoreDB            | 1113/2113  |
+| Object storage(s3) | minio                   | Minio                   | 9000       |
+| -                  | -                       | -                       | -          |
+| Project Query      | project-query-service   | NodeJs, HTTP1.1, AMQP   | 8001       |
+| Project Command    | project-command-service | NodeJs, HTTP1.1, AMQP   | 8002       |
+| Issue Query        | issue-query-service     | NodeJs, HTTP1.1, AMQP   | 8003       |
+| Issue Command      | issue-command-service   | NodeJs, HTTP1.1, AMQP   | 8004       |
+| Member Query       | member-query-service    | NodeJs, HTTP1.1, AMQP   | 8005       |
+| Member Command     | member-command-service  | NodeJs, HTTP1.1, AMQP   | 8006       |
+| Search             | search-service          | NodeJs, HTTP1.1, AMQP   | 8007       |
+| Report             | report-service          | NodeJs, HTTP1.1         | 8008       |
+| Account            | account-service         | NodeJs, HTTP1.1, AMQP   | 8009       |
+| Notification       | notification-service    | NodeJs, HTTP1.1, AMQP   | 8010       |
+| Billing            | billing-service         | NodeJs, HTTP1.1, AMQP   | 8011       |
+| Auth               | auth-service            | NodeJs, HTTP1.1         | 8012       |
+| Api Gateway        | gateway                 | Nginx, HTTP1.1, Swagger | 80/443     |
+| -                  | -                       | -                       | -          |
+| Tracing            | jaeger                  | Jaeger                  | 9411/16686 |
+| Prometheus         | prometheus              | Prometheus              | 9090       |
+| Container metrics  | cadvisor                | Prom cadvisor           | 8081       |
+| Unix metrics       | node-exporter           | Prom node exporter      | 9100       |
+| Nginx metrics      | nginx-exporter          | Prom nginx exporter     | 9113       |
+| Postgres metrics   | postgres-exporter       | Prom postgres exporter  | 9187       |
+| Redis metrics      | redis-exporter          | Prom redis exporter     | 9121       |
+| Logs storage       | loki                    | Grafana Loki            | 3100       |
+| Logs aggregator    | fluent-bit              | Fluent Bit              | 24224      |
+| Grafana            | grafana                 | Grafana                 | 3003       |
+| Alerts             | alertmanager            | Alertmanager            | 9093       |
 
-| Services           | Container                  | Stack                   | Ports      |
-| ------------------ | -------------------------- | ----------------------- | ---------- |
-| Redis              | redis                      | Redis stack             | 6379       |
-| Queue              | rabbitmq                   | RabbitMQ                | 5672/15672 |
-| Read DB            | postgres                   | Postgres                | 5432       |
-| Write DB           | eventstore                 | EventStoreDB            | 1113/2113  |
-| Object storage(s3) | minio                      | Minio                   | 9000       |
-| -                  | -                          | -                       | -          |
-| Project Query      | project-query-service      | NodeJs, HTTP1.1, AMQP   | 8001       |
-| Project Command    | project-command-service    | NodeJs, HTTP1.1, AMQP   | 8002       |
-| Issue Query        | issue-query-service        | NodeJs, HTTP1.1, AMQP   | 8003       |
-| Issue Command      | issue-command-service      | NodeJs, HTTP1.1, AMQP   | 8004       |
-| Member Query       | member-query-service       | NodeJs, HTTP1.1, AMQP   | 8005       |
-| Member Command     | member-command-service     | NodeJs, HTTP1.1, AMQP   | 8006       |
-| Search Query       | search-query-service       | NodeJs, HTTP1.1, AMQP   | 8007       |
-| Report             | report-service             | NodeJs, HTTP1.1         | 8008       |
-| Account            | account-service            | NodeJs, HTTP1.1, AMQP   | 8009       |
-| Notification       | notification-service       | NodeJs, HTTP1.1, AMQP   | 8010       |
-| Billing            | billing-service            | NodeJs, HTTP1.1, AMQP   | 8011       |
-| Auth               | auth-service               | NodeJs, HTTP1.1         | 8012       |
-| Api Gateway        | gateway                    | Nginx, HTTP1.1, Swagger | 80/443     |
-| -                  | -                          | -                       | -          |
-| Tracing            | jaeger                     | Jaeger                  | 9411/16686 |
-| Prometheus         | prometheus                 | Prometheus              | 9090       |
-| Container metrics  | cadvisor                   | Prom cadvisor           | 8081       |
-| Unix metrics       | node-exporter              | Prom node exporter      | 9100       |
-| Nginx metrics      | nginx-exporter             | Prom nginx exporter     | 9113       |
-| Postgres metrics   | postgres-exporter          | Prom postgres exporter  | 9187       |
-| Redis metrics      | redis-exporter             | Prom redis exporter     | 9121       |
-| Logs storage       | loki                       | Grafana Loki            | 3100       |
-| Logs aggregator    | fluent-bit                 | Fluent Bit              | 24224      |
-| Grafana            | grafana                    | Grafana                 | 3003       |
-| Alerts             | alertmanager               | Alertmanager            | 9093       |
+> for a real world scenario you definitely need an easily sharded nosql db for read DB
 
 ## Features
 
@@ -74,11 +74,13 @@ Sample app for agile project management
      - _demo meeting_ where Workers demonstrate a product progress to PO after sprint completing.
      - _retro meeting_ where SM(or role with _sprint-access_ privilege) and Workers discuss technical debt with a help of analytics from project reports.
   1. Boards. Used to observe the visual progress of product/sprint. The main board includes only the stories from product backlog in canban and stories from current spring in scrum projects. To fulfilm a story Workers(or role with _task-management_ privilege) split it to tasks and process them with workflow status model.
-   - Anyone can comment task, change task status or assignee
-   - , star an issue or 
-   - track/watch the task changes.
-   -  Every status update is tracked in task history.
-   -  Tasks can have one of relation: relate, block, duplicate, cause.
+
+  - Anyone can comment task, change task status or assignee
+  - , star an issue or
+  - track/watch the task changes.
+  - Every status update is tracked in task history.
+  - Tasks can have one of relation: relate, block, duplicate, cause.
+
   1. Reports. Used to analyze progress on a project, identify bottlenecks and predict future performance.
 
 ## Todo
@@ -97,15 +99,11 @@ Sample app for agile project management
 
 1. Download [Docker](https://docs.docker.com/docker-for-mac/install/) (if necessary)
 
-### Build and Run the App
-
-1. Set the Environment variables in .env.dev
+### Development
 
 1. Fire up the Containers
 
    ```sh
-   make network
-   make dev-check
    make dev
    ```
 
@@ -113,49 +111,6 @@ Sample app for agile project management
 
 1. Build and push images to the hub
 
-```sh
-$ make release
-# will ask you for a version tag or fallback to branchname-commithash
-QUEST:   Version tag?:[master-87265e6] -> 1.0.0
-INFO:    Starting build for version 1.0.0
-```
-
-### Production
-
-1. Set the Environment variables in .env
-
-1. Run the containers:
-
    ```sh
-   make network
-   make prod-build
-   make prod
+   make release
    ```
-
-Configure alerting on grafana
-
-
-
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# test coverage
-$ npm run test:cov
-```

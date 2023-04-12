@@ -1,7 +1,12 @@
 version: "3.8"
 
 volumes:
+  redis_data:
+  postgres_data:
+  rabbitmq_data:
   prometheus_data:
+  eventstore_data:
+  minio_data:
   grafana_data:
   alertmanager_data:
 
@@ -10,6 +15,8 @@ services:
   # data
 
   redis:
+    volumes:
+      - redis_data:/data
     restart: always
     healthcheck:
       test: exit 0
@@ -25,6 +32,8 @@ services:
           pids: 1
 
   postgres:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     restart: always
     healthcheck:
       test: exit 0
@@ -40,6 +49,8 @@ services:
           pids: 1
 
   rabbitmq:
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq"
     restart: always
     healthcheck:
       test: exit 0
@@ -55,6 +66,8 @@ services:
           pids: 1
 
   eventstore:
+    volumes:
+      - eventstore_data:/var/lib/eventstore
     restart: always
     healthcheck:
       test: exit 0
@@ -70,6 +83,8 @@ services:
           pids: 1
 
   minio:
+    volumes:
+      - minio_data:/data
     restart: always
     healthcheck:
       test: exit 0

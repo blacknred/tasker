@@ -23,7 +23,7 @@ services:
   rabbitmq:
     env_file: ../.env.dev
     volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq"
+      - ./rabbitmq/data:/var/lib/rabbitmq
     environment:
       - RABBITMQ_USER=${RABBITMQ_USER:-test}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
