@@ -350,7 +350,7 @@ services:
 
   # apps
 
-  project-query-service:
+  project-query-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -367,7 +367,7 @@ services:
           memory: 50M
           pids: 1
 
-  project-command-service:
+  project-command-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -384,7 +384,7 @@ services:
           memory: 50M
           pids: 1
 
-  issue-query-service:
+  issue-query-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -401,7 +401,7 @@ services:
           memory: 50M
           pids: 1
 
-  issue-command-service:
+  issue-command-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -418,7 +418,7 @@ services:
           memory: 50M
           pids: 1
 
-  member-query-service:
+  member-query-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -435,7 +435,7 @@ services:
           memory: 50M
           pids: 1
 
-  member-command-service:
+  member-command-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -452,7 +452,7 @@ services:
           memory: 50M
           pids: 1
 
-  search-service:
+  search-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -469,7 +469,7 @@ services:
           memory: 50M
           pids: 1
 
-  report-service:
+  report-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -486,7 +486,7 @@ services:
           memory: 50M
           pids: 1
 
-  account-service:
+  account-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -503,7 +503,7 @@ services:
           memory: 50M
           pids: 1
 
-  notification-service:
+  notification-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -520,7 +520,7 @@ services:
           memory: 50M
           pids: 1
 
-  billing-service:
+  billing-svc:
     restart: always
     healthcheck:
       test: exit 0
@@ -536,7 +536,7 @@ services:
           memory: 50M
           pids: 1
 
-  auth-service:
+  auth-svc:
     restart: always
     healthcheck:
       test: exit 0

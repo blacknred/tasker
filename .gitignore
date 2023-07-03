@@ -1,10 +1,13 @@
+# compiled output
 /dist
 .next/
 node_modules
 
 # Logs
+logs
 *.log
 npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
@@ -14,7 +17,7 @@ lerna-debug.log*
 *.pem
 
 # Testing
-coverage
+/coverage
 .nyc_output
 
 # IDEs and editors
@@ -27,10 +30,11 @@ coverage
 .project
 .classpath
 .code-workspace
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-
-
-##
 # Env
 .env.*
 !.env.example
@@ -45,57 +49,3 @@ packages/*/*/lib
 .terraform/
 *.tfvars
 docker-compose.override.yml
-
-# # bundle
-# packages/**/*.d.ts
-# packages/**/*.js
-
-# # tests
-# /test
-# /benchmarks/memory
-# /packages/graphql
-# build/config\.gypi.c9/
-# *.launch
-# .settings/
-# *.sublime-workspace
-
-
-
-
-
-# compiled output
-/dist
-/node_modules
-
-# Logs
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# OS
-.DS_Store
-
-# Tests
-/coverage
-/.nyc_output
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-

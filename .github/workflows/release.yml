@@ -27,152 +27,152 @@ jobs:
         id: filter
         with:
           filters: |
-            project-query-service:
-              - 'apps/project-query-service/**'
-            project-command-service:
-              - 'apps/project-command-service/**'
-            issue-query-service:
-              - 'apps/issue-query-service/**'
-            issue-command-service:
-              - 'apps/issue-command-service/**'
-            member-query-service:
-              - 'apps/member-query-service/**'
-            member-command-service:
-              - 'apps/member-command-service/**'
-            search-service:
-              - 'apps/search-service/**'
-            report-service:
-              - 'apps/report-service/**'
-            account-service:
-              - 'apps/account-service/**'
-            notification-service:
-              - 'apps/notification-service/**'
-            billing-service:
-              - 'apps/billing-service/**'
-            auth-service:
-              - 'apps/auth-service/**'
+            project-query-svc:
+              - 'apps/project-query-svc/**'
+            project-command-svc:
+              - 'apps/project-command-svc/**'
+            issue-query-svc:
+              - 'apps/issue-query-svc/**'
+            issue-command-svc:
+              - 'apps/issue-command-svc/**'
+            member-query-svc:
+              - 'apps/member-query-svc/**'
+            member-command-svc:
+              - 'apps/member-command-svc/**'
+            search-svc:
+              - 'apps/search-svc/**'
+            report-svc:
+              - 'apps/report-svc/**'
+            account-svc:
+              - 'apps/account-svc/**'
+            notification-svc:
+              - 'apps/notification-svc/**'
+            billing-svc:
+              - 'apps/billing-svc/**'
+            auth-svc:
+              - 'apps/auth-svc/**'
             gateway:
               - 'apps/gateway/**'
-      - name: Build and push project-query-service
-        if: steps.filter.outputs.project-query-service == 'true'
+      - name: Build and push project-query-svc
+        if: steps.filter.outputs.project-query-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=project-query-service
+            SERVICE_NAME=project-query-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-service:latest
-      - name: Build and push project-command-service
-        if: steps.filter.outputs.project-command-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-query-svc:latest
+      - name: Build and push project-command-svc
+        if: steps.filter.outputs.project-command-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=project-command-service
+            SERVICE_NAME=project-command-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-service:latest
-      - name: Build and push issue-query-service
-        if: steps.filter.outputs.issue-query-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/project-command-svc:latest
+      - name: Build and push issue-query-svc
+        if: steps.filter.outputs.issue-query-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=issue-query-service
+            SERVICE_NAME=issue-query-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-service:latest
-      - name: Build and push issue-command-service
-        if: steps.filter.outputs.issue-command-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-query-svc:latest
+      - name: Build and push issue-command-svc
+        if: steps.filter.outputs.issue-command-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=issue-command-service
+            SERVICE_NAME=issue-command-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-service:latest
-      - name: Build and push member-query-service
-        if: steps.filter.outputs.member-query-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/issue-command-svc:latest
+      - name: Build and push member-query-svc
+        if: steps.filter.outputs.member-query-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=member-query-service
+            SERVICE_NAME=member-query-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-service:latest
-      - name: Build and push member-command-service
-        if: steps.filter.outputs.member-command-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-query-svc:latest
+      - name: Build and push member-command-svc
+        if: steps.filter.outputs.member-command-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=member-command-service
+            SERVICE_NAME=member-command-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-service:latest
-      - name: Build and push search-service
-        if: steps.filter.outputs.search-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/member-command-svc:latest
+      - name: Build and push search-svc
+        if: steps.filter.outputs.search-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=search-service
+            SERVICE_NAME=search-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/search-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/search-service:latest
-      - name: Build and push report-service
-        if: steps.filter.outputs.report-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/search-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/search-svc:latest
+      - name: Build and push report-svc
+        if: steps.filter.outputs.report-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=report-service
+            SERVICE_NAME=report-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/report-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/report-service:latest
-      - name: Build and push account-service
-        if: steps.filter.outputs.account-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/report-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/report-svc:latest
+      - name: Build and push account-svc
+        if: steps.filter.outputs.account-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=account-service
+            SERVICE_NAME=account-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/account-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/account-service:latest
-      - name: Build and push notification-service
-        if: steps.filter.outputs.notification-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/account-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/account-svc:latest
+      - name: Build and push notification-svc
+        if: steps.filter.outputs.notification-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=notification-service
+            SERVICE_NAME=notification-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/notification-service:latest
-      - name: Build and push billing-service
-        if: steps.filter.outputs.billing-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/notification-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/notification-svc:latest
+      - name: Build and push billing-svc
+        if: steps.filter.outputs.billing-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=billing-service
+            SERVICE_NAME=billing-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/billing-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/billing-service:latest
-      - name: Build and push auth-service
-        if: steps.filter.outputs.auth-service == 'true'
+            ${{ secrets.DOCKERHUB_USERNAME }}/billing-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/billing-svc:latest
+      - name: Build and push auth-svc
+        if: steps.filter.outputs.auth-svc == 'true'
         uses: docker/build-push-action@v4
         with:
           push: true
           build-args: |
-            SERVICE_NAME=auth-service
+            SERVICE_NAME=auth-svc
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:${{ github.event.release.tag_name }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/auth-svc:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/auth-svc:latest
       - name: Build and push gateway
         if: steps.filter.outputs.gateway == 'true'
         uses: docker/build-push-action@v4

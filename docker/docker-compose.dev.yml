@@ -76,17 +76,17 @@ services:
 
   # apps
 
-  project-query-service:
+  project-query-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=project-query-service
+        - SERVICE_NAME=project-query-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev project-query-service
+    command: nest start:dev project-query-svc
     volumes:
-      - ../apps/project-query-service:/usr/src/app/apps/project-query-service
+      - ../apps/project-query-svc:/usr/src/app/apps/project-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -95,33 +95,33 @@ services:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  project-command-service:
+  project-command-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=project-command-service
+        - SERVICE_NAME=project-command-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev project-command-service
+    command: nest start:dev project-command-svc
     volumes:
-      - ../apps/project-command-service:/usr/src/app/apps/project-command-service
+      - ../apps/project-command-svc:/usr/src/app/apps/project-command-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
 
-  issue-query-service:
+  issue-query-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=issue-query-service
+        - SERVICE_NAME=issue-query-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev issue-query-service
+    command: nest start:dev issue-query-svc
     volumes:
-      - ../apps/issue-query-service:/usr/src/app/apps/issue-query-service
+      - ../apps/issue-query-svc:/usr/src/app/apps/issue-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -130,33 +130,33 @@ services:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  issue-command-service:
+  issue-command-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=issue-command-service
+        - SERVICE_NAME=issue-command-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev issue-command-service
+    command: nest start:dev issue-command-svc
     volumes:
-      - ../apps/issue-command-service:/usr/src/app/apps/issue-command-service
+      - ../apps/issue-command-svc:/usr/src/app/apps/issue-command-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
 
-  member-query-service:
+  member-query-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=member-query-service
+        - SERVICE_NAME=member-query-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev member-query-service
+    command: nest start:dev member-query-svc
     volumes:
-      - ../apps/member-query-service:/usr/src/app/apps/member-query-service
+      - ../apps/member-query-svc:/usr/src/app/apps/member-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -164,33 +164,33 @@ services:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  member-command-service:
+  member-command-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=member-command-service
+        - SERVICE_NAME=member-command-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev member-command-service
+    command: nest start:dev member-command-svc
     volumes:
-      - ../apps/member-command-service:/usr/src/app/apps/member-command-service
+      - ../apps/member-command-svc:/usr/src/app/apps/member-command-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
 
-  search-service:
+  search-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=search-service
+        - SERVICE_NAME=search-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev search-service
+    command: nest start:dev search-svc
     volumes:
-      - ../apps/search-service:/usr/src/app/apps/search-service
+      - ../apps/search-svc:/usr/src/app/apps/search-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -198,51 +198,51 @@ services:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  report-service:
+  report-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=report-service
+        - SERVICE_NAME=report-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev report-service
+    command: nest start:dev report-svc
     volumes:
-      - ../apps/report-service:/usr/src/app/apps/report-service
+      - ../apps/report-svc:/usr/src/app/apps/report-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  account-service:
+  account-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=account-service
+        - SERVICE_NAME=account-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev account-service
+    command: nest start:dev account-svc
     volumes:
-      - ../apps/account-service:/usr/src/app/apps/account-service
+      - ../apps/account-svc:/usr/src/app/apps/account-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/accounts
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  notification-service:
+  notification-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=notification-service
+        - SERVICE_NAME=notification-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev notification-service
+    command: nest start:dev notification-svc
     volumes:
-      - ../apps/notification-service:/usr/src/app/apps/notification-service
+      - ../apps/notification-svc:/usr/src/app/apps/notification-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
@@ -250,34 +250,34 @@ services:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  billing-service:
+  billing-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=billing-service
+        - SERVICE_NAME=billing-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev billing-service
+    command: nest start:dev billing-svc
     volumes:
-      - ../apps/billing-service:/usr/src/app/apps/billing-service
+      - ../apps/billing-svc:/usr/src/app/apps/billing-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/billing
       - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
 
-  auth-service:
+  auth-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=auth-service
+        - SERVICE_NAME=auth-svc
         - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev auth-service
+    command: nest start:dev auth-svc
     volumes:
-      - ../apps/auth-service:/usr/src/app/apps/auth-service
+      - ../apps/auth-svc:/usr/src/app/apps/auth-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     environment:
