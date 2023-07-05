@@ -1,4 +1,4 @@
-# Taskapp(caplan)
+# Taskapp
 
 <img src="apps/gateway/nginx/www/logo.svg" width="75" alt="Taskapp Logo"/>
 
@@ -8,41 +8,59 @@ Sample app for agile project management
 
 ## Architecture
 
-| Services           | Container           | Stack                   | Ports      |
-| ------------------ | ------------------- | ----------------------- | ---------- |
-| Redis              | redis               | Redis stack             | 6379       |
-| Queue              | rabbitmq            | RabbitMQ                | 5672/15672 |
-| Read DB            | postgres            | Postgres                | 5432       |
-| Write DB           | eventstore          | EventStoreDB            | 1113/2113  |
-| Object storage(s3) | minio               | Minio                   | 9000       |
-| -                  | -                   | -                       | -          |
-| Project Query      | project-query-svc   | NodeJs, HTTP1.1, AMQP   | 8001       |
-| Project Command    | project-command-svc | NodeJs, HTTP1.1, AMQP   | 8002       |
-| Issue Query        | issue-query-svc     | NodeJs, HTTP1.1, AMQP   | 8003       |
-| Issue Command      | issue-command-svc   | NodeJs, HTTP1.1, AMQP   | 8004       |
-| Member Query       | member-query-svc    | NodeJs, HTTP1.1, AMQP   | 8005       |
-| Member Command     | member-command-svc  | NodeJs, HTTP1.1, AMQP   | 8006       |
-| Search             | search-svc          | NodeJs, HTTP1.1, AMQP   | 8007       |
-| Report             | report-svc          | NodeJs, HTTP1.1         | 8008       |
-| Account            | account-svc         | NodeJs, HTTP1.1, AMQP   | 8009       |
-| Notification       | notification-svc    | NodeJs, HTTP1.1, AMQP   | 8010       |
-| Billing            | billing-svc         | NodeJs, HTTP1.1, AMQP   | 8011       |
-| Auth               | auth-svc            | NodeJs, HTTP1.1         | 8012       |
-| Api Gateway        | gateway             | Nginx, HTTP1.1, Swagger | 80/443     |
-| -                  | -                   | -                       | -          |
-| Tracing            | jaeger              | Jaeger                  | 9411/16686 |
-| Prometheus         | prometheus          | Prometheus              | 9090       |
-| Container metrics  | cadvisor            | Prom cadvisor           | 8081       |
-| Unix metrics       | node-exporter       | Prom node exporter      | 9100       |
-| Nginx metrics      | nginx-exporter      | Prom nginx exporter     | 9113       |
-| Postgres metrics   | postgres-exporter   | Prom postgres exporter  | 9187       |
-| Redis metrics      | redis-exporter      | Prom redis exporter     | 9121       |
-| Logs storage       | loki                | Grafana Loki            | 3100       |
-| Logs aggregator    | fluent-bit          | Fluent Bit              | 24224      |
-| Grafana            | grafana             | Grafana                 | 3003       |
-| Alerts             | alertmanager        | Alertmanager            | 9093       |
+| Services           | Container           | Stack                        | Ports       |
+| ------------------ | ------------------- | ---------------------------- | ----------- |
+| Redis              | redis               | Redis stack                  | 6379        |
+| Queue              | rabbitmq            | RabbitMQ                     | 5672/15672  |
+| Read DB            | postgres            | Postgres                     | 5432        |
+| Write DB           | eventstore          | EventStoreDB                 | 1113/2113   |
+| Object storage(s3) | minio               | Minio                        | 9000        |
+| -                  | -                   | -                            | -           |
+| Project Query      | project-query-svc   | NodeJs, HTTP1.1/GRPC, AMQP   | 3001/50051  |
+| Project Command    | project-command-svc | NodeJs, HTTP1.1/GRPC, AMQP   | 3002/50052  |
+| Issue Query        | issue-query-svc     | NodeJs, HTTP1.1/GRPC, AMQP   | 3003/50053  |
+| Issue Command      | issue-command-svc   | NodeJs, HTTP1.1/GRPC, AMQP   | 3004/50054  |
+| Member Query       | member-query-svc    | NodeJs, HTTP1.1/GRPC, AMQP   | 3005/50055  |
+| Member Command     | member-command-svc  | NodeJs, HTTP1.1/GRPC, AMQP   | 3006/50056  |
+| Search             | search-svc          | NodeJs, HTTP1.1/GRPC, AMQP   | 3007/50057  |
+| Report             | report-svc          | NodeJs, HTTP1.1/GRPC,        | 3008/50058  |
+| Account            | account-svc         | NodeJs, HTTP1.1/GRPC, AMQP   | 3009/50059  |
+| Notification       | notification-svc    | NodeJs, HTTP1.1/GRPC, AMQP   | 3010/50060  |
+| Billing            | billing-svc         | NodeJs, HTTP1.1/GRPC, AMQP   | 3011/50061  |
+| Auth               | auth-svc            | NodeJs, HTTP1.1/GRPC,        | 3012/50062  |
+| Api Gateway        | gateway             | Nginx, HTTP1.1/GRPC, Swagger | 80/443/8080 |
+| -                  | -                   | -                            | -           |
+| Tracing            | jaeger              | Jaeger                       | 9411/16686  |
+| Prometheus         | prometheus          | Prometheus                   | 9090        |
+| Container metrics  | cadvisor            | Prom cadvisor                | 8081        |
+| Unix metrics       | node-exporter       | Prom node exporter           | 9100        |
+| Nginx metrics      | nginx-exporter      | Prom nginx exporter          | 9113        |
+| Postgres metrics   | postgres-exporter   | Prom postgres exporter       | 9187        |
+| Redis metrics      | redis-exporter      | Prom redis exporter          | 9121        |
+| Logs storage       | loki                | Grafana Loki                 | 3100        |
+| Logs aggregator    | fluent-bit          | Fluent Bit                   | 24224       |
+| Grafana            | grafana             | Grafana                      | 3033        |
+| Alerts             | alertmanager        | Alertmanager                 | 9093        |
 
 > for a real world scenario you definitely need an easily sharded nosql db for read DB
+
+### Api Gateway
+
+- Api gateway
+  - auth(request) guard
+  - http cache
+  - api versioning
+  - load ballancing
+  - security: ddos, helmet, cors, ssl
+  - proxying HTTP1.1 & GRPC microservices
+- Infrastructure proxy
+  - Auth(inner) guard
+  - proxy HTTP1.1: grafana, prometheus-ui, jaeger, rabbitmq managment, alertmanager
+- Static serve
+  - swagger-ui
+- Misc
+  - metrics(Prometheus)
+  - opentracing
 
 ## Features
 

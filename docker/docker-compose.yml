@@ -164,7 +164,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     networks: [ monitoring ]
-    ports: [ 3003:3000 ]
+    ports: [ 3033:3000 ]
     volumes:
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
     environment:
@@ -181,7 +181,7 @@ services:
   project-query-svc:
     image: taskapp/project-query-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8001:3000 ]
+    ports: [ 3001:3000, 50051 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/projects
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
@@ -200,7 +200,7 @@ services:
   project-command-svc:
     image: taskapp/project-command-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8002:3000 ]
+    ports: [ 3002:3000, 50052 ]
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
     depends_on:
@@ -213,7 +213,7 @@ services:
   issue-query-svc:
     image: taskapp/issue-query-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8003:3000 ]
+    ports: [ 3003:3000, 50053 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
@@ -232,7 +232,7 @@ services:
   issue-command-svc:
     image: taskapp/issue-command-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8004:3000 ]
+    ports: [ 3004:3000, 50054 ]
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
     depends_on:
@@ -245,7 +245,7 @@ services:
   member-query-svc:
     image: taskapp/member-query-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8005:3000 ]
+    ports: [ 3005:3000, 50055 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/members
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
@@ -262,7 +262,7 @@ services:
   member-command-svc:
     image: taskapp/member-command-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8006:3000 ]
+    ports: [ 3006:3000, 50056 ]
     environment:
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
     depends_on:
@@ -275,7 +275,7 @@ services:
   search-svc:
     image: taskapp/search-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8007:3000 ]
+    ports: [ 3007:3000, 50057 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/search
       - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
@@ -292,7 +292,7 @@ services:
   report-svc:
     image: taskapp/report-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8008:3000 ]
+    ports: [ 3008:3000, 50058 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
@@ -307,7 +307,7 @@ services:
   account-svc:
     image: taskapp/account-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8009:3000 ]
+    ports: [ 3009:3000, 50059 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/accounts
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
@@ -322,7 +322,7 @@ services:
   notification-svc:
     image: taskapp/notification-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8010:3000 ]
+    ports: [ 3010:3000, 50060 ]
     environment:
       - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/notifications
@@ -340,7 +340,7 @@ services:
   billing-svc:
     image: taskapp/billing-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8011:3000 ]
+    ports: [ 3011:3000, 50061 ]
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/billing
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
@@ -355,7 +355,7 @@ services:
   auth-svc:
     image: taskapp/auth-svc:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 8012:3000 ]
+    ports: [ 3012:3000, 50062 ]
     environment:
       - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
       - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
@@ -373,7 +373,7 @@ services:
   gateway:
     image: taskapp/gateway:${TAG:-latest}
     networks: [ apps ]
-    ports: [ 80, 443 ]
+    ports: [ 80, 443, 8080 ]
     environment:
       - API_VERSION=${API_VERSION:-v1}
       - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
