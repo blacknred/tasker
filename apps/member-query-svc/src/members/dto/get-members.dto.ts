@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedRequestDto } from '@taskapp/service-core';
+import { PaginatedRequestDto } from '@taskapp/shared';
 import {
   IsDateString,
   IsIn,

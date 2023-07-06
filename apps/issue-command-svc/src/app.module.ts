@@ -10,8 +10,6 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { NOTIFICATION_SERVICE } from './issues/consts';
 import { IssuesModule } from './issues/issues.module';
 
-const ALS = new AsyncLocalStorage<any>();
-
 @Module({
   imports: [
     ConfigModule.forRoot({

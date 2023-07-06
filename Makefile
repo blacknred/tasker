@@ -25,7 +25,7 @@ ${IMAGE_DIRS}:
 
 release:
 	check-docker
-	@./hub.sh
+	@./registry.sh
 	release-images
 
 dev:
