@@ -6,7 +6,7 @@ on:
     workflow_dispatch: # allow manual trigger
 
 jobs:
-  tests:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -183,16 +183,25 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/gateway:${{ github.event.release.tag_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/gateway:latest
             - name: "Run deploy"
-      - name: "Testing"
-        run: echo 'not implemented'
-      - name: "Run deploy"
-        run: echo 'not implemented'
-#       uses: appleboy/ssh-action@master
-#       with:
-#         host: ${{ secrets.SERVER_HOST }}
-#         username: ${{ secrets.SERVER_USERNAME }}
-#         key: ${{ secrets.SERVER_KEY }}
-#         port: ${{ secrets.SERVER_PORT }}
-#         script: |
-#           sudo docker-compose -f docker-compose.prod-ci.yml -p prod pull
-#           sudo docker-compose -f docker-compose.prod-ci.yml -p prod up -d
+
+      # - name: Inspect Image
+      #   run: docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/app:latest
+      # - name: "Testing"
+      #   run: echo 'not implemented'
+      # - name: "Run deploy"
+      #   run: echo 'not implemented'
+
+      #       uses: appleboy/ssh-action@master
+      #       with:
+      #         host: ${{ secrets.SERVER_HOST }}
+      #         username: ${{ secrets.SERVER_USERNAME }}
+      #         key: ${{ secrets.SERVER_KEY }}
+      #         port: ${{ secrets.SERVER_PORT }}
+      #         script: |
+      #           sudo docker-compose -f docker-compose.prod-ci.yml -p prod pull
+      #           sudo docker-compose -f docker-compose.prod-ci.yml -p prod up -d
+      # commands:
+      #       - echo "Post-build phase"
+      #       - aws deploy push --application-name my-app --s3-location s3://my-bucket/my-app.zip --source .
+
+

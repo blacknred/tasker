@@ -104,7 +104,7 @@ export class AuthService {
       expiresIn: LIFESPAN,
     });
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
+    return `Authentication=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${LIFESPAN}`;
   }
 
   public createRefreshCookie(userId: IAuth['userId']) {
@@ -115,6 +115,6 @@ export class AuthService {
       expiresIn: LIFESPAN,
     });
 
-    return `Refresh=${token}; HttpOnly; Path=/; Max-Age=${LIFESPAN}`;
+    return `Refresh=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${LIFESPAN}`;
   }
 }
