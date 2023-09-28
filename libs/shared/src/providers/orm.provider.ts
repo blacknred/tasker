@@ -16,8 +16,8 @@ export function getOrmOptions(
         clientUrl: configService.get('POSTGRES_URL'),
         debug: configService.get('NODE_ENV') === 'development',
         loadStrategy: LoadStrategy.JOINED,
-        context: () => ALS.getStore(), // use our AsyncLocalStorage instance
-        registerRequestContext: false, // disable automatatic middleware
+        context: () => ALS.getStore(), // use AsyncLocalStorage instance
+        registerRequestContext: false, // disable automatic middleware
         autoLoadEntities: true,
         ensureIndexes: true,
         type: 'postgresql',

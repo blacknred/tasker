@@ -8,10 +8,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
+        isSimpleSpanProcessor: true,
         exporterConfig: {
           serviceName: config.get('SERVICE_NAME'),
         },
-        isSimpleSpanProcessor: true,
       }),
     }),
   ],

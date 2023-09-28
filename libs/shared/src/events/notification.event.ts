@@ -16,6 +16,3 @@ export class NotificationDeserializer
     return new NotificationEvent(message.data, message.transport);
   }
 }
-
-// api change-unlim -> off ? redis(del unlimited:pid) : InvoiceCreatedEvent
-// InvoicePaidEvent -> redis(true,ttl) -> queue(mon, InvoiceCreatedEvent)

@@ -23,14 +23,14 @@ export class HealthService {
     private prometheusService: PrometheusService,
   ) {
     this.targets = [
-      new MicroserviceIndicator(
-        'UserMicroservice',
-        {
-          transport: Transport.TCP,
-          options: { host: 'user-service' },
-        },
-        this.prometheusService,
-      ),
+      // new MicroserviceIndicator(
+      //   'UserMicroservice',
+      //   {
+      //     transport: Transport.TCP,
+      //     options: { host: 'user-service' },
+      //   },
+      //   this.prometheusService,
+      // ),
       new MicroserviceIndicator(
         'Redis',
         {

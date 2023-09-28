@@ -12,7 +12,10 @@ export class IssueCreatedEvent implements IAggregateEvent {
 }
 
 export class IssueUpdatedEvent implements IAggregateEvent {
-  constructor(public readonly data: IIssue, public readonly emitterId: ID) {}
+  constructor(
+    public readonly data: Partial<IIssue>,
+    public readonly emitterId: ID,
+  ) {}
   get streamName() {
     return `issue-${this.data.id}`;
   }

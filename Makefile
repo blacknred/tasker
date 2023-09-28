@@ -7,13 +7,14 @@ IMAGE_PREFIX = taskapp
 .PHONY: release
 
 check-docker:
-	@if [ ! $(command -v docker-compose) ]; then\
+	@if [ -x "$(command -v docker-compose)" ]; then\
     echo "please install docker-compose";\
     exit 1;\
 	fi
 
 # for all apps
-release-images: ${IMAGE_DIRS}
+release-images:
+	${IMAGE_DIRS}
 
 # build/tag/push a single image
 ${IMAGE_DIRS}:
@@ -24,12 +25,12 @@ ${IMAGE_DIRS}:
 	docker push ${IMAGE_PREFIX}${IMAGE_NAME}:latest
 
 release:
-	check-docker
+	make check-docker
 	@./registry.sh
-	release-images
+	make release-images
 
 dev:
-	check-docker
+	make check-docker
 	@if [ ! -f .env.dev ]; then\
 		cp .env.example .env.dev;\
 	fi

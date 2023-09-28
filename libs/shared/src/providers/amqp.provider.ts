@@ -9,12 +9,11 @@ export function getAmqpOptions(
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const { hostname, port, username, password, protocol } = new URL(
-          configService.get('RABBITMQ_URL'),
-        );
+        const { hostname, port, username, password, protocol, pathname } =
+          new URL(configService.get('RABBITMQ_URL'));
 
         return {
-          // name: 'queue',
+          name: pathname,
           hostname,
           port: +port,
           username,
