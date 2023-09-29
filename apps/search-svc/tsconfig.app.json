@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "sourceMap": true,
-    "outDir": "../../dist/apps/search-query-svc"
+    "outDir": "../../dist/apps/search-svc"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

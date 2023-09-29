@@ -1,26 +1,26 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { EventStoreModuleAsyncOptions } from '@taskapp/eventstore';
 
 export function getEventStoreOptions(
-  options?: EventStoreModuleAsyncOptions,
+  options?: any,
 ): EventStoreModuleAsyncOptions {
-  return Object.assign(
-    {
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const { hostname, port, username, password } = new URL(
-          configService.get('EVENTSTORE_URL'),
-        );
+  return {
+    // imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => {
+      const { hostname, port, username, password } = new URL(
+        configService.get('EVENTSTORE_URL'),
+      );
 
-        return {
+      return Object.assign(
+        {
           connectionSettings: {
             defaultUserCredentials: { username, password },
           },
           endpoint: { host: hostname, port: +port },
-        };
-      },
+        },
+        options,
+      );
     },
-    options,
-  );
+  };
 }

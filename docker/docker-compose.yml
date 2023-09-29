@@ -200,11 +200,9 @@ services:
     environment:
       - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
     depends_on:
       - postgres
       - rabbitmq
-      - redis
     logging:
       driver: fluentd
       options:
@@ -236,7 +234,7 @@ services:
       - OAUTH2_PROXY_COOKIE_SECRET=${SECRET:-test}
       - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains
       - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target
-      - OAUTH2_PROXY_PROVIDER=oidc
+      - OAUTH2_PROXY_PROVIDER=oid
       - OAUTH2_PROXY_CLIENT_ID=sso-proxy
       - OAUTH2_PROXY_CLIENT_SECRET=${SECRET:-test}
       - OAUTH2_PROXY_EMAIL_DOMAINS=*
@@ -269,7 +267,7 @@ services:
       options:
         fluentd-address: fluent-bit:24224
 
-  # monitoring
+  # monitoring(apm)
 
   loki:
     image: grafana/loki:latest

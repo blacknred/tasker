@@ -12,10 +12,10 @@ bootstrap(AppModule, [
       persistent: true,
       prefetchCount: 100,
       isGlobalPrefetchCount: true,
-      // deserializer: 'NotificationDeserializer',
       queueOptions: {
         durable: true,
       },
+      // deserializer: 'NotificationDeserializer',
     },
   },
 ]);

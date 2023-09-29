@@ -73,8 +73,8 @@ Sample b2b agile task management app
 > mutations via RabbitMQ, reads from web
 
 - Notification: email/push/sse worker, delayed-message-exchange for sprint events etc (cannot delete message problem)
-- Search: search entries aggregator, Pg/Redis-search
-- Report: user/project/issue/sprint activity aggregator and report generator, Pg/Redis-timeseries
+- Search: search entries aggregator, Pg
+- Report: user/project/issue/sprint activity aggregator and report generator, Pg/Prometheus
 
 #### Api Gateway
 
@@ -97,7 +97,7 @@ Sample b2b agile task management app
 ### Monitoring
 
 - Jaeger
-- Prometheus: prometheus, cadvisor, node-exporter, nginx-exporter, postgres-exporter, redis-exporter
+- Prometheus: service modules, cadvisor, node-exporter, nginx-exporter, postgres-exporter, redis-exporter
 - Grafana loki
 - Fluent Bit
 - Grafana
@@ -139,7 +139,7 @@ Sample b2b agile task management app
 ## Todo
 
 - k8s
-- grpc
+- switch microservices to grpc & rewrite gateway in golang to implement http->grpc and use sso without proxy client
 - billing(+stripe)
 - multi-tenancy?: workspace-svc, issue-*-svc and related storages
 - automation?

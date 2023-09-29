@@ -1,26 +1,30 @@
 import { ConfigService } from '@nestjs/config';
-import { ClientsProviderAsyncOptions, Transport } from '@nestjs/microservices';
+import {
+  ClientProvider,
+  ClientsProviderAsyncOptions,
+  Transport,
+} from '@nestjs/microservices';
 import { SEARCH_SERVICE } from '../consts';
 
 export function getSearchClientOptions(
-  options?: ClientsProviderAsyncOptions,
+  options?: ClientProvider,
 ): ClientsProviderAsyncOptions {
-  return Object.assign(
-    {
-      name: SEARCH_SERVICE,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        transport: Transport.RMQ,
-        options: {
+  return {
+    name: SEARCH_SERVICE,
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+      transport: Transport.RMQ,
+      options: Object.assign(
+        {
           urls: [configService.get('RABBITMQ_URL') as string],
           queue: 'search-entries',
-          noAck: false,
+          persistent: true,
           queueOptions: {
             durable: true,
           },
         },
-      }),
-    },
-    options,
-  );
+        options,
+      ),
+    }),
+  };
 }

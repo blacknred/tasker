@@ -13,7 +13,11 @@ import {
 import { FullTextType } from '@mikro-orm/postgresql';
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 } from 'uuid';
-import { IssuePriority, IssueRelation, IssueType } from '../../../../../libs/shared/src/enums';
+import {
+  IssuePriority,
+  IssueRelation,
+  IssueType,
+} from '../../../../../libs/shared/src/enums';
 import type {
   IIssue,
   IIssueComment,
@@ -23,8 +27,8 @@ import type {
   ITag,
 } from '../../../../../libs/shared/src/interfaces';
 import { Profile } from './account.entity';
-import { Status } from '../../statuses/entities/status.entity';
-import { Tag } from '../../tags/entities/tag.entity';
+import { Status } from '../../../../workspace-svc/src/statuses/statuses/entities/status.entity';
+import { Tag } from '../../../../workspace-svc/src/tags/tags/entities/tag.entity';
 
 @Entity({ tableName: 'issue_comment' })
 export class Comment implements IIssueComment {
