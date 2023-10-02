@@ -1,6 +1,12 @@
-import { ProjectPermission } from '../enums';
-import { IAuth } from '../interfaces';
 import type { Request } from 'express';
+import { WorkspacePolicy } from '../enums';
+import { ID } from '../interfaces';
+
+interface IAuth {
+  userId: ID;
+  needTfa?: boolean;
+  permissions: Record<ID, WorkspacePolicy[]>;
+}
 
 export class AuthHeaders {
   static serializePermissions(permissions: IAuth['permissions']) {
@@ -19,8 +25,8 @@ export class AuthHeaders {
         const permissions = permissionStr
           .split('')
           .filter(
-            (v) => +v in ProjectPermission,
-          ) as unknown[] as ProjectPermission[];
+            (v) => +v in WorkspacePolicy,
+          ) as unknown[] as WorkspacePolicy[];
 
         if (permissions.length) {
           all[projectId] = permissions;

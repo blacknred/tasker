@@ -1,60 +1,74 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
-import { Agent } from 'src/__shared__/decorators/agent.decorator';
-import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
-import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
-import { CreateTaskDto } from './dto/create-issue.dto';
-import { GetTaskDto } from './dto/get-issue.dto';
-import { GetTasksDto } from './dto/get-issues.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/issue-response.dto';
-import { UpdateTaskDto } from './dto/update-issue.dto';
-import { TasksService } from './issues.service';
+import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AllExceptionFilter } from '@taskapp/shared';
+import {
+  CommentsResponseDto,
+  GetCommentsDto,
+  GetIssueDto,
+  GetIssuesDto,
+  GetSubscriptionsDto,
+  GetVotesDto,
+  IssueResponseDto,
+  IssuesResponseDto,
+  SubscriptionsResponseDto,
+  VotesResponseDto,
+} from './dto';
+import {
+  GetCommentsQuery,
+  GetIssueQuery,
+  GetIssuesQuery,
+  GetSubscriptionsQuery,
+  GetVotesQuery,
+} from './queries';
 
-@Controller()
-@UseGuards(AgentGuard)
+@ApiTags('Issues')
+@Controller('issues')
+@UseFilters(AllExceptionFilter)
 export class IssuesController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
-  @WithPrivilege(Privilege.CREATE_TASK)
-  @MessagePattern('tasks/create')
-  async create(
-    @Agent() agent,
-    @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.create(createTaskDto, agent);
+  @Get()
+  @ApiOperation({ description: 'List all issues' })
+  @ApiOkResponse({ type: IssuesResponseDto })
+  async getAll(@Query() dto: GetIssuesDto): Promise<IssuesResponseDto> {
+    return this.queryBus.execute(new GetIssuesQuery(dto));
   }
 
-  @MessagePattern('tasks/getAll')
-  async getAll(
-    @Agent() agent,
-    @Payload() getTasksDto: GetTasksDto,
-  ): Promise<TasksResponseDto> {
-    return this.tasksService.findAll(getTasksDto, agent);
+  @Get(':id')
+  @ApiOperation({ description: 'Get issue by id' })
+  @ApiOkResponse({ type: IssuesResponseDto })
+  async getOne(@Param() { id }: GetIssueDto): Promise<IssueResponseDto> {
+    return this.queryBus.execute(new GetIssueQuery(id));
   }
 
-  @MessagePattern('tasks/getOne')
-  async getOne(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, agent);
+  @Get(':id/comments')
+  @ApiOperation({ description: 'List issue comments' })
+  @ApiOkResponse({ type: CommentsResponseDto })
+  async getAllComments(
+    @Param() { id }: GetIssueDto,
+    @Query() dto: GetCommentsDto,
+  ): Promise<CommentsResponseDto> {
+    return this.queryBus.execute(new GetCommentsQuery(id, dto));
   }
 
-  @MessagePattern('tasks/update')
-  async update(
-    @Agent() agent,
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.update(updateTaskDto, agent);
+  @Get(':id/votes')
+  @ApiOperation({ description: 'Get issue votes' })
+  @ApiOkResponse({ type: VotesResponseDto })
+  async getAllVotes(
+    @Param() { id }: GetIssueDto,
+    @Query() dto: GetVotesDto,
+  ): Promise<VotesResponseDto> {
+    return this.queryBus.execute(new GetVotesQuery(id, dto));
   }
 
-  @MessagePattern('tasks/delete')
-  async remove(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<ResponseDto> {
-    return this.tasksService.remove(id, agent);
+  @Get(':id/subscriptions')
+  @ApiOperation({ description: 'Get issue subscriptions' })
+  @ApiOkResponse({ type: SubscriptionsResponseDto })
+  async getaAllSubscriptions(
+    @Param() { id }: GetIssueDto,
+    @Query() dto: GetSubscriptionsDto,
+  ): Promise<SubscriptionsResponseDto> {
+    return this.queryBus.execute(new GetSubscriptionsQuery(id, dto));
   }
 }

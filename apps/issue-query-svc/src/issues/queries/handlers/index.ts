@@ -1,2 +1,2 @@
-export * from './get-project.handler';
-export * from './get-projects.handler';
+export * from './get-issue.handler';
+export * from './get-issues.handler';

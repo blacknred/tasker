@@ -1,62 +1,53 @@
-import { IssueRelation, IssueType, Priority } from '../enums';
-import type { IProfile } from './account.interface';
+import { IssuePriority, IssueRelation, IssueType } from '../enums';
 import type { IBase, ID } from './base.interface';
-import type { IHydratedComment } from './comment.interface';
-import type { IStatus } from './status.interface';
-import type { ITag } from './tag.interface';
+import { ISprintPreview } from './sprint.interface';
+import { IUserPreview } from './user.interface';
 
-export interface IIssueRelation {
-  relation: IssueRelation;
-  comment?: string;
-  issueId: ID;
+export interface IIssueStatus {
+  name: string;
+  color?: string;
+  isFirst: boolean;
+  isLast: boolean;
+  transitions: string[];
 }
 
-export interface IHydratedIssueRelation extends IIssueRelation {
-  relatedIssueId: IHydratedIssuePreview;
+export interface IIssueTag {
+  name: string;
+  color?: string;
+}
+
+export interface IIssueRelation {
+  issueId: ID;
+  relatedIssue: IIssuePreview;
+  relation: IssueRelation;
+  comment?: string;
 }
 
 export interface IIssue extends IBase {
-  type: IssueType;
   projectId: ID;
+  type: IssueType;
   name: string;
   title: string;
-  statusId: ID;
-  priority?: Priority;
-  endsAt?: string | Date;
-  weight?: number;
-  tags: ID[];
-  assigneeId?: ID;
-  epicId?: ID;
-  //
-  sprintId?: ID;
   details?: string;
-  endedAt: string | Date;
+  priority?: IssuePriority;
   assets: string[];
   version?: number;
-  authorId: ID;
+  weight?: number;
+  endsAt?: string | Date;
+  endedAt?: string | Date;
+  votesCount: number;
+  subscriptionsCount: number;
+  status: IIssueStatus;
+  tags: IIssueTag[];
+  author: IUserPreview;
+  sprint?: ISprintPreview;
+  assignee?: IUserPreview;
+  epic?: IIssuePreview;
   relations: IIssueRelation[];
 }
 
-export interface IHydratedIssue
-  extends Omit<
-    IIssue,
-    'statusId' | 'tags' | 'assigneeeId' | 'epic' | 'authorId' | 'relations'
-  > {
-  status: IStatus;
-  tags: ITag[];
-  assignee?: IProfile;
-  epic?: IHydratedIssuePreview;
-  author: IProfile; //lazy
-  relations: IHydratedIssueRelation[]; //lazy
-
-  comments: IHydratedComment[]; //lazy
-  subscribers: IProfile[]; //lazy
-  voters: IProfile[]; //lazy
-  // activity?: IHydratedIssueUpdate[];
-}
-
-export type IHydratedIssuePreview = Pick<
-  IHydratedIssue,
+export type IIssuePreview = Pick<
+  IIssue,
   | 'id'
   | 'type'
   | 'projectId'
@@ -65,14 +56,24 @@ export type IHydratedIssuePreview = Pick<
   | 'status'
   | 'priority'
   | 'endsAt'
-  | 'weight'
   | 'tags'
   | 'assignee'
   | 'epic'
 >;
 
-export interface IHydratedIssueUpdate {
-  createdAt: string | Date;
-  user: IProfile;
-  state: Partial<IHydratedIssue>;
+export type IIssueSubscription = {
+  issue?: IIssuePreview;
+  user?: IUserPreview;
+};
+
+export type IIssueVote = {
+  issue?: IIssuePreview;
+  user?: IUserPreview;
+};
+
+export interface IIssueComment extends IBase {
+  issueId: ID;
+  body: string;
+  assets: string[];
+  author: IUserPreview;
 }

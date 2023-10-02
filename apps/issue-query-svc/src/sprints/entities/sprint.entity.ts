@@ -1,18 +1,24 @@
-import { Entity, Index, PrimaryKey, Property } from '@mikro-orm/core';
-import { AggregateRoot } from '@nestjs/cqrs';
-import { IHydratedSprint } from '@taskapp/shared';
+import {
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
+import { ISprint } from '@taskapp/shared';
 import { v4 } from 'uuid';
+import { User } from '../../issues/entities';
 
 @Entity({ tableName: 'sprint' })
-export class Sprint extends AggregateRoot implements IHydratedSprint {
+export class Sprint implements ISprint {
   @PrimaryKey()
   id: string = v4();
 
   @Property({ type: 'uuid' })
   projectId!: string;
 
-  @Property({ type: 'uuid' })
-  authorId!: string;
+  @ManyToOne(() => User, { lazy: true, fieldName: 'authorId' })
+  author!: User;
 
   @Property({ length: 30, check: 'length(name) >= 5' })
   name!: string;
@@ -34,11 +40,6 @@ export class Sprint extends AggregateRoot implements IHydratedSprint {
   updatedAt: Date = new Date();
 
   constructor(instance?: Partial<Sprint>) {
-    super();
     Object.assign(this, instance);
   }
-
-  // killEnemy(enemyId: string) {
-  //   this.apply(new HeroKilledDragonEvent(this.id, enemyId));
-  // }
 }

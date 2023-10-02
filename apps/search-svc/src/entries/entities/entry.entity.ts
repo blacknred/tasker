@@ -1,10 +1,9 @@
 import { Entity, Enum, Index, PrimaryKey, Property } from '@mikro-orm/core';
 import { FullTextType } from '@mikro-orm/postgresql';
-import { SearchEntryType } from '../../../../../libs/shared/src/enums';
-import type { IHydratedSearchEntry } from '../../../../../libs/shared/src/interfaces';
+import { ISearchEntry, SearchEntryType } from '@taskapp/shared';
 
 @Entity({ tableName: 'search_entry' })
-export class Entry implements IHydratedSearchEntry {
+export class Entry implements ISearchEntry {
   @PrimaryKey({ type: 'uuid' })
   id!: string;
 

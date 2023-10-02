@@ -2,7 +2,7 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { SprintResponseDto } from '../../dto';
-import { Sprint } from '../../entities/sprint.entity';
+import { Sprint } from '../../entities';
 import { GetSprintQuery } from '../impl';
 
 @QueryHandler(GetSprintQuery)

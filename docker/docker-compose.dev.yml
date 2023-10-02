@@ -46,6 +46,8 @@ services:
       - KC_HOSTNAME=localhost
     command: start-dev --import-realm
     restart: unless-stopped
+    depends_on:
+      - mailhog
 
   workspace-svc:
     build:
@@ -136,6 +138,13 @@ services:
     env_file: ../.env.dev
     command: nest start:dev report-svc
     restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    networks: [ apps ]
+    ports: [ 1025, 8025 ]
+    logging:
+      driver: 'none'
 
   sso-proxy:
     env_file: ../.env.dev

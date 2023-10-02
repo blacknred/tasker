@@ -1,9 +1,17 @@
-import {
-  PaginatedResponseDto,
-  ResponseDto,
-} from 'src/__shared__/dto/response.dto';
-import { ITask } from '../interfaces/task.interface';
+import { ApiProperty } from '@nestjs/swagger';
+import { IIssue, PaginatedResponseDto, issueMock } from '@taskapp/shared';
 
-export class TaskResponseDto extends ResponseDto<ITask> {}
+export const issuePaginationMock = {
+  items: [issueMock],
+  hasMore: true,
+  total: 10,
+};
 
-export class TasksResponseDto extends PaginatedResponseDto<ITask> {}
+export class IssuesResponseDto extends PaginatedResponseDto<IIssue> {
+  @ApiProperty({ example: issuePaginationMock, required: false })
+  readonly data?: {
+    hasMore: boolean;
+    total: number;
+    items: IIssue[];
+  };
+}

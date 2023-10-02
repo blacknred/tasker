@@ -1,17 +1,25 @@
 import * as Joi from '@hapi/joi';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from '@taskapp/core';
 import {
   EventStoreCqrsModule,
   EventStoreSubscriptionType,
 } from '@taskapp/eventstore';
-import { IssueCreatedEvent, IssueDeletedEvent, IssueUpdatedEvent, SprintCreatedEvent, SprintDeletedEvent, SprintUpdatedEvent, getEventStoreOptions, getOrmOptions } from '@taskapp/shared';
-import { NOTIFICATION_SERVICE } from './issues/consts';
+import {
+  IssueCreatedEvent,
+  IssueDeletedEvent,
+  IssueUpdatedEvent,
+  SprintCreatedEvent,
+  SprintDeletedEvent,
+  SprintUpdatedEvent,
+  getEventStoreOptions,
+  getOrmOptions,
+} from '@taskapp/shared';
 import { IssuesModule } from './issues/issues.module';
 import { SprintsModule } from './sprints/sprints.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -48,8 +56,7 @@ import { SprintsModule } from './sprints/sprints.module';
     CoreModule,
     IssuesModule,
     SprintsModule,
-    CommentsModule,
-    EventsModule
+    EventsModule,
   ],
 })
 export class AppModule {}

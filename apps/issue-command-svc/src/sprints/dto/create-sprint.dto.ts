@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsUUID, Length } from 'class-validator';
+import { IsDateString, IsOptional, IsUUID, Length } from 'class-validator';
 
 export class CreateSprintDto {
   @ApiProperty({
@@ -10,8 +10,17 @@ export class CreateSprintDto {
   readonly projectId: string;
 
   @ApiProperty({ type: 'string', example: 'SP-sprint:1' })
-  @Length(5, 30, { message: 'Must have from 5 to 30 chars' })
+  @Length(1, 30, { message: 'Must have from 1 to 30 chars' })
   readonly name: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: 'Very important subject',
+    required: false,
+  })
+  @IsOptional()
+  @Length(1, 1000, { message: 'Must have from 1 to 1000 chars' })
+  readonly details?: string;
 
   @ApiProperty({
     type: 'date',

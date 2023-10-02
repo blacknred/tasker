@@ -109,13 +109,14 @@ services:
     networks: [ apps ]
     ports: [ 8000:8080, 8443 ]
     volumes:
-      - ./keycloak:/opt/keycloak/data/import
+      - ./keycloak/realms:/opt/keycloak/data/import
+      - ./keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
     environment:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
-      - KC_METRICS_ENABLED=true # https://localhost:8443/metrics
-      - KC_HEALTH_ENABLED=true # https://localhost:8443/health
+      - KC_METRICS_ENABLED=true # https://localhost:8000/metrics
+      - KC_HEALTH_ENABLED=true # https://localhost:8000/health
       - KC_DB=postgres
       - KC_DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/workspace
       - KC_DB_USERNAME=${POSTGRES_USER:-test}

@@ -1,4 +1,5 @@
 import type { IBase, ID } from './base.interface';
+import { IUserPreview } from './user.interface';
 
 export interface ISprint extends IBase {
   projectId: ID;
@@ -6,9 +7,7 @@ export interface ISprint extends IBase {
   details?: string;
   startsAt: string | Date;
   endsAt: string | Date;
-  authorId: ID;
+  author: IUserPreview;
 }
 
-export type IHydratedSprint = ISprint;
-
-export type IHydratedSprintPreview = Pick<ISprint, 'id' | 'name'>;
+export type ISprintPreview = Pick<ISprint, 'id' | 'name'>;

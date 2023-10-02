@@ -1,0 +1,29 @@
+  version: "3.8"
+
+  networks:
+    apps:
+      name: main
+
+  services:
+    mailhog:
+      image: mailhog/mailhog
+      networks: [ apps ]
+      ports: [ 1025, 8025 ]
+      logging:
+        driver: 'none'  # disable saving logs
+
+    keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      networks: [ apps ]
+      ports: [ 8000:8080, 8443 ]
+      volumes:
+        - ./keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
+      environment:
+        - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
+        - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
+        - KC_HOSTNAME=localhost
+        - KC_HOSTNAME_PORT=8000
+      command: start-dev --import-realm
+      depends_on:
+        - mailhog
+        

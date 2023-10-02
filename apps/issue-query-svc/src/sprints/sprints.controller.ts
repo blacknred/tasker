@@ -24,7 +24,7 @@ export class SprintsController {
   }
 
   @Get(':id')
-  @ApiOperation({ description: 'Get project by id' })
+  @ApiOperation({ description: 'Get sprint by id' })
   @ApiOkResponse({ type: SprintsResponseDto })
   async getOne(@Param() { id }: GetSprintDto): Promise<SprintResponseDto> {
     return this.queryBus.execute(new GetSprintQuery(id));

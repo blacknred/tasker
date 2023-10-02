@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedResponseDto } from '@taskapp/shared';
+import { PaginatedResponseDto, sprintMock } from '@taskapp/shared';
 import { ISprint } from '@taskapp/shared';
-import { sprintMock } from './sprint-response.dto';
 
 export const sprintPaginationMock = {
   items: [sprintMock],

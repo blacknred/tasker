@@ -2,8 +2,8 @@ import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { SprintsResponseDto } from '../../dto';
-import { Sprint } from '../../entities/sprint.entity';
-import { GetSprintsQuery } from '../impl/get-sprints.query';
+import { Sprint } from '../../entities';
+import { GetSprintsQuery } from '../impl';
 
 @QueryHandler(GetSprintsQuery)
 export class GetSprintsHandler implements IQueryHandler<GetSprintsQuery> {

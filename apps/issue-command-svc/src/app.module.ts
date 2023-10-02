@@ -11,6 +11,8 @@ import {
   getSearchClientOptions,
 } from '@taskapp/shared';
 import { AmqpModule } from 'nestjs-amqp';
+import { IssuesModule } from './issues/issues.module';
+import { SprintsModule } from './sprints/sprints.module';
 
 @Module({
   imports: [

@@ -1,11 +1,10 @@
-import { ProjectPermission } from '../enums';
-import type { IBase, ID } from './base.interface';
+import { WorkspacePolicy } from '../enums';
+import { ID } from './base.interface';
 
-export interface IRole extends IBase {
-  projectId: ID;
+export interface IRole {
+  workspaceId: ID;
   name: string;
+  details?: string;
   color?: string;
-  permissions: ProjectPermission[];
+  policies: WorkspacePolicy[];
 }
-
-export type IHydratedRole = IRole;

@@ -25,7 +25,6 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
     example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
     required: true,
   })
-  @IsOptional()
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly projectId: string;
 

@@ -1,9 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import {
+  ID,
   ISprint,
-  ProjectCreatedEvent,
-  ProjectDeletedEvent,
-  ProjectUpdatedEvent,
   SprintCreatedEvent,
   SprintDeletedEvent,
   SprintUpdatedEvent,
@@ -31,23 +29,16 @@ export class SprintAggregate extends AggregateRoot implements ISprint {
     Object.assign(this, data);
   }
 
-  create() {
-    this.apply(new SprintCreatedEvent(this));
+  create(userId: ID) {
+    this.apply(new SprintCreatedEvent(this, userId));
   }
 
-  update() {
-    this.apply(new SprintUpdatedEvent(this, ));
+  update(userId: ID) {
+    this.apply(new SprintUpdatedEvent(this, userId));
   }
 
-  delete() {
-    this.loadFromHistory([])
-    this.apply(new SprintDeletedEvent(this.id));
+  delete(userId: ID) {
+    // this.loadFromHistory([]);
+    this.apply(new SprintDeletedEvent(this.id, this.projectId, userId));
   }
 }
-
-
-sprint(id)? => allowedProjects.includes(.project_id) ? OK : 403 : 409
-allowedProjects.includes(project_id) ? sprint(id) ? project_id==project_id ? OK : 403 : 409 : 403
-
-exist?
-project_id ACCESS & PERMISSION

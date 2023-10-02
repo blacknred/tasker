@@ -7,7 +7,4 @@ export interface ISearchEntry {
   userId?: string;
   type: SearchEntryType;
   text: string;
-  isActive: boolean;
 }
-
-export type IHydratedSearchEntry = ISearchEntry;

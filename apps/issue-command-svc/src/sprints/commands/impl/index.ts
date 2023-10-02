@@ -1,3 +1,3 @@
-export * from './create-project.command';
-export * from './delete-project.command';
-export * from './update-project.command';
+export * from './create-sprint.command';
+export * from './delete-sprint.command';
+export * from './update-sprint.command';

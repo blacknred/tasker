@@ -1,9 +1,9 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { SprintDeletedEvent } from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
-import { Sprint } from '../../entities/sprint.entity';
+import { Sprint } from '../../entities';
 
 @EventsHandler(SprintDeletedEvent)
 export class SprintDeletedHandler implements IEventHandler<SprintDeletedEvent> {
@@ -17,8 +17,7 @@ export class SprintDeletedHandler implements IEventHandler<SprintDeletedEvent> {
   async handle({ id }: SprintDeletedEvent) {
     try {
       const project = await this.sprintRepository.findOneOrFail(id);
-      // project.deletedAt = undefined;
-      await this.sprintRepository.flush();
+      await this.sprintRepository.getEntityManager().removeAndFlush(project);
     } catch (e) {
       this.logger.error(e);
     }

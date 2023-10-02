@@ -1,3 +1,3 @@
-export * from './create-project.handler';
-export * from './delete-project.handler';
-export * from './update-project.handler';
+export * from './create-sprint.handler';
+export * from './delete-sprint.handler';
+export * from './update-sprint.handler';

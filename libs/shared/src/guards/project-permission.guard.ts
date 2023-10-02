@@ -10,7 +10,7 @@ import { PERMISSION_KEY } from '../consts';
 import { ProjectRoleGuard } from './project-role.guard';
 
 @Injectable()
-export class ProjectPermissionGuard extends ProjectRoleGuard {
+export class PermissionGuard extends ProjectRoleGuard {
   constructor(private readonly reflector: Reflector) {
     super();
   }

@@ -41,7 +41,7 @@ Sample b2b agile task management app
 ### Data
 
 - Redis
-- Postgres: database per service, for a real world scenario you definitely need an easily sharded nosql db for read DB
+- Postgres(db per service)
 - EvenStoreDB
 - RabbitMQ
 - Minio
@@ -53,7 +53,7 @@ Sample b2b agile task management app
 > Workspace concept is based on Keycloak realm. Every workspace(realm) has its own members(realm users), roles(realm roles), projects(realm groups), project_members(realm group users) issue_tags, issue_statusses, invitations, sessions and authentication flows.
 
 - The service is a Keycloak Admin REST API adapter that ensures domain compatibility with the system and provides REST API simplicity for web clients. The fact that the service internally calls the Keycloak admin REST API is acceptable since crud operations in the workspace are a relatively rare case.
-- When a user creates a new workspace, the service will create a new realm with users(owner, system, sso-proxy), basic roles(product_owner, scrum_master, owner), and SSO client(system, sso-proxy). In the current version without multi-tenancy, system(administrator) implements operations in all workspaces(realms) since it has access to them as a realm user & client.
+- When a user creates a new workspace, the service will create a new realm with users(owner, system, sso-proxy), basic roles(owner, admin, product_owner, scrum_master, worker), and SSO clients(system, sso-proxy). In the current version without multi-tenancy, system(administrator) implements operations in all workspaces(realms) since it has access to them as a realm user & client.
 - A member can update their attributes such as avatar and search filters.
 - The service sends notifications associated with the workspace and updates the corresponding search entries.
 - Keycloak uses an external database (PG), which means the system has access to workspace data.
@@ -63,10 +63,14 @@ Sample b2b agile task management app
 
 > Issue related operations: issue(+comments, +votes, +subscriptions), sprints, events
 
-- The service is split to command/query applications and implements CQRS/ES with EventStoreDB/PG. There are several reasons for this:
+- The service is split to command/query applications and implements CQRS/ES with EventStoreDB as a write db and Pg as a read db. There are several reasons for this:
   - the service serves mainly non-atomic read/write operations(issue updates) in large quantities
-  - every issue has an update history(issue-1), which can be observed on the issue page
-  - every project has a timeline that aggregates($bc-projectId) all the events of the project/sprint and can be observed on the dashboard page
+  - every issue has an change history($issue-1), which can be observed on the issue page
+  - every sprint has an change history($sprint-1)
+  - every project has a timeline that aggregates($bc-projectId) all the events of the project's issue/sprint and can be observed on the dashboard page
+- Each command associated with an issue (CreateComment, CreateVote, etc.) creates an IssueUpdated event, which is stored in the EventStoreDb and is used to project these partial updates to the issue state into the Pg.
+- Pg is more like a write optimized database, for a real world scenario as a read database you will definitely need an easily sharded nosql database.
+- The service also stores user realm data, which is part of the Workspace service. Instead of implementing eventual consistency through a saga, the Issue service uses a kind of "lazy consistency" - there is a trigger that updates the user data table every time a request includes some user data (user_id + rest), such as assignee update, vote/subscription management, etc. Thus, for example, user data in tasks/sprints will be updated when the user himself or someone else reassigns a task to him.
 
 #### Fanout
 
@@ -105,17 +109,18 @@ Sample b2b agile task management app
 
 ## Features
 
-- **Project**
+- **Workspace**
 
-  - Can be created by anyone in any number.
-  - Can be a canban or scrum.
+  - Workspace can be created by anyone but needs email confirmation.
+
+  - Project can be cretaed by admin and can be a canban or scrum.
   - Has user roles with privileges. Default roles are Product Owner(PO), Worker(W) and Scrum Master(SM). The last is only for scrum projects. Alike others a PO can be the only one and project author has a PO role by default. A PO also is the only role that has the _project_deletion_ privilege. Default roles cannot be changed but can be extended e.g. admin or specified worker like qa, dev etc.
-  - Users can be added to project with an email address directly or via invitation link. To have more than 5 users the project needs to be switched to paid plan. Invoices monthly charge the PO.
+  - Users can be added to workspace with an email address directly or via invitation link.
   - Has a three issue types: epic, story, task.
   - Has a workflow with an issue status model. Defaults statuses are todo, in_progress and done. A workflow can be changed anytime with new statuses e.g. requirements, design, development, review, unit testing, integration testing, bug fixes, deployment etc.
   - Has an issue priorities set. Default priorities are low, medium and high. Issue priorities can changed anytime: routine, urgent etc.
   - Has an issue tags set which is empty by default. Issue tags can be used for example for tagging task issue type: bug, idea etc.
-  - Has a boards set. Default board is the "main" board with only one col with product/sprint backlog. The main board can be extended with workflow statuses as well as new boards added to project e.g. testing board, designers board etc.
+  <!-- - Has a boards set. Default board is the "main" board with only one col with product/sprint backlog. The main board can be extended with workflow statuses as well as new boards added to project e.g. testing board, designers board etc. -->
 
 - **Work**
 
@@ -138,13 +143,15 @@ Sample b2b agile task management app
 
 ## Todo
 
+- mvp
 - k8s
-- switch microservices to grpc & rewrite gateway in golang to implement http->grpc and use sso without proxy client
+- switch microservices to grpc
+- rewrite gateway in golang to implement http->grpc and use sso without proxy client
 - billing(+stripe)
-- multi-tenancy?: workspace-svc, issue-*-svc and related storages
+- multi-tenancy?
 - automation?
 - shared boards?
-- billing? - invoice for workspaces with 5+ members
+- billing? - to have more than 5 users the workspace needs to be switched to paid plan
 
 ## Run the project
 
