@@ -17,12 +17,10 @@ export class DeleteVoteHandler implements ICommandHandler<DeleteVoteCommand> {
     private readonly logger: PinoLogger,
   ) {}
 
-  async execute({ id, userId }: DeleteVoteCommand) {
+  async execute({ issueId, userId }: DeleteVoteCommand) {
     // TODO: db validation 409
-
-    const issue = this.publisher.mergeObjectContext(new IssueAggregate({ id }));
-
-    issue.deleteVote(userId);
-    issue.commit();
+    // const issue = this.publisher.mergeObjectContext(new IssueAggregate({ id }));
+    // issue.deleteVote(userId);
+    // issue.commit();
   }
 }

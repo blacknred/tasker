@@ -1,14 +1,13 @@
 import {
   ArrayType,
   Entity,
-  Index,
   ManyToOne,
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
 import { IIssueComment } from '@taskapp/shared';
 import { v4 } from 'uuid';
-import { User } from './user.entity';
+import { User } from '../../users/entities';
 
 @Entity({ tableName: 'issue_comment' })
 export class Comment implements IIssueComment {
@@ -24,7 +23,6 @@ export class Comment implements IIssueComment {
   @Property({ type: ArrayType, default: [] })
   assets: string[] = [];
 
-  @Index({ name: `comment_created_at_idx` })
   @Property()
   createdAt: Date = new Date();
 

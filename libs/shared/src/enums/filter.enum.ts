@@ -1,3 +1,3 @@
-export enum FilterSchemaField {
+export enum FilterUrlField {
   ASSIGNEE_ID = 'assigneeId',
 }

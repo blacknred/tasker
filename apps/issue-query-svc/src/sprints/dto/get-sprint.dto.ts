@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { sprintMock } from '@taskapp/shared';
 import { IsUUID } from 'class-validator';
 
 export class GetSprintDto {
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: sprintMock.id,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly id: string;

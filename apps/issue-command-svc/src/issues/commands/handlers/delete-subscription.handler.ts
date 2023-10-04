@@ -15,12 +15,10 @@ export class DeleteSubscriptionHandler
     private readonly logger: PinoLogger,
   ) {}
 
-  async execute({ id, userId }: DeleteSubscriptionCommand) {
+  async execute({ issueId, userId }: DeleteSubscriptionCommand) {
     // TODO: db validation 409
-
-    const issue = this.publisher.mergeObjectContext(new IssueAggregate({ id }));
-
-    issue.deleteSubscription(userId);
-    issue.commit();
+    // const issue = this.publisher.mergeObjectContext(new IssueAggregate({ id }));
+    // issue.deleteSubscription(userId);
+    // issue.commit();
   }
 }

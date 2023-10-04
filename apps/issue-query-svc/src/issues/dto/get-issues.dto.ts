@@ -1,6 +1,11 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IssuePriority, IssueType, PaginatedRequestDto } from '@taskapp/shared';
+import {
+  IssuePriority,
+  IssueType,
+  PaginatedRequestDto,
+  issueMock,
+} from '@taskapp/shared';
 import {
   IsDateString,
   IsEnum,
@@ -48,24 +53,24 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.projectId,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly projectId: string;
 
-  @ApiProperty({ type: 'string', example: 'MSP:1', required: false })
+  @ApiProperty({ type: 'string', example: issueMock.name, required: false })
   @IsOptional()
   @Length(0, 100, { message: 'Must have up to 100 chars' })
   readonly name?: string;
 
-  @ApiProperty({ type: 'string', example: 'My first issue', required: false })
+  @ApiProperty({ type: 'string', example: issueMock.title, required: false })
   @IsOptional()
   @Length(0, 100, { message: 'Must have up to 100 chars' })
   readonly title?: string;
 
   @ApiProperty({
     enum: IssueType,
-    example: IssueType.TASK,
+    example: issueMock.type,
     required: false,
   })
   @IsOptional()
@@ -78,7 +83,7 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     enum: IssuePriority,
-    example: IssuePriority.MEDIUM,
+    example: issueMock.priority,
     required: false,
   })
   @IsOptional()
@@ -89,19 +94,27 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
   })
   readonly priority?: IssuePriority;
 
-  @ApiProperty({ type: 'string', example: 'todo', required: false })
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.status.name,
+    required: false,
+  })
   @IsOptional()
   @IsString()
   readonly status?: string;
 
-  @ApiProperty({ type: 'string', example: 'design', required: false })
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.tags[0].name,
+    required: false,
+  })
   @IsOptional()
   @IsString()
   readonly tag?: string;
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.epic.id,
     required: false,
   })
   @IsOptional()
@@ -110,7 +123,7 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.sprint.id,
     required: false,
   })
   @IsOptional()
@@ -119,7 +132,7 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.author.id,
     required: false,
   })
   @IsOptional()
@@ -128,7 +141,7 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: issueMock.endsAt,
     required: false,
   })
   @IsOptional()
@@ -137,7 +150,7 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: issueMock.createdAt,
     required: false,
   })
   @IsOptional()

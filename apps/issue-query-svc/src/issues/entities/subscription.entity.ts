@@ -1,7 +1,7 @@
 import { Entity, ManyToOne } from '@mikro-orm/core';
 import { IIssueSubscription } from '@taskapp/shared';
 import { Issue } from './issue.entity';
-import { User } from './user.entity';
+import { User } from '../../users/entities';
 
 @Entity({ tableName: 'issue_subscription' })
 export class Subscription implements IIssueSubscription {

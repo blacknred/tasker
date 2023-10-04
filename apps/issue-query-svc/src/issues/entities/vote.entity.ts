@@ -1,7 +1,7 @@
 import { Entity, ManyToOne } from '@mikro-orm/core';
 import { IIssueVote } from '@taskapp/shared';
-import { User } from './user.entity';
 import { Issue } from './issue.entity';
+import { User } from '../../users/entities';
 
 @Entity({ tableName: 'issue_vote' })
 export class Vote implements IIssueVote {

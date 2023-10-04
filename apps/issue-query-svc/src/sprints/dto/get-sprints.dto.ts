@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedRequestDto } from '@taskapp/shared';
+import { PaginatedRequestDto, sprintMock } from '@taskapp/shared';
 import {
   IsDateString,
   IsIn,
@@ -22,20 +22,20 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: sprintMock.projectId,
     required: true,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly projectId: string;
 
-  @ApiProperty({ type: 'string', example: 'SP-sprint:1', required: false })
+  @ApiProperty({ type: 'string', example: sprintMock.name, required: false })
   @IsOptional()
   @Length(0, 100, { message: 'Must have up to 100 chars' })
   readonly name?: string;
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: sprintMock.startsAt,
     required: false,
   })
   @IsOptional()
@@ -44,7 +44,7 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: sprintMock.endsAt,
     required: false,
   })
   @IsOptional()
@@ -53,7 +53,7 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: sprintMock.createdAt,
     required: false,
   })
   @IsOptional()

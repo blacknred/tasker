@@ -1,7 +1,7 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { Issue, User } from './entities';
+import { Issue } from './entities';
 import {
   IssueCreatedHandler,
   IssueDeletedHandler,
@@ -11,7 +11,7 @@ import { IssuesController } from './issues.controller';
 import { GetIssueHandler, GetIssuesHandler } from './queries';
 
 @Module({
-  imports: [ConfigModule, MikroOrmModule.forFeature([Issue, User])],
+  imports: [ConfigModule, MikroOrmModule.forFeature([Issue])],
   controllers: [IssuesController],
   providers: [
     GetIssueHandler,

@@ -13,3 +13,5 @@ export interface IProject extends IBase {
   statusses: IIssueStatus[];
   tags: IIssueTag[];
 }
+
+export type IProjectPreview = Pick<IProject, 'id' | 'name' | 'image'>;

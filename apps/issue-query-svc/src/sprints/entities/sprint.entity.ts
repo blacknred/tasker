@@ -7,7 +7,7 @@ import {
 } from '@mikro-orm/core';
 import { ISprint } from '@taskapp/shared';
 import { v4 } from 'uuid';
-import { User } from '../../issues/entities';
+import { User } from '../../users/entities';
 
 @Entity({ tableName: 'sprint' })
 export class Sprint implements ISprint {

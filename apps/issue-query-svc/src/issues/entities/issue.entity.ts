@@ -20,7 +20,7 @@ import {
 } from '@taskapp/shared';
 import { v4 } from 'uuid';
 import { Sprint } from '../../sprints/entities/sprint.entity';
-import { User } from './user.entity';
+import { User } from '../../users/entities';
 
 @Entity({ tableName: 'issue_relation' })
 export class Relation implements IIssueRelation {
@@ -57,9 +57,6 @@ export class Issue implements IIssue {
   @Property({ length: 500, check: 'length(title) >= 5' })
   title!: string;
 
-  @Property({ lazy: true, nullable: true })
-  details?: string;
-
   @Enum({
     items: () => IssuePriority,
     default: IssuePriority.MEDIUM,
@@ -67,20 +64,8 @@ export class Issue implements IIssue {
   })
   priority?: IssuePriority = IssuePriority.MEDIUM;
 
-  @Property({ lazy: true, type: ArrayType, default: [] })
-  assets: string[] = [];
-
-  @Property({ nullable: true, type: 'smallint' })
-  version?: number;
-
-  @Property({ lazy: true, nullable: true, type: 'smallint' })
-  weight?: number;
-
   @Property({ nullable: true, check: 'endsAt > current_date' })
   endsAt?: Date;
-
-  @Property({ lazy: true })
-  endedAt: Date;
 
   @Property({ type: 'json', nullable: true })
   status!: IIssueStatus;
@@ -88,8 +73,28 @@ export class Issue implements IIssue {
   @Property({ type: 'json', default: [] })
   tags!: IIssueTag[];
 
+  @Property({ lazy: true, nullable: true })
+  details?: string;
+
+  @Property({
+    lazy: true,
+    type: ArrayType,
+    default: [],
+    check: 'image ~ "^(https?://.*.(?:png|gif|webp|jpeg|jpg))$"',
+  })
+  assets: string[] = [];
+
+  @Property({ lazy: true, nullable: true, type: 'smallint' })
+  version?: number;
+
+  @Property({ lazy: true, nullable: true, type: 'smallint' })
+  weight?: number;
+
+  @Property({ lazy: true })
+  endedAt: Date;
+
   @Index({ name: `issue_created_at_idx` })
-  @Property()
+  @Property({ lazy: true })
   createdAt: Date = new Date();
 
   @Property({ onUpdate: () => new Date(), lazy: true })

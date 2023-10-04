@@ -16,16 +16,14 @@ export class CreateSubscriptionHandler
     private readonly logger: PinoLogger,
   ) {}
 
-  async execute({ dto }: CreateSubscriptionCommand) {
+  async execute({ issueId, userId }: CreateSubscriptionCommand) {
     // TODO: db validation 409
-
-    const issue = this.publisher.mergeObjectContext<any>(
-      new IssueAggregate({
-        ...dto,
-      }),
-    );
-
-    issue.createSubscription();
-    issue.commit();
+    // const issue = this.publisher.mergeObjectContext<any>(
+    //   new IssueAggregate({
+    //     ...dto,
+    //   }),
+    // );
+    // issue.createSubscription();
+    // issue.commit();
   }
 }

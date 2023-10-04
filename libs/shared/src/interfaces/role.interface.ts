@@ -1,10 +1,11 @@
 import { WorkspacePolicy } from '../enums';
-import { ID } from './base.interface';
+import { IBase, ID } from './base.interface';
 
-export interface IRole {
+export interface IRole extends IBase {
   workspaceId: ID;
   name: string;
   details?: string;
   color?: string;
+  rank: number;
   policies: WorkspacePolicy[];
 }

@@ -1,21 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { sprintMock } from '@taskapp/shared';
 import { IsDateString, IsOptional, IsUUID, Length } from 'class-validator';
 
 export class CreateSprintDto {
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: sprintMock.id,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly projectId: string;
 
-  @ApiProperty({ type: 'string', example: 'SP-sprint:1' })
+  @ApiProperty({ type: 'string', example: sprintMock.name })
   @Length(1, 30, { message: 'Must have from 1 to 30 chars' })
   readonly name: string;
 
   @ApiProperty({
     type: 'string',
-    example: 'Very important subject',
+    example: sprintMock.details,
     required: false,
   })
   @IsOptional()
@@ -24,14 +25,14 @@ export class CreateSprintDto {
 
   @ApiProperty({
     type: 'date',
-    example: '2022-08-14 13:55:16.622111',
+    example: sprintMock.startsAt,
   })
   @IsDateString(null, { message: 'Must be a date string' })
   readonly startsAt: string;
 
   @ApiProperty({
     type: 'date',
-    example: '2022-08-14 13:55:16.622111',
+    example: sprintMock.endsAt,
   })
   @IsDateString(null, { message: 'Must be a date string' })
   readonly endsAt: string;

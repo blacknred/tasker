@@ -17,9 +17,9 @@ import {
   getEventStoreOptions,
   getOrmOptions,
 } from '@taskapp/shared';
+import { EventsModule } from './events/events.module';
 import { IssuesModule } from './issues/issues.module';
 import { SprintsModule } from './sprints/sprints.module';
-import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [

@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OffsetPaginationDto } from '@taskapp/shared';
+import { OffsetPaginationDto, issueSubscriptionMock } from '@taskapp/shared';
 import { IsOptional, IsUUID, ValidateIf } from 'class-validator';
 
 export class GetSubscriptionsDto extends OffsetPaginationDto {
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueSubscriptionMock.issue.id,
     required: false,
   })
   @ValidateIf((dto: GetSubscriptionsDto) => !!dto.issueId)
@@ -14,7 +14,7 @@ export class GetSubscriptionsDto extends OffsetPaginationDto {
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueSubscriptionMock.user.id,
     required: false,
   })
   @ValidateIf((dto: GetSubscriptionsDto) => !!dto.authorId)

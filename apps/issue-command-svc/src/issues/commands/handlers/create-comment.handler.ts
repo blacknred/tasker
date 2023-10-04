@@ -22,14 +22,12 @@ export class CreateCommentHandler
 
   async execute({ dto }: CreateCommentCommand) {
     // TODO: db validation 409
-
-    const issue = this.publisher.mergeObjectContext<any>(
-      new IssueAggregate({
-        ...dto,
-      }),
-    );
-
-    issue.createComment();
-    issue.commit();
+    // const issue = this.publisher.mergeObjectContext<any>(
+    //   new IssueAggregate({
+    //     ...dto,
+    //   }),
+    // );
+    // issue.createComment();
+    // issue.commit();
   }
 }

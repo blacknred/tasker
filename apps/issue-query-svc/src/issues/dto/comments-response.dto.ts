@@ -3,16 +3,11 @@ import {
   IIssueComment,
   PaginatedResponseDto,
   issueCommentMock,
+  paginationMock,
 } from '@taskapp/shared';
 
-export const issueCommentsPaginationMock = {
-  items: [issueCommentMock],
-  hasMore: true,
-  total: 10,
-};
-
 export class CommentsResponseDto extends PaginatedResponseDto<IIssueComment> {
-  @ApiProperty({ example: issueCommentsPaginationMock, required: false })
+  @ApiProperty({ example: paginationMock(issueCommentMock), required: false })
   readonly data?: {
     hasMore: boolean;
     total: number;

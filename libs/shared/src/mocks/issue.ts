@@ -6,7 +6,7 @@ import {
   IIssueVote,
 } from '../interfaces';
 import { sprintMock } from './sprint';
-import { userMock } from './user';
+import { userPreviewMock } from './user';
 
 export const issueTagMock = {
   name: 'design',
@@ -25,7 +25,7 @@ export const issueMock: IIssue = (() => ({
   id: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
   type: IssueType.TASK,
   projectId: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
-  author: userMock,
+  author: userPreviewMock,
   name: 'msp-1',
   title: 'My first issue',
   details: 'Very important subject',
@@ -38,7 +38,7 @@ export const issueMock: IIssue = (() => ({
   subscriptionsCount: 5,
   tags: [issueTagMock],
   sprint: sprintMock,
-  assignee: userMock,
+  assignee: userPreviewMock,
   status: issueStatusMock,
   epic: this,
   relations: [
@@ -57,15 +57,15 @@ export const issueCommentMock: IIssueComment = {
   issueId: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
   body: 'first comment',
   assets: [],
-  author: userMock,
+  author: userPreviewMock,
   createdAt: '2022-08-14 13:55:16.622111',
   updatedAt: '2022-08-14 13:55:16.622111',
 };
 
 export const issueVoteMock: IIssueVote = {
-  user: userMock,
+  user: userPreviewMock,
 };
 
 export const issueSubscriptionMock: IIssueSubscription = {
-  user: userMock,
+  user: userPreviewMock,
 };

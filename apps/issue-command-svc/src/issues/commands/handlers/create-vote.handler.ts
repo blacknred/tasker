@@ -18,16 +18,14 @@ export class CreateVoteHandler implements ICommandHandler<CreateVoteCommand> {
     private readonly logger: PinoLogger,
   ) {}
 
-  async execute({ dto }: CreateVoteCommand) {
+  async execute({ issueId, userId }: CreateVoteCommand) {
     // TODO: db validation 409
-
-    const issue = this.publisher.mergeObjectContext<any>(
-      new IssueAggregate({
-        ...dto,
-      }),
-    );
-
-    issue.createVote();
-    issue.commit();
+    // const issue = this.publisher.mergeObjectContext<any>(
+    //   new IssueAggregate({
+    //     ...dto,
+    //   }),
+    // );
+    // issue.createVote();
+    // issue.commit();
   }
 }

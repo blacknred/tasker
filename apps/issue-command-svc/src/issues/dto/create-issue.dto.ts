@@ -4,8 +4,6 @@ import {
   IssueRelation,
   IssueType,
   issueMock,
-  issueStatusMock,
-  issueTagMock,
 } from '@taskapp/shared';
 import {
   IsArray,
@@ -23,37 +21,45 @@ import {
 } from 'class-validator';
 
 class Tag {
-  @ApiProperty({ type: 'string', example: 'design' })
+  @ApiProperty({ type: 'string', example: issueMock.tags[0].name })
   @MinLength(1, { message: 'Empty name' })
   readonly name: string;
 
-  @ApiProperty({ type: 'string', example: '#453355', required: false })
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.tags[0].color,
+    required: false,
+  })
   @IsOptional()
   @IsHexColor()
   readonly color?: string;
 }
 
 class Status {
-  @ApiProperty({ type: 'string', example: 'todo' })
+  @ApiProperty({ type: 'string', example: issueMock.status.name })
   @MinLength(1, { message: 'Empty name' })
   readonly name: string;
 
-  @ApiProperty({ type: 'string', example: '#453355', required: false })
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.status.color,
+    required: false,
+  })
   @IsOptional()
   @IsHexColor()
   readonly color?: string;
 
-  @ApiProperty({ type: 'boolean', example: true })
+  @ApiProperty({ type: 'boolean', example: issueMock.status.isFirst })
   @IsBoolean()
   readonly isFirst: boolean;
 
-  @ApiProperty({ type: 'boolean', example: false })
+  @ApiProperty({ type: 'boolean', example: issueMock.status.isLast })
   @IsBoolean()
   readonly isLast: boolean;
 
   @ApiProperty({
     type: 'string',
-    example: 'in_process',
+    example: issueMock.status.transitions,
     isArray: true,
   })
   @IsArray({ message: 'Must be an array' })
@@ -64,14 +70,14 @@ class Status {
 class Relation {
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.relations[0].issueId,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly issueId: string;
 
   @ApiProperty({
     enum: IssueRelation,
-    example: IssueRelation.RELATE,
+    example: issueMock.relations[0].relation,
   })
   @IsEnum(IssueType, {
     message: `Must be a one of the fields: ${Object.keys(IssueRelation).join(
@@ -84,14 +90,14 @@ class Relation {
 export class CreateIssueDto {
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.projectId,
   })
   @IsUUID(4, { message: 'Must be an uuid' })
   readonly projectId: string;
 
   @ApiProperty({
     enum: IssueType,
-    example: IssueType.TASK,
+    example: issueMock.type,
   })
   @IsEnum(IssueType, {
     message: `Must be a one of the fields: ${Object.keys(IssueType).join(
@@ -100,17 +106,17 @@ export class CreateIssueDto {
   })
   readonly type: IssueType;
 
-  @ApiProperty({ type: 'string', example: 'MSP:1' })
+  @ApiProperty({ type: 'string', example: issueMock.name })
   @Length(1, 10, { message: 'Must have from 1 to 10 chars' })
   readonly name: string;
 
-  @ApiProperty({ type: 'string', example: 'My first issue' })
+  @ApiProperty({ type: 'string', example: issueMock.title })
   @Length(1, 100, { message: 'Must have from 1 to 100 chars' })
   readonly title: string;
 
   @ApiProperty({
     type: 'string',
-    example: 'Very important subject',
+    example: issueMock.details,
     required: false,
   })
   @IsOptional()
@@ -119,7 +125,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     enum: IssuePriority,
-    example: IssuePriority.MEDIUM,
+    example: issueMock.priority,
     required: false,
   })
   @IsOptional()
@@ -132,26 +138,26 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'string',
-    example: '2022-08-14 13:55:16.622111',
+    example: issueMock.endsAt,
     required: false,
   })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
   readonly endsAt?: string;
 
-  @ApiProperty({ type: 'number', example: 5, required: false })
+  @ApiProperty({ type: 'number', example: issueMock.weight, required: false })
   @IsOptional()
   @IsNumber()
   readonly weight?: number;
 
-  @ApiProperty({ type: 'number', example: 2, required: false })
+  @ApiProperty({ type: 'number', example: issueMock.version, required: false })
   @IsOptional()
   @IsNumber()
   readonly version?: number;
 
   @ApiProperty({
     type: 'string',
-    example: ['https://path-to-file.png'],
+    example: issueMock.assets,
     isArray: true,
     required: false,
   })
@@ -162,7 +168,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'string',
-    example: [issueTagMock],
+    example: issueMock.tags,
     required: false,
   })
   @IsOptional()
@@ -172,7 +178,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'string',
-    example: issueStatusMock,
+    example: issueMock.status,
   })
   @IsOptional()
   @ValidateNested()
@@ -180,7 +186,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.sprint.id,
     required: false,
   })
   @IsOptional()
@@ -189,7 +195,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.epic.id,
     required: false,
   })
   @IsOptional()
@@ -198,7 +204,7 @@ export class CreateIssueDto {
 
   @ApiProperty({
     type: 'uuid',
-    example: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
+    example: issueMock.assignee.id,
     required: false,
   })
   @IsOptional()

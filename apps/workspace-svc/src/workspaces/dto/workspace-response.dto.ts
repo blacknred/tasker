@@ -1,18 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IAuth, IWorkspace, Permission, ResponseDto } from '@taskapp/shared';
+import { IWorkspace, ResponseDto } from '@taskapp/shared';
+import { workspaceMock } from '@taskapp/shared/mocks/workspace';
 
-export const workspaceMock: IWorkspace = {
-  id: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
-  // needTfa: true,
-  // permissions: {
-  //   'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30': [
-  //     Permission.PROJECT_MANAGEMENT,
-  //     Permission.REPORT_ACCESS,
-  //   ],
-  // },
-};
-
-export class WorkspaceResponseDto extends ResponseDto<IAuth> {
+export class WorkspaceResponseDto extends ResponseDto<IWorkspace> {
   @ApiProperty({ example: workspaceMock })
   readonly data: IWorkspace;
 }

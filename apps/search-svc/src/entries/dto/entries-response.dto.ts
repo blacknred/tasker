@@ -1,16 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginatedResponseDto } from '@taskapp/shared';
-import { ISearchEntry } from '@taskapp/shared';
-import { entryMock } from './entry-response.dto';
-
-export const entryPaginationMock = {
-  items: [entryMock],
-  hasMore: true,
-  total: 10,
-};
+import {
+  ISearchEntry,
+  PaginatedResponseDto,
+  paginationMock,
+  searchEntryMock,
+} from '@taskapp/shared';
 
 export class EntriesResponseDto extends PaginatedResponseDto<ISearchEntry> {
-  @ApiProperty({ example: entryPaginationMock, required: false })
+  @ApiProperty({ example: paginationMock(searchEntryMock), required: false })
   readonly data?: {
     hasMore: boolean;
     total: number;

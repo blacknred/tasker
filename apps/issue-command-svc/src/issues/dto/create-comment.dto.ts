@@ -1,17 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsUUID, IsUrl, Length } from 'class-validator';
+import { issueCommentMock } from '@taskapp/shared';
+import { IsArray, IsOptional, IsUrl, Length } from 'class-validator';
 
 export class CreateCommentDto {
   @ApiProperty({
     type: 'string',
-    example: 'first сomment',
+    example: issueCommentMock.body,
   })
   @Length(1, 1000, { message: 'Must have from 1 to 1000 chars' })
   body: string;
 
   @ApiProperty({
     type: 'string',
-    example: ['https://path-to-file.png'],
+    example: issueCommentMock.assets,
     isArray: true,
   })
   @IsOptional()

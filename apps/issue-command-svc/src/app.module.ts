@@ -23,7 +23,6 @@ import { SprintsModule } from './sprints/sprints.module';
         API_VERSION: Joi.string().required(),
         EVENTSTORE_URL: Joi.string().required(),
         RABBITMQ_URL: Joi.string().required(),
-        REDIS_URL: Joi.string().required(),
       }),
     }),
     EventStoreCqrsModule.forRootAsync(getEventStoreOptions(), null),
