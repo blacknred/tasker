@@ -9,7 +9,7 @@ import {
   getSearchClientOptions,
 } from '@taskapp/shared';
 import * as Joi from 'joi';
-import { WorkspaceModule } from './workspaces/workspace.module';
+import { WorkspacesModule } from './workspaces/workspaces.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { WorkspaceModule } from './workspaces/workspace.module';
     ClientsModule.registerAsync([getNotificationClientOptions()]),
     ClientsModule.registerAsync([getSearchClientOptions()]),
     CoreModule,
-    WorkspaceModule,
+    WorkspacesModule,
   ],
 })
 export class AppModule {}

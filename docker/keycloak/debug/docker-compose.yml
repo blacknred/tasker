@@ -17,7 +17,7 @@
       networks: [ apps ]
       ports: [ 8000:8080, 8443 ]
       volumes:
-        - ./keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
+        - ../keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
       environment:
         - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
         - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}

@@ -10,3 +10,4 @@ export * from './response.interface';
 export * from './search.interface';
 export * from './sprint.interface';
 export * from './workspace.interface';
+export * from './auth.interface';

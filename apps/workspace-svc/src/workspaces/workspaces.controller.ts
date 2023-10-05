@@ -22,42 +22,56 @@ import {
 } from '@taskapp/shared';
 import {
   CreateProjectDto,
-  CreateRoleDto,
-  CreateUserDto,
-  CreateWorkspaceDto,
   DeleteProjectDto,
-  DeleteRoleDto,
-  DeleteUserDto,
   GetProjectDto,
-  GetRoleDto,
-  GetRolesDto,
-  GetUserDto,
-  GetUsersDto,
-  GetWorkspaceDto,
   ProjectResponseDto,
   ProjectsResponseDto,
+  UpdateProjectDto,
+} from '../projects/dto';
+import { ProjectsService } from '../projects/projects.service';
+import {
+  CreateRoleDto,
+  DeleteRoleDto,
+  GetRoleDto,
+  GetRolesDto,
   RoleResponseDto,
   RolesResponseDto,
-  UpdateProjectDto,
   UpdateRoleDto,
+} from '../roles/dto';
+import { RolesService } from '../roles/roles.service';
+import {
+  CreateUserDto,
+  DeleteUserDto,
+  GetUserDto,
+  GetUsersDto,
   UpdateUserDto,
   UserResponseDto,
   UsersResponseDto,
+} from '../users/dto';
+import { UsersService } from '../users/users.service';
+import {
+  CreateWorkspaceDto,
+  GetWorkspaceDto,
   WorkspaceResponseDto,
 } from './dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { WorkspaceService } from './workspace.service';
+import { WorkspacesService } from './workspaces.service';
 
-@ApiTags('Workspace')
-@Controller('workspace')
-export class WorkspaceController {
-  constructor(private readonly workspaceService: WorkspaceService) {}
+@ApiTags('Workspaces')
+@Controller('workspaces')
+export class WorkspacesController {
+  constructor(
+    private readonly workspacesService: WorkspacesService,
+    private readonly rolesService: RolesService,
+    private readonly usersService: UsersService,
+    private readonly projectsService: ProjectsService,
+  ) {}
 
   @Post()
   @ApiOperation({ description: 'Сreate wokspace' })
   @ApiCreatedResponse({ type: WorkspaceResponseDto })
   async create(@Body() dto: CreateWorkspaceDto): Promise<WorkspaceResponseDto> {
-    return this.workspaceService.create(dto);
+    return this.workspacesService.create(dto);
   }
 
   @Get(':id')
@@ -67,7 +81,7 @@ export class WorkspaceController {
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceService.findAll(id, userId);
+    return this.workspacesService.findOne(id, userId);
   }
 
   @Patch(':id')
@@ -78,7 +92,7 @@ export class WorkspaceController {
     @Auth('userId') userId,
     @Body() dto: UpdateWorkspaceDto,
   ): Promise<WorkspaceResponseDto> {
-    return this.workspaceService.update(dto, userId);
+    return this.workspacesService.update(dto, userId);
   }
 
   // roles
@@ -92,7 +106,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Body() dto: CreateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.workspaceService.createRole(id, dto, userId);
+    return this.rolesService.create(id, dto, userId);
   }
 
   @Get(':id/roles')
@@ -103,7 +117,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Query() dto: GetRolesDto,
   ): Promise<RolesResponseDto> {
-    return this.workspaceService.findAllRoles(id, dto, userId);
+    return this.rolesService.findAll(id, dto, userId);
   }
 
   @Get(':id/roles/:rid')
@@ -113,8 +127,8 @@ export class WorkspaceController {
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
     @Param() { rid }: GetRoleDto,
-  ): Promise<UserResponseDto> {
-    return this.workspaceService.findOneRole(id, rid, userId);
+  ): Promise<RoleResponseDto> {
+    return this.rolesService.findOne(id, rid, userId);
   }
 
   @Patch(':id/roles/:rid')
@@ -127,7 +141,7 @@ export class WorkspaceController {
     @Param() { rid }: GetRoleDto,
     @Body() dto: UpdateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.workspaceService.updateRole(id, rid, dto, userId);
+    return this.rolesService.update(id, rid, dto, userId);
   }
 
   @Delete(':id/roles/:rid')
@@ -139,7 +153,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Param() { rid }: DeleteRoleDto,
   ): Promise<IdResponseDto> {
-    return this.workspaceService.deleteRole(id, rid, userId);
+    return this.rolesService.delete(id, rid, userId);
   }
 
   // users
@@ -153,7 +167,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Body() dto: CreateUserDto,
   ): Promise<UserResponseDto> {
-    return this.workspaceService.createUser(id, dto, userId);
+    return this.usersService.create(id, dto, userId);
   }
 
   @Get(':id/users')
@@ -164,7 +178,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Query() dto: GetUsersDto,
   ): Promise<UsersResponseDto> {
-    return this.workspaceService.findAllUsers(id, dto, userId);
+    return this.usersService.findAll(id, dto, userId);
   }
 
   @Get(':id/users/:uid')
@@ -175,7 +189,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Param() { uid }: GetUserDto,
   ): Promise<UserResponseDto> {
-    return this.workspaceService.findOneUser(id, uid, userId);
+    return this.usersService.findOne(id, uid, userId);
   }
 
   @Patch(':id/users/:uid')
@@ -188,7 +202,7 @@ export class WorkspaceController {
     @Param() { uid }: GetUserDto,
     @Body() dto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.workspaceService.updateUser(id, uid, dto, userId);
+    return this.usersService.update(id, uid, dto, userId);
   }
 
   @Delete(':id/users/:uid')
@@ -200,7 +214,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Param() { uid }: DeleteUserDto,
   ): Promise<IdResponseDto> {
-    return this.workspaceService.deleteUser(id, uid, userId);
+    return this.usersService.delete(id, uid, userId);
   }
 
   // projects
@@ -214,7 +228,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Body() dto: CreateProjectDto,
   ): Promise<ProjectResponseDto> {
-    return this.workspaceService.createProject(id, dto, userId);
+    return this.projectsService.create(id, dto, userId);
   }
 
   @Get(':id/projects')
@@ -225,7 +239,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Query() dto: GetProjectDto,
   ): Promise<ProjectsResponseDto> {
-    return this.workspaceService.findAllProjects(id, dto, userId);
+    return this.projectsService.findAll(id, dto, userId);
   }
 
   @Get(':id/projects/:pid')
@@ -236,7 +250,7 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Param() { pid }: GetProjectDto,
   ): Promise<ProjectResponseDto> {
-    return this.workspaceService.findOneProject(id, pid, userId);
+    return this.projectsService.findOne(id, pid, userId);
   }
 
   @Patch(':id/projects/:pid')
@@ -249,7 +263,7 @@ export class WorkspaceController {
     @Param() { pid }: GetProjectDto,
     @Body() dto: UpdateProjectDto,
   ): Promise<ProjectResponseDto> {
-    return this.workspaceService.updateProject(id, pid, dto, userId);
+    return this.projectsService.update(id, pid, dto, userId);
   }
 
   @Delete(':id/projects/:pid')
@@ -261,6 +275,6 @@ export class WorkspaceController {
     @Param() { id }: GetWorkspaceDto,
     @Param() { pid }: DeleteProjectDto,
   ): Promise<IdResponseDto> {
-    return this.workspaceService.deleteProject(id, pid, userId);
+    return this.projectsService.delete(id, pid, userId);
   }
 }

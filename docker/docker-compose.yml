@@ -110,7 +110,7 @@ services:
     ports: [ 8000:8080, 8443 ]
     volumes:
       - ./keycloak/realms:/opt/keycloak/data/import
-      - ./keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
+      - ./keycloak/keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
     environment:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
@@ -244,6 +244,8 @@ services:
       - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true # skip email validation
       - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub # skip email validation
       - OAUTH2_PROXY_SET_XAUTHREQUEST=true # set response header with user data
+      - OAUTH2_PROXY_PASS_USER_HEADERS=true
+      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
     depends_on:
       - keycloak
     logging:

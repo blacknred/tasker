@@ -70,6 +70,7 @@ Sample b2b agile task management app
   - every project has a timeline that aggregates($bc-projectId) all the events of the project's issue/sprint and can be observed on the dashboard page
 - Each command associated with an issue (CreateComment, CreateVote, etc.) creates an IssueUpdated event, which is stored in the EventStoreDb and is used to project these partial updates to the issue state into the Pg.
 - Pg is more like a write optimized database, for a real world scenario as a read database you will definitely need an easily sharded nosql database.
+- Mutations/reads are limited to the projects the user has access to, defined in the authentication headers.
 
 #### Fanout
 
@@ -134,10 +135,12 @@ Sample b2b agile task management app
 
 - mvp
 - k8s
-- switch microservices to grpc and rewrite gateway in golang to implement http->grpc and use sso without proxy client
+- switch microservices to grpc
+- rewrite gateway in golang
+  - to use sso without proxy client(oauth2-proxy). The proxy server does not pass user roles (policies) back to the gateway, so we need to use this data in the access_token.
+  - to implement http1.1 restapi <-> grpc
 - multi-tenancy?
 - automation?
-- shared boards?
 - billing(+stripe)? - to have more than 5 users the workspace needs to be switched to paid plan
 
 ## Run the project

@@ -10,19 +10,21 @@ import { ClientProxy } from '@nestjs/microservices';
 import { NOTIFICATION_SERVICE, SEARCH_SERVICE } from '@taskapp/shared';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { catchError, firstValueFrom, map, timeout } from 'rxjs';
+import { RoleResponseDto, RolesResponseDto } from './dto';
 
 @Injectable()
-export class WorkspaceService {
+export class RolesService {
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     @Inject(NOTIFICATION_SERVICE) private notificationsService: ClientProxy,
     @Inject(SEARCH_SERVICE) private searchService: ClientProxy,
-    @InjectPinoLogger(WorkspaceService.name)
+    @InjectPinoLogger(RolesService.name)
     private readonly logger: PinoLogger,
   ) {}
 
   async proxy<T, D>(url: string, dto: D) {
+    // https://www.npmjs.com/package/@keycloak/keycloak-admin-client
     return firstValueFrom(
       this.httpService.get<T>(url, { params: dto }).pipe(
         timeout(this.configService.get('HTTP_TIMEOUT')),
@@ -43,10 +45,27 @@ export class WorkspaceService {
     );
   }
 
-  async create() {
+  async create(id, dto, userId) {
     try {
+      return {} as RoleResponseDto;
     } catch (e) {
       throw new PreconditionFailedException();
     }
+  }
+
+  async findAll(id, dto, userId) {
+    return {} as RolesResponseDto;
+  }
+
+  async findOne(id, pid, userId) {
+    return {} as RoleResponseDto;
+  }
+
+  async update(id, pid, dto, userId) {
+    return {} as RoleResponseDto;
+  }
+
+  async delete(id, pid, userId) {
+    return id;
   }
 }

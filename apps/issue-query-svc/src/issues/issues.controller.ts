@@ -4,11 +4,8 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AllExceptionFilter } from '@taskapp/shared';
 import {
   CommentsResponseDto,
-  GetCommentsDto,
   GetIssueDto,
   GetIssuesDto,
-  GetSubscriptionsDto,
-  GetVotesDto,
   IssueResponseDto,
   IssuesResponseDto,
   SubscriptionsResponseDto,
@@ -47,19 +44,15 @@ export class IssuesController {
   @ApiOkResponse({ type: CommentsResponseDto })
   async getAllComments(
     @Param() { id }: GetIssueDto,
-    @Query() dto: GetCommentsDto,
   ): Promise<CommentsResponseDto> {
-    return this.queryBus.execute(new GetCommentsQuery(id, dto));
+    return this.queryBus.execute(new GetCommentsQuery(id));
   }
 
   @Get(':id/votes')
   @ApiOperation({ description: 'Get issue votes' })
   @ApiOkResponse({ type: VotesResponseDto })
-  async getAllVotes(
-    @Param() { id }: GetIssueDto,
-    @Query() dto: GetVotesDto,
-  ): Promise<VotesResponseDto> {
-    return this.queryBus.execute(new GetVotesQuery(id, dto));
+  async getAllVotes(@Param() { id }: GetIssueDto): Promise<VotesResponseDto> {
+    return this.queryBus.execute(new GetVotesQuery(id));
   }
 
   @Get(':id/subscriptions')
@@ -67,8 +60,7 @@ export class IssuesController {
   @ApiOkResponse({ type: SubscriptionsResponseDto })
   async getaAllSubscriptions(
     @Param() { id }: GetIssueDto,
-    @Query() dto: GetSubscriptionsDto,
   ): Promise<SubscriptionsResponseDto> {
-    return this.queryBus.execute(new GetSubscriptionsQuery(id, dto));
+    return this.queryBus.execute(new GetSubscriptionsQuery(id));
   }
 }
