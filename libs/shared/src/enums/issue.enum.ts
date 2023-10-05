@@ -1,4 +1,4 @@
-export enum Priority {
+export enum IssuePriority {
   TRIVIAL = 'TRIVIAL',
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',

@@ -1,60 +1,171 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Privilege } from 'src/workspaces/interfaces/workspace.interface';
-import { Agent } from 'src/__shared__/decorators/agent.decorator';
-import { WithPrivilege } from 'src/__shared__/decorators/with-privilege.decorator';
-import { ResponseDto } from 'src/__shared__/dto/response.dto';
-import { AgentGuard } from 'src/__shared__/guards/agent.guard';
-import { CreateTaskDto } from './dto/create-issue.dto';
-import { GetTaskDto } from './dto/get-issue.dto';
-import { GetTasksDto } from './dto/get-issues.dto';
-import { TaskResponseDto, TasksResponseDto } from './dto/issue-response.dto';
-import { UpdateTaskDto } from './dto/update-issue.dto';
-import { TasksService } from './issues.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  AllExceptionFilter,
+  Auth,
+  IdResponseDto,
+  Permission,
+  WorkspacePolicy,
+} from '@taskapp/shared';
+import {
+  CreateCommentCommand,
+  CreateIssueCommand,
+  CreateSubscriptionCommand,
+  CreateVoteCommand,
+  DeleteCommentCommand,
+  DeleteIssueCommand,
+  DeleteSubscriptionCommand,
+  DeleteVoteCommand,
+  UpdateCommentCommand,
+  UpdateIssueCommand,
+} from './commands';
+import {
+  CreateCommentDto,
+  CreateIssueDto,
+  DeleteCommentDto,
+  DeleteIssueDto,
+  UpdateCommentDto,
+  UpdateIssueDto,
+} from './dto';
 
-@Controller()
-@UseGuards(AgentGuard)
+// @Auth()
+@ApiTags('Issues')
+@Controller('issues')
+@UseFilters(AllExceptionFilter)
 export class IssuesController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
-  @WithPrivilege(Privilege.CREATE_TASK)
-  @MessagePattern('tasks/create')
+  @Post()
+  @ApiOperation({ description: 'Сreate issue' })
+  @ApiCreatedResponse({ type: IdResponseDto })
+  @Permission(WorkspacePolicy.ISSUE_MANAGEMENT)
   async create(
-    @Agent() agent,
-    @Payload() createTaskDto: CreateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.create(createTaskDto, agent);
+    @Auth('userId') userId,
+    @Body() dto: CreateIssueDto,
+  ): Promise<IdResponseDto> {
+    const { id } = await this.commandBus.execute(
+      new CreateIssueCommand(dto, userId),
+    );
+    return { data: id };
   }
 
-  @MessagePattern('tasks/getAll')
-  async getAll(
-    @Agent() agent,
-    @Payload() getTasksDto: GetTasksDto,
-  ): Promise<TasksResponseDto> {
-    return this.tasksService.findAll(getTasksDto, agent);
-  }
-
-  @MessagePattern('tasks/getOne')
-  async getOne(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.findOne(id, agent);
-  }
-
-  @MessagePattern('tasks/update')
+  @Patch(':id')
+  @ApiOperation({ description: 'Update issue' })
+  @ApiOkResponse({ type: IdResponseDto })
+  @Permission(WorkspacePolicy.ISSUE_MANAGEMENT)
   async update(
-    @Agent() agent,
-    @Payload() updateTaskDto: UpdateTaskDto,
-  ): Promise<TaskResponseDto> {
-    return this.tasksService.update(updateTaskDto, agent);
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+    @Body() dto: UpdateIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new UpdateIssueCommand(id, dto, userId));
+    return { data: id };
   }
 
-  @MessagePattern('tasks/delete')
-  async remove(
-    @Agent() agent,
-    @Payload() { id }: GetTaskDto,
-  ): Promise<ResponseDto> {
-    return this.tasksService.remove(id, agent);
+  @Delete(':id')
+  @ApiOperation({ description: 'Delete issue' })
+  @ApiOkResponse({ type: IdResponseDto })
+  @Permission(WorkspacePolicy.ISSUE_MANAGEMENT)
+  async delete(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new DeleteIssueCommand(id, userId));
+    return { data: id };
+  }
+
+  @Post(':id/comments')
+  @ApiOperation({ description: 'Сreate issue comment' })
+  @ApiCreatedResponse({ type: IdResponseDto })
+  async createComment(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+    @Body() dto: CreateCommentDto,
+  ): Promise<IdResponseDto> {
+    const data = await this.commandBus.execute(
+      new CreateCommentCommand(id, dto, userId),
+    );
+    return { data };
+  }
+
+  @Patch(':id/comments/:cid')
+  @ApiOperation({ description: 'Update issue comment' })
+  @ApiOkResponse({ type: IdResponseDto })
+  async updateComment(
+    @Auth('userId') userId,
+    @Param() { cid }: DeleteCommentDto,
+    @Body() dto: UpdateCommentDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new UpdateCommentCommand(cid, dto, userId));
+    return { data: cid };
+  }
+
+  @Delete(':id/comments/:cid')
+  @ApiOperation({ description: 'Delete issue comment' })
+  @ApiOkResponse({ type: IdResponseDto })
+  async deleteComment(
+    @Auth('userId') userId,
+    @Param() { cid }: DeleteCommentDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new DeleteCommentCommand(cid, userId));
+    return { data: cid };
+  }
+
+  @Post(':id/subscriptions')
+  @ApiOperation({ description: 'Сreate issue subscription' })
+  @ApiCreatedResponse({ type: IdResponseDto })
+  async createSubscription(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new CreateSubscriptionCommand(id, userId));
+    return { data: id };
+  }
+
+  @Delete(':id/subscriptions')
+  @ApiOperation({ description: 'Delete issue subscription' })
+  @ApiOkResponse({ type: IdResponseDto })
+  async deleteSubscription(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new DeleteSubscriptionCommand(id, userId));
+    return { data: id };
+  }
+
+  @Post(':id/votes')
+  @ApiOperation({ description: 'Сreate issue vote' })
+  @ApiCreatedResponse({ type: IdResponseDto })
+  async createVote(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new CreateVoteCommand(id, userId));
+    return { data: id };
+  }
+
+  @Delete(':id/votes')
+  @ApiOperation({ description: 'Delete issue vote' })
+  @ApiOkResponse({ type: IdResponseDto })
+  async deleteVote(
+    @Auth('userId') userId,
+    @Param() { id }: DeleteIssueDto,
+  ): Promise<IdResponseDto> {
+    await this.commandBus.execute(new DeleteVoteCommand(id, userId));
+    return { data: id };
   }
 }

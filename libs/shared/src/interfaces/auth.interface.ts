@@ -1,8 +1,9 @@
-import { ProjectPermission } from '../enums';
-import type { ID } from './base.interface';
+import { WorkspacePolicy } from '../enums';
+import { ID } from './base.interface';
 
 export interface IAuth {
   userId: ID;
-  needTfa?: boolean;
-  permissions: Record<ID, ProjectPermission[]>;
+  workspaceId: ID;
+  policies: WorkspacePolicy[];
+  projects: ID[];
 }

@@ -1,19 +1,17 @@
 import { ProjectType } from '../enums';
 import type { IBase, ID } from './base.interface';
-import type { IHydratedSprint } from './sprint.interface';
+import { IIssueStatus, IIssueTag } from './issue.interface';
 
 export interface IProject extends IBase {
-  type: ProjectType;
-  key: string;
+  workspaceId: ID;
   name: string;
   details?: string;
+  type: ProjectType;
+  key: string;
   image?: string;
-  isUnlimited: boolean;
   authorId: ID;
+  statusses: IIssueStatus[];
+  tags: IIssueTag[];
 }
 
-export interface IHydratedProject extends IProject {
-  activeSprint: IHydratedSprint;
-}
-
-export type IHydratedProjectPreview = Pick<IProject, 'id' | 'name'>;
+export type IProjectPreview = Pick<IProject, 'id' | 'name' | 'image'>;

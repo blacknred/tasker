@@ -5,130 +5,64 @@ services:
   # data
 
   redis:
-    env_file: ../.env.dev
     volumes:
       - ./redis/data:/data
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
+    env_file: ../.env.dev
+    restart: unless-stopped
 
   postgres:
-    env_file: ../.env.dev
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-      - POSTGRES_DB=${POSTGRES_DB:-test}
+    env_file: ../.env.dev
+    restart: unless-stopped
 
   rabbitmq:
-    env_file: ../.env.dev
     volumes:
       - ./rabbitmq/data:/var/lib/rabbitmq
-    environment:
-      - RABBITMQ_USER=${RABBITMQ_USER:-test}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
+    env_file: ../.env.dev
+    restart: unless-stopped
 
   eventstore:
-    env_file: ../.env.dev
     volumes:
       - ./eventstore/data:/var/lib/eventstore
-    environment:
-      - EVENTSTORE_USER=${EVENTSTORE_USER:-admin}
-      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-changeit}
+    env_file: ../.env.dev
+    restart: unless-stopped
 
   minio:
-    env_file: ../.env.dev
     volumes:
       - ./minio/data:/data
-    environment:
-      - MINIO_ROOT_USER=${MINIO_USER:-test}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
+    env_file: ../.env.dev
+    restart: unless-stopped
 
   mc:
     env_file: ../.env.dev
-    environment:
-      - MINIO_ROOT_USER=${MINIO_USER:-test}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
-
-  # monitoring
-
-  loki:
-    env_file: ../.env.dev
-    environment:
-      - MINIO_URL=http://${MINIO_USER:-test}:${MINIO_PASSWORD:-test}@minio.:9000/loki
-
-  fluent-bit:
-    env_file: ../.env.dev
-
-  jaeger:
-    env_file: ../.env.dev
-
-  prometheus:
-    env_file: ../.env.dev
-
-  grafana:
-    env_file: ../.env.dev
-    environment:
-      - GF_SECURITY_ADMIN_USER={GRAFANA_USER:-test}
-      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD:-test}
+    restart: unless-stopped
 
   # apps
 
-  project-query-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=project-query-svc
-        - NODE_ENV=development
+  keycloak:
     env_file: ../.env.dev
-    command: nest start:dev project-query-svc
-    volumes:
-      - ../apps/project-query-svc:/usr/src/app/apps/project-query-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/projects
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - KC_HOSTNAME=localhost
+    command: start-dev --import-realm
+    restart: unless-stopped
+    depends_on:
+      - mailhog
 
-  project-command-svc:
+  workspace-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=project-command-svc
+        - SERVICE_NAME=workspace-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev project-command-svc
     volumes:
-      - ../apps/project-command-svc:/usr/src/app/apps/project-command-svc
+      - ../apps/workspace-svc:/usr/src/app/apps/workspace-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-
-  issue-query-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=issue-query-svc
-        - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev issue-query-svc
-    volumes:
-      - ../apps/issue-query-svc:/usr/src/app/apps/issue-query-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    command: nest start:dev workspace-svc
+    restart: unless-stopped
 
   issue-command-svc:
     build:
@@ -137,100 +71,28 @@ services:
       args:
         - SERVICE_NAME=issue-command-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev issue-command-svc
     volumes:
       - ../apps/issue-command-svc:/usr/src/app/apps/issue-command-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
+    env_file: ../.env.dev
+    command: nest start:dev issue-command-svc
+    restart: unless-stopped
 
-  member-query-svc:
+  issue-query-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=member-query-svc
+        - SERVICE_NAME=issue-query-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev member-query-svc
     volumes:
-      - ../apps/member-query-svc:/usr/src/app/apps/member-query-svc
+      - ../apps/issue-query-svc:/usr/src/app/apps/issue-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/members
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  member-command-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=member-command-svc
-        - NODE_ENV=development
     env_file: ../.env.dev
-    command: nest start:dev member-command-svc
-    volumes:
-      - ../apps/member-command-svc:/usr/src/app/apps/member-command-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-
-  search-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=search-svc
-        - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev search-svc
-    volumes:
-      - ../apps/search-svc:/usr/src/app/apps/search-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-admin}:${EVENTSTORE_PASSWORD:-changeit}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  report-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=report-svc
-        - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev report-svc
-    volumes:
-      - ../apps/report-svc:/usr/src/app/apps/report-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
-
-  account-svc:
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=account-svc
-        - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev account-svc
-    volumes:
-      - ../apps/account-svc:/usr/src/app/apps/account-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/accounts
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    command: nest start:dev issue-query-svc
+    restart: unless-stopped
 
   notification-svc:
     build:
@@ -239,57 +101,86 @@ services:
       args:
         - SERVICE_NAME=notification-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev notification-svc
     volumes:
       - ../apps/notification-svc:/usr/src/app/apps/notification-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/notifications
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    env_file: ../.env.dev
+    command: nest start:dev notification-svc
+    restart: unless-stopped
 
-  billing-svc:
+  search-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=billing-svc
+        - SERVICE_NAME=search-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev billing-svc
     volumes:
-      - ../apps/billing-svc:/usr/src/app/apps/billing-svc
+      - ../apps/search-svc:/usr/src/app/apps/search-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/billing
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    env_file: ../.env.dev
+    command: nest start:dev search-svc
+    restart: unless-stopped
 
-  auth-svc:
+  report-svc:
     build:
       context: ../
       target: build
       args:
-        - SERVICE_NAME=auth-svc
+        - SERVICE_NAME=report-svc
         - NODE_ENV=development
-    env_file: ../.env.dev
-    command: nest start:dev auth-svc
     volumes:
-      - ../apps/auth-svc:/usr/src/app/apps/auth-svc
+      - ../apps/report-svc:/usr/src/app/apps/report-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
+    env_file: ../.env.dev
+    command: nest start:dev report-svc
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    networks: [ apps ]
+    ports: [ 1025, 8025 ]
+    logging:
+      driver: 'none'
+
+  sso-proxy:
+    env_file: ../.env.dev
     environment:
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+      - OAUTH2_PROXY_COOKIE_SECURE=false # no https
+    restart: unless-stopped
 
   gateway:
     build: ../apps/gateway
-    env_file: ../.env.dev
     volumes:
       - ../apps/gateway/nginx:/etc/nginx:ro
       - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
       - ../apps/gateway/swagger-ui:/var/www/swagger-ui:ro
-    # - ../apps/web/dist:/usr/share/nginx/html:ro
+    env_file: ../.env.dev
     environment:
-      - HOST=${HOST:-localhost}
+      - HOST=localhost
+    restart: unless-stopped
+
+  # monitoring
+
+  loki:
+    env_file: ../.env.dev
+    restart: unless-stopped
+
+  fluent-bit:
+    env_file: ../.env.dev
+    restart: unless-stopped
+
+  jaeger:
+    env_file: ../.env.dev
+    restart: unless-stopped
+
+  prometheus:
+    env_file: ../.env.dev
+    restart: unless-stopped
+
+  grafana:
+    env_file: ../.env.dev
+    restart: unless-stopped

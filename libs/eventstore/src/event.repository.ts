@@ -15,6 +15,7 @@ export class EventRepository {
 
   async findOne(stream: string) {
     const t = await this.conn.readStreamEventsForward(stream, 0, 1);
-    t.events[0].event.data.toJSON();
+    console.log(t.events[0].event.data.toJSON());
+    return t;
   }
 }

@@ -1,61 +1,62 @@
 import * as Joi from '@hapi/joi';
-import { LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from '@taskapp/core';
-import { AsyncLocalStorage } from 'node:async_hooks';
-import { NOTIFICATION_SERVICE } from './issues/consts';
+import {
+  EventStoreCqrsModule,
+  EventStoreSubscriptionType,
+} from '@taskapp/eventstore';
+import {
+  IssueCreatedEvent,
+  IssueDeletedEvent,
+  IssueUpdatedEvent,
+  SprintCreatedEvent,
+  SprintDeletedEvent,
+  SprintUpdatedEvent,
+  getEventStoreOptions,
+  getOrmOptions,
+} from '@taskapp/shared';
+import { EventsModule } from './events/events.module';
 import { IssuesModule } from './issues/issues.module';
-
-const ALS = new AsyncLocalStorage<any>();
+import { SprintsModule } from './sprints/sprints.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
-        SERVICE_NAME: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
+        SERVICE_NAME: Joi.string().required(),
+        API_VERSION: Joi.string().required(),
         POSTGRES_URL: Joi.string().required(),
-        RABBITMQ_URL: Joi.string().required(),
+        EVENTSTORE_URL: Joi.string().required(),
       }),
     }),
-    MikroOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        clientUrl: configService.get('POSTGRES_URL'),
-        debug: configService.get('NODE_ENV') === 'development',
-        loadStrategy: LoadStrategy.JOINED,
-        context: () => ALS.getStore(),
-        registerRequestContext: false,
-        autoLoadEntities: true,
-        ensureIndexes: true,
-        type: 'postgresql',
-        flushMode: 1,
-      }),
+    EventStoreCqrsModule.forRootAsync(getEventStoreOptions(), {
+      subscriptions: [
+        {
+          type: EventStoreSubscriptionType.CatchUp,
+          stream: '$ce-project',
+        },
+        {
+          type: EventStoreSubscriptionType.CatchUp,
+          stream: '$ce-sprint',
+        },
+      ],
+      events: {
+        IssueCreatedEvent,
+        IssueUpdatedEvent,
+        IssueDeletedEvent,
+        SprintCreatedEvent,
+        SprintUpdatedEvent,
+        SprintDeletedEvent,
+      },
     }),
+    MikroOrmModule.forRootAsync(getOrmOptions()),
     CoreModule,
     IssuesModule,
-  ],
-  providers: [
-    {
-      provide: NOTIFICATION_SERVICE,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
-        ClientProxyFactory.create({
-          transport: Transport.RMQ,
-          options: {
-            urls: [configService.get('RABBITMQ_URL')],
-            queue: 'notifications',
-            noAck: false,
-            queueOptions: {
-              durable: true,
-            },
-          },
-        }),
-    },
+    SprintsModule,
+    EventsModule,
   ],
 })
 export class AppModule {}

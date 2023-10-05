@@ -1,57 +1,159 @@
-import { IntersectionType, OmitType, PartialType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
-import { IsDateString, IsIn, IsMongoId, IsOptional } from 'class-validator';
+import { OmitType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  AccessDto,
-  PaginationDto,
-  SortingDto,
-} from '../../__shared__/dto/request.dto';
-import { CreateTaskDto } from './create-issue.dto';
+  IssuePriority,
+  IssueType,
+  PaginatedRequestDto,
+  issueMock,
+} from '@taskapp/shared';
+import {
+  IsDateString,
+  IsEnum,
+  IsIn,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
-class TasksSortingDto extends SortingDto {
+export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
+  'sort.field',
+]) {
+  @ApiProperty({ type: 'string', example: 'createdAt', required: false })
   @IsOptional()
-  @Type(() => String)
   @IsIn(
     [
       'name',
-      'stage',
-      'label',
+      'type',
+      'priority',
+      'epic',
+      'assignee',
+      'sprint',
+      'votesCount',
+      'subscriptionCount',
+      'endsAt',
       'createdAt',
-      'expiresAt',
-      'creatorId',
-      'assigneeId',
-      'sagaId',
     ],
     {
-      message: 'Must be a one of fields of the Task entity',
+      message:
+        'Must be a one of the fields: name, type, priority, epic, assignee, sprint, votesCount, subscriptionCount, endsAt, createdAt',
     },
   )
-  'sort.field'?:
+  readonly 'sort.field'?:
     | 'name'
-    | 'stage'
-    | 'label'
-    | 'createdAt'
-    | 'expiresAt'
-    | 'creatorId'
-    | 'assigneeId'
-    | 'sagaId';
-}
+    | 'type'
+    | 'priority'
+    | 'epic'
+    | 'assignee'
+    | 'sprint'
+    | 'votesCount'
+    | 'subscriptionCount'
+    | 'endsAt'
+    | 'createdAt';
 
-export class GetTasksDto extends IntersectionType(
-  PartialType(OmitType(CreateTaskDto, ['description', 'sagaIds'])),
-  AccessDto,
-  PaginationDto,
-  TasksSortingDto,
-) {
+  @ApiProperty({
+    type: 'uuid',
+    example: issueMock.projectId,
+  })
+  @IsUUID(4, { message: 'Must be an uuid' })
+  readonly projectId: string;
+
+  @ApiProperty({ type: 'string', example: issueMock.name, required: false })
   @IsOptional()
-  @IsMongoId({ message: 'Invalid identificator' })
-  creatorId?: string;
+  @Length(0, 100, { message: 'Must have up to 100 chars' })
+  readonly name?: string;
 
+  @ApiProperty({ type: 'string', example: issueMock.title, required: false })
+  @IsOptional()
+  @Length(0, 100, { message: 'Must have up to 100 chars' })
+  readonly title?: string;
+
+  @ApiProperty({
+    enum: IssueType,
+    example: issueMock.type,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(IssueType, {
+    message: `Must be a one of the fields: ${Object.keys(IssueType).join(
+      ', ',
+    )}`,
+  })
+  readonly type?: IssueType;
+
+  @ApiProperty({
+    enum: IssuePriority,
+    example: issueMock.priority,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(IssuePriority, {
+    message: `Must be a one of the fields: ${Object.keys(IssuePriority).join(
+      ', ',
+    )}`,
+  })
+  readonly priority?: IssuePriority;
+
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.status.name,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  readonly status?: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.tags[0].name,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  readonly tag?: string;
+
+  @ApiProperty({
+    type: 'uuid',
+    example: issueMock.epic.id,
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'Must be an uuid' })
+  readonly epicId: string;
+
+  @ApiProperty({
+    type: 'uuid',
+    example: issueMock.sprint.id,
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'Must be an uuid' })
+  readonly sprintId: string;
+
+  @ApiProperty({
+    type: 'uuid',
+    example: issueMock.author.id,
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID(4, { message: 'Must be an uuid' })
+  readonly authorId: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.endsAt,
+    required: false,
+  })
   @IsOptional()
   @IsDateString({}, { message: 'Must be a date string' })
-  createdAt?: string;
+  readonly endsAt?: string;
 
+  @ApiProperty({
+    type: 'string',
+    example: issueMock.createdAt,
+    required: false,
+  })
   @IsOptional()
-  @IsMongoId({ message: 'Invalid identificator' })
-  sagaId?: string;
+  @IsDateString({}, { message: 'Must be a date string' })
+  readonly createdAt?: string;
 }

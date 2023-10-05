@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { RedisService } from 'nestjs-redis';
 import { RequestOptions } from 'web-push';
-import { Notification } from './entities';
+import { Notification } from './entities/notification.entity';
 
 @Injectable()
 export class NotificationsService {

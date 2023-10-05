@@ -116,6 +116,161 @@ services:
           memory: 50M
           pids: 1
 
+  # apps
+
+  keycloak:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  workspace-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-command-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-query-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  notification-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  search-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  report-svc:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  sso-proxy:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+          
+  gateway:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
   # monitoring
 
   loki:
@@ -149,6 +304,47 @@ services:
           pids: 1
 
   jaeger:
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  prometheus:
+    volumes:
+      - prometeus_data:/prometheus
+    depends_on:
+      - node-exporter
+      - cadvisor
+      - nginx-exporter
+      - postgres-exporter
+      - redis-exporter
+      - rabbitmq-exporter
+    restart: always
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  grafana:
+    volumes:
+      - grafana_data:/var/lib/grafana
     restart: always
     healthcheck:
       test: exit 0
@@ -281,42 +477,17 @@ services:
           memory: 50M
           pids: 1
 
-  prometheus:
-    volumes:
-      - prometeus_data:/prometheus
-    depends_on:
-      - node-exporter
-      - cadvisor
-      - nginx-exporter
-      - postgres-exporter
-      - redis-exporter
-      - rabbitmq-exporter
-      - minio
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
   alertmanager:
     image: prom/alertmanager:latest
     networks: [ monitoring ]
     ports: [ 9093 ]
-    command:
-      - "--storage.path=/alertmanager"
-      - "--config.file=/etc/alertmanager/config.yml"
     volumes:
       - alertmanager_data:/alertmanager
       - ./alertmanager/config.yml:/etc/alertmanager/config.yml:ro
       - ./alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
+    command:
+      - "--storage.path=/alertmanager"
+      - "--config.file=/etc/alertmanager/config.yml"
     restart: always
     healthcheck:
       test: exit 0
@@ -331,269 +502,7 @@ services:
           memory: 50M
           pids: 1
 
-  grafana:
-    volumes:
-      - grafana_data:/var/lib/grafana
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
+ 
 
-  # apps
 
-  project-query-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  project-command-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  issue-query-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  issue-command-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  member-query-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  member-command-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  search-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  report-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  account-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  notification-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  billing-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: global
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  auth-svc:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  gateway:
-    restart: always
-    healthcheck:
-      test: exit 0
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-  # web:
-  #   build:
-  #     context: ./packages/apps/web
-  #     target: build # production
-  #   # build:
-  #   #   context: ./packages/apps/web
-  #   #   target: deploy
-  #   env_file: ./.env.dev
-  #   command: nest dev
-  #   volumes:
-  #     - ./packages/apps/web:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   environment:
-  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
-  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
-  #     - API_HOST=${HOST:-localhost}
-
-  # web:
-  #   image: taskapp/web:latest
-  #   ports: [ 3000 ]
-  #   environment:
-  #     - NODE_OPTIONS=--openssl-legacy-provider
-  #     - SKIP_PREFLIGHT_CHECK=true
-  #     - CHOKIDAR_USEPOLLING=true
-  #     - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-  #     - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-  #     - API_HOST=${HOST}
 

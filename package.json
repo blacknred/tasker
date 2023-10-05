@@ -30,6 +30,7 @@
     "@godaddy/terminus": "^4.12.1",
     "@grpc/grpc-js": "^1.8.17",
     "@grpc/proto-loader": "^0.7.7",
+    "@keycloak/keycloak-admin-client": "^22.0.3",
     "@mikro-orm/core": "^5.7.12",
     "@mikro-orm/entity-generator": "^5.7.12",
     "@mikro-orm/nestjs": "^4.3.1",
@@ -52,7 +53,6 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.14.0",
-    "cookie-parser": "^1.4.6",
     "joi": "^17.9.2",
     "nestjs-amqp": "^0.2.2",
     "nestjs-pino": "^1.4.0",
@@ -90,6 +90,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.17",
+    "@types/hapi__joi": "^17.1.11",
     "@types/jest": "27.4.1",
     "@types/node": "^16.18.38",
     "@types/nodemailer": "^6.4.8",
@@ -160,35 +161,6 @@
   "prettier": {
     "trailingComma": "all",
     "singleQuote": true
-  },
-  "eslintConfig": {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "project": "tsconfig.json",
-      "sourceType": "module",
-      "tsconfigRootDir": "."
-    },
-    "plugins": [
-      "@typescript-eslint/eslint-plugin"
-    ],
-    "extends": [
-      "plugin:@typescript-eslint/recommended",
-      "plugin:prettier/recommended"
-    ],
-    "root": true,
-    "env": {
-      "node": true,
-      "jest": true
-    },
-    "ignorePatterns": [
-      ".eslintrc.js"
-    ],
-    "rules": {
-      "@typescript-eslint/interface-name-prefix": "off",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-explicit-any": "off"
-    }
   },
   "husky": {
     "hooks": {

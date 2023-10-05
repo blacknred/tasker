@@ -9,3 +9,4 @@ export * from './enums';
 export * from './providers';
 export * from './filters';
 export * from './utils';
+export * from './mocks';

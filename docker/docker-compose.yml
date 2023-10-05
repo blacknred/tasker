@@ -15,9 +15,9 @@ services:
     networks: [ apps ]
     ports: [ 6379 ]
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_REPLICATION_MODE=master
       - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     logging:
       driver: fluentd
       options:
@@ -30,9 +30,9 @@ services:
     volumes:
       - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER:-test}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRES_DB=${POSTGRES_DB:-test}
     logging:
       driver: fluentd
       options:
@@ -42,15 +42,15 @@ services:
     image: rabbitmq:management-alpine
     networks: [ apps ]
     ports: [ 5672, 15672, 15692 ]
-    command: >
-      bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_prometheus && chmod +x /init.sh && /init.sh"
     volumes:
       - ./rabbitmq/plugins/:/opt/rabbitmq/plugins/"
       - ./rabbitmq/init.sh:/init.sh"
     environment:
       - RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq
-      - RABBITMQ_USER=${RABBITMQ_USER}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_USER:-test}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-test}
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_prometheus && chmod +x /init.sh && /init.sh"
     logging:
       driver: fluentd
       options:
@@ -61,8 +61,8 @@ services:
     networks: [ apps ]
     ports: [ 1113, 2113 ]
     environment:
-      - EVENTSTORE_USER=${EVENTSTORE_USER}
-      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD}
+      - EVENTSTORE_USER=${EVENTSTORE_USER:-test}
+      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-test}
       - EVENTSTORE_CLUSTER_SIZE=1
       - EVENTSTORE_RUN_PROJECTIONS=all
       - EVENTSTORE_START_STANDARD_PROJECTIONS=true
@@ -79,13 +79,13 @@ services:
   minio:
     image: minio/minio:latest
     networks: [ apps ]
-    command: "bash -c 'server /data --console-address ':9001''"
     ports: [ 9000, 9001 ]
     environment:
-      - MINIO_ROOT_USER=${MINIO_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_ROOT_USER=${MINIO_USER:-test}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-test}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-test}
+    command: "bash -c 'server /data --console-address ':9001''"
     logging:
       driver: fluentd
       options:
@@ -94,28 +94,196 @@ services:
   mc:
     image: minio/mc:latest
     networks: [ apps ]
+    environment:
+      - MINIO_ROOT_USER=${MINIO_USER:-test}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD:-test}
     entrypoint: >
       /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_USER} ${MINIO_PASSWORD}; && /usr/bin/mc rm -r --force myminio/loki; && /usr/bin/mc mb myminio/loki; && /usr/bin/mc policy set public myminio/loki; && exit 0; "
-    environment:
-      - MINIO_ROOT_USER=${MINIO_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
     depends_on:
       - minio
 
-  # monitoring
+  # apps
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    networks: [ apps ]
+    ports: [ 8000:8080, 8443 ]
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import
+      - ./keycloak/keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
+    environment:
+      - KC_PROXY=edge
+      - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
+      - KC_METRICS_ENABLED=true # https://localhost:8000/metrics
+      - KC_HEALTH_ENABLED=true # https://localhost:8000/health
+      - KC_DB=postgres
+      - KC_DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/workspace
+      - KC_DB_USERNAME=${POSTGRES_USER:-test}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD:-test}
+    depends_on:
+      - postgres
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  workspace-svc:
+    image: taskapp/workspace-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3001:3000, 50051 ]
+    environment:
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
+      - KEYCLOAK_URL=http://keycloak:8000/realms/master
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - keycloak
+      - rabbitmq
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  issue-command-svc:
+    image: taskapp/issue-command-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3002:3000, 50052 ]
+    environment:
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-test}:${EVENTSTORE_PASSWORD:-test}@eventstore:1113
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - eventstore
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  issue-query-svc:
+    image: taskapp/issue-query-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3003:3000, 50053 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/issues
+      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-test}:${EVENTSTORE_PASSWORD:-test}@eventstore:1113
+    depends_on:
+      - postgres
+      - eventstore
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  notification-svc:
+    image: taskapp/notification-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3004:3000, 50054 ]
+    environment:
+      - SMTP_URL=smtp://${SMTP_USER:-test}:${SMTP_PASSWORD:-test}@${SMTP_HOST:-test}
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/notifications
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  search-svc:
+    image: taskapp/search-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3005:3000, 50055 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/search
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  report-svc:
+    image: taskapp/report-svc:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 3006:3000, 50056 ]
+    environment:
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/metrics
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@rabbitmq:5672
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  sso-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    networks: [ apps ]
+    ports: [ 4180 ]
+    entrypoint:
+      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_COOKIE_SECRET=${SECRET:-test}
+      - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains
+      - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target
+      - OAUTH2_PROXY_PROVIDER=oid
+      - OAUTH2_PROXY_CLIENT_ID=sso-proxy
+      - OAUTH2_PROXY_CLIENT_SECRET=${SECRET:-test}
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8000/realms/master'
+      - OAUTH2_PROXY_REDIRECT_URL=http://keycloak:8000/oauth2/callback'
+      - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true # skip email validation
+      - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub # skip email validation
+      - OAUTH2_PROXY_SET_XAUTHREQUEST=true # set response header with user data
+      - OAUTH2_PROXY_PASS_USER_HEADERS=true
+      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+    depends_on:
+      - keycloak
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  gateway:
+    image: taskapp/gateway:${TAG:-latest}
+    networks: [ apps ]
+    ports: [ 80, 443, 8080 ]
+    environment:
+      - API_VERSION=${API_VERSION:-v1}
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+      - HOST=${HOST}
+    depends_on:
+      - sso-proxy
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  # monitoring(apm)
 
   loki:
     image: grafana/loki:latest
     networks: [ monitoring ]
     ports: [ 3100 ]
     user: root
-    command: -config.file=/etc/loki/config.yaml
     volumes:
       - ./loki/config.yml:/etc/loki/config.yaml:ro
       - ./loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
     environment:
       # the dot in the S3 address for MinIO is used because there is no need to specify AWS Region
-      - MINIO_URL=http://${MINIO_USER}:${MINIO_PASSWORD}@minio.:9000/loki
+      - MINIO_URL=http://${MINIO_USER:-test}:${MINIO_PASSWORD:-test}@minio.:9000/loki
+    command: -config.file=/etc/loki/config.yaml
     depends_on:
       - minio
 
@@ -149,15 +317,15 @@ services:
     image: prom/prometheus:latest
     networks: [ monitoring ]
     ports: [ 9090 ]
+    volumes:
+      - ./prometheus/config.yml:/etc/prometheus/config.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     command:
       - "--config.file=/etc/prometheus/config.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention=7d"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
-    volumes:
-      - ./prometheus/config.yml:/etc/prometheus/config.yml:ro
-      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     depends_on:
       - minio
 
@@ -168,219 +336,12 @@ services:
     volumes:
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
     environment:
-      - GF_SECURITY_ADMIN_USER={GRAFANA_USER}
-      - GF_SECURITY_ADMIN_PASSWORD={GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-test}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-test}
       - GF_INSTALL_PLUGINS=grafana-piechart-panel
     depends_on:
       - prometheus
       - jaeger
       - loki
 
-  # apps
-
-  project-query-svc:
-    image: taskapp/project-query-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3001:3000, 50051 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/projects
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - eventstore
-      - rabbitmq
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  project-command-svc:
-    image: taskapp/project-command-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3002:3000, 50052 ]
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-    depends_on:
-      - eventstore
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  issue-query-svc:
-    image: taskapp/issue-query-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3003:3000, 50053 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - eventstore
-      - rabbitmq
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  issue-command-svc:
-    image: taskapp/issue-command-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3004:3000, 50054 ]
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-    depends_on:
-      - eventstore
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  member-query-svc:
-    image: taskapp/member-query-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3005:3000, 50055 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/members
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - eventstore
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  member-command-svc:
-    image: taskapp/member-command-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3006:3000, 50056 ]
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-    depends_on:
-      - eventstore
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  search-svc:
-    image: taskapp/search-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3007:3000, 50057 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/search
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER}:${EVENTSTORE_PASSWORD}@eventstore:1113
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - eventstore
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  report-svc:
-    image: taskapp/report-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3008:3000, 50058 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/issues
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  account-svc:
-    image: taskapp/account-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3009:3000, 50059 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/accounts
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  notification-svc:
-    image: taskapp/notification-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3010:3000, 50060 ]
-    environment:
-      - SMTP_URL=smtp://${SMTP_USER}:${SMTP_PASSWORD}@${SMTP_HOST}
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/notifications
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - rabbitmq
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  billing-svc:
-    image: taskapp/billing-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3011:3000, 50061 ]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/billing
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  auth-svc:
-    image: taskapp/auth-svc:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 3012:3000, 50062 ]
-    environment:
-      - AUTH_ACCESS_TOKEN_LIFESPAN=${AUTH_ACCESS_TOKEN_LIFESPAN:-3600};
-      - AUTH_REFRESH_TOKEN_LIFESPAN=${AUTH_REFRESH_TOKEN_LIFESPAN:-2419200};
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
-    depends_on:
-      - redis
-      - account-svc
-      - member-query-svc
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  gateway:
-    image: taskapp/gateway:${TAG:-latest}
-    networks: [ apps ]
-    ports: [ 80, 443, 8080 ]
-    environment:
-      - API_VERSION=${API_VERSION:-v1}
-      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:30}
-      - NGINX_ENTRYPOINT_QUIET_LOGS=1
-      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
-      - HOST=${HOST}
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
+  
