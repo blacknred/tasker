@@ -1,6 +1,6 @@
 import { IQuery } from '@nestjs/cqrs';
-import { GetIssueDto } from '../../dto';
+import { ID } from '@taskapp/shared';
 
 export class GetIssueQuery implements IQuery {
-  constructor(public readonly id: GetIssueDto['id']) {}
+  constructor(public readonly projectId: ID, public readonly issueId: ID) {}
 }

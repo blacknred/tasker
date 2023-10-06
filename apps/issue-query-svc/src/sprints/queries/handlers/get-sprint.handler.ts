@@ -13,7 +13,7 @@ export class GetSprintHandler implements IQueryHandler<GetSprintQuery> {
   ) {}
 
   async execute(query: GetSprintQuery): Promise<SprintResponseDto> {
-    const { id } = query;
+    const { sprintId } = query;
     return {};
   }
 }

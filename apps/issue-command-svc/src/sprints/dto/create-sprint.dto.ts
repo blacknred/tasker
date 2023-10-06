@@ -1,15 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { sprintMock } from '@taskapp/shared';
-import { IsDateString, IsOptional, IsUUID, Length } from 'class-validator';
+import { IsDateString, IsOptional, Length } from 'class-validator';
 
 export class CreateSprintDto {
-  @ApiProperty({
-    type: 'uuid',
-    example: sprintMock.id,
-  })
-  @IsUUID(4, { message: 'Must be an uuid' })
-  readonly projectId: string;
-
   @ApiProperty({ type: 'string', example: sprintMock.name })
   @Length(1, 30, { message: 'Must have from 1 to 30 chars' })
   readonly name: string;

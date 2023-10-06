@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { WorkspacePolicy, roleMock } from '@taskapp/shared';
+import { Policy, roleMock } from '@taskapp/shared';
 import {
   IsArray,
   IsEnum,
@@ -33,15 +33,13 @@ export class CreateRoleDto {
   readonly rank: number;
 
   @ApiProperty({
-    enum: WorkspacePolicy,
+    enum: Policy,
     example: roleMock.policies,
     isArray: true,
   })
   @IsArray({ message: 'Must be an array' })
-  @IsEnum(WorkspacePolicy, {
-    message: `Must be a one of the fields: ${Object.keys(WorkspacePolicy).join(
-      ', ',
-    )}`,
+  @IsEnum(Policy, {
+    message: `Must be a one of the fields: ${Object.keys(Policy).join(', ')}`,
   })
-  policies: WorkspacePolicy[];
+  policies: Policy[];
 }

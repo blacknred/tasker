@@ -51,13 +51,6 @@ export class GetIssuesDto extends OmitType(PaginatedRequestDto, [
     | 'endsAt'
     | 'createdAt';
 
-  @ApiProperty({
-    type: 'uuid',
-    example: issueMock.projectId,
-  })
-  @IsUUID(4, { message: 'Must be an uuid' })
-  readonly projectId: string;
-
   @ApiProperty({ type: 'string', example: issueMock.name, required: false })
   @IsOptional()
   @Length(0, 100, { message: 'Must have up to 100 chars' })

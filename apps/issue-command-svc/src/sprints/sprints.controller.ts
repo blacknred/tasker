@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseFilters,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
@@ -17,9 +18,11 @@ import {
 import {
   AllExceptionFilter,
   Auth,
+  Authentication,
+  GetProjectDto,
   IdResponseDto,
   Permission,
-  WorkspacePolicy,
+  Policy,
 } from '@taskapp/shared';
 import {
   CreateSprintCommand,
@@ -28,48 +31,53 @@ import {
 } from './commands';
 import { CreateSprintDto, DeleteSprintDto, UpdateSprintDto } from './dto';
 
-// @Auth()
+@Authentication()
 @ApiTags('Sprints')
-@Controller('sprints')
+@Controller('projects')
 @UseFilters(AllExceptionFilter)
 export class SprintsController {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Post()
+  @Post(':pid/sprints')
   @ApiOperation({ description: 'Сreate sprint' })
   @ApiCreatedResponse({ type: IdResponseDto })
   async create(
     @Auth('userId') userId,
+    @Param() { pid }: GetProjectDto,
     @Body() dto: CreateSprintDto,
   ): Promise<IdResponseDto> {
     const { id } = await this.commandBus.execute(
-      new CreateSprintCommand(dto, userId),
+      new CreateSprintCommand(pid, dto, userId),
     );
     return { data: id };
   }
 
-  @Patch(':id')
+  @Patch(':pid/sprints:id')
   @ApiOperation({ description: 'Update sprint' })
   @ApiOkResponse({ type: IdResponseDto })
-  @Permission(WorkspacePolicy.SPRINT_MANAGEMENT)
+  @Permission(Policy.SPRINT_MANAGEMENT)
   async update(
     @Auth('userId') userId,
+    @Param() { pid }: GetProjectDto,
     @Param() { id }: DeleteSprintDto,
     @Body() dto: UpdateSprintDto,
   ): Promise<IdResponseDto> {
-    await this.commandBus.execute(new UpdateSprintCommand(id, dto, userId));
+    await this.commandBus.execute(
+      new UpdateSprintCommand(pid, id, dto, userId),
+    );
     return { data: id };
   }
 
-  @Delete(':id')
+  @Delete(':pid/sprints:id')
   @ApiOperation({ description: 'Delete sprint' })
   @ApiOkResponse({ type: IdResponseDto })
-  @Permission(WorkspacePolicy.SPRINT_MANAGEMENT)
+  @Permission(Policy.SPRINT_MANAGEMENT)
   async delete(
     @Auth('userId') userId,
+    @Param() { pid }: GetProjectDto,
     @Param() { id }: DeleteSprintDto,
   ): Promise<IdResponseDto> {
-    await this.commandBus.execute(new DeleteSprintCommand(id, userId));
+    await this.commandBus.execute(new DeleteSprintCommand(pid, id, userId));
     return { data: id };
   }
 }

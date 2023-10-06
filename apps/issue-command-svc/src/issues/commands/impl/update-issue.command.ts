@@ -4,7 +4,8 @@ import { UpdateIssueDto } from '../../dto';
 
 export class UpdateIssueCommand implements ICommand {
   constructor(
-    public readonly id: ID,
+    public readonly projectId: ID,
+    public readonly issueId: ID,
     public readonly dto: UpdateIssueDto,
     public readonly userId: ID,
   ) {}
