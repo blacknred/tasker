@@ -1,13 +1,7 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginatedRequestDto, sprintMock } from '@taskapp/shared';
-import {
-  IsDateString,
-  IsIn,
-  IsOptional,
-  IsUUID,
-  Length,
-} from 'class-validator';
+import { IsDateString, IsIn, IsOptional, Length } from 'class-validator';
 
 export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
   'sort.field',
@@ -19,14 +13,6 @@ export class GetSprintsDto extends OmitType(PaginatedRequestDto, [
       'Must be a one of the fields: "name", "startsAt", "endsAt", "createdAt"',
   })
   readonly 'sort.field'?: 'name' | 'startsAt' | 'endsAt' | 'createdAt';
-
-  @ApiProperty({
-    type: 'uuid',
-    example: sprintMock.projectId,
-    required: true,
-  })
-  @IsUUID(4, { message: 'Must be an uuid' })
-  readonly projectId: string;
 
   @ApiProperty({ type: 'string', example: sprintMock.name, required: false })
   @IsOptional()

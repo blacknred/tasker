@@ -1,4 +1,4 @@
-import { WorkspacePolicy } from '../enums';
+import { Policy } from '../enums';
 import { IRole } from '../interfaces';
 
 export const roleMock: IRole = {
@@ -7,7 +7,7 @@ export const roleMock: IRole = {
   details: 'base role',
   color: '#454564',
   rank: 1,
-  policies: [WorkspacePolicy.ISSUE_MANAGEMENT],
+  policies: [Policy.ISSUE_MANAGEMENT],
   workspaceId: 'b4db61c5-d10e-4ed3-a903-b8fd75fc3d30',
   createdAt: '2022-08-14 13:55:16.622111',
   updatedAt: '2022-08-14 13:55:16.622111',

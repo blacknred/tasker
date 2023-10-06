@@ -89,13 +89,6 @@ class Relation {
 
 export class CreateIssueDto {
   @ApiProperty({
-    type: 'uuid',
-    example: issueMock.projectId,
-  })
-  @IsUUID(4, { message: 'Must be an uuid' })
-  readonly projectId: string;
-
-  @ApiProperty({
     enum: IssueType,
     example: issueMock.type,
   })

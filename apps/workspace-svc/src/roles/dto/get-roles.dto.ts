@@ -1,10 +1,6 @@
 import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  PaginatedRequestDto,
-  WorkspacePolicy,
-  roleMock,
-} from '@taskapp/shared';
+import { PaginatedRequestDto, Policy, roleMock } from '@taskapp/shared';
 import { IsEnum, IsIn, IsOptional, Length } from 'class-validator';
 
 export class GetRolesDto extends OmitType(PaginatedRequestDto, ['sort.field']) {
@@ -21,15 +17,13 @@ export class GetRolesDto extends OmitType(PaginatedRequestDto, ['sort.field']) {
   readonly name?: string;
 
   @ApiProperty({
-    enum: WorkspacePolicy,
+    enum: Policy,
     example: roleMock.policies[0],
     required: false,
   })
   @IsOptional()
-  @IsEnum(WorkspacePolicy, {
-    message: `Must be a one of the fields: ${Object.keys(WorkspacePolicy).join(
-      ', ',
-    )}`,
+  @IsEnum(Policy, {
+    message: `Must be a one of the fields: ${Object.keys(Policy).join(', ')}`,
   })
-  readonly policy?: WorkspacePolicy;
+  readonly policy?: Policy;
 }

@@ -1,4 +1,4 @@
-import { WorkspacePolicy } from '../enums';
+import { Policy } from '../enums';
 import { IBase, ID } from './base.interface';
 
 export interface IRole extends IBase {
@@ -7,5 +7,5 @@ export interface IRole extends IBase {
   details?: string;
   color?: string;
   rank: number;
-  policies: WorkspacePolicy[];
+  policies: Policy[];
 }

@@ -1,7 +1,11 @@
 import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AllExceptionFilter } from '@taskapp/shared';
+import {
+  AllExceptionFilter,
+  Authentication,
+  GetProjectDto,
+} from '@taskapp/shared';
 import {
   GetSprintDto,
   GetSprintsDto,
@@ -10,23 +14,30 @@ import {
 } from './dto';
 import { GetSprintQuery, GetSprintsQuery } from './queries';
 
+@Authentication()
 @ApiTags('Sprints')
-@Controller('sprints')
+@Controller('projects')
 @UseFilters(AllExceptionFilter)
 export class SprintsController {
   constructor(private readonly queryBus: QueryBus) {}
 
-  @Get()
+  @Get(':pid/sprints')
   @ApiOperation({ description: 'List all sprints' })
   @ApiOkResponse({ type: SprintsResponseDto })
-  async getAll(@Query() dto: GetSprintsDto): Promise<SprintsResponseDto> {
-    return this.queryBus.execute(new GetSprintsQuery(dto));
+  async getAll(
+    @Param() { pid }: GetProjectDto,
+    @Query() dto: GetSprintsDto,
+  ): Promise<SprintsResponseDto> {
+    return this.queryBus.execute(new GetSprintsQuery(pid, dto));
   }
 
-  @Get(':id')
+  @Get(':pid/sprints/:id')
   @ApiOperation({ description: 'Get sprint by id' })
   @ApiOkResponse({ type: SprintsResponseDto })
-  async getOne(@Param() { id }: GetSprintDto): Promise<SprintResponseDto> {
-    return this.queryBus.execute(new GetSprintQuery(id));
+  async getOne(
+    @Param() { pid }: GetProjectDto,
+    @Param() { id }: GetSprintDto,
+  ): Promise<SprintResponseDto> {
+    return this.queryBus.execute(new GetSprintQuery(pid, id));
   }
 }

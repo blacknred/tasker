@@ -1,4 +1,5 @@
 import {
+  CanActivate,
   ExecutionContext,
   ForbiddenException,
   Injectable,
@@ -7,13 +8,10 @@ import { Reflector } from '@nestjs/core';
 import { IAuth } from '@taskapp/shared';
 import type { Request } from 'express';
 import { PERMISSION_KEY } from '../consts';
-import { ProjectRoleGuard } from './project-role.guard';
 
 @Injectable()
-export class PermissionGuard extends ProjectRoleGuard {
-  constructor(private readonly reflector: Reflector) {
-    super();
-  }
+export class PermissionGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(ctx: ExecutionContext): boolean {
     const claims = this.reflector.getAllAndOverride(PERMISSION_KEY, [
@@ -23,13 +21,10 @@ export class PermissionGuard extends ProjectRoleGuard {
 
     if (!claims) return true;
 
-    super.canActivate(ctx);
-
     const req = ctx.switchToHttp().getRequest() as Request;
-    const projectId = req.body.projectId || req.params.id;
     const user = req.user as IAuth;
 
-    if (!claims.every((p) => user.permissions[projectId].includes(p))) {
+    if (!claims.every((p) => user.permissions.includes(p))) {
       throw new ForbiddenException({
         errors: [
           {

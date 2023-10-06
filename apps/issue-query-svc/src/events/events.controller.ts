@@ -1,20 +1,23 @@
-import { Controller, Get, Query, UseFilters } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseFilters } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AllExceptionFilter } from '@taskapp/shared';
+import { AllExceptionFilter, GetProjectDto } from '@taskapp/shared';
 import { EventsResponseDto, GetEventsDto } from './dto';
 import { GetEventsQuery } from './queries';
 
 @ApiTags('Events')
-@Controller('events')
+@Controller('projects')
 @UseFilters(AllExceptionFilter)
 export class EventsController {
   constructor(private readonly queryBus: QueryBus) {}
 
-  @Get()
+  @Get(':pid/events')
   @ApiOperation({ description: 'List all events' })
   @ApiOkResponse({ type: EventsResponseDto })
-  async getAll(@Query() dto: GetEventsDto): Promise<EventsResponseDto> {
-    return this.queryBus.execute(new GetEventsQuery(dto));
+  async getAll(
+    @Param() { pid }: GetProjectDto,
+    @Query() dto: GetEventsDto,
+  ): Promise<EventsResponseDto> {
+    return this.queryBus.execute(new GetEventsQuery(pid, dto));
   }
 }

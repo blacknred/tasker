@@ -14,12 +14,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  Auth,
-  IdResponseDto,
-  Permission,
-  WorkspacePolicy,
-} from '@taskapp/shared';
+import { Auth, IdResponseDto, Permission, Policy } from '@taskapp/shared';
 import {
   CreateProjectDto,
   DeleteProjectDto,
@@ -68,7 +63,7 @@ export class WorkspacesController {
   ) {}
 
   @Post()
-  @ApiOperation({ description: 'Сreate wokspace' })
+  @ApiOperation({ description: 'Сreate workspace' })
   @ApiCreatedResponse({ type: WorkspaceResponseDto })
   async create(@Body() dto: CreateWorkspaceDto): Promise<WorkspaceResponseDto> {
     return this.workspacesService.create(dto);
@@ -87,7 +82,7 @@ export class WorkspacesController {
   @Patch(':id')
   @ApiOperation({ description: 'Update workspace' })
   @ApiOkResponse({ type: WorkspaceResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.WORKSPACE_MANAGEMENT)
   async update(
     @Auth('userId') userId,
     @Body() dto: UpdateWorkspaceDto,
@@ -100,7 +95,7 @@ export class WorkspacesController {
   @Post(':id/roles')
   @ApiOperation({ description: 'Сreate workspace role' })
   @ApiCreatedResponse({ type: RoleResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.ROLE_MANAGEMENT)
   async createRole(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -134,7 +129,7 @@ export class WorkspacesController {
   @Patch(':id/roles/:rid')
   @ApiOperation({ description: 'Update workspace role' })
   @ApiOkResponse({ type: RoleResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.ROLE_MANAGEMENT)
   async updateRole(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -147,7 +142,7 @@ export class WorkspacesController {
   @Delete(':id/roles/:rid')
   @ApiOperation({ description: 'Delete workspace role' })
   @ApiOkResponse({ type: IdResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.ROLE_MANAGEMENT)
   async deleteRole(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -161,7 +156,7 @@ export class WorkspacesController {
   @Post(':id/users')
   @ApiOperation({ description: 'Сreate workspace user' })
   @ApiCreatedResponse({ type: UserResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.USER_MANAGEMENT)
   async createUser(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -195,7 +190,7 @@ export class WorkspacesController {
   @Patch(':id/users/:uid')
   @ApiOperation({ description: 'Update workspace user' })
   @ApiOkResponse({ type: UserResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.USER_MANAGEMENT)
   async updateUser(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -208,7 +203,7 @@ export class WorkspacesController {
   @Delete(':id/users/:uid')
   @ApiOperation({ description: 'Delete workspace user' })
   @ApiOkResponse({ type: IdResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.USER_MANAGEMENT)
   async deleteUser(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -222,7 +217,7 @@ export class WorkspacesController {
   @Post(':id/projects')
   @ApiOperation({ description: 'Сreate workspace project' })
   @ApiCreatedResponse({ type: ProjectResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.PROJECT_MANAGEMENT)
   async createProject(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -256,7 +251,7 @@ export class WorkspacesController {
   @Patch(':id/projects/:pid')
   @ApiOperation({ description: 'Update workspace project' })
   @ApiOkResponse({ type: ProjectResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.PROJECT_MANAGEMENT)
   async updateProject(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
@@ -269,7 +264,7 @@ export class WorkspacesController {
   @Delete(':id/projects/:pid')
   @ApiOperation({ description: 'Delete workspace project' })
   @ApiOkResponse({ type: IdResponseDto })
-  @Permission(WorkspacePolicy.WORKSPACE_MANAGEMENT)
+  @Permission(Policy.PROJECT_MANAGEMENT)
   async deleteProject(
     @Auth('userId') userId,
     @Param() { id }: GetWorkspaceDto,
