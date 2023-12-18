@@ -1,0 +1,64 @@
+version: '3.9'
+
+# staging env
+# 1. use prod data & sso services
+
+services:
+  # data
+
+  redis:
+    profiles:
+      - none
+
+  postgres:
+    profiles:
+      - none
+
+  rabbitmq:
+    profiles:
+      - none
+
+  eventstore:
+    profiles:
+      - none
+  
+  minio:
+    profiles:
+      - none
+
+  mc:
+    profiles:
+      - none
+
+  # sso
+
+  keycloak:
+    profiles:
+      - none
+
+  sso-proxy:
+    profiles:
+      - none
+
+  # apps
+
+  gateway:
+    image: taskapp/gateway-staging:${TAG:-latest}
+
+  workspace-svc:
+    image: taskapp/workspace-svc-staging:${TAG:-latest}
+
+  issue-command-svc:
+    image: taskapp/issue-command-svc-staging:${TAG:-latest}
+
+  issue-query-svc:
+    image: taskapp/issue-query-svc-staging:${TAG:-latest}
+
+  notification-svc:
+    image: taskapp/notification-svc-staging:${TAG:-latest}
+
+  search-svc:
+    image: taskapp/search-svc-staging:${TAG:-latest}
+
+  report-svc:
+    image: taskapp/report-svc-staging:${TAG:-latest}

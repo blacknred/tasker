@@ -20,3 +20,8 @@ set $allowed_ip_range -; # range 123.123.123.0/28
 set $blocked_geo_ip -;
 set $http_referrer -;
 set $http_user_agent -;
+
+$ Upstreams
+set $minio ${MINIO_HOST};
+set $keycloak ${KEYCLOAK_HOST};
+set $sso_proxy ${SSO_PROXY_HOST}

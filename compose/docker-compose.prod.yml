@@ -1,0 +1,248 @@
+version: '3.9'
+
+# prod env
+# 1. use own data & sso services
+# 2. use metrics exporters since there is enough load
+# 3. use load testing; backup prod data to revert it once testing is done
+
+services:
+  # monitoring
+
+  fluent-bit:
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  docker-metrics-exporter:
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [8081:8080]
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  node-metrics-exporter:
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9100]
+    command:
+      - '—-path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  nginx-metrics-exporter:
+    image: nginx/nginx-prometheus-exporter:edge
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9113]
+    environment:
+      - nginx.scrape-uri=https://gateway:80/metrics
+    depends_on:
+      - gateway
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  postgres-metrics-exporter:
+    image: bitnami/postgres-exporter:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9187]
+    environment:
+      - DATA_SOURCE_NAME=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@{POSTGRES_HOST:-postgres}:5432/postgres?sslmode=disable
+    depends_on:
+      - postgres
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  redis-metrics-exporter:
+    # we use this since only redis enterprise has native prometheus supporting
+    image: oliver006/redis_exporter
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9121]
+    environment:
+      - REDIS_ADDR=redis:6379/0
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    healthcheck:
+      test: exit 0
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  # apps
+
+  gateway:
+    image: taskapp/gateway:${TAG:-latest}
+    depends_on:
+      - sso-proxy
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  workspace-svc:
+    image: taskapp/workspace-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-command-svc:
+    image: taskapp/issue-command-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  issue-query-svc:
+    image: taskapp/issue-query-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  notification-svc:
+    image: taskapp/notification-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  search-svc:
+    image: taskapp/search-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  report-svc:
+    image: taskapp/report-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1

@@ -10,7 +10,6 @@ groups:
         labels:
           severity: "critical"
 
-
   - name: Service
     rules:
       - alert: "Service"
@@ -21,8 +20,6 @@ groups:
           description: "{{ $labels.name }} has been down for more than 1 minute."
         labels:
           severity: "critical"
-
-
 
   - name: containers
     rules:
@@ -36,8 +33,6 @@ groups:
         annotations:
           summary: "Critical: Some container is down on the host {{ $labels.instance }} for more than 1 minutes"
           description: "Some container is down on the host {{ $labels.instance }}"
-
-
 
   - name: PostgreSQL
     rules:
@@ -168,7 +163,6 @@ groups:
         annotations:
           description: "Critical: Nginx high number active connections on the host {{ $labels.instance }} for more than 3 minutes"
           summary: "Nginx high number active connections"
-
 
 
 groups:

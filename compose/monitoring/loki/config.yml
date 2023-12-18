@@ -74,3 +74,9 @@ ruler:
   alertmanager_url: http://alertmanager:9093
   enable_api: true
   enable_alertmanager_v2: true
+
+# http://loki-host:3100/ready => text response 'ready'
+# http://grafana-host:3033/explore => loki source => query {module="fluent-bit", severity="INFO"}
+
+# log format: [dateTime] [tenantId] [severity] [module] [message]
+# [01.11.2023 17:07:59] [node001] [INFO] [Export.Csv] [rsvp_flow_stateMachine: entering]

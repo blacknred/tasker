@@ -1,3 +1,4 @@
+import { TracingModule } from '@dollarsign/nestjs-jaeger-tracing';
 import { HttpModuleAsyncOptions, HttpModuleOptions } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -12,6 +13,7 @@ export function getHttpOptions(
         {
           timeout: configService.get('HTTP_TIMEOUT'),
           maxRedirects: 3,
+          ...TracingModule.getParserOptions(),
         },
         options,
       ),

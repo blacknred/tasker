@@ -1,0 +1,28 @@
+version: '3.9'
+
+# dev env
+# 1. use own data and sso services
+
+services:
+  # apps
+
+  gateway:
+    image: taskapp/gateway-dev:${TAG:-latest}
+
+  workspace-svc:
+    image: taskapp/workspace-svc-dev:${TAG:-latest}
+
+  issue-command-svc:
+    image: taskapp/issue-command-svc-dev:${TAG:-latest}
+
+  issue-query-svc:
+    image: taskapp/issue-query-svc-dev:${TAG:-latest}
+
+  notification-svc:
+    image: taskapp/notification-svc-dev:${TAG:-latest}
+
+  search-svc:
+    image: taskapp/search-svc-dev:${TAG:-latest}
+
+  report-svc:
+    image: taskapp/report-svc-dev:${TAG:-latest}

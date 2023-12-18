@@ -1,0 +1,123 @@
+version: '3.9'
+
+# monitoring env
+# 1. any env can write to loki
+# 2. any env can write to jaeger
+# 3. pull metrics only from prod env(enough load)
+
+networks:
+  monitoring:
+    ipam:
+      driver: default
+      config:
+        # all services under ip range
+        - subnet: 172.28.0.0/16
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+services:
+  loki:
+    image: grafana/loki:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [3100]
+    user: root
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./monitoring/loki/config.yml:/etc/loki/config.yaml:ro
+      - ./monitoring/loki/alerts.yml:/etc/loki/rules/alerts/rules.yml:ro
+    environment:
+      # the dot after host means no AWS Region
+      - MINIO_URL=http://${PROD_MINIO_USER:-test}:${PROD_MINIO_PASSWORD:-test}@${PROD_MINIO_HOST:-minio}.:9000/loki
+    healthcheck:
+      test: exit 0
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9090]
+    command:
+      - '--config.file=/etc/prometheus/config.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=7d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - ./monitoring/prometheus/config.yml:/etc/prometheus/config.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometeus_data:/prometheus
+    healthcheck:
+      test: exit 0
+  
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778
+      - 16686
+      - 14268
+      - 14250
+      - 9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    healthcheck:
+      test: exit 0
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [80:3000]
+    volumes:
+      - ./monitoring/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-test}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-test}
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    healthcheck:
+      test: exit 0
+    depends_on:
+      - loki
+      - prometheus
+      - jaeger
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [9093]
+    command:
+      - '--storage.path=/alertmanager'
+      - '--config.file=/etc/alertmanager/config.yml'
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./monitoring/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+      - ./monitoring/alertmanager/notifications.tmpl:/etc/alertmanager/notifications.tmpl:ro
+    healthcheck:
+      test: exit 0 
+
+  alertmanager-bot:
+    image: metalmatze/alertmanager-bot:0.4.3
+    restart: unless-stopped
+    networks: [monitoring]
+    ports: [8080]
+    command:
+      - --alertmanager.url=http://alertmanager:9093
+      - --log.level=info
+      - --store=bolt
+      - --bolt.path=/data/bot.db
+      - --telegram.admin=${TG_ADMIN}
+      - --telegram.token=${TG_TOKEN}
+    healthcheck:
+      test: exit 0 
+
+ 

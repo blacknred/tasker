@@ -2,7 +2,7 @@
   "service_name": "nginx",
   "reporter": {
     "logSpans": true,
-    "localAgentHostPort": "jaeger:6831"
+    "localAgentHostPort": "infra_host:6831"
   },
   "sampler": {
     "type": "const",

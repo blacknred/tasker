@@ -1,55 +1,79 @@
-version: "3.8"
+version: '3.9'
+
+# local env
+# 1. use own or dev data and sso services
 
 services:
-
   # data
 
   redis:
+    restart: unless-stopped
+    env_file: ../env.local
     volumes:
       - ./redis/data:/data
-    env_file: ../.env.dev
-    restart: unless-stopped
 
   postgres:
+    restart: unless-stopped
+    env_file: ../env.local
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
-    env_file: ../.env.dev
-    restart: unless-stopped
 
   rabbitmq:
+    restart: unless-stopped
+    env_file: ../env.local
     volumes:
       - ./rabbitmq/data:/var/lib/rabbitmq
-    env_file: ../.env.dev
-    restart: unless-stopped
 
   eventstore:
+    restart: unless-stopped
+    env_file: ../env.local
     volumes:
       - ./eventstore/data:/var/lib/eventstore
-    env_file: ../.env.dev
-    restart: unless-stopped
 
-  minio:
-    volumes:
-      - ./minio/data:/data
-    env_file: ../.env.dev
-    restart: unless-stopped
+  # sso
 
-  mc:
-    env_file: ../.env.dev
+  keycloak:
     restart: unless-stopped
+    env_file: ../env.local
+    command: start-dev --import-realm
+    environment:
+      - KC_HOSTNAME=localhost
+
+  sso-proxy:
+    restart: unless-stopped
+    env_file: ../env.local
+    environment:
+      - OAUTH2_PROXY_COOKIE_SECURE=false # no https
+      - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains
+      - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target
+
+  # misc
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    networks: [apps]
+    ports: [1025, 8025]
+    healthcheck:
+      test: exit 0
 
   # apps
 
-  keycloak:
-    env_file: ../.env.dev
-    environment:
-      - KC_HOSTNAME=localhost
-    command: start-dev --import-realm
+  gateway:
     restart: unless-stopped
-    depends_on:
-      - mailhog
+    env_file: ../env.local
+    build: ../apps/gateway
+    volumes:
+      - ../apps/gateway/nginx:/etc/nginx:ro
+      - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
+    environment:
+      - HOST=localhost
+    depends_on: !reset []
 
   workspace-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev workspace-svc
     build:
       context: ../
       target: build
@@ -60,11 +84,12 @@ services:
       - ../apps/workspace-svc:/usr/src/app/apps/workspace-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev workspace-svc
-    restart: unless-stopped
+    depends_on: !reset []
 
   issue-command-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev issue-command-svc
     build:
       context: ../
       target: build
@@ -75,11 +100,12 @@ services:
       - ../apps/issue-command-svc:/usr/src/app/apps/issue-command-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev issue-command-svc
-    restart: unless-stopped
+    depends_on: !reset []
 
   issue-query-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev issue-query-svc
     build:
       context: ../
       target: build
@@ -90,11 +116,12 @@ services:
       - ../apps/issue-query-svc:/usr/src/app/apps/issue-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev issue-query-svc
-    restart: unless-stopped
+    depends_on: !reset []
 
   notification-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev notification-svc
     build:
       context: ../
       target: build
@@ -105,11 +132,12 @@ services:
       - ../apps/notification-svc:/usr/src/app/apps/notification-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev notification-svc
-    restart: unless-stopped
+    depends_on: !reset []
 
   search-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev search-svc
     build:
       context: ../
       target: build
@@ -120,11 +148,12 @@ services:
       - ../apps/search-svc:/usr/src/app/apps/search-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev search-svc
-    restart: unless-stopped
+    depends_on: !reset []
 
   report-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev report-svc
     build:
       context: ../
       target: build
@@ -135,52 +164,4 @@ services:
       - ../apps/report-svc:/usr/src/app/apps/report-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
-    env_file: ../.env.dev
-    command: nest start:dev report-svc
-    restart: unless-stopped
-
-  mailhog:
-    image: mailhog/mailhog:latest
-    networks: [ apps ]
-    ports: [ 1025, 8025 ]
-    logging:
-      driver: 'none'
-
-  sso-proxy:
-    env_file: ../.env.dev
-    environment:
-      - OAUTH2_PROXY_COOKIE_SECURE=false # no https
-    restart: unless-stopped
-
-  gateway:
-    build: ../apps/gateway
-    volumes:
-      - ../apps/gateway/nginx:/etc/nginx:ro
-      - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
-      - ../apps/gateway/swagger-ui:/var/www/swagger-ui:ro
-    env_file: ../.env.dev
-    environment:
-      - HOST=localhost
-    restart: unless-stopped
-
-  # monitoring
-
-  loki:
-    env_file: ../.env.dev
-    restart: unless-stopped
-
-  fluent-bit:
-    env_file: ../.env.dev
-    restart: unless-stopped
-
-  jaeger:
-    env_file: ../.env.dev
-    restart: unless-stopped
-
-  prometheus:
-    env_file: ../.env.dev
-    restart: unless-stopped
-
-  grafana:
-    env_file: ../.env.dev
-    restart: unless-stopped
+    depends_on: !reset []

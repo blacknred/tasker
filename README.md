@@ -6,16 +6,13 @@ Sample b2b agile task management app
 
 [![CI](https://github.com/blacknred/be-taskapp/workflows/release/badge.svg)](https://github.com/blacknred/be-taskapp/actions)
 
-## Architecture(monorepo)
+## Architecture
+
+### Node
 
 | Services           | Container         | Stack                        | Ports       |
 | ------------------ | ----------------- | ---------------------------- | ----------- |
-| Redis              | redis             | Redis stack                  | 6379        |
-| Queue              | rabbitmq          | RabbitMQ                     | 5672/15672  |
-| Read DB            | postgres          | Postgres                     | 5432        |
-| Write DB           | eventstore        | EventStoreDB                 | 1113/2113   |
-| Object storage(s3) | minio             | Minio                        | 9000        |
-| -                  | -                 | -                            | -           |
+| __apps__           | -                 | -                            | -           |
 | Api Gateway        | gateway           | Nginx, HTTP1.1/GRPC, Swagger | 80/443/8080 |
 | Workspace          | workspace-svc     | NodeJs, HTTP1.1/GRPC, AMQP   | 3001/50051  |
 | Issue Command      | issue-command-svc | NodeJs, HTTP1.1/GRPC, AMQP   | 3002/50052  |
@@ -23,30 +20,35 @@ Sample b2b agile task management app
 | Notification       | notification-svc  | NodeJs, HTTP1.1/GRPC, AMQP   | 3004/50054  |
 | Search             | search-svc        | NodeJs, HTTP1.1/GRPC, AMQP   | 3005/50055  |
 | Report             | report-svc        | NodeJs, HTTP1.1/GRPC, AMQP   | 3006/50056  |
+| __data__           | -                 | -                            | -           |
+| Redis              | redis             | Redis stack                  | 6379        |
+| Queue              | rabbitmq          | RabbitMQ                     | 5672/15672  |
+| Read DB            | postgres          | Postgres                     | 5432        |
+| Write DB           | eventstore        | EventStoreDB                 | 1113/2113   |
+| Object storage(s3) | minio             | Minio                        | 9000        |
+| __auth__           | -                 | -                            | -           |
 | IDP                | keycloak          | Keycloak, HTTP1.1            | 8000/8443   |
 | Sso Proxy          | sso-proxy         | Oauth2-proxy, HTTP1.1        | 4180        |
-| -                  | -                 | -                            | -           |
-| Tracing            | jaeger            | Jaeger                       | 9411/16686  |
-| Prometheus         | prometheus        | Prometheus                   | 9090        |
+| __monitoring__     | -                 | -                            | -           |
+| Logs aggregator    | fluent-bit        | Fluent Bit                   | 24224       |
 | Container metrics  | cadvisor          | Prom cadvisor                | 8081        |
 | Unix metrics       | node-exporter     | Prom node exporter           | 9100        |
 | Nginx metrics      | nginx-exporter    | Prom nginx exporter          | 9113        |
 | Postgres metrics   | postgres-exporter | Prom postgres exporter       | 9187        |
 | Redis metrics      | redis-exporter    | Prom redis exporter          | 9121        |
+
+### Monitoring machine
+
+| Services           | Container         | Stack                        | Ports       |
+| ------------------ | ----------------- | ---------------------------- | ----------- |
+| Tracing            | jaeger            | Jaeger                       | 9411/16686  |
+| Prometheus         | prometheus        | Prometheus                   | 9090        |
 | Logs storage       | loki              | Grafana Loki                 | 3100        |
-| Logs aggregator    | fluent-bit        | Fluent Bit                   | 24224       |
-| Grafana            | grafana           | Grafana                      | 3033        |
+| Grafana            | grafana           | Grafana                      | 80          |
 | Alerts             | alertmanager      | Alertmanager                 | 9093        |
+| Alerts bot         | alertmanager-bot  | Alertmanager Bot             | 8080        |
 
-### Data
-
-- Redis
-- Postgres(db per service)
-- EvenStoreDB
-- RabbitMQ
-- Minio
-
-### Services
+### Services(monorepo)
 
 #### Workspace
 
@@ -61,7 +63,7 @@ Sample b2b agile task management app
 
 #### Issue
 
-> Issue related operations: issue(+comments, +votes, +subscriptions), sprints, events
+> Issue related operations: issue(+comments, +votes, +subscriptions(per user also)), sprints, events
 
 - The service is split to command/query applications and implements CQRS/ES with EventStoreDB as a write db and Pg as a read db. There are several reasons for this:
   - the service serves mainly non-atomic read/write operations(issue updates) in large quantities
@@ -82,30 +84,13 @@ Sample b2b agile task management app
 
 #### Api Gateway
 
-- Api gateway
-  - api versioning
-  - load ballancing, circuit broker
-  - security: ddos, helmet, cors, ssl
-  - proxying HTTP1.1 & GRPC microservices
-  - access: auth_request to oauth2proxy and rbac
-  - http cache?
-- Infrastructure proxy
-  - basic_auth guard
-  - proxy HTTP1.1: grafana, prometheus-ui, jaeger, rabbitmq management, alertmanager
-- Static serve
-  - swagger-ui
-- Misc
-  - metrics(Prometheus)
-  - opentracing
-
-### Monitoring
-
-- Jaeger
-- Prometheus: service modules, cadvisor, node-exporter, nginx-exporter, postgres-exporter, redis-exporter
-- Grafana loki
-- Fluent Bit
-- Grafana
-- Alertmanager
+- api versioning
+- load ballancing, circuit broker
+- security: ddos, helmet, cors, ssl
+- proxying HTTP1.1 & GRPC microservices
+- access: auth_request to oauth2proxy and rbac
+- http cache?
+- opentracing plugin
 
 ## Features
 
@@ -136,7 +121,10 @@ Sample b2b agile task management app
 - mvp
 - k8s
 - switch microservices to grpc
-- rewrite gateway in golang to implement http1.1 restapi <-> grpc and use sso without oauth2-proxy
+- rewrite gateway to either
+  - golang to implement http1.1 restapi <-> grpc and use sso without oauth2-proxy
+  - open-resty: lua-resty-grpc-gateway, <https://kevalnagda.github.io/configure-nginx-and-keycloak-to-enable-sso-for-proxied-applications>
+- separate service for combined open apis: <https://blog.onesaitplatform.com/en/2022/11/23/centralized-swagger-catalog-microservices/>
 - multi-tenancy?
 - automation?
 - billing(+stripe)? - to have more than 5 users the workspace needs to be switched to paid plan

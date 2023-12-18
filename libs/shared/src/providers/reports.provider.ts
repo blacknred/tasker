@@ -1,3 +1,4 @@
+import { TracingModule } from '@dollarsign/nestjs-jaeger-tracing';
 import { ConfigService } from '@nestjs/config';
 import {
   ClientProvider,
@@ -22,6 +23,7 @@ export function getReportsClientOptions(
           queueOptions: {
             durable: true,
           },
+          ...TracingModule.getParserOptions(),
         },
         options,
       ),
