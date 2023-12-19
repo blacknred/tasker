@@ -1,4 +1,4 @@
-name: "run tests & deploy to stage"
+name: "run tests & deploy to staging"
 
 on:
   pull_request:

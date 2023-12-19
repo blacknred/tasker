@@ -1,4 +1,4 @@
-name: "run tests"
+name: "run tests for dev"
 
 on:
   pull_request:
