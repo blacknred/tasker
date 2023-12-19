@@ -2,7 +2,7 @@ name: "run tests for dev"
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened] # synchronize is target feature branch update
     branches: [dev]
 
 concurrency:

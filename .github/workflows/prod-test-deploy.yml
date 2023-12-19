@@ -4,6 +4,12 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        default: latest
+        description: Tag you want to release.
+        required: true
 
 concurrency:
   group: ci-release-${{ github.ref }}

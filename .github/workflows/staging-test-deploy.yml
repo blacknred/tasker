@@ -2,7 +2,7 @@ name: "run tests & deploy to staging"
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened] # synchronize is hotfix branch update
     branches: [main]
 
 concurrency:
