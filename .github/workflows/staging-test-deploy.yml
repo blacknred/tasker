@@ -1,0 +1,185 @@
+name: "run tests & deploy to stage"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+concurrency:
+  group: ci-deploy-rc-${{ github.ref }}
+  cancel-in-progress: true # start latest instead of current
+
+jobs:
+  staging-test:
+    if: | # only PR for release/hotfix is allowed
+      contains(toJSON(github.head_ref), 'release/')
+      || contains(toJSON(github.head_ref), 'hotfix/')
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Setup
+      - name: Checkout  
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4-beta
+        with:
+          node-version: "20"
+      - name: Install newman
+        run: npm install -g newman
+
+      # 2. Run Tests
+      - name: Run Unit & Integration Tests
+        run: mv .env.example .env; npm run install; npm run build; npm run lint; npm run test:jest;
+      - name: Run E2E Tests
+        run: npm run test:e2e;
+        # run: newman run NewmanDemo.postman_collection.json -e ReqResDev.postman_environment.json
+
+  staging-deploy:
+    needs: [staging-test]
+    runs-on: ubuntu-latest
+    environment: staging # uses secrets from staging environment
+    env:
+      IMAGE_TAG: "${{ github.event.release.tag_name }}-rc"
+    permissions:
+      pull-requests: read
+    steps:
+      # 1. Setup
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up QEMU # multiarch
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 2. Build and push only updated services for monorepo
+      - name: Add path filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workspace-svc:
+              - 'apps/workspace-svc/**'
+            issue-command-svc:
+              - 'apps/issue-command-svc/**'
+            issue-query-svc:
+              - 'apps/issue-query-svc/**'
+            notification-svc:
+              - 'apps/notification-svc/**'
+            search-svc:
+              - 'apps/search-svc/**'
+            report-svc:
+              - 'apps/report-svc/**'
+            gateway:
+              - 'apps/gateway/**'
+      - name: Build and push workspace-svc
+        if: steps.filter.outputs.workspace-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "workspace-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
+      - name: Build and push issue-command-svc
+        if: steps.filter.outputs.issue-command-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "issue-command-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:latest
+      - name: Build and push issue-query-svc
+        if: steps.filter.outputs.issue-query-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "issue-query-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:latest
+      - name: Build and push notification-svc
+        if: steps.filter.outputs.notification-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "issue-query-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
+      - name: Build and push search-svc
+        if: steps.filter.outputs.search-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "search-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
+      - name: Build and push report-svc
+        if: steps.filter.outputs.report-svc == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "report-svc"
+        with:
+          push: true
+          build-args: |
+            SERVICE_NAME=$SERVICE_NAME
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
+      - name: Build and push gateway
+        if: steps.filter.outputs.gateway == 'true'
+        uses: docker/build-push-action@v4
+        env:
+          SERVICE_NAME: "gateway"
+        with:
+          push: true
+          context: ./apps/gateway
+          file: ./apps/gateway/Dockerfile
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
+
+      # 3. Deploy
+      - name: Deploy
+        run: echo "daily pull deployment"
+
+      # 4. Notify
+      - name: Notify slack success
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: app-alerts
+          status: SUCCESS
+          color: good
+      - name: Notify slack fail
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: app-alerts
+          status: FAILED
+          color: danger
