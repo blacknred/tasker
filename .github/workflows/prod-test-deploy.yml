@@ -4,52 +4,19 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
-  workflow_dispatch:
-    inputs:
-      version:
-        default: latest
-        description: Tag you want to release.
-        required: true
 
 concurrency:
   group: ci-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # prod-test:
-  #   runs-on: ubuntu-latest
-  #   if: | # only PR for release/hotfix is allowed and PR is closed with merging
-  #     (contains(toJSON(github.head_ref), 'release/')
-  #     || contains(toJSON(github.head_ref), 'hotfix/'))
-  #     && github.event.pull_request.merged == true
-  #   steps:
-  #     # 1. Setup
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Set up Node
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: "20"
-  #     - name: Install newman
-  #       run: npm install -g newman
-
-  #     # 2. Run Tests
-  #     - name: Run Unit & Integration Tests
-  #       run: mv .env.example .env; npm run install; npm run build; npm run lint; npm run test:jest;
-  #     - name: Run E2E Tests
-  #       run: npm run test:e2e;
-  #       # run: newman run NewmanDemo.postman_collection.json -e ReqResDev.postman_environment.json
-
   prod-deploy:
-    # needs: [prod-test]
     runs-on: ubuntu-latest
     environment: prod # uses secrets from prod environment
-    env:
-      IMAGE_TAG: "${{ github.event.release.tag_name }}"
     permissions:
       pull-requests: read
     outputs:
-      RELEASE_VERSION: ${{ steps.variables.outputs.RELEASE_VERSION }}
+      VERSION: ${{ steps.variables.outputs.VERSION }}
     steps:
       # 1. Setup
       - name: Checkout
@@ -63,36 +30,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # # 2. Sets & print variables
-      # - name: Sets variables
-      #   id: variables     
-      #   run: |
-      #     git fetch --prune --prune-tags origin
-
-      #     # 1. Get tags
-      #     LATEST_TAG=$(git describe --tags "$(git rev-list --tags --max-count=1)")
-      #     TAG_LIST=($(echo $LATEST_TAG | tr '.' ' '))
-      #     [[ "${#TAG_LIST[@]}" -ne 2 ]] && echo "$RELEASE_VERSION is not a valid version" && exit 1
-
-      #     # 2. Set release version
-      #     if [[ "$GITHUB_HEAD_REF" == release* ]]
-      #     then
-      #      RELEASE_VERSION=$(( TAG_LIST[0] + 1 )).0;
-      #     else
-      #      RELEASE_VERSION=${TAG_LIST[0]}.$(( TAG_LIST[1] + 1));
-      #     fi
-
-      #     # 3. Set vars
-      #     IMAGE_REGISTRY="us-docker.pkg.dev/${{ secrets.PROJECT_ID }}/cloud-diplomats/${{ env.IMAGE_NAME }}"
-      #     IMAGE_TAG=${RELEASE_VERSION}-$(git rev-parse --short=4 HEAD)
-
-      #     # 4. Set vars as envs & ouputs
-      #     echo "IMAGE_REGISTRY=$IMAGE_REGISTRY" >> $GITHUB_ENV
-      #     echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-      #     echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
-
-      #     echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
+      - name: Extract release version from branch name
+        if: contains(toJSON(github.head_ref), 'release/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#release/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Extract hotfix version from branch name
+        if: contains(toJSON(github.head_ref), 'hotfix/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#hotfix/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # 2. Build and push only updated services for monorepo
       - name: Add path filter
@@ -124,7 +73,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
       - name: Build and push issue-command-svc
         if: steps.filter.outputs.issue-command-svc == 'true'
@@ -136,7 +85,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
       - name: Build and push issue-query-svc
         if: steps.filter.outputs.issue-query-svc == 'true'
@@ -148,7 +97,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:latest
       - name: Build and push notification-svc
         if: steps.filter.outputs.notification-svc == 'true'
@@ -160,7 +109,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
       - name: Build and push search-svc
         if: steps.filter.outputs.search-svc == 'true'
@@ -172,7 +121,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
       - name: Build and push report-svc
         if: steps.filter.outputs.report-svc == 'true'
@@ -184,7 +133,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
       - name: Build and push gateway
         if: steps.filter.outputs.gateway == 'true'
@@ -196,10 +145,10 @@ jobs:
           context: ./apps/gateway
           file: ./apps/gateway/Dockerfile
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:${{ env.VERSION }}
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME:latest
 
-      # 3. Deploy
+      # 3. Deploy(pull)
       - name: Deploy
         run: echo "daily pull deployment"
 
@@ -228,52 +177,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. Setup
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
       # 2. Create release
       - name: Create release
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_VERSION=${{ needs.prod-deploy.outputs.RELEASE_VERSION }}
+          RELEASE_VERSION=${{ needs.prod-deploy.outputs.VERSION }}
           git tag -a $RELEASE_VERSION -m "release: $RELEASE_VERSION"
           git push origin $RELEASE_VERSION
           gh release create $RELEASE_VERSION --title "$RELEASE_VERSION" --generate-notes
 
-  prod-create-pull-request: # merge main into develop for hotfix
+  prod-create-pull-request:
     needs: [prod-deploy]
     runs-on: ubuntu-latest
     steps:
       # 1. Setup
-      - uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: develop
           fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
 
-      # 2. Create PR
-      - name: Open PR to align develop with main
+      # 2. Create PR to dev for hotfix
+      - name: Open PR to merge main into dev branch
         env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_VERSION=${{ needs.prod-deploy.outputs.RELEASE_VERSION }}
+          RELEASE_VERSION=${{ needs.prod-deploy.outputs.VERSION }}
           BRANCH_NAME="merge/$RELEASE_VERSION"
           git checkout -b $BRANCH_NAME
-
           git merge origin/main
-          git commit --allow-empty -am "Merge main into develop"
+          git commit --allow-empty -am "Merge main into dev"
           git push origin "$BRANCH_NAME"
-
           gh pr create --base develop --head "$BRANCH_NAME" --title "Merge - $RELEASE_VERSION" --fill

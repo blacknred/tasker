@@ -137,7 +137,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-dev:$IMAGE_TAG
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-dev:latest
 
-      # 3. Deploy
+      # 3. Deploy(push)
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
@@ -145,12 +145,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: | # helm upgrade or
-            cd ~/be-taskapp/compose
-            @ln -s docker-compose.dev.yml docker-compose.override.yml
-            sudo docker-compose down --remove-orphans
-            sudo docker-compose pull
-            sudo docker-compose up -d
+          script: cd ~/be-taskapp && make start-dev
 
       # 4. Notify
       - name: Notify slack success

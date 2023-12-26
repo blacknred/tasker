@@ -2,7 +2,7 @@
   "name": "taskapp",
   "private": true,
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Sample application for managing tasks",
   "author": "Dmitry Tretyakov <tretyakov.dmi@gmail.com> (https://blacknred.github.io/)",
   "repository": "https://github.com/blacknred/full-taskapp.git",

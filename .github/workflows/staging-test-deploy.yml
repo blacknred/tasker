@@ -37,8 +37,6 @@ jobs:
     needs: [staging-test]
     runs-on: ubuntu-latest
     environment: staging # uses secrets from staging environment
-    env:
-      IMAGE_TAG: "${{ github.event.release.tag_name }}-rc"
     permissions:
       pull-requests: read
     steps:
@@ -54,6 +52,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Extract release version from branch name
+        if: contains(toJSON(github.head_ref), 'release/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#release/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Extract hotfix version from branch name
+        if: contains(toJSON(github.head_ref), 'hotfix/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#hotfix/}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # 2. Build and push only updated services for monorepo
       - name: Add path filter
@@ -85,7 +95,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
       - name: Build and push issue-command-svc
         if: steps.filter.outputs.issue-command-svc == 'true'
@@ -97,7 +107,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:latest
       - name: Build and push issue-query-svc
         if: steps.filter.outputs.issue-query-svc == 'true'
@@ -109,7 +119,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME-staging:latest
       - name: Build and push notification-svc
         if: steps.filter.outputs.notification-svc == 'true'
@@ -121,7 +131,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
       - name: Build and push search-svc
         if: steps.filter.outputs.search-svc == 'true'
@@ -133,7 +143,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
       - name: Build and push report-svc
         if: steps.filter.outputs.report-svc == 'true'
@@ -145,7 +155,7 @@ jobs:
           build-args: |
             SERVICE_NAME=$SERVICE_NAME
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
       - name: Build and push gateway
         if: steps.filter.outputs.gateway == 'true'
@@ -157,10 +167,10 @@ jobs:
           context: ./apps/gateway
           file: ./apps/gateway/Dockerfile
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:$IMAGE_TAG
+            ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:${{ env.VERSION }}-rc
             ${{ secrets.DOCKERHUB_USERNAME }}/$SERVICE_NAME-staging:latest
 
-      # 3. Deploy
+      # 3. Deploy(pull)
       - name: Deploy
         run: echo "daily pull deployment"
 

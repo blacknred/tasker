@@ -11,6 +11,11 @@ check-docker:
     echo "please install docker-compose";\
     exit 1;\
 	fi
+	sudo adduser taskapp
+	sudo groupadd docker
+	sudo usermod -aG docker taskapp
+	sudo usermod -aG sudo taskapp
+	su taskapp
 
 # for all apps
 release-images:
@@ -29,92 +34,96 @@ release:
 	@./scripts/registry.sh
 	make release-images
 
-# dev-all:
-# 	make check-docker
-# 	@if [ ! -f .env.local ]; then\
-# 		cp .env.example .env.local;\
-# 	fi
-# 	@cd ./docker
-# 	@ln -s docker-compose.local.yml docker-compose.override.yml
-# 	@docker compose config
-# 	@docker network create infrastructure
-# # docker compose build --no-cache $(c)
-# 	@echo "Running [i] project..."
-# 	@docker-compose up $(c)
 
-# dev-keycloak:
-# 	@cd ./docker
-# 	@ln -s docker-compose.local.yml docker-compose.override.yml
-# 	@docker compose config
-# 	@docker network create infrastructure
-# 	@echo "Running [i] project..."
-# 	@docker-compose up keycloak
+# LOCAL ENV
+
+docker-local
+	@if [ ! -f .env.local ]; then\
+		cp .env.example .env.local;\
+	fi
+	$(MAKE) check-docker
+	cd /compose
+	@ln -s docker-compose.local.yml docker-compose.override.yml
+	@docker compose config
+	@docker network create infrastructure
+
+start-local-gateway
+	$(MAKE) docker-local
+	@docker-compose build gateway --no-cache $(c)
+	@docker-compose up gateway
+
+start-local-workspace-svc
+	$(MAKE) docker-local
+	@docker-compose build workspace-svc --no-cache $(c)
+	@docker-compose up workspace-svc
+
+start-local-issue-command-svc
+	$(MAKE) docker-local
+	@docker-compose build issue-command-svc --no-cache $(c)
+	@docker-compose up issue-command-svc
+
+start-local-issue-query-svc
+	$(MAKE) docker-local
+	@docker-compose build issue-query-svc --no-cache $(c)
+	@docker-compose up issue-query-svc
+
+start-local-notification-svc
+	$(MAKE) docker-local
+	@docker-compose build notification-svc --no-cache $(c)
+	@docker-compose up notification-svc
+
+start-local-search-svc
+	$(MAKE) docker-local
+	@docker-compose build search-svc --no-cache $(c)
+	@docker-compose up search-svc
+
+start-local-report-svc
+	$(MAKE) docker-local
+	@docker-compose build report-svc --no-cache $(c)
+	@docker-compose up report-svc
+
+start-local
+	$(MAKE) docker-local
+	@docker-compose build --no-cache $(c)
+	@docker-compose up
+
+# DEV ENV
+
+pull-containers # or helm upgrade
+	sudo docker-compose down --remove-orphans
+	sudo docker-compose pull
+	sudo docker-compose up -d
+
+start-dev
+	$(MAKE) check-docker
+	cd ~/be-taskapp/compose
+	@ln -s docker-compose.dev.yml docker-compose.override.yml
+	$(MAKE) pull-containers
+
+# STAGING ENV
+
+start-staging
+	$(MAKE) check-docker
+	cd ~/be-taskapp/compose
+	@ln -s docker-compose.staging.yml docker-compose.override.yml
+	$(MAKE) pull-containers
+
+# PROD ENV
+
+start-prod
+	$(MAKE) check-docker
+	cd ~/be-taskapp/compose
+	@echo "here we need to run db migrations"
+	@ln -s docker-compose.prod.yml docker-compose.override.yml
+	$(MAKE) pull-containers
+
+# MONITORING
+
+start-monitoring
+	$(MAKE) check-docker
+	cd ~/be-taskapp/compose
+	@ln -s docker-compose.monitoring.yml docker-compose.override.yml
+	$(MAKE) pull-containers
+	
 
 
-
-# feature:
-# 	./scripts/create_feature.sh
-
-# hotfix: ## Create hotfix
-# 	./scripts/create_hotfix.sh
-
-# release: ## Create release
-# 	./scripts/create_release.sh	
-
-# create-merge-failed: ## Create failed merge PR
-# 	./scripts/create_merge_failed.sh
-
-
-
-
-
-# start-api-with-docker-image: ## Run API with docker (don't forget to build the image locally before)
-# 	@docker run --net host -e SPRING_PROFILES_ACTIVE="dev" -e SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/api?stringtype=unspecified&reWriteBatchedInserts=true" api:0.0.1-SNAPSHOT
-
-# start-api: ## Run API with docker compose
-# 	@docker compose up -d
-# 	@docker compose logs -f api
-
-# start-infra: ## Run required infrastructure with docker compose
-# 	$(MAKE) kill start-database start-keycloak start-rabbitmq
-
-# restart-infra: ## Reset and start required infrastructure with docker compose
-# 	$(MAKE) start-database start-keycloak start-rabbitmq
-
-# start-all: ## Run all containers with docker compose
-# 	$(MAKE) start-infra start-api
-
-# restart-all: ## Restart containers with docker compose
-# 	@docker compose stop api # used to rebuild API after modification
-# 	@docker compose up -d
-# 	@docker compose logs -f api
-
-# start-database: ## Run api database
-# 	@docker compose up -d ${DB_CONTAINER} --wait
-# 	# Set db_user as superuser to allow replication slot creation within migration
-# 	@docker exec -i ${DB_CONTAINER} psql "host=localhost dbname=${DB_NAME} user=${DB_SUPERUSER} password=${DB_PASS}" --command "ALTER USER \"${DB_USER}\" WITH SUPERUSER;"
-
-# kill-database: ## Kill api database
-# 	@docker compose rm -sf ${DB_CONTAINER}
-# 	@docker volume rm -f api_database
-
-# start-keycloak : ## Run keycloak
-# 	@docker compose up -d ${DB_CONTAINER_KC} --wait
-# 	@cat ./scripts/dumps/keycloak.sql | docker exec -i ${DB_CONTAINER_KC} psql "host=localhost dbname=${DB_NAME_KC} user=${DB_USER_KC} password=${DB_PASS_KC}"
-# 	@docker compose up -d keycloak
-
-# kill-keycloak : ## Kill keycloak
-# 	@docker compose rm -sf keycloak ${DB_CONTAINER_KC}
-# 	@docker volume rm -f api_database_kc
-
-# start-rabbitmq : ## Run rabbitmq
-# 	@docker compose up -d rabbitmq
-
-# kill-rabbitmq : ## Kill rabbitmq
-# 	@docker compose rm -sf rabbitmq
-# 	@docker volume rm -f api_rabbitmq
-
-# kill: ## Kill and reset project
-# 	@docker compose down
-# 	@mvn install -DskipTests
-# 	$(MAKE) kill-database kill-keycloak kill-rabbitmq
