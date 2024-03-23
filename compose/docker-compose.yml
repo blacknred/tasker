@@ -5,48 +5,23 @@ networks:
     name: main
 
 volumes:
+  rabbitmq_data:
   redis_data:
   postgres_data:
-  rabbitmq_data:
-  eventstore_data:
+  mongodb_data:
+  mongodb_config:
+  cassandra_data:
+  clickhouse_data:
   minio_data:
 
 services:
   # data
 
-  redis:
-    image: redis/redis-stack-server:latest
-    restart: always
-    networks: [apps]
-    ports: [6379]
-    volumes:
-      - redis_data:/data
-    environment:
-      - REDIS_REPLICATION_MODE=master
-      - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
-    healthcheck:
-      test: exit 0
-
-  postgres:
-    image: postgres:15beta2-alpine3.16
-    restart: always
-    networks: [apps]
-    ports: [5432]
-    volumes:
-      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER:-test}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
-    healthcheck:
-      test: exit 0
-
   rabbitmq:
     image: rabbitmq:management-alpine
     restart: always
     networks: [apps]
-    ports: [5672, 15672, 15692]
+    ports: [5672:5672, 15672, 15692]
     command: >
       bash -c "rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange rabbitmq_prometheus
       && chmod +x /init.sh
@@ -62,24 +37,112 @@ services:
     healthcheck:
       test: exit 0
 
-  eventstore:
-    image: eventstore/eventstore:21.10.9-alpha-arm64v8
+  redis:
+    image: redis/redis-stack-server:latest
     restart: always
     networks: [apps]
-    ports: [1113, 2113]
+    ports: [6379:6379]
     volumes:
-      - eventstore_data:/var/lib/eventstore
+      - redis_data:/data
     environment:
-      - EVENTSTORE_USER=${EVENTSTORE_USER:-test}
-      - EVENTSTORE_PASSWORD=${EVENTSTORE_PASSWORD:-test}
-      - EVENTSTORE_CLUSTER_SIZE=1
-      - EVENTSTORE_RUN_PROJECTIONS=all
-      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
-      - EVENTSTORE_EXT_TCP_PORT=1113
-      - EVENTSTORE_EXT_HTTP_PORT=2113
-      - EVENTSTORE_INSECURE=true
-      - EVENTSTORE_ENABLE_EXTERNAL_TCP=true
-      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
+    healthcheck:
+      test: exit 0
+
+  postgres:
+    image: bitnami/postgresql:16.2.0-debian-12-r5
+    restart: always
+    networks: [apps]
+    ports: [5432:5432]
+    volumes:
+      - ./postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER:-test}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - POSTGRESQL_DATABASE=workspace
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_PGAUDIT_LOG=READ,WRITE
+      - POSTGRESQL_LOG_HOSTNAME=true
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_user
+    healthcheck:
+      test: exit 0
+
+  mongodb:
+    image: mongo:7
+    restart: always
+    networks: [apps]
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports: [27017:27017]
+    command:
+      [
+        '--replSet',
+        'rs0',
+        '--keyFile',
+        '/etc/keyfile',
+        '--bind_ip_all',
+        '--port',
+        '27017',
+        '--wiredTigerCacheSizeGB',
+        '1.5',
+      ]
+    volumes:
+      - /mongodb/keyfile:/etc/keyfile
+      - /mongodb/schema.js:/docker-entrypoint-initdb.d/schema.js:ro
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-test}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-test}
+      - MONGO_INITDB_DATABASE=projects
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5}]}) }" | mongosh -u ${MONGO_USER:-test} -p ${MONGO_PASSWORD:-test} --port 27017 --authenticationDatabase admin --quiet
+      interval: 5s
+      timeout: 15s
+      start_period: 15s
+      retries: 10
+
+  cassandra:
+    image: cassandra:latest
+    restart: always
+    networks: [apps]
+    ports: [9042:9042]
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    environment:
+      - CASSANDRA_USER=${CASSANDRA_USER:-test}
+      - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD:-test}
+      - CASSANDRA_SEEDS=cassandra,cassandra_slave_1
+      - CASSANDRA_CLUSTER_NAME=Notifications
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RACK1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=128
+    healthcheck:
+      test: exit 0
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:head-alpine
+    restart: always
+    networks: [apps]
+    ports: [127.0.0.1:8123:8123, 127.0.0.1:9000:9000]
+    user: '101:101'
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./clickhouse/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml
+      - clickhouse-data:/var/lib/clickhouse/
+    environment:
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER:-test}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-test}
     healthcheck:
       test: exit 0
 
@@ -87,7 +150,7 @@ services:
     image: minio/minio:latest
     restart: always
     networks: [infra]
-    ports: [9000, 9001]
+    ports: [9000:9000, 9001:9001]
     command: >
       bash -c "server /data --console-address ':9001''"
     volumes:
@@ -118,56 +181,6 @@ services:
     depends_on:
       - minio
 
-  # sso
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    restart: always
-    networks: [apps]
-    ports: [8000:8080, 8443]
-    command: start --optimized --import-realm
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
-      - ./keycloak/keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
-          
-      - KC_PROXY=edge
-      - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
-      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
-      - KC_METRICS_ENABLED=true # https://localhost:8000/metrics
-      - KC_HEALTH_ENABLED=true # https://localhost:8000/health
-      - KC_DB=postgres
-      - KC_DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/workspace
-      - KC_DB_USERNAME=${POSTGRES_USER:-test}
-      - KC_DB_PASSWORD=${POSTGRES_PASSWORD:-test}
-    depends_on:
-      - postgres
-    healthcheck:
-      test: exit 0
-
-  sso-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    restart: always
-    networks: [apps]
-    ports: [4180]
-    environment:
-      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
-      - OAUTH2_PROXY_COOKIE_SECRET=${SECRET:-test}
-      - OAUTH2_PROXY_PROVIDER=oid
-      - OAUTH2_PROXY_CLIENT_ID=sso-proxy
-      - OAUTH2_PROXY_CLIENT_SECRET=${SECRET:-test}
-      - OAUTH2_PROXY_EMAIL_DOMAINS=*
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8000/realms/master'
-      - OAUTH2_PROXY_REDIRECT_URL=http://keycloak:8000/oauth2/callback'
-      - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true # skip email validation
-      - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub # skip email validation
-      - OAUTH2_PROXY_SET_XAUTHREQUEST=true # set response header with user data
-      - OAUTH2_PROXY_PASS_USER_HEADERS=true
-      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
-    depends_on:
-      - keycloak
-    healthcheck:
-      test: exit 0
-
   # monitoring
 
   fluent-bit:
@@ -182,77 +195,46 @@ services:
     healthcheck:
       test: exit 0
 
-  # apps
+  # sso
 
-  gateway:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
     restart: always
     networks: [apps]
-    ports: [80, 443, 8080]
-    environment:
-      - API_VERSION=${API_VERSION:-v1}
-      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
-      - NGINX_ENTRYPOINT_QUIET_LOGS=1
-      - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
-      - HOST=${HOST}
-      - MINIO_HOST=${MINIO_HOST:-minio}
-      - KEYCLOAK_HOST=${KEYCLOAK_HOST:-keycloak}
-      - SSO_PROXY_HOST=${SSO_PROXY_HOST:-sso-proxy}
+    ports: [8080:8080, 8443:8443]
+    command: start --optimized --import-realm
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import
+      - ./keycloak/keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
+      - KC_PROXY=edge
+      - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
+      - KC_METRICS_ENABLED=true # https://localhost:8000/metrics
+      - KC_HEALTH_ENABLED=true # https://localhost:8000/health
+      - KC_DB=postgres
+      - KC_DB_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@postgres:5432/workspace
+      - KC_DB_USERNAME=${POSTGRES_USER:-test}
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD:-test}
+    depends_on:
+      - postgres
     healthcheck:
       test: exit 0
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
 
+  # apps
+  
   workspace-svc:
     restart: always
     networks: [apps]
-    ports: [3001:3000, 50051]
+    ports: [50051:50051]
     environment:
       - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
-      - KEYCLOAK_URL=http://${KEYCLOAK_HOST:-keycloak}:8000/realms/master
+      - KEYCLOAK_URL=http://${KEYCLOAK_HOST:-keycloak}:8080/realms/master
+      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@${POSTGRES_HOST:-postgres}:5432/workspace
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
     depends_on:
       - keycloak
-      - rabbitmq
-      - fluent-bit
-    healthcheck:
-      test: exit 0
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  issue-command-svc:
-    restart: always
-    networks: [apps]
-    ports: [3002:3000, 50052]
-    environment:
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-test}:${EVENTSTORE_PASSWORD:-test}@${EVENTSTORE_HOST:-eventstore}:1113
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@${REDIS_HOST:-redis}:6379
-    depends_on:
-      - eventstore
-      - rabbitmq
-      - redis
-      - fluent-bit
-    healthcheck:
-      test: exit 0
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: fluent-bit:24224
-
-  issue-query-svc:
-    restart: always
-    networks: [apps]
-    ports: [3003:3000, 50053]
-    environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@${POSTGRES_HOST:-postgres}:5432
-      - EVENTSTORE_URL=esdb://${EVENTSTORE_USER:-test}:${EVENTSTORE_PASSWORD:-test}@${EVENTSTORE_HOST:-eventstore}:1113
-    depends_on:
       - postgres
-      - eventstore
+      - rabbitmq
       - fluent-bit
     healthcheck:
       test: exit 0
@@ -264,16 +246,14 @@ services:
   notification-svc:
     restart: always
     networks: [apps]
-    ports: [3004:3000, 50054]
+    ports: [50052:50052]
     environment:
       - SMTP_URL=smtp://${SMTP_USER:-test}:${SMTP_PASSWORD:-test}@${SMTP_HOST:-test}
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@${POSTGRES_HOST:-postgres}:5432
+      - CASSANDRA_URL=jdbc:cassandra://${CASSANDRA_USER:-test}:${CASSANDRA_PASSWORD:-test}@cassandra--cassandra_slave_1:9042/keyspace1?primarydc=DC1
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@${REDIS_HOST:-redis}:6379
     depends_on:
-      - postgres
+      - cassandra
       - rabbitmq
-      - redis
       - fluent-bit
     healthcheck:
       test: exit 0
@@ -285,12 +265,12 @@ services:
   search-svc:
     restart: always
     networks: [apps]
-    ports: [3005:3000, 50055]
+    ports: [50053:50053]
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@${POSTGRES_HOST:-postgres}:5432
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@${REDIS_HOST:-redis}:6379/0
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
     depends_on:
-      - postgres
+      - redis
       - rabbitmq
       - fluent-bit
     healthcheck:
@@ -303,15 +283,13 @@ services:
   report-svc:
     restart: always
     networks: [apps]
-    ports: [3006:3000, 50056]
+    ports: [50054:50054]
     environment:
-      - POSTGRES_URL=postgres://${POSTGRES_USER:-test}:${POSTGRES_PASSWORD:-test}@${POSTGRES_HOST:-postgres}:5432
+      - CLICKHOUSE_URL=jdbc://${CLICKHOUSE_USER:-test}:${CLICKHOUSE_PASSWORD:-test}@${CLICKHOUSE_HOST:-clickhouse}:8123
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-test}@${REDIS_HOST:-redis}:6379
     depends_on:
-      - postgres
+      - clickhouse
       - rabbitmq
-      - redis
       - fluent-bit
     healthcheck:
       test: exit 0
@@ -319,3 +297,101 @@ services:
       driver: fluentd
       options:
         fluentd-address: fluent-bit:24224
+
+  project-command-svc:
+    restart: always
+    networks: [apps]
+    ports: [50055:50055]
+    environment:
+      - MONGO_URL=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@${MONGO_HOST:-mongo}:27017,${MONGO_HOST:-mongo_secondary_1}:27018/projects?replicaSet=rs0
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-test}:${RABBITMQ_PASSWORD:-test}@${RABBITMQ_HOST:-rabbitmq}:5672
+    depends_on:
+      - mongo
+      - rabbitmq
+      - fluent-bit
+    healthcheck:
+      test: exit 0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  project-query-svc:
+    restart: always
+    networks: [apps]
+    ports: [50056:50056]
+    environment:
+      - MONGO_URL=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@${MONGO_HOST:-mongo}:27017,${MONGO_HOST:-mongo_secondary_1}:27018/projects?replicaSet=rs0
+    depends_on:
+      - mongo
+      - fluent-bit
+    healthcheck:
+      test: exit 0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  gateway:
+    restart: always
+    networks: [apps]
+    ports: [80, 443, 8000]
+    # environment:
+    #   - API_VERSION=${API_VERSION:-v1}
+    #   - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
+    #   - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    #   - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+    #   - HOST=${HOST}
+    #   - MINIO_HOST=${MINIO_HOST:-minio}
+    #   - KEYCLOAK_HOST=${KEYCLOAK_HOST:-keycloak}
+    #   - SSO_PROXY_HOST=${SSO_PROXY_HOST:-sso-proxy}
+    healthcheck:
+      test: exit 0
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: fluent-bit:24224
+
+  # gateway:
+  #   restart: always
+  #   networks: [apps]
+  #   ports: [80, 443, 8080]
+  #   environment:
+  #     - API_VERSION=${API_VERSION:-v1}
+  #     - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-30}
+  #     - NGINX_ENTRYPOINT_QUIET_LOGS=1
+  #     - NGINX_ENVSUBST_TEMPLATE_DIR=/etc/nginx/conf.d
+  #     - HOST=${HOST}
+  #     - MINIO_HOST=${MINIO_HOST:-minio}
+  #     - KEYCLOAK_HOST=${KEYCLOAK_HOST:-keycloak}
+  #     - SSO_PROXY_HOST=${SSO_PROXY_HOST:-sso-proxy}
+  #   healthcheck:
+  #     test: exit 0
+  #   logging:
+  #     driver: fluentd
+  #     options:
+  #       fluentd-address: fluent-bit:24224
+
+  # sso-proxy:
+  #   image: quay.io/oauth2-proxy/oauth2-proxy:latest
+  #   restart: always
+  #   networks: [apps]
+  #   ports: [4180]
+  #   environment:
+  #     - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+  #     - OAUTH2_PROXY_COOKIE_SECRET=${SECRET:-test}
+  #     - OAUTH2_PROXY_PROVIDER=oid
+  #     - OAUTH2_PROXY_CLIENT_ID=sso-proxy
+  #     - OAUTH2_PROXY_CLIENT_SECRET=${SECRET:-test}
+  #     - OAUTH2_PROXY_EMAIL_DOMAINS=*
+  #     - OAUTH2_PROXY_OIDC_ISSUER_URL=http://keycloak:8000/realms/master'
+  #     - OAUTH2_PROXY_REDIRECT_URL=http://keycloak:8000/oauth2/callback'
+  #     - OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL=true # skip email validation
+  #     - OAUTH2_PROXY_OIDC_EMAIL_CLAIM=sub # skip email validation
+  #     - OAUTH2_PROXY_SET_XAUTHREQUEST=true # set response header with user data
+  #     - OAUTH2_PROXY_PASS_USER_HEADERS=true
+  #     - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+  #   depends_on:
+  #     - keycloak
+  #   healthcheck:
+  #     test: exit 0

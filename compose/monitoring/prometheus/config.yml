@@ -17,12 +17,16 @@ scrape_configs:
   - job_name: prod_docker
     static_configs:
       - targets: ["put_prod_cadvisor_exporter_host:8081"]
-  - job_name: prod_postgres
-    static_configs:
-      - targets: ["put_prod_postgres_exporter_host:9187"]
+      # data
   - job_name: prod_redis
     static_configs:
       - targets: ["put_prod_redis_exporter_host:9121"]
+  - job_name: prod_postgres
+    static_configs:
+      - targets: ["put_prod_postgres_exporter_host:9187"]
+  - job_name: prod_mongodb
+    static_configs:
+      - targets: ["put_prod_mongo_exporter_host:9216"]
   - job_name: prod_rabbitmq
     static_configs:
       - targets: ["put_prod_rabbitmq_host:15692"]
@@ -36,37 +40,39 @@ scrape_configs:
     scheme: "http"
     static_configs:
       - targets: ["put_prod_minio_host:9000"]
+    # sso
   - job_name: prod_keycloak"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["put_prod_keycloak_host:3001"]
-  - job_name: prod_gateway
-    static_configs:
-      - targets: ["put_prod_nginx_exporter_host:9113"]
+      - targets: ["put_prod_keycloak_host:8080"]
+  # apps
   - job_name: prod_workspace_svc"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["put_prod_workspace_svc_host:3001"]
-  - job_name: prod_issue_command_svc"
-    metrics_path: "/metrics"
-    static_configs:
-      - targets: ["put_prod_issue_command_svc_host:3002"]
-  - job_name: prod_issue_query_svc"
-    metrics_path: "/metrics"
-    static_configs:
-      - targets: ["put_prod_issue_query_svc_host:3003"]
+      - targets: ["put_prod_workspace_svc_host:50051"]
   - job_name: prod_notification_svc"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["put_prod_notification_svc_host:3004"]
+      - targets: ["put_prod_notification_svc_host:50052"]
   - job_name: prod_search_svc"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["put_prod_search_svc_host:3005"]
+      - targets: ["put_prod_search_svc_host:50053"]
   - job_name: prod_report_svc"
     metrics_path: "/metrics"
     static_configs:
-      - targets: ["put_prod_report_svc_host:3006"]
+      - targets: ["put_prod_report_svc_host:50054"]
+  - job_name: prod_project_command_svc"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["put_prod_project_command_svc_host:50055"]
+  - job_name: prod_project_query_svc"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["put_prod_project_query_svc_host:50056"]
+  # - job_name: prod_gateway
+  #   static_configs:
+  #     - targets: ["put_prod_nginx_exporter_host:9113"]
 
 rule_files:
   - "/etc/prometheus/alerts.yml"
@@ -77,6 +83,4 @@ alerting:
     - scheme: "http"
       static_configs:
         - targets: ["alertmanager:9093"] # host.docker.internal:9093
-
-
 

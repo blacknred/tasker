@@ -6,36 +6,51 @@ Sample b2b agile task management app
 
 [![CI](https://github.com/blacknred/be-taskapp/workflows/release/badge.svg)](https://github.com/blacknred/be-taskapp/actions)
 
+| Nav              | Title             | Content                                                                            |
+| ---------------- | ----------------- | ---------------------------------------------------------------------------------- |
+| Search           | Search</span>     | <span style="color:red">__Search__</span>: search_bar,filters                      |
+| Work             | Work              | <span style="color:red">__Notification__</span>: assigned,subscribed;+issue        |
+| Projects         | Projects,+project | <span style="color:blue">__Project__</span>: board,roadmap,backlog,settings;+issue |
+| -- Recent        | Name*             | localstorage                                                                       |
+| Filters          | Filters,+filter   | <span style="color:red">__Workspace__.user.attributes</span>                       |
+| -- Recent        | Name*             | localstorage                                                                       |
+|                  |                   |                                                                                    |
+| Reports          | Reports           | <span style="color:red">__Report__</span>: Name*, filters, +generate               |
+| People           | People,+user      | <span style="color:red">__Workspace__.users</span>                                 |
+| Settings         | Settings          | <span style="color:red">__Workspace__.attributes.roles</span>                      |
+|                  |                   |                                                                                    |
+| Profile(KK_link) |                   |                                                                                    |
+
 ## Architecture
 
 ### Node
 
-| Services           | Container         | Stack                        | Ports       |
-| ------------------ | ----------------- | ---------------------------- | ----------- |
-| __apps__           | -                 | -                            | -           |
-| Api Gateway        | gateway           | Nginx, HTTP1.1/GRPC, Swagger | 80/443/8080 |
-| Workspace          | workspace-svc     | NodeJs, HTTP1.1/GRPC, AMQP   | 3001/50051  |
-| Issue Command      | issue-command-svc | NodeJs, HTTP1.1/GRPC, AMQP   | 3002/50052  |
-| Issue Query        | issue-query-svc   | NodeJs, HTTP1.1/GRPC, AMQP   | 3003/50053  |
-| Notification       | notification-svc  | NodeJs, HTTP1.1/GRPC, AMQP   | 3004/50054  |
-| Search             | search-svc        | NodeJs, HTTP1.1/GRPC, AMQP   | 3005/50055  |
-| Report             | report-svc        | NodeJs, HTTP1.1/GRPC, AMQP   | 3006/50056  |
-| __data__           | -                 | -                            | -           |
-| Redis              | redis             | Redis stack                  | 6379        |
-| Queue              | rabbitmq          | RabbitMQ                     | 5672/15672  |
-| Read DB            | postgres          | Postgres                     | 5432        |
-| Write DB           | eventstore        | EventStoreDB                 | 1113/2113   |
-| Object storage(s3) | minio             | Minio                        | 9000        |
-| __auth__           | -                 | -                            | -           |
-| IDP                | keycloak          | Keycloak, HTTP1.1            | 8000/8443   |
-| Sso Proxy          | sso-proxy         | Oauth2-proxy, HTTP1.1        | 4180        |
-| __monitoring__     | -                 | -                            | -           |
-| Logs aggregator    | fluent-bit        | Fluent Bit                   | 24224       |
-| Container metrics  | cadvisor          | Prom cadvisor                | 8081        |
-| Unix metrics       | node-exporter     | Prom node exporter           | 9100        |
-| Nginx metrics      | nginx-exporter    | Prom nginx exporter          | 9113        |
-| Postgres metrics   | postgres-exporter | Prom postgres exporter       | 9187        |
-| Redis metrics      | redis-exporter    | Prom redis exporter          | 9121        |
+| Services          | Container           | Stack                      | Ports       |
+| ----------------- | ------------------- | -------------------------- | ----------- |
+| __apps__          | -                   | -                          | -           |
+| IDP               | keycloak            | Keycloak, REST             | 8080/8443   |
+| Workspace         | workspace-svc       | NodeJs, GRPC, AMQP         | 50051       |
+| Notification      | notification-svc    | NodeJs, GRPC, AMQP         | 50052       |
+| Search            | search-svc          | NodeJs, GRPC, AMQP         | 50053       |
+| Report            | report-svc          | NodeJs, GRPC, AMQP         | 50054       |
+| Project Command   | project-command-svc | NodeJs, GRPC, AMQP         | 50055       |
+| Project Query     | project-query-svc   | NodeJs, GRPC, AMQP         | 50056       |
+| Api Gateway       | gateway             | Golang, REST/GRPC, Swagger | 80/443/8000 |
+| __data__          | -                   | -                          | -           |
+| Queue             | rabbitmq            | RabbitMQ                   | 5672/15672  |
+| Workspace DB      | postgres            | Postgres                   | 5432/5442   |
+| Project DB        | mongo(replica set)  | MongoDB                    | 27017/27018 |
+| Text Search DB    | redissearch         | RediSearch                 | 6379/6389   |
+| Report DB         | clickhouse          | Clickhouse                 | 8123/9440   |
+| Notification DB   | cassandra           | Cassandra                  | 7000        |
+| Object storage    | minio               | Minio                      | 9000        |
+| __monitoring__    | -                   | -                          | -           |
+| Logs aggregator   | fluent-bit          | Fluent Bit                 | 24224       |
+| Container metrics | cadvisor            | Prom cadvisor              | 8081        |
+| Unix metrics      | node-exporter       | Prom node exporter         | 9100        |
+| Postgres metrics  | postgres-exporter   | Prom postgres exporter     | 9187        |
+| Mongo metrics     | mongo-exporter      | Prom mongo exporter        | 9001        |
+| Redis metrics     | redis-exporter      | Prom redis exporter        | 9121        |
 
 ### Monitoring machine
 
@@ -50,47 +65,185 @@ Sample b2b agile task management app
 
 ### Services(monorepo)
 
+#### IDP
+
+> Keycloak
+
+- Multitenancy. Since this app is a sort of b2b we need a separated workspaces of users, roles and sso clients. There are some possible implementations in Keycloak (<https://github.com/keycloak/keycloak/discussions/23948>):
+  - "keycloak per workspace": con is resource greadiness
+  - *"realm per workspace": con is realm creation time grows exponentially for 300+ realms on single instance (<https://github.com/keycloak/keycloak/discussions/11074>) and the new storage model is the only way to eliminate such obstacles in future versions. Here we use realm per workspace implementation for simplicity but after all you can have ballancer and multiple instances with up to 300 realms each.
+  - "group as workspace within one realm": cons are slowness after ~250k users in realm, need to put available groups in a token, too much policy granularity in a client, usernames cannot be duplicated within a realm, redirect_uri will be the same for all workspaces.
+- Perfomance. Keycloak on 4core/8threads + 16gbRam machine gives us:
+  - 1400–1700 TPS per core in token introspecting: 1400 TPS for tokeninfo endpoint, and 1700 TPS for userinfo endpoint.
+  - 200 TPS per core in token refreshing.
+  - 10-75 TPS per core in session opening. 75 TPS if the user passwords storage is a third-party system (LDAP directory etc) or if the PBKDF2 function is configured with one iteration. The choice of the database has no significant impact on performance.
+- Auth. Every workspace(realm) has its own
+  - roles(owner, admin, product_owner, scrum_master, worker), users(owner, system, ~~sso-proxy~~) and groups(future projects)
+  - client(system, sso-proxy)
+    - Resource(object):
+    - __res:workspace__, __res:role__, __res:user__,
+    - __res:project__, __res:sprint__, __res:issue__, __res:comment__, __res:vote__, __res:subscription__
+    - Scope(action): __scope:create__, __scope:read__, __scope:update__, __scope:delete__
+    - Policy(roles mappings): Admin(mapped roles, e.g. "admin")
+    - Permission(resource or resource:scopes mappings): resource:policies or resource:scopes:policies mapping
+      - __workspace:update__, __workspace:delete__
+      - __role:create__, __role:read__, __role:update__, __role:delete__
+      - __user:create__, __user:read__, __user:update__, __user:delete__
+      - __project:create__, __project:read__, __project:update__, __project:delete__
+      - __sprint:create__, __sprint:read__, __sprint:update__, __sprint:delete__
+      - __issue:create__, __issue:read__, __issue:update__, __issue:delete__
+      - __comment:create__, __comment:read__, __comment:update__, __comment:delete__
+      - __vote:create__, __vote:read__, __vote:update__, __vote:delete__
+      - __subscription:create__, __subscription:read__, __subscription:update__, __subscription:delete__
+    - token retrospection: {..., permissions: {"scopes": ["scope:create"], "rsid": some_uuid, "rsname": "res:report"}[]}
+
+In the current version without multi-tenancy, system(administrator) implements operations in all workspaces(realms) since it has access to them as a realm user & client. There are Realm roles(admin, user, manager etc) and Client roles(post, comment, like etc at the client level)
+
+
+
 #### Workspace
 
-> Workspace concept is based on Keycloak realm. Every workspace(realm) has its own users(realm users), roles(realm roles), projects(realm groups), project_members(realm group users), issue_tags, issue_statusses, sessions and authentication flows.
+> Microservice for IDP operation automation and system compatibility.
 
-- The service is a Keycloak Admin REST API adapter that ensures domain compatibility with the system and provides REST API simplicity for web clients. The fact that the service internally calls the Keycloak admin REST API is acceptable since crud operations in the workspace are a relatively rare case.
-- When a user creates a new workspace, the service will create a new realm with users(owner, system, sso-proxy), basic roles(owner, admin, product_owner, scrum_master, worker), and SSO clients(system, sso-proxy). In the current version without multi-tenancy, system(administrator) implements operations in all workspaces(realms) since it has access to them as a realm user & client.
-- A member can update their attributes such as name, avatar and search filters.
-- The service sends notifications associated with the workspace and updates the corresponding search entries.
-- Keycloak uses an external database (PG), which means the system has access to workspace data.
-- Keycloak has perfomance issue for 300+ realms. Instead, use a Saas provider if you need scalability.
+- Why do we use this microservice as an adapter instead of calling Keycloak Rest Api directly in Api gateway?
+  - user dto need to be validated before inserting in Keycloak user attributes
+  - user can update own attributes such as name, avatar and search filters
+  - need common response dto and some requests need api composition
+  - need invitation logic
+  - adding/removing user to/from workspace or project need to be propagated to Notification microservice with Saga
+  - adding/removing user to/from workspace need to be propagated to Search microservice with Saga
+  - as we often need reads from Keycloak (list workspace users & roles,  etc) and
+  - since Keycloak uses an external database (PG) we will execute reads (but not mutations) from PG directly to reduce common non-auth operations with Keycloak Rest Api:
+    - list workspace users, roles, projects(groups)
+    - list project users
+    - validating Project user on Project Issue assigning via rpc call from Project microservice (can be avoided if will use User cache in Project microservice itself)
 
-#### Issue
+#### Project
 
-> Issue related operations: issue(+comments, +votes, +subscriptions(per user also)), sprints, events
+> Projects(tags, workflow, sprints) and Issues(+comments, +votes, +subscriptions, +history)
 
-- The service is split to command/query applications and implements CQRS/ES with EventStoreDB as a write db and Pg as a read db. There are several reasons for this:
-  - the service serves mainly non-atomic read/write operations(issue updates) in large quantities
-  - every issue has an change history($issue-1), which can be observed on the issue page
-  - every sprint has an change history($sprint-1)
-  - every project has a timeline that aggregates($bc-projectId) all the events of the project's issue/sprint and can be observed on the dashboard page
-- Each command associated with an issue (CreateComment, CreateVote, etc.) creates an IssueUpdated event, which is stored in the EventStoreDb and is used to project these partial updates to the issue state into the Pg.
-- Pg is more like a write optimized database, for a real world scenario as a read database you will definitely need an easily sharded nosql database.
-- Mutations/reads are limited to the projects the user has access to.
+- Why CQRS/ES?
+  - the service serves mainly non-atomic read/write operations(issue updates etc) in large quantities
+  - audit log of project events (observed by admins) will be very useful for some type of projects
+  - Impl
+    - Here we use events collection and views on the same db(replicated MongoDB) but through two apps.
+    - Commands just update `project_events` collection. Project updates propagated to Notification/Search/Report microservices with Saga.
+    - We dont use Events and message broker here since MongoDB has `change stream` on replica set which Query service will listen and project changes by refreshing Projects and Issues materialized views. This way, eventual consistency will be guaranteed on the database side itself.
+    - Previously we used EventStoreDB as write db and listened $project-1 stream on Query side to project state on Pg tables
+- Modelling
+  - We model Issues materialized views outside Project since we mostly query them separately.
+  - Issue includes a lot of embedded things itself and Project with embedded Issues can surpass 16mb limit.
+- Why dont we separate Issues to another microservice?
+  - We dont split Issues to another microservice since we need Project data such a tags, workflows and sprints for Issue update validation
+  - Meanwhile project users are part of Workspace domain and we need rpc call to Workspace microservice to validate assignments (mutations/reads are limited to the projects the user has access to)
 
-#### Fanout
+#### Notification
 
-> mutations via RabbitMQ, reads from web
+> notification aggregator(Cassandra, 1 table) and sse/push fanout. Emails are auth related and handled by Keycloak itself. Notifications: user assignments, updates in assigned/watched issues, sprint start/finish (via rabbitmq delayed-message-exchange), @mentions in issues comments.
 
-- Notification: email/push/sse worker, delayed-message-exchange for sprint events etc (cannot delete message problem)
-- Search: search entries aggregator, Pg
-- Report: user/project/issue/sprint activity aggregator and report generator, Pg/Prometheus
+#### Search
+
+> users/projects/sprints/issues aggregator(Redisearch, structure per workspace) for fts in a workspace
+
+#### Report
+
+> user/project/issue/sprint activity aggregator(Clickhouse) and chart/pdf report generator
 
 #### Api Gateway
 
+> At first it was Nginx, but since we need Rest to Grpc transcoding, it should be either Golang or something OpenResty based like Apache Apisix (with the grpc-transcode module).
+
 - api versioning
 - load ballancing, circuit broker
-- security: ddos, helmet, cors, ssl
-- proxying HTTP1.1 & GRPC microservices
-- access: auth_request to oauth2proxy and rbac
+- security: ddos, connection/request limiting, helmet, cors, tls
 - http cache?
-- opentracing plugin
+- monitoring: opentracing, logging, metrics
+- access(keycloak sso): for token introspection we use a realm(workspace) name(myworkspace.caplan.com) from http header.
+  - valiants
+    - nginx: auth_request to oauth2proxy and rbac
+    - apache apisix: authz-keycloak module to call with requested permissions
+    - *golang: Nerzal/gocloak IntrospectToken=>permissions
+- perfomance
+  - needs: even though this an app for work and most users are active daily the most often requests (issue status/assignee change) are rare, lets say 1 request per 30 min. This way the throughput for 1kk active users will be approximately 1000000/30*60 ~ 500rps.
+  - limits: token introspection itself will limit the rps of gateway to ~5500 rps on 4core keycloak machine (~1400 per 1 core) which is more than we need in most cases
+- routing rest ro grpc microservices
+  - Keycloak
+    - P /auth =>REST(keycloak) {}=>{}
+    - G /auth =>REST(keycloak) {realm,clientId}=>{}
+  - Workspace
+
+  - Project
+    - P /projects =>auth() =>GRPC(Project, {}=>{}) =>Saga[Workspace(project:user(creator)), Search(new entry), Notification]
+    - G /projects =>auth() =>GRPC(Project, Rpc(Workspace(available projects)), {}=>{}[])
+    - G /projects/:id =>auth() =>GRPC(Project, {}=>{}) 
+    - P /projects/:id =>GRPC(Project) {} => {}
+    - D /projects/:id =>GRPC(Project) {} => {}
+  - Search
+    - G /search =>GRPC(search) {}=>{}
+  - Report
+    - G /reports =>GRPC(report) {}=>{}[]
+    - G /reports/:id =>GRPC(report) {}=>{}
+  - Notification
+    - P /notifications/push =>GRPC(notification) {tokens}=>{}
+    - G /notifications =>GRPC(notification) {}=>{}[]
+    - G /notifications/sse REST<=>GRPC_stream(notification) {}=>{}  
+
+
+
+GetRealmRolesByGroupID ?? RetrospectToken(=>permissions)
+
+
+
+
+
+
+
+
+
+
+P /workspaces {} => {}
+G /workspaces {} => {}[]
+G /workspaces/:id {} => {}
+P /workspaces/:id {} => {}
+D /workspaces/:id {} => {}
+
+P /roles {} => {}
+G /roles => {}[]
+G /roles/:id {} => {}
+P /roles/:id {} => {}
+D /roles/:id {} => {}
+
+P /users {} => {}
+G /users => {}[]
+G /users/:id {} => {}
+P /users/:id {} => {}
+D /users/:id {} => {}
+
+
+
+P /projects/:id/sprints =>GRPC(project_write) {} => {}
+G /projects/:id/sprints =>GRPC(project_read) {} => {}[]
+G /projects/:id/sprints/:id =>GRPC(project_read) {} => {}
+P /projects/:id/sprints/:id =>GRPC(project_write) {} => {}
+D /projects/:id/sprints/:id =>GRPC(project_write) {} => {}
+
+P /projects/:id/issues =>GRPC(project_write) {} => {}
+G /projects/:id/issues =>GRPC(project_read) {} => {}[]
+G /projects/:id/issues/:id =>GRPC(project_read) {} => {}
+P /projects/:id/issues/:id =>GRPC(project_write) {} => {}
+D /projects/:id/issues/:id =>GRPC(project_write) {} => {}
+P /projects/:id/issues/:id/comments =>GRPC(project_write) {} => {}
+G /projects/:id/issues/:id/comments =>GRPC(project_read) {} => {}[]
+G /projects/:id/issues/:id/comments/:id =>GRPC(project_read) {} => {}
+P /projects/:id/issues/:id/comments/:id =>GRPC(project_write) {} => {}
+D /projects/:id/issues/:id/comments/:id =>GRPC(project_write) {} => {}
+P /projects/:id/issues/:id/votes =>GRPC(project_write) {} => {}
+G /projects/:id/issues/:id/votes =>GRPC(project_read) {} => {}[]
+D /projects/:id/issues/:id/votes =>GRPC(project_write) {} => {}
+P /projects/:id/issues/:id/subscriptions =>GRPC(project_write) {} => {}
+G /projects/:id/issues/:id/subscriptions =>GRPC(project_read) {} => {}[]
+D /projects/:id/issues/:id/subscriptions =>GRPC(project_write) {} => {}
+G /projects/:id/issues/:id/history =>GRPC(project_read) {} => {}[]
 
 ## Features
 
@@ -117,6 +270,8 @@ Sample b2b agile task management app
     1. Reports. Used to analyze progress on a project, identify bottlenecks and predict future performance.
 
 ## Todo
+
+ddd, grpc, cqrs, clean arch
 
 - mvp
 - k8s
@@ -152,3 +307,9 @@ Sample b2b agile task management app
    ```sh
    make release
    ```
+
+### Fe
+
+/(auth ? available_workspaces : landing | /auth)
+/workspace
+/:workspaceId(opens in another tab)

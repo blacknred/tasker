@@ -6,6 +6,10 @@ version: '3.9'
 services:
   # data
 
+  rabbitmq:
+    profiles:
+      - none
+    
   redis:
     profiles:
       - none
@@ -14,11 +18,15 @@ services:
     profiles:
       - none
 
-  rabbitmq:
+  mongodb:
     profiles:
       - none
 
-  eventstore:
+  cassandra:
+    profiles:
+      - none
+  
+  clickhouse:
     profiles:
       - none
   
@@ -36,23 +44,10 @@ services:
     profiles:
       - none
 
-  sso-proxy:
-    profiles:
-      - none
-
   # apps
-
-  gateway:
-    image: taskapp/gateway-staging:${TAG:-latest}
 
   workspace-svc:
     image: taskapp/workspace-svc-staging:${TAG:-latest}
-
-  issue-command-svc:
-    image: taskapp/issue-command-svc-staging:${TAG:-latest}
-
-  issue-query-svc:
-    image: taskapp/issue-query-svc-staging:${TAG:-latest}
 
   notification-svc:
     image: taskapp/notification-svc-staging:${TAG:-latest}
@@ -62,3 +57,16 @@ services:
 
   report-svc:
     image: taskapp/report-svc-staging:${TAG:-latest}
+
+  project-command-svc:
+    image: taskapp/project-command-svc-staging:${TAG:-latest}
+
+  project-query-svc:
+    image: taskapp/project-query-svc-staging:${TAG:-latest}
+  
+  gateway:
+    image: taskapp/gateway-staging:${TAG:-latest}
+
+
+  
+

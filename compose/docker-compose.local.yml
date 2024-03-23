@@ -6,6 +6,12 @@ version: '3.9'
 services:
   # data
 
+  rabbitmq:
+    restart: unless-stopped
+    env_file: ../env.local
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq
+
   redis:
     restart: unless-stopped
     env_file: ../env.local
@@ -18,17 +24,23 @@ services:
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
 
-  rabbitmq:
+  mongodb:
     restart: unless-stopped
     env_file: ../env.local
     volumes:
-      - ./rabbitmq/data:/var/lib/rabbitmq
+      - ./mongodb/data:/data/db
 
-  eventstore:
+  cassandra:
     restart: unless-stopped
     env_file: ../env.local
     volumes:
-      - ./eventstore/data:/var/lib/eventstore
+      - ./cassandra/data:/var/lib/cassandra
+
+  clickhouse:
+    restart: unless-stopped
+    env_file: ../env.local
+    volumes:
+      - ./clickhouse/data:/var/lib/clickhouse/
 
   # sso
 
@@ -39,36 +51,17 @@ services:
     environment:
       - KC_HOSTNAME=localhost
 
-  sso-proxy:
-    restart: unless-stopped
-    env_file: ../env.local
-    environment:
-      - OAUTH2_PROXY_COOKIE_SECURE=false # no https
-      - OAUTH2_PROXY_COOKIE_DOMAINS=localhost # Required so cookie can be read on all subdomains
-      - OAUTH2_PROXY_WHITELIST_DOMAINS=localhost # Required to allow redirection back to original requested target
-
   # misc
 
   mailhog:
     image: mailhog/mailhog:latest
     restart: unless-stopped
     networks: [apps]
-    ports: [1025, 8025]
+    ports: [1025:1025, 8025:8025]
     healthcheck:
       test: exit 0
 
   # apps
-
-  gateway:
-    restart: unless-stopped
-    env_file: ../env.local
-    build: ../apps/gateway
-    volumes:
-      - ../apps/gateway/nginx:/etc/nginx:ro
-      - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
-    environment:
-      - HOST=localhost
-    depends_on: !reset []
 
   workspace-svc:
     restart: unless-stopped
@@ -82,38 +75,6 @@ services:
         - NODE_ENV=development
     volumes:
       - ../apps/workspace-svc:/usr/src/app/apps/workspace-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    depends_on: !reset []
-
-  issue-command-svc:
-    restart: unless-stopped
-    env_file: ../env.local
-    command: nest start:dev issue-command-svc
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=issue-command-svc
-        - NODE_ENV=development
-    volumes:
-      - ../apps/issue-command-svc:/usr/src/app/apps/issue-command-svc
-      - /usr/src/app/node_modules
-      - /usr/src/app/dist
-    depends_on: !reset []
-
-  issue-query-svc:
-    restart: unless-stopped
-    env_file: ../env.local
-    command: nest start:dev issue-query-svc
-    build:
-      context: ../
-      target: build
-      args:
-        - SERVICE_NAME=issue-query-svc
-        - NODE_ENV=development
-    volumes:
-      - ../apps/issue-query-svc:/usr/src/app/apps/issue-query-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
     depends_on: !reset []
@@ -164,4 +125,47 @@ services:
       - ../apps/report-svc:/usr/src/app/apps/report-svc
       - /usr/src/app/node_modules
       - /usr/src/app/dist
+    depends_on: !reset []
+
+  project-command-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev project-command-svc
+    build:
+      context: ../
+      target: build
+      args:
+        - SERVICE_NAME=project-command-svc
+        - NODE_ENV=development
+    volumes:
+      - ../apps/project-command-svc:/usr/src/app/apps/project-command-svc
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    depends_on: !reset []
+
+  project-query-svc:
+    restart: unless-stopped
+    env_file: ../env.local
+    command: nest start:dev project-query-svc
+    build:
+      context: ../
+      target: build
+      args:
+        - SERVICE_NAME=project-query-svc
+        - NODE_ENV=development
+    volumes:
+      - ../apps/project-query-svc:/usr/src/app/apps/project-query-svc
+      - /usr/src/app/node_modules
+      - /usr/src/app/dist
+    depends_on: !reset []
+
+  gateway:
+    restart: unless-stopped
+    env_file: ../env.local
+    build: ../apps/gateway
+    volumes:
+      - ../apps/gateway/nginx:/etc/nginx:ro
+      - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
+    environment:
+      - HOST=localhost
     depends_on: !reset []

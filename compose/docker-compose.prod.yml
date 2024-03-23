@@ -5,7 +5,107 @@ version: '3.9'
 # 2. use metrics exporters since there is enough load
 # 3. use load testing; backup prod data to revert it once testing is done
 
+volumes:
+  redis_slave_1_data:
+  postgres_slave_1_data:
+  mongodb_secondary_1_data:
+  mongodb_secondary_1_config:
+  cassandra_slave_1_data:
+
 services:
+  # data(backup replication)
+
+  redis_slave_1:
+    image: redis/redis-stack-server:latest
+    restart: always
+    networks: [apps]
+    ports: [6389:6379]
+    volumes:
+      - redis_slave_1_data:/data
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
+    healthcheck:
+      test: exit 0
+    depends_on:
+      - redis
+
+  postgres_slave_1:
+    image: bitnami/postgresql:16.2.0-debian-12-r5
+    restart: always
+    networks: [apps]
+    ports: [5442:5432]
+    volumes:
+      - postgres_slave_1_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER:-test}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-test}
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_PGAUDIT_LOG=READ
+      - POSTGRESQL_LOG_HOSTNAME=true
+      # readonly replication
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=repl_user
+      - POSTGRESQL_REPLICATION_PASSWORD=repl_user
+      - POSTGRESQL_MASTER_HOST=postgres
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+    healthcheck:
+      test: exit 0
+    depends_on:
+      - postgres
+
+  mongo_secondary_1:
+    image: mongo:7
+    restart: always
+    networks: [apps]
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports: [27018:27018]
+    command:
+      [
+        '--replSet',
+        'rs0',
+        '--keyFile',
+        '/etc/keyfile',
+        '--bind_ip_all',
+        '--port',
+        '27018',
+        '--wiredTigerCacheSizeGB',
+        '1.5',
+      ]
+    volumes:
+      - ./keyfile:/etc/keyfile
+      - mongodb_secondary_1_data:/data/db
+      - mongodb_secondary_1_config:/data/configdb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-test}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-test}
+      - MONGO_INITDB_DATABASE=projects
+    healthcheck:
+      test: exit 0
+
+  cassandra_slave_1:
+    image: cassandra:latest
+    restart: always
+    networks: [apps]
+    ports: [9043:9042]
+    volumes:
+      - cassandra_slave_1_data:/var/lib/cassandra
+    environment:
+      - CASSANDRA_USER=${CASSANDRA_USER:-test}
+      - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD:-test}
+      - CASSANDRA_SEEDS=cassandra,cassandra_slave_1
+      - CASSANDRA_CLUSTER_NAME=MyTestCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RACK1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_NUM_TOKENS=128
+    healthcheck:
+      test: exit 0
+    depends_on:
+      - cassandra
+
   # monitoring
 
   fluent-bit:
@@ -24,7 +124,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     restart: unless-stopped
     networks: [monitoring]
-    ports: [8081:8080]
+    ports: [8081:8081]
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -70,15 +170,17 @@ services:
           memory: 50M
           pids: 1
 
-  nginx-metrics-exporter:
-    image: nginx/nginx-prometheus-exporter:edge
+  redis-metrics-exporter:
+    # we use this since only redis enterprise has native prometheus support
+    image: oliver006/redis_exporter
     restart: unless-stopped
     networks: [monitoring]
-    ports: [9113]
+    ports: [9121]
     environment:
-      - nginx.scrape-uri=https://gateway:80/metrics
+      - REDIS_ADDR=${REDIS_HOST:-redis}/0:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-test}
     depends_on:
-      - gateway
+      - redis
     healthcheck:
       test: exit 0
     deploy:
@@ -114,17 +216,15 @@ services:
           memory: 50M
           pids: 1
 
-  redis-metrics-exporter:
-    # we use this since only redis enterprise has native prometheus supporting
-    image: oliver006/redis_exporter
+  mongo-metrics-exporter:
+    image: bitnami/mongodb-exporter:0.11.0-debian-10-r75
     restart: unless-stopped
     networks: [monitoring]
-    ports: [9121]
+    ports: [9216:9216]
     environment:
-      - REDIS_ADDR=redis:6379/0
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MONGODB_URI=mongodb://${MONGO_USER:-test}:${MONGO_PASSWORD:-test}@${MONGO_HOST:-mongo}:27017/?replicaSet=rs0
     depends_on:
-      - redis
+      - mongodb
     healthcheck:
       test: exit 0
     deploy:
@@ -140,23 +240,6 @@ services:
 
   # apps
 
-  gateway:
-    image: taskapp/gateway:${TAG:-latest}
-    depends_on:
-      - sso-proxy
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
   workspace-svc:
     image: taskapp/workspace-svc:${TAG:-latest}
     deploy:
@@ -171,37 +254,7 @@ services:
           cpus: '0.50'
           memory: 50M
           pids: 1
-
-  issue-command-svc:
-    image: taskapp/issue-command-svc:${TAG:-latest}
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
-  issue-query-svc:
-    image: taskapp/issue-query-svc:${TAG:-latest}
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-          pids: 1
-
+  
   notification-svc:
     image: taskapp/notification-svc:${TAG:-latest}
     deploy:
@@ -234,6 +287,51 @@ services:
 
   report-svc:
     image: taskapp/report-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  project-command-svc:
+    image: taskapp/project-command-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  project-query-svc:
+    image: taskapp/project-query-svc:${TAG:-latest}
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+          pids: 1
+
+  gateway:
+    image: taskapp/gateway:${TAG:-latest}
     deploy:
       mode: replicated
       replicas: 2

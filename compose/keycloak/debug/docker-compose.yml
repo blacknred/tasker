@@ -5,25 +5,44 @@
       name: main
 
   services:
-    mailhog:
-      image: mailhog/mailhog
-      networks: [ apps ]
-      ports: [ 1025, 8025 ]
-      logging:
-        driver: 'none'  # disable saving logs
+    postgres:
+      image: postgres:15beta2-alpine3.16
+      networks: [apps]
+      ports: [5432]
+      # volumes:
+      #   - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      #   - postgres_data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_USER=${POSTGRES_USER:-test}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test}
+
+    # mailhog:
+    #   image: mailhog/mailhog
+    #   networks: [ apps ]
+    #   ports: [ 1025, 8025 ]
+    #   logging:
+    #     driver: 'none'  # disable saving logs
 
     keycloak:
       image: quay.io/keycloak/keycloak:latest
       networks: [ apps ]
       ports: [ 8000:8080, 8443 ]
       volumes:
+        - ../realms:/opt/keycloak/data/import
         - ../keycloak-magic-link-0.19.jar:/opt/keycloak/providers/keycloak-magic-link-0.19.jar
       environment:
         - KEYCLOAK_ADMIN=${KEYCLOAK_USER:-test}
         - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASSWORD:-test}
         - KC_HOSTNAME=localhost
         - KC_HOSTNAME_PORT=8000
+
+        - KC_DB=postgres
+        - KC_DB_URL=jdbc:postgresql://postgres/test
+        - KC_DB_USERNAME=${POSTGRES_USER:-test}
+        - KC_DB_PASSWORD=${POSTGRES_PASSWORD:-test}
       command: start-dev --import-realm
       depends_on:
-        - mailhog
+        # - mailhog
+        - postgres
         
+

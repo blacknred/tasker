@@ -6,17 +6,8 @@ version: '3.9'
 services:
   # apps
 
-  gateway:
-    image: taskapp/gateway-dev:${TAG:-latest}
-
   workspace-svc:
     image: taskapp/workspace-svc-dev:${TAG:-latest}
-
-  issue-command-svc:
-    image: taskapp/issue-command-svc-dev:${TAG:-latest}
-
-  issue-query-svc:
-    image: taskapp/issue-query-svc-dev:${TAG:-latest}
 
   notification-svc:
     image: taskapp/notification-svc-dev:${TAG:-latest}
@@ -26,3 +17,12 @@ services:
 
   report-svc:
     image: taskapp/report-svc-dev:${TAG:-latest}
+
+  project-command-svc:
+    image: taskapp/project-command-svc-dev:${TAG:-latest}
+
+  project-query-svc:
+    image: taskapp/project-query-svc-dev:${TAG:-latest}
+
+  gateway:
+    image: taskapp/gateway-dev:${TAG:-latest}
