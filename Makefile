@@ -57,16 +57,6 @@ start-local-workspace-svc
 	@docker-compose build workspace-svc --no-cache $(c)
 	@docker-compose up workspace-svc
 
-start-local-issue-command-svc
-	$(MAKE) docker-local
-	@docker-compose build issue-command-svc --no-cache $(c)
-	@docker-compose up issue-command-svc
-
-start-local-issue-query-svc
-	$(MAKE) docker-local
-	@docker-compose build issue-query-svc --no-cache $(c)
-	@docker-compose up issue-query-svc
-
 start-local-notification-svc
 	$(MAKE) docker-local
 	@docker-compose build notification-svc --no-cache $(c)
@@ -81,6 +71,16 @@ start-local-report-svc
 	$(MAKE) docker-local
 	@docker-compose build report-svc --no-cache $(c)
 	@docker-compose up report-svc
+
+start-local-project-command-svc
+	$(MAKE) docker-local
+	@docker-compose build project-command-svc --no-cache $(c)
+	@docker-compose up project-command-svc
+
+start-local-project-query-svc
+	$(MAKE) docker-local
+	@docker-compose build project-query-svc --no-cache $(c)
+	@docker-compose up project-query-svc
 
 start-local
 	$(MAKE) docker-local

@@ -117,7 +117,7 @@ services:
     environment:
       - CASSANDRA_USER=${CASSANDRA_USER:-test}
       - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD:-test}
-      - CASSANDRA_SEEDS=cassandra,cassandra_slave_1
+      - CASSANDRA_SEEDS=cassandra,cassandra-02
       - CASSANDRA_CLUSTER_NAME=Notifications
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RACK1
@@ -137,9 +137,9 @@ services:
         soft: 262144
         hard: 262144
     volumes:
-      - ./clickhouse/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
-      - ./clickhouse/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml
-      - clickhouse-data:/var/lib/clickhouse/
+      - ./clickhouse/base/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/base/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml
+      - clickhouse_data:/var/lib/clickhouse/
     environment:
       - CLICKHOUSE_USER=${CLICKHOUSE_USER:-test}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-test}

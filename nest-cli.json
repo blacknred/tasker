@@ -9,24 +9,6 @@
     "tsConfigPath": "apps/workspace-svc/tsconfig.app.json"
   },
   "projects": {
-    "issue-command-svc": {
-      "type": "application",
-      "root": "apps/issue-command-svc",
-      "entryFile": "main",
-      "sourceRoot": "apps/issue-command-svc/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/issue-command-svc/tsconfig.app.json"
-      }
-    },
-    "issue-query-svc": {
-      "type": "application",
-      "root": "apps/issue-query-svc",
-      "entryFile": "main",
-      "sourceRoot": "apps/issue-query-svc/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/issue-query-svc/tsconfig.app.json"
-      }
-    },
     "notification-svc": {
       "type": "application",
       "root": "apps/notification-svc",
@@ -52,6 +34,24 @@
       "sourceRoot": "apps/report-svc/src",
       "compilerOptions": {
         "tsConfigPath": "apps/report-svc/tsconfig.app.json"
+      }
+    },
+    "project-command-svc": {
+      "type": "application",
+      "root": "apps/project-command-svc",
+      "entryFile": "main",
+      "sourceRoot": "apps/project-command-svc/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/project-command-svc/tsconfig.app.json"
+      }
+    },
+    "project-query-svc": {
+      "type": "application",
+      "root": "apps/project-query-svc",
+      "entryFile": "main",
+      "sourceRoot": "apps/project-query-svc/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/project-query-svc/tsconfig.app.json"
       }
     },
     "shared": {

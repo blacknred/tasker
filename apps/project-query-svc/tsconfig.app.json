@@ -3,16 +3,8 @@
   "compilerOptions": {
     "declaration": false,
     "sourceMap": true,
-    "outDir": "../../dist/apps/issue-command-svc"
+    "outDir": "../../dist/apps/project-query-svc"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
-  // "references": [
-  //   {
-  //     "path": "../../libs/core"
-  //   },
-  //   {
-  //     "path": "../../libs/shared"
-  //   }
-  // ]
 }

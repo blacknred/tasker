@@ -163,9 +163,9 @@ services:
     restart: unless-stopped
     env_file: ../env.local
     build: ../apps/gateway
-    volumes:
-      - ../apps/gateway/nginx:/etc/nginx:ro
-      - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
+    # volumes:
+    #   - ../apps/gateway/nginx:/etc/nginx:ro
+    #   - ../apps/gateway/jaeger-config.json:/etc/jaeger-config.json:ro
     environment:
       - HOST=localhost
     depends_on: !reset []

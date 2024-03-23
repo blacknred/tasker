@@ -271,10 +271,9 @@ G /projects/:id/issues/:id/history =>GRPC(project_read) {} => {}[]
 
 ## Todo
 
-ddd, grpc, cqrs, clean arch
-
 - mvp
 - k8s
+- ddd, clean arch
 - switch microservices to grpc
 - rewrite gateway to either
   - golang to implement http1.1 restapi <-> grpc and use sso without oauth2-proxy

@@ -6,22 +6,23 @@ version: '3.9'
 # 3. use load testing; backup prod data to revert it once testing is done
 
 volumes:
-  redis_slave_1_data:
-  postgres_slave_1_data:
-  mongodb_secondary_1_data:
-  mongodb_secondary_1_config:
-  cassandra_slave_1_data:
+  redis-02_data:
+  postgres-02_data:
+  mongodb-02_data:
+  mongodb-02_config:
+  cassandra-02_data:
+  clickhouse-02_data:
 
 services:
   # data(backup replication)
 
-  redis_slave_1:
+  redis-02:
     image: redis/redis-stack-server:latest
     restart: always
     networks: [apps]
     ports: [6389:6379]
     volumes:
-      - redis_slave_1_data:/data
+      - redis-02_data:/data
     environment:
       - REDIS_REPLICATION_MODE=slave
       - REDIS_ARGS="--requirepass \"$REDIS_PASSWORD\" --save 60 100 --loglevel warning"
@@ -31,13 +32,13 @@ services:
     depends_on:
       - redis
 
-  postgres_slave_1:
+  postgres-02:
     image: bitnami/postgresql:16.2.0-debian-12-r5
     restart: always
     networks: [apps]
     ports: [5442:5432]
     volumes:
-      - postgres_slave_1_data:/var/lib/postgresql/data
+      - postgres-02_data:/var/lib/postgresql/data
     environment:
       - POSTGRESQL_USERNAME=${POSTGRES_USER:-test}
       - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD:-test}
@@ -55,7 +56,7 @@ services:
     depends_on:
       - postgres
 
-  mongo_secondary_1:
+  mongo-02:
     image: mongo:7
     restart: always
     networks: [apps]
@@ -76,8 +77,8 @@ services:
       ]
     volumes:
       - ./keyfile:/etc/keyfile
-      - mongodb_secondary_1_data:/data/db
-      - mongodb_secondary_1_config:/data/configdb
+      - mongodb-02_data:/data/db
+      - mongodb-02_config:/data/configdb
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-test}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-test}
@@ -85,17 +86,17 @@ services:
     healthcheck:
       test: exit 0
 
-  cassandra_slave_1:
+  cassandra-02:
     image: cassandra:latest
     restart: always
     networks: [apps]
     ports: [9043:9042]
     volumes:
-      - cassandra_slave_1_data:/var/lib/cassandra
+      - cassandra-02_data:/var/lib/cassandra
     environment:
       - CASSANDRA_USER=${CASSANDRA_USER:-test}
       - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD:-test}
-      - CASSANDRA_SEEDS=cassandra,cassandra_slave_1
+      - CASSANDRA_SEEDS=cassandra,cassandra-02
       - CASSANDRA_CLUSTER_NAME=MyTestCluster
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RACK1
@@ -105,6 +106,72 @@ services:
       test: exit 0
     depends_on:
       - cassandra
+
+  clickhouse:
+    volumes:
+      - ./clickhouse/replication/server-01/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/replication/server-01/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml
+    depends_on:
+      - clickhouse-keeper-01
+      - clickhouse-keeper-02
+      - clickhouse-keeper-03
+
+  clickhouse-02:
+    image: clickhouse/clickhouse-server:head-alpine
+    restart: always
+    networks: [apps]
+    ports: [127.0.0.1:8123:8123, 127.0.0.1:9000:9000]
+    user: '101:101'
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - ./clickhouse/replication/server-02/config.d/config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/replication/server-02/users.d/users.xml:/etc/clickhouse-server/users.d/users.xml
+      - clickhouse-02_data:/var/lib/clickhouse/
+    environment:
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER:-test}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD:-test}
+    healthcheck:
+      test: exit 0
+    depends_on:
+      - clickhouse-keeper-01
+      - clickhouse-keeper-02
+      - clickhouse-keeper-03
+
+  clickhouse-keeper:
+    image: clickhouse/clickhouse-keeper:latest-alpine
+    restart: always
+    networks: [apps]
+    ports: [127.0.0.1:9181:9181]
+    user: '101:101'
+    volumes:
+      - ./clickhouse/replication/keeper-01/keeper_config.xml:/etc/clickhouse-keeper/keeper_config.xml
+    healthcheck:
+      test: exit 0
+
+  clickhouse-keeper-02:
+    image: clickhouse/clickhouse-keeper:latest-alpine
+    restart: always
+    networks: [apps]
+    ports: [127.0.0.1:9181:9181]
+    user: '101:101'
+    volumes:
+      - ./clickhouse/replication/keeper-02/keeper_config.xml:/etc/clickhouse-keeper/keeper_config.xml
+    healthcheck:
+      test: exit 0
+
+  clickhouse-keeper-03:
+    image: clickhouse/clickhouse-keeper:latest-alpine
+    restart: always
+    networks: [apps]
+    ports: [127.0.0.1:9181:9181]
+    user: '101:101'
+    volumes:
+      - ./clickhouse/replication/keeper-03/keeper_config.xml:/etc/clickhouse-keeper/keeper_config.xml
+    healthcheck:
+      test: exit 0
 
   # monitoring
 
@@ -254,7 +321,7 @@ services:
           cpus: '0.50'
           memory: 50M
           pids: 1
-  
+
   notification-svc:
     image: taskapp/notification-svc:${TAG:-latest}
     deploy:
